@@ -1,0 +1,31 @@
+.salon-date-range{position:relative;display:inline-block;min-width:220px}
+.salon-date-range-button{display:flex;align-items:center;gap:8px;width:100%;height:38px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;color:#243244;font:13px Arial;cursor:pointer;text-align:left}
+.salon-date-range-button:hover{border-color:#d1a228}
+.salon-date-range-button:focus-visible{outline:0;border-color:#d1a228;box-shadow:0 0 0 3px #f8f0d7}
+.salon-date-range-icon{display:grid;place-items:center;flex:none;color:#a77b12}
+.salon-date-range-icon svg{width:16px;height:16px}
+.salon-date-range-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.salon-date-range-chevron{flex:none;color:#7b8797;font-size:10px}
+.salon-date-range-popover{position:absolute;z-index:1200;top:calc(100% + 6px);left:0;width:308px;max-width:calc(100vw - 32px);padding:8px;border:1px solid #e1e7ee;border-radius:12px;background:#fff;box-shadow:0 16px 38px #1b2a3b24}
+.salon-date-range-popover[hidden]{display:none}
+.salon-date-range-presets{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.salon-date-range-preset{min-height:34px;padding:7px 9px;border:0;border-radius:7px;background:#fff;color:#344054;font:600 12px Arial;text-align:left;cursor:pointer}
+.salon-date-range-preset:hover{background:#f7f9fb}
+.salon-date-range-preset.active{background:#fff4d5;color:#765b14}
+.salon-date-range-preset:first-child{grid-column:1/-1;border:1px dashed #d9e0e7;text-align:center}
+.salon-date-range-calendar{margin-top:8px;padding-top:8px;border-top:1px solid #edf0f4}
+.salon-date-range-calendar[hidden]{display:none}
+.salon-date-range-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:2px 4px 7px}
+.salon-date-range-calendar-head strong{color:#243244;font:700 12px Arial}
+.salon-date-range-nav{display:grid;place-items:center;width:28px;height:28px;padding:0;border:1px solid #e1e7ee;border-radius:7px;background:#fff;color:#344054;font:700 15px Arial;cursor:pointer}
+.salon-date-range-nav:hover{background:#f7f9fb}
+.salon-date-range-helper{margin:0 0 6px;padding:0 4px;color:#758397;font:11px Arial}
+.salon-date-range-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.salon-date-range-day-name{display:grid;place-items:center;height:24px;color:#8a94a3;font:700 10px Arial;text-transform:uppercase}
+.salon-date-range-day{display:grid;place-items:center;height:32px;padding:0;border:0;border-radius:7px;background:#fff;color:#243244;font:12px Arial;cursor:pointer}
+.salon-date-range-day:hover{background:#fff8e5}
+.salon-date-range-day.muted{color:#c0c8d2}
+.salon-date-range-day.today{box-shadow:inset 0 0 0 1px #e5c867}
+.salon-date-range-day.in-range{background:#fdf6e3;border-radius:0}
+.salon-date-range-day.range-start,.salon-date-range-day.range-end{background:#c99a23;color:#fff;font-weight:700}
+@media(max-width:620px){.salon-date-range{width:100%}.salon-date-range-popover{left:0;width:min(308px,calc(100vw - 24px))}}

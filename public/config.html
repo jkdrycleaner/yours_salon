@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>YOURS SALON — Configuration</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
+    .container{width:100%;max-width:900px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
+    .heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:7px}
+    h1{font-size:21px;margin:0}
+    h2{font-size:16px;margin:0 0 12px}
+    .sub,.help{color:#737780;font-size:13px;line-height:1.5}
+    .sub{margin:0 0 20px}
+    .panel{padding:16px;margin:14px 0;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
+    .setting{display:flex;align-items:flex-start;gap:12px;padding:14px;background:#FFF;border:1px solid #E5E7EB;border-radius:8px}
+    .setting input{width:20px;height:20px;accent-color:#C49A32;flex:0 0 auto;margin:0;cursor:pointer}
+    .setting-copy{min-width:0}
+    .setting-copy strong{display:block;font-size:14px;line-height:1.4}
+    .help{display:block;font-size:12px;font-weight:400;margin-top:5px}
+    .date-rule{margin-top:12px;padding:14px;background:#FFF;border:1px solid #E5E7EB;border-radius:8px}
+    .date-rule-grid{display:grid;grid-template-columns:minmax(180px,1fr) minmax(230px,1.2fr);gap:12px}
+    .field{display:flex;flex-direction:column;gap:5px;min-width:0}
+    .field label{font-size:11px;font-weight:700;color:#555B64}
+    select,input[type=date]{width:100%;min-width:0;height:38px;padding:7px 9px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;font:13px Arial;color:#242424}
+    .date-add{display:flex;gap:8px}
+    .date-field{position:relative;flex:1;min-width:0}
+    .date-field input{position:relative;z-index:1;cursor:pointer;padding-right:36px}
+    .date-field input::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+    .date-field svg{position:absolute;right:10px;top:50%;width:18px;height:18px;transform:translateY(-50%);pointer-events:none;color:#6B7280;z-index:2}
+    .date-rule-help{margin:12px 0 0}
+    .date-table-wrap{margin-top:12px;overflow-x:auto;border:1px solid #E5E7EB;border-radius:9px;background:#FFF}
+    table{width:100%;border-collapse:collapse;min-width:620px}
+    th,td{padding:10px 11px;border-bottom:1px solid #EDEFF2;text-align:left;font-size:12px;vertical-align:middle}
+    th{background:#F7F8FA;color:#5B616B;font-size:11px;letter-spacing:.02em;text-transform:uppercase}
+    tbody tr:last-child td{border-bottom:0}
+    .employee-cell strong{display:block;font-size:12px;color:#242424}
+    .employee-cell span{display:block;margin-top:2px;color:#7A808A;font-size:11px}
+    .empty-dates{padding:22px 12px;text-align:center;color:#777;font-size:12px}
+    .remove-date{min-height:30px;padding:5px 10px;background:#FCEDEC;color:#9E3933;font-size:11px}
+    button,.back,.nav{display:inline-flex;align-items:center;justify-content:center;min-height:40px;border:0;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:700;text-align:center;text-decoration:none;cursor:pointer}
+    button{background:#C49A32;color:#211A0B}
+    button.secondary{background:#F0F1F3;color:#34383E}
+    button.compact{min-height:32px;padding:7px 12px;font-size:12px}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .actions{display:flex;justify-content:flex-end;margin-top:16px}
+    #status{display:none;margin-top:12px;padding:10px;border-radius:7px;font-size:13px}
+    #status.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
+    #status.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
+    @media(max-width:600px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:14px}.panel{padding:12px}.setting{padding:11px;gap:9px}.date-rule{padding:11px}.date-rule-grid{grid-template-columns:1fr}.actions .compact{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="heading-row">
+      <h1>Configuration</h1>
+      <button id="saveTop" class="compact" type="button" disabled>Save</button>
+    </div>
+    <p class="sub">Manage previous-date entry access. Each addition is saved immediately; today is always allowed.</p>
+    <section class="panel">
+      <h2>Entry Date</h2>
+      <div class="setting">
+        <input id="allowPreviousEntry" type="checkbox" aria-labelledby="allowPreviousEntryLabel">
+        <div class="setting-copy">
+          <strong id="allowPreviousEntryLabel">Allow previous-date entries</strong>
+          <span class="help">When this is off, employees can enter today only. Saved date rows remain below.</span>
+        </div>
+      </div>
+      <div class="date-rule">
+        <div class="date-rule-grid">
+          <div class="field">
+            <label for="dateEmployee">Employee</label>
+            <select id="dateEmployee"></select>
+          </div>
+          <div class="field">
+            <label for="allowedDateInput">Add previous date</label>
+            <div class="date-add">
+              <div id="dateField" class="date-field">
+                <input id="allowedDateInput" type="date" aria-label="Select previous date">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M7.5 2.8v3.4M16.5 2.8v3.4M3.5 9.2h17"/></svg>
+              </div>
+              <button id="addAllowedDate" class="secondary compact" type="button">Add</button>
+            </div>
+          </div>
+        </div>
+        <p id="dateRuleHelp" class="help date-rule-help"></p>
+        <div class="date-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Date</th>
+                <th>Added</th>
+                <th>Valid Till</th>
+                <th aria-label="Action"></th>
+              </tr>
+            </thead>
+            <tbody id="dateAccessBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    <div class="actions">
+      <button id="saveBottom" class="compact" type="button" disabled>Save</button>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+  </main>
+  <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script>
+  <script>
+    const statusBox=document.getElementById('status');
+    const saveButtons=[document.getElementById('saveTop'),document.getElementById('saveBottom')];
+    const allowPreviousEntryInput=document.getElementById('allowPreviousEntry');
+    const dateEmployeeSelect=document.getElementById('dateEmployee');
+    const dateField=document.getElementById('dateField');
+    const allowedDateInput=document.getElementById('allowedDateInput');
+    const addAllowedDateButton=document.getElementById('addAllowedDate');
+    const dateRuleHelp=document.getElementById('dateRuleHelp');
+    const dateAccessBody=document.getElementById('dateAccessBody');
+    let employees=[];
+    let permissions=[];
+    let dateAccessRows=[];
+    let todayDate='';
+    let selectedEmployeeId='';
+    let configLoaded=false;
+    let addingDate=false;
+
+    function authHeaders(json=true){
+      const headers={};
+      if(json)headers['Content-Type']='application/json';
+      const token=localStorage.getItem('salon_google_credential');
+      if(token)headers.Authorization='Bearer '+token;
+      return headers;
+    }
+
+    function showStatus(message,type){
+      statusBox.textContent=message;
+      statusBox.className=type;
+    }
+
+    function shiftIsoDate(value,days){
+      const date=new Date(`${value}T00:00:00.000Z`);
+      if(Number.isNaN(date.getTime()))return '';
+      date.setUTCDate(date.getUTCDate()+days);
+      return date.toISOString().slice(0,10);
+    }
+
+    function dateLabel(value){
+      const parts=String(value||'').split('-');
+      return parts.length===3?`${parts[2]}-${parts[1]}-${parts[0]}`:String(value||'');
+    }
+
+    function dateTimeLabel(value){
+      const date=new Date(value);
+      if(Number.isNaN(date.getTime()))return '';
+      return new Intl.DateTimeFormat('en-IN',{
+        timeZone:'Asia/Kolkata',day:'2-digit',month:'2-digit',year:'numeric',
+        hour:'2-digit',minute:'2-digit',hour12:true
+      }).format(date).replace(',',',');
+    }
+
+    function validTillLabel(value){
+      const date=new Date(value);
+      if(Number.isNaN(date.getTime()))return '';
+      return dateTimeLabel(new Date(date.getTime()-1));
+    }
+
+    function activeEmployees(){
+      return employees
+        .filter(employee=>employee.status==='Active')
+        .sort((left,right)=>left.employeeName.localeCompare(right.employeeName));
+    }
+
+    function selectedEmployee(){
+      return employees.find(employee=>employee._id===selectedEmployeeId)||null;
+    }
+
+    function renderDateRuleState(){
+      const enabled=allowPreviousEntryInput.checked;
+      allowedDateInput.disabled=!enabled;
+      addAllowedDateButton.disabled=!enabled||addingDate;
+      if(!enabled){
+        dateRuleHelp.textContent='Previous-date entries are off. Turn this on to add a date; existing rows stay saved.';
+        return;
+      }
+      const employee=selectedEmployee();
+      dateRuleHelp.textContent=employee
+        ? `Select any date in the calendar. It saves for ${employee.employeeName} immediately.`
+        : 'Add an active employee before selecting previous dates.';
+    }
+
+    function renderDateEmployeeOptions(){
+      const active=activeEmployees();
+      const previous=selectedEmployeeId;
+      dateEmployeeSelect.replaceChildren();
+      if(!active.length){
+        selectedEmployeeId='';
+        dateEmployeeSelect.disabled=true;
+        dateEmployeeSelect.add(new Option('No active employees',''));
+        renderDateRuleState();
+        return;
+      }
+      dateEmployeeSelect.disabled=false;
+      for(const employee of active){
+        dateEmployeeSelect.add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));
+      }
+      selectedEmployeeId=active.some(employee=>employee._id===previous)?previous:active[0]._id;
+      dateEmployeeSelect.value=selectedEmployeeId;
+      renderDateRuleState();
+    }
+
+    function renderDateAccessRows(){
+      dateAccessBody.replaceChildren();
+      if(!dateAccessRows.length){
+        const row=document.createElement('tr');
+        const cell=document.createElement('td');
+        cell.colSpan=5;
+        cell.className='empty-dates';
+        cell.textContent='No previous-date access saved.';
+        row.append(cell);
+        dateAccessBody.append(row);
+        return;
+      }
+      for(const access of dateAccessRows){
+        const row=document.createElement('tr');
+
+        const employeeCell=document.createElement('td');
+        employeeCell.className='employee-cell';
+        const name=document.createElement('strong');
+        name.textContent=access.employeeName||'Employee';
+        const code=document.createElement('span');
+        code.textContent=access.employeeCode||'';
+        employeeCell.append(name,code);
+
+        const dateCell=document.createElement('td');
+        dateCell.textContent=dateLabel(access.date);
+
+        const addedCell=document.createElement('td');
+        addedCell.textContent=dateTimeLabel(access.grantedAt);
+
+        const expiryCell=document.createElement('td');
+        expiryCell.textContent=validTillLabel(access.expiresAt);
+
+        const actionCell=document.createElement('td');
+        const remove=document.createElement('button');
+        remove.type='button';
+        remove.className='remove-date';
+        remove.textContent='Remove';
+        remove.setAttribute('aria-label',`Remove ${access.employeeName} access for ${dateLabel(access.date)}`);
+        remove.addEventListener('click',()=>removeDateAccess(access));
+        actionCell.append(remove);
+
+        row.append(employeeCell,dateCell,addedCell,expiryCell,actionCell);
+        dateAccessBody.append(row);
+      }
+    }
+
+    async function loadDateAccess(){
+      const response=await fetch('/api/date-access',{headers:authHeaders(false)});
+      const rows=await response.json();
+      if(!response.ok)throw new Error(rows.error||'Could not load previous-date access.');
+      dateAccessRows=Array.isArray(rows)?rows:[];
+      renderDateAccessRows();
+    }
+
+    async function addAllowedDate(){
+      if(addingDate)return;
+      if(!allowPreviousEntryInput.checked){
+        showStatus('Turn on previous-date entries first.','error');
+        return;
+      }
+      if(!selectedEmployeeId){
+        showStatus('Select an active employee first.','error');
+        return;
+      }
+      const value=allowedDateInput.value;
+      if(!value){
+        showStatus('Select a date to add.','error');
+        return;
+      }
+      if(value>=todayDate){
+        showStatus('Select a previous date. Today is already allowed.','error');
+        return;
+      }
+      addingDate=true;
+      renderDateRuleState();
+      showStatus('Saving date access...','success');
+      try{
+        const response=await fetch('/api/date-access',{
+          method:'POST',
+          headers:authHeaders(),
+          body:JSON.stringify({employeeId:selectedEmployeeId,date:value})
+        });
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Could not save date access.');
+        dateAccessRows=dateAccessRows.filter(access=>access._id!==result._id);
+        dateAccessRows.push(result);
+        dateAccessRows.sort((left,right)=>
+          right.date.localeCompare(left.date)||left.employeeName.localeCompare(right.employeeName)
+        );
+        allowedDateInput.value='';
+        renderDateAccessRows();
+        showStatus('Date access saved. It expires automatically after the allowed day.','success');
+      }catch(error){
+        showStatus(error.message||'Could not save date access.','error');
+      }finally{
+        addingDate=false;
+        renderDateRuleState();
+      }
+    }
+
+    async function removeDateAccess(access){
+      if(!window.confirm(`Remove ${access.employeeName}'s access for ${dateLabel(access.date)}?`))return;
+      try{
+        const response=await fetch(`/api/date-access/${encodeURIComponent(access._id)}`,{
+          method:'DELETE',
+          headers:authHeaders(false)
+        });
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Could not remove date access.');
+        dateAccessRows=dateAccessRows.filter(row=>row._id!==access._id);
+        renderDateAccessRows();
+        showStatus('Date access removed.','success');
+      }catch(error){
+        showStatus(error.message||'Could not remove date access.','error');
+      }
+    }
+
+    async function loadPage(){
+      const [configResponse,employeesResponse,dateAccessResponse]=await Promise.all([
+        fetch('/api/config',{headers:authHeaders(false)}),
+        fetch('/api/employees',{headers:authHeaders(false)}),
+        fetch('/api/date-access',{headers:authHeaders(false)})
+      ]);
+      const config=await configResponse.json();
+      const employeeData=await employeesResponse.json();
+      const dateAccessData=await dateAccessResponse.json();
+      if(!configResponse.ok)throw new Error(config.error||'Could not load configuration.');
+      if(!employeesResponse.ok)throw new Error(employeeData.error||'Could not load employees.');
+      if(!dateAccessResponse.ok)throw new Error(dateAccessData.error||'Could not load previous-date access.');
+      allowPreviousEntryInput.checked=config.allowPreviousEntry===true;
+      permissions=Array.isArray(config.permissions)?config.permissions:[];
+      employees=Array.isArray(employeeData)?employeeData:[];
+      dateAccessRows=Array.isArray(dateAccessData)?dateAccessData:[];
+      todayDate=config.todayDate||shiftIsoDate(new Date().toISOString().slice(0,10),0);
+      const yesterday=shiftIsoDate(todayDate,-1);
+      allowedDateInput.min=yesterday;
+      allowedDateInput.max=yesterday;
+      allowedDateInput.value=yesterday;
+      renderDateEmployeeOptions();
+      renderDateAccessRows();
+      configLoaded=true;
+      saveButtons.forEach(button=>button.disabled=false);
+    }
+
+    async function saveConfiguration(){
+      if(!configLoaded)return;
+      const allowPreviousEntry=allowPreviousEntryInput.checked;
+      saveButtons.forEach(button=>button.disabled=true);
+      showStatus('Saving configuration...','success');
+      try{
+        const response=await fetch('/api/config',{
+          method:'PUT',
+          headers:authHeaders(),
+          body:JSON.stringify({allowPreviousEntry,permissions})
+        });
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Could not save configuration.');
+        permissions=Array.isArray(result.permissions)?result.permissions:[];
+        showStatus('Configuration saved.','success');
+      }catch(error){
+        showStatus(error.message||'Could not save configuration.','error');
+      }finally{
+        saveButtons.forEach(button=>button.disabled=false);
+      }
+    }
+
+    allowPreviousEntryInput.addEventListener('change',renderDateRuleState);
+    dateEmployeeSelect.addEventListener('change',()=>{
+      selectedEmployeeId=dateEmployeeSelect.value;
+      renderDateRuleState();
+    });
+    addAllowedDateButton.addEventListener('click',addAllowedDate);
+    allowedDateInput.addEventListener('keydown',event=>{
+      if(event.key==='Enter'){
+        event.preventDefault();
+        addAllowedDate();
+      }
+    });
+    dateField.addEventListener('click',event=>{
+      if(event.target===allowedDateInput||!allowPreviousEntryInput.checked)return;
+      try{
+        allowedDateInput.showPicker();
+      }catch{
+        allowedDateInput.focus();
+      }
+    });
+    saveButtons.forEach(button=>button.addEventListener('click',saveConfiguration));
+    window.setInterval(()=>{
+      if(configLoaded&&document.visibilityState==='visible'){
+        loadDateAccess().catch(()=>{});
+      }
+    },30000);
+
+    loadPage().catch(error=>showStatus(error.message||'Could not load configuration.','error'));
+  </script>
+</body>
+</html>

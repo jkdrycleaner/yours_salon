@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#211A16">
+<title>Login — YOURS SALON</title>
+<style>
+:root{
+ --bg:#f7f5f2;--panel:#fff;--text:#171513;--muted:#6f6a64;--line:#ddd7cf;
+ --accent:#c9a227;--header:#211a16;--headerText:#fff;--card:#fff;
+ --btn-bg:#211a16;--btn-bg2:#c9a227;--btn-text:#fff;--btn-image:none;
+ --logo-width:64px;--logo-height:64px;--brand-size:34px;
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0}
+body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+button,input{font:inherit}button{cursor:pointer}
+.page{width:100%;height:100dvh;min-height:100dvh;padding:clamp(8px,1.5vw,18px);display:flex;align-items:center;justify-content:center}
+.shell{width:min(1000px,100%);height:min(640px,calc(100dvh - clamp(16px,3vw,32px)));display:grid;grid-template-columns:1fr 1fr;background:var(--panel);border-radius:clamp(16px,2vw,24px);overflow:hidden;box-shadow:0 25px 70px rgba(33,26,22,.13)}
+.visual{position:relative;min-width:0;min-height:0;background:#18130f;color:#fff;overflow:hidden}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .55s ease;background-position:center;background-size:cover;background-image:linear-gradient(135deg,#1c1712,#3a2f22 55%,#171310)}
+.slide.active{opacity:1;visibility:visible}
+.slide::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,8,6,.68),rgba(10,8,6,.24) 72%,rgba(10,8,6,.04))}
+.slide-content{position:absolute;z-index:2;left:8%;right:8%;top:9%;max-width:600px}
+.slide-title{font-family:Georgia,serif;font-size:clamp(30px,3.6vw,52px);line-height:1.05;font-weight:500;margin:0 0 10px}
+.slide-desc{font-size:clamp(12px,1.1vw,16px);line-height:1.5;color:#f6f0e7}
+.slider-nav{position:absolute;z-index:4;left:8%;right:8%;bottom:4%;display:flex;align-items:center;justify-content:space-between}
+.arrow{width:38px;height:38px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.13);backdrop-filter:blur(8px);color:#fff;border-radius:50%;font-size:20px;line-height:1}
+.dots{display:flex;gap:8px;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45);border:0;padding:0}
+.dot.active{width:23px;border-radius:8px;background:#fff}
+.login-panel{min-width:0;min-height:0;display:flex;padding:18px clamp(22px,3.4vw,44px);overflow-y:auto}
+.panel-inner{width:min(440px,100%);position:relative;display:flex;flex-direction:column;margin:auto;padding:22px 0 6px}
+.theme-toggle{position:absolute;right:0;top:0;display:flex;padding:3px;border:1px solid var(--line);border-radius:30px;background:var(--card)}
+.theme-toggle button{width:36px;height:30px;border:0;border-radius:20px;background:transparent;color:var(--muted);font-size:15px;line-height:1}
+.theme-toggle button.active{background:var(--header);color:var(--headerText)}
+.brand{text-align:center;margin:0 0 10px;flex:0 0 auto}
+.logo{width:var(--logo-width);height:var(--logo-height);margin:0 auto 6px;object-fit:contain;display:block}
+.brand h1{font-family:Georgia,serif;font-weight:500;font-size:var(--brand-size);line-height:1.05;letter-spacing:.04em;margin:0}
+.brand p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.welcome{text-align:center;margin-bottom:10px;flex:0 0 auto}
+.welcome h2{font-size:clamp(20px,1.8vw,23px);margin:0 0 4px}
+.welcome p{margin:0;color:var(--muted);font-size:13px}
+.field{margin-bottom:8px}
+.field label{display:block;font-size:12px;font-weight:650;margin:0 0 5px}
+.input-wrap{position:relative}
+.input-wrap input{width:100%;height:46px;padding:0 46px 0 14px;border:1px solid var(--line);border-radius:11px;background:var(--card);outline:0;color:var(--text)}
+.input-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+.eye{position:absolute;right:5px;top:5px;display:grid;place-items:center;width:36px;height:36px;border:0;background:transparent;color:var(--muted);border-radius:9px}
+.eye:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.eye svg{width:18px;height:18px}
+.eye .eye-off{display:none}
+.eye.eye--on .eye-on{display:none}
+.eye.eye--on .eye-off{display:block}
+.forgot-row{display:flex;justify-content:flex-end;align-items:center;margin:-2px 0 8px}
+.forgot-link{border:0;background:transparent;padding:3px 0;color:var(--accent);font-size:12px;font-weight:700}
+.forgot-link:hover{text-decoration:underline}
+.login-btn{width:100%;height:46px;border:0;border-radius:11px;background-color:var(--btn-bg);background-image:var(--btn-image);color:var(--btn-text);font-weight:700;font-size:14px}
+.login-btn:disabled{opacity:.65;cursor:wait}
+.or{display:flex;align-items:center;gap:12px;color:#9a938b;font-size:11px;margin:8px 0}
+.or::before,.or::after{content:"";height:1px;background:var(--line);flex:1}
+.methods-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.method-icon{position:relative;display:grid;place-items:center;height:42px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--text)}
+.method-icon:hover{border-color:var(--accent)}
+.method-icon svg{width:20px;height:20px}
+.method-icon .google{font-weight:800;color:#4285F4;font-size:17px}
+.soon-dot{position:absolute;top:6px;right:6px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.help{text-align:center;color:var(--muted);font-size:10px;margin:8px 0 0;line-height:1.4}
+.status{min-height:17px;text-align:center;margin-top:6px;font-size:12px;line-height:1.45;color:var(--muted)}
+.status.error{color:#a44337}
+.status.loading{color:#8a6d1b}
+.status.success{color:#2e7d32}
+.hint{margin:0 0 12px;color:var(--muted);font-size:12px;line-height:1.5;text-align:center}
+.back-link{border:0;background:transparent;color:var(--muted);padding:0;margin:0 0 10px;font-size:12px;font-weight:700}
+.back-link:hover{color:var(--accent)}
+.setup-note{margin:0 0 12px;padding:10px 12px;border:1px solid #e9d9aa;border-radius:9px;background:#fff9e9;color:#765b14;font-size:11px;line-height:1.5;text-align:left}
+body.dark{--bg:#100e0c;--panel:#1a1715;--text:#f5f0e9;--muted:#aaa198;--line:#39332e;--card:#211d1a}
+body.dark .login-btn{color:var(--btn-text)}
+body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
+@media(max-width:900px){
+ .page{padding:0;align-items:stretch}
+ .shell{width:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;box-shadow:none}
+ .visual{height:28dvh;min-height:150px;flex:0 0 28dvh}
+ .slide-content{top:10%;left:7%;right:7%}
+ .slide-title{font-size:clamp(25px,6.6vw,36px)}
+ .slide-desc{font-size:12px}
+ .slider-nav{bottom:8%;left:7%;right:7%}
+ .arrow{width:34px;height:34px;font-size:19px}
+ .login-panel{flex:1;padding:10px 16px 8px;overflow-y:auto}
+ .panel-inner{width:min(520px,100%);margin:auto;padding-top:20px;padding-bottom:2px}
+ .brand{margin:0 0 8px}
+ .brand p{font-size:12px;margin-top:4px}
+ .welcome{margin-bottom:8px}
+ .welcome h2{font-size:19px;margin-bottom:3px}
+ .welcome p{font-size:12px}
+ .field{margin-bottom:7px}
+ .field label{font-size:11px;margin-bottom:4px}
+ .input-wrap input{height:42px;font-size:13px}
+ .eye{height:32px;width:34px;top:5px;right:4px}
+ .eye svg{width:17px;height:17px}
+ .login-btn{height:42px;font-size:13px}
+ .or{margin:7px 0;font-size:11px}
+ .method-icon{height:38px}
+ .help{font-size:10px;margin-top:6px}
+}
+@media(max-width:420px) and (max-height:760px){
+ .visual{height:26dvh;min-height:140px;flex-basis:26dvh}
+ .brand h1{letter-spacing:.02em}
+ .method-icon{height:36px}
+ .input-wrap input,.login-btn{height:40px}
+}
+</style>
+</head>
+<body>
+<div class="page"><div class="shell">
+<section class="visual">
+<div id="slides"></div>
+<div class="slider-nav">
+<button class="arrow" id="prevSlide" type="button" aria-label="Previous slide">‹</button>
+<div class="dots" id="dots"></div>
+<button class="arrow" id="nextSlide" type="button" aria-label="Next slide">›</button>
+</div>
+</section>
+
+<section class="login-panel"><div class="panel-inner">
+<div class="theme-toggle" id="themeToggle">
+<button id="lightBtn" type="button" aria-label="Light theme">☀</button><button id="darkBtn" type="button" aria-label="Dark theme">☾</button>
+</div>
+
+<div class="brand">
+<img class="logo" id="logo" alt="" hidden>
+<h1 id="brandName">YOURS SALON</h1><p id="brandDescription">Salon Management System</p>
+</div>
+
+<div class="welcome"><h2 id="loginTitle">Welcome Back</h2><p id="loginSubtitle">Sign in to continue to your account</p></div>
+
+<form id="loginForm" novalidate>
+  <div class="field"><label for="userId">User ID / Email</label><div class="input-wrap"><input id="userId" name="userId" autocomplete="username" required maxlength="100"></div></div>
+  <div class="field"><label for="password">Password</label><div class="input-wrap">
+    <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="200">
+    <button type="button" class="eye" data-target="password" aria-label="Show password" aria-pressed="false">
+      <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0112 5c6.4 0 10 7 10 7a17.4 17.4 0 01-3.2 4.1"/><path d="M6.6 6.6C4 8.3 2 12 2 12s3.6 7 10 7a10.9 10.9 0 004.3-.9"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+    </button>
+  </div></div>
+  <div class="forgot-row"><button type="button" class="forgot-link" id="forgotLink">Forgot Password?</button></div>
+  <button class="login-btn" id="loginBtn" type="submit">Login →</button>
+</form>
+
+<form id="forgotForm" hidden novalidate>
+  <button type="button" class="back-link" id="forgotBack">‹ Back to login</button>
+  <div id="forgotStepOne">
+    <p class="hint">Confirm your employee code and User ID to reset the password.</p>
+    <div class="field"><label for="forgotEmployeeId">Employee Code</label><div class="input-wrap"><input id="forgotEmployeeId" maxlength="100" autocomplete="off"></div></div>
+    <div class="field"><label for="forgotUserId">User ID</label><div class="input-wrap"><input id="forgotUserId" maxlength="100" autocomplete="username"></div></div>
+    <button class="login-btn" id="forgotVerifyBtn" type="submit">Continue</button>
+  </div>
+  <div id="forgotStepTwo" hidden>
+    <p class="hint">Identity verified. Set a new password (8 or more characters).</p>
+    <div class="field"><label for="forgotPassword">New Password</label><div class="input-wrap">
+      <input id="forgotPassword" type="password" autocomplete="new-password" minlength="8" maxlength="200">
+      <button type="button" class="eye" data-target="forgotPassword" aria-label="Show new password" aria-pressed="false">
+        <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0112 5c6.4 0 10 7 10 7a17.4 17.4 0 01-3.2 4.1"/><path d="M6.6 6.6C4 8.3 2 12 2 12s3.6 7 10 7a10.9 10.9 0 004.3-.9"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+      </button>
+    </div></div>
+    <div class="field"><label for="forgotConfirm">Confirm Password</label><div class="input-wrap">
+      <input id="forgotConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="200">
+      <button type="button" class="eye" data-target="forgotConfirm" aria-label="Show confirmation password" aria-pressed="false">
+        <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0112 5c6.4 0 10 7 10 7a17.4 17.4 0 01-3.2 4.1"/><path d="M6.6 6.6C4 8.3 2 12 2 12s3.6 7 10 7a10.9 10.9 0 004.3-.9"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+      </button>
+    </div></div>
+    <button class="login-btn" id="forgotResetBtn" type="submit">Reset Password</button>
+  </div>
+</form>
+
+<form id="setupForm" hidden novalidate>
+  <p class="setup-note">First run: create the administrator from this computer. This one-time setup is restricted to localhost.</p>
+  <div class="field"><label for="setupUserId">Administrator User ID</label><div class="input-wrap"><input id="setupUserId" autocomplete="username" minlength="3" maxlength="100" pattern="[A-Za-z0-9][A-Za-z0-9._-]*"></div></div>
+  <div class="field"><label for="setupPassword">Administrator Password (12+ characters)</label><div class="input-wrap">
+    <input id="setupPassword" type="password" autocomplete="new-password" minlength="12" maxlength="200">
+    <button type="button" class="eye" data-target="setupPassword" aria-label="Show administrator password" aria-pressed="false">
+      <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0112 5c6.4 0 10 7 10 7a17.4 17.4 0 01-3.2 4.1"/><path d="M6.6 6.6C4 8.3 2 12 2 12s3.6 7 10 7a10.9 10.9 0 004.3-.9"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+    </button>
+  </div></div>
+  <div class="field"><label for="confirmPassword">Confirm Password</label><div class="input-wrap">
+    <input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="200">
+    <button type="button" class="eye" data-target="confirmPassword" aria-label="Show confirmation password" aria-pressed="false">
+      <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0112 5c6.4 0 10 7 10 7a17.4 17.4 0 01-3.2 4.1"/><path d="M6.6 6.6C4 8.3 2 12 2 12s3.6 7 10 7a10.9 10.9 0 004.3-.9"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+    </button>
+  </div></div>
+  <button class="login-btn" id="setupBtn" type="submit">Create Administrator</button>
+</form>
+
+<div id="status" class="status" role="status" aria-live="polite"></div>
+
+<div id="methods">
+  <div class="or" id="orBlock">OR</div>
+  <div class="methods-row" id="methodsRow">
+    <button class="method-icon" id="googleBtn" type="button" title="Login with Google" aria-label="Login with Google"><span class="google">G</span></button>
+    <button class="method-icon" id="mobileBtn" type="button" title="Login with Mobile No. (coming soon)" aria-label="Login with Mobile No. — coming soon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg><span class="soon-dot"></span></button>
+    <button class="method-icon" id="faceBtn" type="button" title="Login with Face (coming soon)" aria-label="Login with Face — coming soon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 10h.01M15.5 10h.01M8.5 14.5c1 1.2 2.1 1.8 3.5 1.8s2.5-.6 3.5-1.8"/></svg><span class="soon-dot"></span></button>
+  </div>
+</div>
+<p class="help" id="helpText">Authorized salon staff only.</p>
+</div></section>
+</div></div>
+
+<script>
+const tokenKey='salon_google_credential';
+const statusBox=document.getElementById('status');
+const loginForm=document.getElementById('loginForm');
+const forgotForm=document.getElementById('forgotForm');
+const setupForm=document.getElementById('setupForm');
+const methodsBlock=document.getElementById('methods');
+const passwordLoginEnabled={value:true};
+let resetToken='';
+let slideTimer=null;
+let setupRequired=false;
+
+function showStatus(message,type){
+  statusBox.textContent=message||'';
+  statusBox.className='status'+(type?' '+type:'');
+}
+function authHeaders(){const token=localStorage.getItem(tokenKey);return token?{Authorization:'Bearer '+token}:{}}
+async function request(url,options={}){
+  const response=await fetch(url,options);
+  let result={};
+  try{result=await response.json()}catch{}
+  if(!response.ok){
+    const error=new Error(result.error||'Request failed.');
+    error.status=response.status;
+    error.payload=result;
+    throw error;
+  }
+  return result;
+}
+function portalPath(employee){return employee.role==='Admin'?'/admin-dashboard':'/employee-dashboard'}
+function hexToRgb(hex){return{r:parseInt(hex.slice(1,3),16),g:parseInt(hex.slice(3,5),16),b:parseInt(hex.slice(5,7),16)}}
+function readableText(hex){
+  const color=hexToRgb(hex);
+  const luminance=(0.299*color.r+0.587*color.g+0.114*color.b)/255;
+  return luminance>0.62?'#211A16':'#FFFFFF';
+}
+function applyButtonStyle(style,first,second){
+  const root=document.documentElement.style;
+  const color1=/^#[0-9a-f]{6}$/i.test(String(first))?first:'#211A16';
+  const color2=/^#[0-9a-f]{6}$/i.test(String(second))?second:'#C9A227';
+  root.setProperty('--btn-bg',color1);
+  root.setProperty('--btn-bg2',color2);
+  root.setProperty('--btn-text',readableText(color1));
+  root.setProperty('--btn-image',String(style).toLowerCase()==='mix'
+    ?`linear-gradient(135deg, ${color1}, ${color2})`
+    :'none');
+}
+function applyBranding(branding){
+  if(!branding)return;
+  const login=branding.login||{};
+  const name=branding.name||'YOURS SALON';
+  document.getElementById('brandName').textContent=name;
+  document.getElementById('brandDescription').textContent=branding.description||'Salon Management System';
+  document.title='Sign in — '+name;
+  if(branding.logoUrl){
+    const logo=document.getElementById('logo');
+    logo.src=branding.logoUrl;
+    logo.hidden=false;
+  }
+  if(branding.faviconUrl){
+    let favicon=document.querySelector('link[rel="icon"]');
+    if(!favicon){favicon=document.createElement('link');favicon.rel='icon';document.head.appendChild(favicon)}
+    favicon.href=branding.faviconUrl;
+  }
+  const root=document.documentElement.style;
+  const colors=login.colors||{};
+  if(/^#[0-9a-f]{6}$/i.test(colors.accent||''))root.setProperty('--accent',colors.accent);
+  if(/^#[0-9a-f]{6}$/i.test(colors.header||''))root.setProperty('--header',colors.header);
+  if(/^#[0-9a-f]{6}$/i.test(colors.headerText||''))root.setProperty('--headerText',colors.headerText);
+  if(/^#[0-9a-f]{6}$/i.test(colors.body||''))root.setProperty('--bg',colors.body);
+  if(/^#[0-9a-f]{6}$/i.test(colors.card||''))root.setProperty('--card',colors.card);
+  const logoWidth=Number(login.logoWidth)||64;
+  const logoHeight=Number(login.logoHeight)||64;
+  const nameSize=Number(login.nameSize)||34;
+  root.setProperty('--logo-width',logoWidth+'px');
+  root.setProperty('--logo-height',logoHeight+'px');
+  root.setProperty('--brand-size',nameSize+'px');
+  applyButtonStyle(login.buttonStyle,login.buttonColor,login.buttonColor2);
+  const savedTheme=localStorage.getItem('salon_login_theme');
+  const defaultTheme=String(login.theme||'Combination').toLowerCase()==='dark'?'dark':'light';
+  setTheme(savedTheme||defaultTheme,false);
+  renderSlides(login.slides||[],Number(login.slideDuration)||4000,name,branding.tagline);
+  passwordLoginEnabled.value=login.showPassword!==false;
+  loginForm.hidden=!passwordLoginEnabled.value||setupRequired;
+  const showGoogle=login.showGoogle!==false;
+  const showMobile=login.showMobile!==false;
+  const showFace=login.showFace!==false;
+  document.getElementById('googleBtn').hidden=!showGoogle;
+  document.getElementById('mobileBtn').hidden=!showMobile;
+  document.getElementById('faceBtn').hidden=!showFace;
+  const shownMethods=[showGoogle,showMobile,showFace].filter(Boolean).length;
+  const methodsRow=document.getElementById('methodsRow');
+  methodsRow.style.gridTemplateColumns=shownMethods?`repeat(${shownMethods},minmax(0,1fr))`:'1fr';
+  document.getElementById('orBlock').hidden=shownMethods===0;
+}
+
+let slides=[],dots=[],currentSlide=0,slideDuration=4000;
+function renderSlides(items,duration,brandName,tagline){
+  const slidesHost=document.getElementById('slides');
+  slidesHost.replaceChildren();
+  document.getElementById('dots').replaceChildren();
+  slides=[];dots=[];currentSlide=0;slideDuration=duration;
+  const list=items.length?items:[{image:'',title:brandName||'YOURS SALON',description:tagline||''}];
+  list.forEach((item,index)=>{
+    const element=document.createElement('div');
+    element.className='slide'+(index===0?' active':'');
+    if(item.image){
+      const probe=new Image();
+      probe.onload=()=>{element.style.backgroundImage=`url("${item.image}")`};
+      probe.src=item.image;
+    }
+    const content=document.createElement('div');
+    content.className='slide-content';
+    if(item.title){const heading=document.createElement('h2');heading.className='slide-title';heading.textContent=item.title;content.appendChild(heading)}
+    if(item.description){const description=document.createElement('div');description.className='slide-desc';description.textContent=item.description;content.appendChild(description)}
+    element.appendChild(content);
+    slidesHost.appendChild(element);
+    slides.push(element);
+    const dot=document.createElement('button');
+    dot.type='button';dot.className='dot'+(index===0?' active':'');
+    dot.setAttribute('aria-label','Go to slide '+(index+1));
+    dot.addEventListener('click',()=>showSlide(index,true));
+    document.getElementById('dots').appendChild(dot);
+    dots.push(dot);
+  });
+  const multiple=slides.length>1;
+  document.getElementById('prevSlide').hidden=!multiple;
+  document.getElementById('nextSlide').hidden=!multiple;
+  document.getElementById('dots').hidden=!multiple;
+  restartSlider();
+}
+function showSlide(index,manual){
+  if(!slides.length)return;
+  currentSlide=(index+slides.length)%slides.length;
+  slides.forEach((slide,position)=>slide.classList.toggle('active',position===currentSlide));
+  dots.forEach((dot,position)=>dot.classList.toggle('active',position===currentSlide));
+  if(manual)restartSlider();
+}
+function restartSlider(){
+  clearInterval(slideTimer);
+  if(slides.length>1)slideTimer=setInterval(()=>showSlide(currentSlide+1),slideDuration);
+}
+document.getElementById('prevSlide').addEventListener('click',()=>showSlide(currentSlide-1,true));
+document.getElementById('nextSlide').addEventListener('click',()=>showSlide(currentSlide+1,true));
+
+function setTheme(theme,save){
+  const dark=theme==='dark';
+  document.body.classList.toggle('dark',dark);
+  document.getElementById('lightBtn').classList.toggle('active',!dark);
+  document.getElementById('darkBtn').classList.toggle('active',dark);
+  if(save)localStorage.setItem('salon_login_theme',dark?'dark':'light');
+}
+document.getElementById('lightBtn').addEventListener('click',()=>setTheme('light',true));
+document.getElementById('darkBtn').addEventListener('click',()=>setTheme('dark',true));
+
+document.querySelectorAll('.eye').forEach(button=>{
+  button.addEventListener('click',()=>{
+    const input=document.getElementById(button.dataset.target);
+    if(!input)return;
+    const show=input.type==='password';
+    input.type=show?'text':'password';
+    button.classList.toggle('eye--on',show);
+    button.setAttribute('aria-pressed',String(show));
+    button.setAttribute('aria-label',(show?'Hide ':'Show ')+(input.labels?.[0]?.textContent||'password').toLowerCase());
+    input.focus();
+  });
+});
+
+async function loadBranding(){
+  try{
+    applyBranding(await request('/api/shop-branding'));
+  }catch(error){
+    showStatus(error.message,'error');
+  }
+}
+
+function showLoginView(){
+  forgotForm.hidden=true;
+  forgotForm.querySelector('#forgotStepOne').hidden=false;
+  forgotForm.querySelector('#forgotStepTwo').hidden=true;
+  resetToken='';
+  document.getElementById('forgotPassword').value='';
+  document.getElementById('forgotConfirm').value='';
+  loginForm.hidden=!passwordLoginEnabled.value;
+  showStatus('');
+}
+
+document.getElementById('forgotLink').addEventListener('click',()=>{
+  loginForm.hidden=true;
+  forgotForm.hidden=false;
+  forgotForm.querySelector('#forgotStepOne').hidden=false;
+  forgotForm.querySelector('#forgotStepTwo').hidden=true;
+  resetToken='';
+  showStatus('');
+  document.getElementById('forgotEmployeeId').focus();
+});
+document.getElementById('forgotBack').addEventListener('click',showLoginView);
+
+loginForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const userIdField=document.getElementById('userId');
+  const passwordField=document.getElementById('password');
+  const userId=userIdField.value.trim();
+  const password=passwordField.value;
+  if(!userId){showStatus('Please enter User ID / Email.','error');userIdField.focus();return}
+  if(!password){showStatus('Please enter password.','error');passwordField.focus();return}
+  const button=document.getElementById('loginBtn');
+  button.disabled=true;button.textContent='Signing in...';
+  showStatus('Checking your account...','loading');
+  try{
+    const result=await request('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,password})});
+    localStorage.setItem(tokenKey,result.token);
+    localStorage.setItem('salon_user_email',result.employee.userId);
+    if(result.employee.mustChangePassword){location.replace('/password-change');return}
+    location.replace(portalPath(result.employee));
+  }catch(error){
+    showStatus(error.message,'error');
+    if(error.payload?.blocked){
+      passwordField.value='';
+      document.getElementById('forgotLink').style.textDecoration='underline';
+    }
+  }finally{
+    button.disabled=false;button.textContent='Login →';
+  }
+});
+
+forgotForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const stepTwo=document.getElementById('forgotStepTwo');
+  if(stepTwo.hidden){
+    const employeeId=document.getElementById('forgotEmployeeId').value.trim();
+    const userId=document.getElementById('forgotUserId').value.trim();
+    if(!employeeId){showStatus('Please enter your employee code.','error');return}
+    if(!userId){showStatus('Please enter your User ID.','error');return}
+    const button=document.getElementById('forgotVerifyBtn');
+    button.disabled=true;button.textContent='Checking...';
+    showStatus('Verifying employee details...','loading');
+    try{
+      const result=await request('/api/forgot-password/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({employeeId,userId})});
+      resetToken=result.token;
+      document.getElementById('forgotStepOne').hidden=true;
+      stepTwo.hidden=false;
+      showStatus('Employee code and User ID verified. Set a new password.','success');
+      document.getElementById('forgotPassword').focus();
+    }catch(error){
+      showStatus(error.message,'error');
+    }finally{
+      button.disabled=false;button.textContent='Continue';
+    }
+    return;
+  }
+  const newPassword=document.getElementById('forgotPassword').value;
+  const confirmPassword=document.getElementById('forgotConfirm').value;
+  if(newPassword.length<8){showStatus('New password must be at least 8 characters.','error');return}
+  if(newPassword!==confirmPassword){showStatus('Passwords do not match.','error');return}
+  const button=document.getElementById('forgotResetBtn');
+  button.disabled=true;button.textContent='Resetting...';
+  showStatus('Resetting your password...','loading');
+  try{
+    const result=await request('/api/forgot-password/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:resetToken,newPassword})});
+    showStatus(result.message||'Password reset successfully.','success');
+    document.getElementById('userId').value=document.getElementById('forgotUserId').value.trim();
+    setTimeout(()=>{
+      showLoginView();
+      document.getElementById('password').focus();
+    },1200);
+  }catch(error){
+    showStatus(error.message,'error');
+  }finally{
+    button.disabled=false;button.textContent='Reset Password';
+  }
+});
+
+setupForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const password=document.getElementById('setupPassword').value;
+  if(password!==document.getElementById('confirmPassword').value){showStatus('Passwords do not match.','error');return}
+  const button=document.getElementById('setupBtn');
+  button.disabled=true;button.textContent='Creating...';
+  showStatus('Creating the administrator account...','loading');
+  try{
+    const result=await request('/api/setup-admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      userId:document.getElementById('setupUserId').value,password
+    })});
+    localStorage.setItem(tokenKey,result.token);
+    localStorage.setItem('salon_user_email',result.employee.userId);
+    location.replace('/admin-dashboard');
+  }catch(error){
+    showStatus(error.message,'error');
+  }finally{
+    button.disabled=false;button.textContent='Create Administrator';
+  }
+});
+
+document.getElementById('googleBtn').addEventListener('click',()=>showStatus('Google sign-in is not enabled. Use User ID and password.','error'));
+document.getElementById('mobileBtn').addEventListener('click',()=>showStatus('Mobile login is coming soon.','loading'));
+document.getElementById('faceBtn').addEventListener('click',()=>showStatus('Face login is coming soon.','loading'));
+
+async function loadSetupStatus(){
+  try{
+    const result=await request('/api/setup-status');
+    if(result.setupRequired){
+      setupRequired=true;
+      loginForm.hidden=true;
+      forgotForm.hidden=true;
+      methodsBlock.hidden=true;
+      setupForm.hidden=false;
+      showStatus('First-run setup: create the administrator account.','loading');
+    }
+  }catch(error){
+    showStatus(error.message,'error');
+  }
+}
+async function continueSession(){
+  const token=localStorage.getItem(tokenKey);
+  if(!token)return;
+  try{
+    const session=await request('/api/session',{headers:authHeaders()});
+    if(session.employee.mustChangePassword){location.replace('/password-change');return}
+    location.replace(portalPath(session.employee));
+  }catch{
+    localStorage.removeItem(tokenKey);
+    localStorage.removeItem('salon_user_email');
+  }
+}
+
+loadBranding();
+loadSetupStatus();
+continueSession();
+</script>
+</body>
+</html>

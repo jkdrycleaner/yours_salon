@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Employee List - YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/table-view.css">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
+    .container{width:100%;max-width:1180px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    h1{font-size:21px;margin:0}
+    .sub{color:#737780;font-size:13px;line-height:1.5;margin:7px 0 18px}
+    .toolbar{display:flex;align-items:end;flex-wrap:wrap;justify-content:space-between;gap:10px;padding:13px;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:11px}
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{font-size:11px;font-weight:700;color:#656B74}
+    .field select{height:38px;min-width:150px;padding:8px 10px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;color:#242424;font:13px Arial}
+    .actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+    button,.link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;border:0;border-radius:8px;padding:8px 13px;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer}
+    button{background:#C49A32;color:#211A0B}
+    button.secondary,.link{background:#F0F1F3;color:#34383E}
+    button.danger{background:#FCEDEC;color:#9E3933}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .link.add{background:#C49A32;color:#211A0B}
+    [hidden]{display:none!important}
+    .table-wrap{margin-top:15px;overflow:auto;border:1px solid #E5E7EB;border-radius:9px;background:#FFF}
+    table{border-collapse:collapse;width:100%;min-width:1180px;font-size:12px}
+    th,td{text-align:left;padding:10px;border-bottom:1px solid #ECEDEF;white-space:nowrap}
+    th{background:#F7F8FA;color:#555B64;font-size:11px}
+    tbody tr:last-child td{border-bottom:0}
+    .badge{display:inline-block;padding:4px 7px;border-radius:99px;background:#E9F6F1;color:#286B53;font-weight:700;font-size:10px}
+    .badge.inactive{background:#FCEDEC;color:#9E3933}
+    .row-inactive td{color:#9E3933}
+    .row-inactive td.sticky-action{background:#FFF9F8}
+    .photo{color:#8B6914}
+    .photo-thumbnail{width:36px;height:36px;object-fit:cover;border:1px solid #E5E7EB;border-radius:6px}
+    .row-actions{display:flex;gap:5px}
+    .row-actions button,.row-actions .link{min-height:29px;padding:5px 8px;font-size:11px}
+    .select-column{width:38px;text-align:center;padding-left:10px;padding-right:10px}
+    .select-column input{width:16px;height:16px;margin:0;accent-color:#C49A32;cursor:pointer}
+    .bulk-bar{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:12px;padding:10px 12px;border:1px solid #E5E7EB;border-radius:9px;background:#FAFAFB;font-size:12px;color:#555B64}
+    .bulk-bar[hidden]{display:none}
+    .bulk-bar strong{color:#242424}
+    .bulk-bar button{min-height:32px;padding:6px 11px;font-size:11px}
+    .bulk-bar .delete{background:#9E3933;color:#FFF}
+    .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    #status{display:none;margin-top:12px;padding:10px;border-radius:7px;font-size:13px;white-space:pre-line}
+    #status.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
+    #status.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
+    #emptyState{padding:20px;text-align:center;color:#737780;font-size:13px}
+    @media(max-width:720px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.toolbar{align-items:stretch;flex-direction:column}.field select,.actions>*{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header><div><h1>Employee List</h1><p class="sub">View employees and manage their details. Use Add Employee to create a new employee.</p></div></header>
+
+    <section class="toolbar">
+      <div class="field"><label for="statusFilter">Status</label><select id="statusFilter"><option value="Active">Active</option><option value="All">All</option><option value="Inactive">In-Active</option></select></div>
+      <div class="actions"><a class="link add" href="/employee-entry">Add Employee</a></div>
+    </section>
+
+    <div id="bulkBar" class="bulk-bar" hidden>
+      <span><strong id="selectedCount">0</strong> employee(s) selected</span>
+      <button id="bulkDelete" class="danger delete" type="button" disabled>Delete Selected Permanently</button>
+      <button id="clearSelection" class="secondary" type="button" disabled>Clear Selection</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="employeeTable" data-table-view data-column-preferences-version="5">
+        <thead><tr id="employeeHeaderRow">
+          <th>SR</th><th data-default-visible>Employee ID</th><th data-default-visible>Employee Name</th><th>Email address</th><th data-default-visible>Mobile Number</th>
+          <th data-default-visible>Status</th><th>Joining Date</th><th>Date of Birth</th><th>PAN No.</th><th>Aadhaar Card No.</th>
+          <th>Address</th><th>City</th><th>State</th><th>Pin</th><th>Alternate Mobile No.</th>
+          <th>Expense Types</th><th>User ID</th><th>Role</th><th>Salary Rule</th><th>Photo</th><th data-default-visible>Entry Creation On</th>
+          <th class="sticky-action">Actions</th>
+        </tr></thead>
+        <tbody id="employeeRows"></tbody>
+      </table>
+      <div id="emptyState">Loading employees...</div>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+  </main>
+  <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script>
+  <script>
+    const statusBox=document.getElementById('status');
+    const rowsElement=document.getElementById('employeeRows');
+    const emptyState=document.getElementById('emptyState');
+    const statusFilter=document.getElementById('statusFilter');
+    const bulkBar=document.getElementById('bulkBar'),selectedCount=document.getElementById('selectedCount'),bulkDeleteButton=document.getElementById('bulkDelete'),clearSelectionButton=document.getElementById('clearSelection');
+    let employees=[];
+    let employeeFields=[];
+    let session=null;
+    let selectedIds=new Set();
+    let selectAllCheckbox=null;
+
+    function authHeaders(json=true){
+      const headers={};
+      if(json)headers['Content-Type']='application/json';
+      const token=localStorage.getItem('salon_google_credential');
+      if(token)headers.Authorization='Bearer '+token;
+      return headers;
+    }
+
+    function showStatus(message,type){
+      statusBox.textContent=message;
+      statusBox.className=type||'';
+    }
+
+    function addCell(row,value){
+      const cell=document.createElement('td');
+      cell.textContent=value===undefined||value===null?'':String(value);
+      row.append(cell);
+      return cell;
+    }
+
+    function dateTimeText(value){
+      if(!value)return'—';
+      const date=new Date(value);
+      return Number.isNaN(date.getTime())?'—':date.toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+    }
+
+    function canBulkDelete(){return session?.employee?.accountType==='Super Admin'}
+
+    function updateEmployeeBulkBar(){
+      const can=canBulkDelete();
+      if(!can)selectedIds.clear();
+      bulkBar.hidden=!can;
+      selectedCount.textContent=String(selectedIds.size);
+      bulkDeleteButton.disabled=!can||selectedIds.size===0;
+      clearSelectionButton.disabled=!can||selectedIds.size===0;
+      if(selectAllCheckbox){
+        const selectedOnPage=employees.filter(employee=>selectedIds.has(String(employee._id))).length;
+        selectAllCheckbox.checked=employees.length>0&&selectedOnPage===employees.length;
+        selectAllCheckbox.indeterminate=selectedOnPage>0&&selectedOnPage<employees.length;
+      }
+    }
+
+    function clearEmployeeSelection(){
+      selectedIds.clear();
+      rowsElement.querySelectorAll('input[data-employee-select]').forEach(checkbox=>{checkbox.checked=false});
+      updateEmployeeBulkBar();
+    }
+
+    function employeeSelectionCell(employee){
+      const cell=document.createElement('td'),checkbox=document.createElement('input');
+      cell.className='select-column';checkbox.type='checkbox';checkbox.dataset.employeeSelect='true';
+      checkbox.checked=selectedIds.has(String(employee._id));
+      checkbox.setAttribute('aria-label',`Select ${employee.employeeName}`);
+      checkbox.addEventListener('change',()=>{
+        const id=String(employee._id);
+        if(checkbox.checked)selectedIds.add(id);else selectedIds.delete(id);
+        updateEmployeeBulkBar();
+      });
+      cell.append(checkbox);return cell;
+    }
+
+    async function deleteSelectedEmployees(){
+      if(!canBulkDelete()||selectedIds.size===0)return;
+      const selectedEmployees=employees.filter(employee=>selectedIds.has(String(employee._id)));
+      const count=selectedEmployees.length;
+      const hasAdmin=selectedEmployees.some(employee=>employee.role==='Admin');
+      let question=`Permanently delete ${count} employee(s)? Their employee records, collection entries, permissions and date access will also be deleted. This cannot be undone.`;
+      if(hasAdmin)question+=`\n\nThe selection includes ${selectedEmployees.filter(employee=>employee.role==='Admin').length} Admin account(s). Type DELETE to continue.`;
+      const answer=hasAdmin?window.prompt(question,''):(window.confirm(question)?'DELETE':'');
+      if(answer!=='DELETE')return;
+      bulkDeleteButton.disabled=true;statusBox.className='';
+      try{
+        const result=await salonAuth.request('/api/super-admin/bulk-delete',{
+          method:'POST',
+          body:JSON.stringify({module:'employee',ids:[...selectedIds]})
+        });
+        selectedIds.clear();
+        await loadEmployees();
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Employees permanently deleted.');
+        else showStatus('Employees permanently deleted.','success');
+      }catch(error){
+        showStatus(error.message||'Could not permanently delete the selected employees.','error');
+      }finally{
+        updateEmployeeBulkBar();
+      }
+    }
+
+    function renderEmployees(){
+      const headerRow=document.getElementById('employeeHeaderRow');
+      let selectHeader=headerRow.querySelector('[data-bulk-select]');
+      if(canBulkDelete()){
+        if(!selectHeader){
+          selectHeader=document.createElement('th');
+          selectHeader.className='select-column';
+          selectHeader.dataset.bulkSelect='true';
+          selectHeader.dataset.fixedColumn='true';
+          const checkbox=document.createElement('input');
+          checkbox.type='checkbox';
+          checkbox.setAttribute('aria-label','Select all employees');
+          checkbox.addEventListener('change',()=>{
+            for(const employee of employees){
+              if(checkbox.checked)selectedIds.add(String(employee._id));
+              else selectedIds.delete(String(employee._id));
+            }
+            rowsElement.querySelectorAll('input[data-employee-select]').forEach(rowCheckbox=>{
+              rowCheckbox.checked=checkbox.checked;
+            });
+            updateEmployeeBulkBar();
+          });
+          const label=document.createElement('span');
+          label.className='visually-hidden';
+          label.textContent='Select';
+          selectHeader.append(checkbox,label);
+          headerRow.prepend(selectHeader);
+        }
+        selectAllCheckbox=selectHeader.querySelector('input');
+      }else{
+        selectAllCheckbox=null;
+        selectedIds.clear();
+        if(selectHeader)selectHeader.remove();
+      }
+      for(const header of headerRow.querySelectorAll('[data-custom-header]'))header.remove();
+      const actionsHeader=headerRow.lastElementChild;
+      for(const field of employeeFields){
+        const header=document.createElement('th');
+        header.dataset.customHeader='true';
+        header.dataset.defaultVisible='true';
+        header.textContent=field.label;
+        actionsHeader.before(header);
+      }
+      rowsElement.replaceChildren();
+      emptyState.hidden=employees.length>0;
+      emptyState.textContent=employees.length?'':'No employees found for this filter.';
+      for(const employee of employees){
+        const row=document.createElement('tr');
+        if(employee.status!=='Active')row.className='row-inactive';
+        if(canBulkDelete())row.append(employeeSelectionCell(employee));
+        addCell(row,employee.sr);
+        addCell(row,employee.employeeId);
+        addCell(row,employee.employeeName);
+        addCell(row,employee.emailAddress);
+        addCell(row,employee.mobileNumber);
+        const statusCell=addCell(row,'');
+        const badge=document.createElement('span');
+        badge.className='badge'+(employee.status==='Active'?'':' inactive');
+        badge.textContent=employee.status==='Active'?'Active':'In-Active';
+        statusCell.append(badge);
+        for(const field of ['joiningDate','dateOfBirth','panNumber','aadhaarCardNumber','address','city','state','pinCode','alternateMobileNumber']){
+          addCell(row,employee[field]);
+        }
+        addCell(row,employee.expenseType);
+        addCell(row,employee.userId);
+        addCell(row,employee.role);
+        addCell(row,employee.salaryMode==='fixed'
+          ?`Fixed ₹${Number(employee.fixedMonthlySalary||0).toLocaleString('en-IN')}/month`
+          :`${Number(employee.salaryPercentage??50)}% of collection`);
+        const photoCell=addCell(row,'');
+        if(employee.photoUrl){
+          if(employee.photoUrl.startsWith('data:image/')){
+            const image=document.createElement('img');
+            image.className='photo-thumbnail';
+            image.src=employee.photoUrl;
+            image.alt=`${employee.employeeName} photo`;
+            photoCell.append(image);
+          }else{
+            const link=document.createElement('a');
+            link.className='photo';
+            link.href=employee.photoUrl;
+            link.target='_blank';
+            link.rel='noopener noreferrer';
+            link.textContent='Open photo';
+            photoCell.append(link);
+          }
+        }
+        addCell(row,dateTimeText(employee.createdAt));
+        for(const field of employeeFields)addCell(row,employee.customFields?.[field.key]||'');
+        const actionsCell=addCell(row,'');
+        actionsCell.className='sticky-action';
+        const actions=document.createElement('div');
+        actions.className='row-actions';
+        const edit=document.createElement('a');
+        edit.className='link';
+        edit.textContent='Edit';
+        edit.href=`/employee-entry?edit=${encodeURIComponent(employee._id)}`;
+        actions.append(edit);
+        if(employee.status==='Active'){
+          const deactivate=document.createElement('button');
+          deactivate.type='button';
+          deactivate.className='danger';
+          deactivate.textContent='Deactivate';
+          deactivate.addEventListener('click',()=>deactivateEmployee(employee));
+          actions.append(deactivate);
+        }
+        actionsCell.append(actions);
+        rowsElement.append(row);
+      }
+      updateEmployeeBulkBar();
+    }
+
+    async function loadEmployees(){
+      const response=await fetch(`/api/employees?status=${encodeURIComponent(statusFilter.value)}`,{headers:authHeaders(false)});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'Could not load employees.');
+      employees=result;
+      renderEmployees();
+    }
+
+    async function loadEmployeeFields(){
+      const response=await fetch('/api/employee-fields',{headers:authHeaders(false)});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'Could not load employee custom fields.');
+      employeeFields=result.filter(field=>!['mobileno','mobilenumber'].includes(
+        String(field.label).trim().toLowerCase().replace(/[^a-z0-9]/g,'')
+      ));
+      renderEmployees();
+    }
+
+    async function deactivateEmployee(employee){
+      if(!window.confirm(`Deactivate ${employee.employeeName}?`))return;
+      try{
+        const response=await fetch(`/api/employees/${encodeURIComponent(employee._id)}/deactivate`,{
+          method:'PATCH',
+          headers:authHeaders(false)
+        });
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Could not deactivate employee.');
+        await loadEmployees();
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess('Employee deactivated.');
+        else showStatus('Employee deactivated.','success');
+      }catch(error){
+        showStatus(error.message||'Could not deactivate employee.','error');
+      }
+    }
+
+    statusFilter.addEventListener('change',()=>{
+      clearEmployeeSelection();
+      loadEmployees().catch(error=>showStatus(error.message,'error'));
+    });
+    clearSelectionButton.addEventListener('click',clearEmployeeSelection);
+    bulkDeleteButton.addEventListener('click',deleteSelectedEmployees);
+
+    (async()=>{
+      session=await window.salonReady;
+      if(!session)return;
+      updateEmployeeBulkBar();
+      await loadEmployeeFields();
+      await loadEmployees();
+    })().catch(error=>{
+      emptyState.hidden=false;
+      emptyState.textContent='Could not load employee data.';
+      showStatus(error.message||'Could not load employee data.','error');
+    });
+  </script>
+  <script src="/table-view.js"></script>
+</body>
+</html>

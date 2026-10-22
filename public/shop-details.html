@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>YOURS SALON — Shop Details</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <style>
+    *{box-sizing:border-box}
+     body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
+     .container{width:100%;max-width:1000px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
+    .logo{font-size:24px;font-weight:700;color:#A77B12;margin-bottom:18px;border-bottom:1px solid #ECEDEF;padding-bottom:12px}
+    .logo span{color:#C49A32}
+    h1{font-size:21px;margin:0}
+    h2{font-size:16px;margin:0}
+    .sub,.help{color:#737780;font-size:13px;line-height:1.5}
+    .sub{margin:7px 0 18px}
+    .panel{padding:16px;margin:14px 0;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
+    .panel p{margin:7px 0 14px;color:#737780;font-size:12px;line-height:1.5}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .field{display:flex;min-width:0;flex-direction:column;gap:5px}
+    .field label{font-size:12px;font-weight:700;color:#555B64}
+    .field input,.field select{width:100%;min-width:0;height:40px;padding:8px 10px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;color:#242424;font:inherit}
+    .field input[type=color]{padding:4px}
+    .field input:focus,.field select:focus{outline:0;border-color:#C49A32;box-shadow:0 0 0 3px rgba(196,154,50,.14)}
+    .actions{display:flex;gap:9px;justify-content:flex-end;margin-top:16px}
+    button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:10px 15px;border:0;border-radius:9px;background:#C49A32;color:#211A0B;font-size:13px;font-weight:700;cursor:pointer}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    #status{display:none;margin-top:12px;padding:10px;border-radius:7px;font-size:13px}
+    #status.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
+    #status.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
+    .note{padding:12px;background:#FFF9E9;border:1px solid #E9D9AA;border-radius:8px;color:#765B14;font-size:12px;line-height:1.5}
+    @media(max-width:600px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.form-grid{grid-template-columns:1fr}.actions{position:sticky;bottom:0;margin:16px -18px -18px;padding:12px 18px;background:rgba(255,255,255,.96);border-top:1px solid #ECEDEF}.actions button{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="container">
+     <h1>Shop Details</h1>
+    <p class="sub">Manage shop branding and dashboard/login appearance. These settings are stored for the login page setup.</p>
+    <p class="note">The form is based on Book1.xlsx. Changes are saved in MongoDB and applied to the login page, brand sizes, button style and the action buttons across the app.</p>
+
+    <section class="panel">
+      <h2>Shop identity</h2>
+      <p>Salon name, description and logo used to identify the shop.</p>
+      <div class="form-grid" id="identityFields"></div>
+    </section>
+    <section class="panel">
+      <h2>Dashboard appearance</h2>
+      <p>Theme colors and dashboard header options.</p>
+      <div class="form-grid" id="dashboardFields"></div>
+    </section>
+    <section class="panel">
+      <h2>Login page</h2>
+      <p>Login page logo size, brand name size, theme, promotional slides, sign-in methods and button style.</p>
+      <div class="form-grid" id="loginFields"></div>
+    </section>
+    <div class="actions">
+      <button id="saveButton" type="button">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 4h12l3 3v13H4V4z"/><path d="M8 4v6h8V4M8 20v-6h8v6"/></svg>
+        <span>Save Details</span>
+      </button>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+  </main>
+  <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script><script src="/btn-theme.js"></script>
+  <script>
+    const groups={
+      identity:['Brand Name','Brand Description','Tagline','Logo URL','Favicon URL'],
+      dashboard:['Theme Mode','Header Style','Header Color','Accent Color','Header Text Color','Body Background','Card Background','Button Style','Button Color','Button Color 2','Show Search','Show Notification Bell','Show User Profile','Show Date & Time'],
+      login:['Login Logo Width','Login Logo Height','Login Name Font Size','Login Page Theme','Login Slide 1 Image','Login Slide 1 Title','Login Slide 1 Description','Login Slide 2 Image','Login Slide 2 Title','Login Slide 2 Description','Login Slide 3 Image','Login Slide 3 Title','Login Slide 3 Description','Login Slide Duration','Show Google Login','Show Mobile Login','Show Face Login','Show Password Login']
+    };
+    const statusBox=document.getElementById('status');
+    const saveButton=document.getElementById('saveButton');
+
+    function authHeaders(json=true){
+      const headers={};
+      if(json)headers['Content-Type']='application/json';
+      const token=localStorage.getItem('salon_google_credential');
+      if(token)headers.Authorization='Bearer '+token;
+      return headers;
+    }
+
+    function addField(container,key,value){
+      const wrapper=document.createElement('div');
+      wrapper.className='field';
+      const label=document.createElement('label');
+      label.textContent=key;
+      const selectOptions=key.startsWith('Show ')?['Yes','No']
+        :key==='Login Page Theme'?['Light','Dark','Combination']
+        :key==='Button Style'?['Solid','Mix']
+        :null;
+      const input=document.createElement(selectOptions?'select':'input');
+      input.dataset.setting=key;
+      input.id=`setting-${key.toLowerCase().replace(/[^a-z0-9]+/g,'-')}`;
+      label.htmlFor=input.id;
+      if(selectOptions){
+        for(const optionValue of selectOptions)input.add(new Option(optionValue,optionValue));
+      }else if(/Color( \d+)?$/.test(key)){
+        input.type='color';
+      }else if(/URL$|Image$/.test(key)){
+        input.type='url';
+        input.placeholder='https://';
+      }else if(key==='Login Slide Duration'){
+        input.type='number';
+        input.min='1000';
+        input.max='60000';
+        input.step='500';
+      }else if(key==='Login Logo Width'||key==='Login Logo Height'||key==='Login Name Font Size'){
+        input.type='number';
+        input.min=key==='Login Name Font Size'?'16':'24';
+        input.max=key==='Login Name Font Size'?'72':'200';
+        input.step='1';
+      }else{
+        input.type='text';
+        input.maxLength=2000;
+      }
+      input.value=String(value??'');
+      wrapper.append(label,input);
+      container.append(wrapper);
+    }
+
+    function renderSettings(settings){
+      for(const [group,keys] of Object.entries(groups)){
+        const container=document.getElementById(`${group}Fields`);
+        container.replaceChildren();
+        for(const key of keys)addField(container,key,settings[key]);
+      }
+    }
+
+    function showStatus(message,type){
+      statusBox.textContent=message;
+      statusBox.className=type;
+    }
+
+    async function loadDetails(){
+      const response=await fetch('/api/shop-details',{headers:authHeaders(false)});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'Could not load shop details.');
+      renderSettings(result.settings);
+    }
+
+    saveButton.addEventListener('click',async()=>{
+      const settings=Object.fromEntries([...document.querySelectorAll('[data-setting]')].map(input=>[
+        input.dataset.setting,input.value
+      ]));
+      saveButton.disabled=true;
+      showStatus('Saving shop details...','success');
+      try{
+        const response=await fetch('/api/shop-details',{
+          method:'PUT',
+          headers:authHeaders(),
+          body:JSON.stringify({settings})
+        });
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Could not save shop details.');
+        renderSettings(result.settings);
+        if(window.salonApplyButtonTheme)window.salonApplyButtonTheme(result.settings);
+        showStatus('Shop details saved successfully.','success');
+      }catch(error){
+        showStatus(error.message||'Could not save shop details.','error');
+      }finally{
+        saveButton.disabled=false;
+      }
+    });
+
+    loadDetails().catch(error=>showStatus(error.message||'Could not load shop details.','error'));
+  </script>
+</body>
+</html>

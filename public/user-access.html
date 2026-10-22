@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>User Access - YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1100px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.employee-bar{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin-top:18px;padding:13px;background:#fafbfc;border:1px solid #e6ebf0;border-radius:11px}.field{display:flex;flex-direction:column;gap:5px;min-width:240px}.field label{font-size:11px;color:#526176;font-weight:700}.field select{height:38px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.employee-bar .actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}.employee-bar button{min-height:38px;padding:8px 14px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.employee-bar button.secondary{background:#eff2f5;color:#344054}.employee-bar button:disabled{opacity:.55;cursor:not-allowed}.access-grid{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(0,1.6fr);gap:14px;margin-top:15px}.card{padding:15px;border:1px solid #e1e7ee;border-radius:12px;background:#fff}.card h2{margin:0 0 4px;font-size:15px}.card .help{margin:0 0 12px;color:#758397;font-size:11px;line-height:1.4}.page-list{display:grid;gap:5px;max-height:440px;overflow:auto;padding-right:4px}.option{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;background:#fafbfc;font-size:12px;cursor:pointer}.option:hover{background:#f5f7fa}.option input{width:16px;height:16px;margin:0;accent-color:#c99a23;flex:none}.option.disabled{opacity:.65;cursor:not-allowed}.option small{margin-left:auto;color:#8a94a3;font-size:10px}.actions-table{width:100%;border-collapse:collapse;font-size:12px}.actions-table th,.actions-table td{padding:9px 8px;border-bottom:1px solid #edf0f4;text-align:center;white-space:nowrap}.actions-table th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}.actions-table th:first-child,.actions-table td:first-child{text-align:left}.actions-table input{width:16px;height:16px;margin:0;accent-color:#c99a23}.status{display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px}.status.show{display:block;background:#eaf8f1;color:#286b53}.status.error{display:block;background:#fff0ef;color:#a13932}.empty{padding:22px;text-align:center;color:#758397;font-size:13px}@media(max-width:800px){.access-grid{grid-template-columns:1fr}.employee-bar .actions{margin-left:0;width:100%}.employee-bar button{flex:1}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <div class="heading"><h1>User Access</h1><p>Choose which pages and actions each employee can use. Admin users always keep full access.</p></div>
+      <div class="employee-bar">
+        <div class="field"><label for="employeeSelect">Employee</label><select id="employeeSelect"><option value="">Select employee</option></select></div>
+        <div class="actions"><button id="saveAccess" type="button" disabled>Save Access</button><button id="resetAccess" class="secondary" type="button" disabled>Reset to Default</button><button id="resetPassword" class="secondary" type="button" disabled>Reset Password</button></div>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <div id="empty" class="empty">Loading employees...</div>
+      <div id="accessPanels" hidden>
+        <div class="access-grid">
+          <section class="card">
+            <h2>Page Access</h2>
+            <p class="help">Uncheck a page to hide it from the employee navigation and block direct access.</p>
+            <div id="pageList" class="page-list"></div>
+          </section>
+          <section class="card">
+            <h2>Action Rights</h2>
+            <p class="help">Add, View, Edit, Delete and Deactivate rights are checked separately for each module.</p>
+            <div style="overflow:auto">
+              <table class="actions-table">
+                <thead><tr><th>Module</th><th>Add</th><th>View</th><th>Edit</th><th>Delete</th><th>Deactivate</th></tr></thead>
+                <tbody id="actionRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js"></script>
+  <script>
+    const employeeSelect=document.getElementById('employeeSelect'),statusBox=document.getElementById('status'),empty=document.getElementById('empty'),accessPanels=document.getElementById('accessPanels'),pageList=document.getElementById('pageList'),actionRows=document.getElementById('actionRows'),saveButton=document.getElementById('saveAccess'),resetButton=document.getElementById('resetAccess'),resetPasswordButton=document.getElementById('resetPassword');
+    let data=null,rules=new Map(),currentId='';
+
+    function showStatus(message,error=false){
+      statusBox.textContent=message;
+      statusBox.className='status show'+(error?' error':'');
+    }
+
+    function pageCheckboxes(pages){
+      pageList.replaceChildren();
+      for(const page of data.pages.filter(item=>!item.adminOnly)){
+        const label=document.createElement('label');
+        label.className='option'+(page.key==='dashboard'?' disabled':'');
+        const checkbox=document.createElement('input');
+        checkbox.type='checkbox';
+        checkbox.dataset.pageKey=page.key;
+        checkbox.checked=pages.has(page.key);
+        if(page.key==='dashboard'){checkbox.checked=true;checkbox.disabled=true;}
+        const text=document.createElement('span');
+        text.textContent=page.label;
+        label.append(checkbox,text);
+        pageList.append(label);
+      }
+    }
+
+    function actionCheckboxes(moduleAccess){
+      actionRows.replaceChildren();
+      for(const module of data.actions.filter(item=>!item.adminOnly)){
+        const row=document.createElement('tr');
+        const name=document.createElement('td');
+        name.textContent=module.label;
+        row.append(name);
+        const values=moduleAccess[module.key]||{};
+        for(const action of ['add','view','edit','delete','deactivate']){
+          const cell=document.createElement('td');
+          const checkbox=document.createElement('input');
+          checkbox.type='checkbox';
+          checkbox.dataset.module=module.key;
+          checkbox.dataset.action=action;
+          checkbox.checked=values[action]===true;
+          cell.append(checkbox);
+          row.append(cell);
+        }
+        actionRows.append(row);
+      }
+    }
+
+    function applyEmployee(employeeId){
+      currentId=employeeId;
+      const enabled=Boolean(employeeId);
+      saveButton.disabled=!enabled;
+      resetButton.disabled=!enabled;
+      resetPasswordButton.disabled=!enabled;
+      accessPanels.hidden=!enabled;
+      if(!enabled)return;
+      const rule=rules.get(employeeId);
+      const defaults=data.defaults?.[employeeId]||{pages:{},actions:{}};
+      const pages=rule
+        ?new Set(rule.pages)
+        :new Set(Object.keys(defaults.pages).filter(key=>defaults.pages[key]===true));
+      const moduleAccess={};
+      for(const module of data.actions.filter(item=>!item.adminOnly)){
+        moduleAccess[module.key]=rule
+          ?((rule.actions||[]).find(item=>item.module===module.key)||{})
+          :(defaults.actions?.[module.key]||{});
+      }
+      pageCheckboxes(pages);
+      actionCheckboxes(moduleAccess);
+    }
+
+    function collectedAccess(){
+      const pages=[...pageList.querySelectorAll('input[data-page-key]')]
+        .filter(checkbox=>checkbox.checked)
+        .map(checkbox=>checkbox.dataset.pageKey);
+      const grouped=new Map();
+      for(const checkbox of actionRows.querySelectorAll('input[data-module]')){
+        const module=checkbox.dataset.module;
+        if(!grouped.has(module))grouped.set(module,{module,add:false,view:false,edit:false,delete:false,deactivate:false});
+        grouped.get(module)[checkbox.dataset.action]=checkbox.checked;
+      }
+      return {pages,actions:[...grouped.values()]};
+    }
+
+    employeeSelect.addEventListener('change',()=>{
+      statusBox.className='status';
+      applyEmployee(employeeSelect.value);
+    });
+
+    saveButton.addEventListener('click',async()=>{
+      if(!currentId)return;
+      saveButton.disabled=true;
+      try{
+        const payload=collectedAccess();
+        const result=await salonAuth.request(`/api/user-access/${encodeURIComponent(currentId)}`,{method:'PUT',body:JSON.stringify(payload)});
+        rules.set(currentId,{employeeId:currentId,pages:result.pages,actions:result.actions});
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess('User access saved.');
+        showStatus('User access saved.');
+      }catch(error){
+        showStatus(error.message||'Could not save user access.',true);
+      }finally{
+        saveButton.disabled=false;
+      }
+    });
+
+    resetButton.addEventListener('click',async()=>{
+      if(!currentId||!window.confirm('Reset this employee to default permissions?'))return;
+      resetButton.disabled=true;
+      try{
+        const result=await salonAuth.request(`/api/user-access/${encodeURIComponent(currentId)}`,{method:'PUT',body:JSON.stringify({reset:true})});
+        rules.delete(currentId);
+        applyEmployee(currentId);
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess('Access reset to defaults.');
+        showStatus('Access reset to defaults.');
+      }catch(error){
+        showStatus(error.message||'Could not reset user access.',true);
+      }finally{
+        resetButton.disabled=false;
+      }
+    });
+
+    resetPasswordButton.addEventListener('click',async()=>{
+      if(!currentId||!window.confirm('Reset this employee password to 1234? They must change it at the next sign-in.'))return;
+      resetPasswordButton.disabled=true;
+      try{
+        const result=await salonAuth.request(`/api/user-access/${encodeURIComponent(currentId)}/reset-password`,{method:'POST',body:JSON.stringify({})});
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Password reset.');
+        showStatus(result.message||'Password reset.');
+      }catch(error){
+        showStatus(error.message||'Could not reset the employee password.',true);
+      }finally{
+        resetPasswordButton.disabled=false;
+      }
+    });
+
+    (async()=>{
+      try{
+        data=await salonAuth.request('/api/user-access');
+        rules=new Map((data.rules||[]).map(rule=>[String(rule.employeeId),rule]));
+        const employees=(data.employees||[]).filter(employee=>employee.role!=='Admin');
+        if(!employees.length){
+          empty.textContent='No active employees available for access setup.';
+          return;
+        }
+        empty.hidden=true;
+        for(const employee of employees){
+          employeeSelect.add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));
+        }
+        employeeSelect.value=employees[0]._id;
+        applyEmployee(employeeSelect.value);
+      }catch(error){
+        empty.textContent=error.message||'Could not load user access settings.';
+        showStatus(error.message||'Could not load user access settings.',true);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>YOURS SALON — Customer Entry</title>
+<link rel="stylesheet" href="/admin-nav.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%}
+body{background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;min-height:100dvh;padding:18px}
+.container{background:#FFFFFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;max-width:1120px;width:100%;margin:0 auto;box-shadow:0 12px 32px rgba(28,35,45,.08)}
+.logo{font-size:24px;font-weight:700;color:#A77B12;margin-bottom:18px;border-bottom:1px solid #ECEDEF;padding-bottom:12px}
+.logo span{color:#C49A32}
+.page-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.page-header h2{font-size:21px}
+.page-header p{color:#737780;font-size:12px;margin-top:5px}
+.add-entry-btn,.close-entry-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;border:0;border-radius:9px;padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer}
+.add-entry-btn{background:#C49A32;color:#211A0B}
+.close-entry-btn{background:#F0F1F3;color:#34383E}
+.entry-list-panel,.entry-panel{padding:16px;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
+.entry-list-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.entry-list-heading h3{font-size:15px}
+.entry-list-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.pagination{display:flex;align-items:center;gap:7px;color:#737780;font-size:12px;white-space:nowrap}
+.page-button,.column-menu-button{display:grid;place-items:center;min-width:32px;height:32px;padding:5px;border:1px solid #D9DDE3;border-radius:7px;background:#FFF;color:#34383E;cursor:pointer}
+.page-button:disabled{opacity:.45;cursor:not-allowed}
+.column-picker{position:relative}
+.column-menu{position:absolute;z-index:20;top:38px;right:0;width:210px;padding:10px;background:#FFF;border:1px solid #D9DDE3;border-radius:9px;box-shadow:0 8px 22px rgba(28,35,45,.14)}
+.column-menu[hidden]{display:none}
+.column-menu-title{font-size:12px;font-weight:700;margin:0 0 7px}
+.column-menu-select-all{width:100%;min-height:29px;margin-bottom:5px;padding:5px 7px;border:1px solid #D9DDE3;border-radius:6px;background:#F7F8FA;color:#34383E;font-size:11px;font-weight:700;text-align:left;cursor:pointer}
+.column-option{display:flex;align-items:center;gap:8px;padding:6px 3px;color:#34383E;font-size:12px;cursor:pointer}
+.column-option input{width:16px;height:16px;margin:0;accent-color:#C49A32}
+.entries-table [hidden]{display:none!important}
+.table-wrap{overflow:auto;border:1px solid #E5E7EB;border-radius:9px;background:#FFF}
+.entries-table{width:100%;border-collapse:collapse;min-width:820px;font-size:12px}
+.entries-table th,.entries-table td{text-align:left;padding:10px;border-bottom:1px solid #ECEDEF;white-space:nowrap}
+.entries-table th{background:#F7F8FA;color:#555B64;font-size:11px}
+.entries-table tbody tr:last-child td{border-bottom:0}
+.entries-empty{text-align:center;color:#737780;padding:26px 12px!important}
+.entry-actions{display:flex;align-items:center;gap:6px}
+.entry-action{min-height:30px;padding:5px 9px;border:1px solid #D9DDE3;border-radius:7px;background:#FFF;color:#34383E;font-size:11px;font-weight:700;cursor:pointer}
+.entry-action.delete{border-color:#EDBCB8;background:#FCEDEC;color:#9E3933}
+.entry-action:disabled{opacity:.55;cursor:not-allowed}
+#listStatus{display:none;margin-top:10px;padding:9px 11px;border-radius:7px;font-size:12px}
+#listStatus.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
+#listStatus.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
+.entry-panel[hidden],.entry-list-panel[hidden]{display:none}
+.entry-panel>.heading-row{margin-bottom:5px}
+.heading-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:3px}
+h2{font-size:20px;color:#252525}
+.sub{color:#737780;font-size:12px;margin-bottom:12px}
+.date-control{position:relative;display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.date-display{color:#555B64;font-size:13px;font-weight:600;white-space:nowrap}
+.date-button{width:40px;height:40px;display:grid;place-items:center;background:#FFF9E9;border:1px solid #E9D9AA;border-radius:10px;color:#8B6914;cursor:pointer}
+.date-button:hover:not(:disabled){background:#FDF1CC}
+.date-button:focus-visible{outline:3px solid rgba(196,154,50,.3);outline-offset:2px}
+.date-button:disabled{opacity:.5;cursor:not-allowed}
+.date-input-hidden{position:fixed;left:50%;top:50%;width:1px;height:1px;opacity:0;border:0;padding:0;pointer-events:none}
+.login-box{position:relative;background:transparent;border:0;padding:0;margin:0 0 10px;min-height:44px}
+#g_id_signin{width:100%;min-height:44px}
+#g_id_signin.hidden{display:none!important}
+#userEmail{display:none}
+#userEmail.authenticated{position:absolute;top:-2px;right:0;width:30px;height:30px;display:flex!important;align-items:center;justify-content:center;color:#A77B12;font-size:19px;cursor:help}
+#userEmail.authenticated::after{content:attr(data-email);position:fixed;top:10px;right:14px;max-width:230px;color:#737780;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+#entryForm{display:none}
+#entryForm.visible{display:block}
+.form-group{margin-bottom:10px}
+.form-group label{display:block;font-size:9px;color:#656B74;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select{width:100%;height:40px;background:#FFFFFF;border:1px solid #D9DDE3;border-radius:9px;padding:7px 11px;color:#242424;font-size:14px;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:#C49A32;box-shadow:0 0 0 3px rgba(196,154,50,.14)}
+.form-group input::placeholder{color:#A1A5AC}
+.btn{width:100%;height:42px;background:#C49A32;color:#211A0B;border:0;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-top:3px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.dashboard-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:auto;height:38px;padding:7px 12px;margin:8px 0 0 auto;background:#F0F1F3;color:#34383E;font-size:12px}
+.google-btn{margin-top:0;background:#FFFFFF;color:#252525;border:1px solid #D9DDE3}
+#status{margin-top:7px;padding:8px 10px;border-radius:7px;font-size:11px;display:none}
+#status.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
+#status.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
+#status.loading{display:block;background:#FFFAE9;border:1px solid #E9D9AA;color:#76601C}
+@media(max-width:600px){
+html,body{height:100%;min-height:100%;overflow:auto}
+body{padding:0}
+.container{width:100%;max-width:none;min-height:100dvh;border:0;border-radius:0;padding:14px 12px 18px;box-shadow:none}
+.logo{font-size:21px;margin-bottom:10px;padding-bottom:8px}
+h2{font-size:18px}.sub{font-size:10px;margin-bottom:9px}
+.page-header{margin-bottom:12px}
+.page-header h2{font-size:19px}
+.page-header p{font-size:11px}
+.add-entry-btn,.close-entry-btn{min-height:38px;padding:8px 10px}
+.entry-list-panel,.entry-panel{padding:10px}
+.entry-list-heading h3{font-size:14px}
+.entry-list-tools{gap:5px}
+.pagination{gap:4px;font-size:11px}
+.page-button,.column-menu-button{min-width:30px;height:30px}
+.entries-table{min-width:760px}
+.date-button{width:38px;height:38px}
+.login-box{min-height:42px;margin-bottom:7px}
+#g_id_signin{min-height:42px}
+.form-group{margin-bottom:7px}
+.form-group label{font-size:9px;margin-bottom:4px}
+.form-group input,.form-group select{height:40px;min-height:40px;padding:7px 10px;font-size:14px}
+.btn{height:42px;min-height:42px;font-size:14px}
+}
+@media(max-width:600px) and (max-height:700px){
+.container{padding-top:12px;padding-bottom:12px}
+.logo{margin-bottom:10px;padding-bottom:8px}
+.sub{margin-bottom:8px}.form-group{margin-bottom:7px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="logo">YOURS <span>SALON</span></div>
+<div class="page-header">
+<div>
+<h2>Customer Entry</h2>
+<p>View recent entries or add a new customer entry.</p>
+</div>
+<button type="button" class="add-entry-btn" id="addEntryButton">
+<span aria-hidden="true">＋</span><span>Add</span>
+</button>
+</div>
+
+<section class="entry-list-panel" id="entryListPanel" aria-labelledby="entriesTitle">
+<div class="entry-list-heading">
+<h3 id="entriesTitle">Recent Entries</h3>
+<div class="entry-list-tools">
+<nav class="pagination" aria-label="Customer entry pages">
+<button type="button" class="page-button" id="previousPageButton" aria-label="Previous page" disabled>‹</button>
+<span id="pageRange" aria-live="polite">0-0/0</span>
+<button type="button" class="page-button" id="nextPageButton" aria-label="Next page" disabled>›</button>
+</nav>
+<div class="column-picker">
+<button type="button" class="column-menu-button" id="columnMenuButton" aria-label="Choose table columns" title="Show or hide columns" aria-expanded="false">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 9.5h17M9.5 3.5v17M15 9.5v11"/></svg>
+</button>
+<div class="column-menu" id="columnMenu" hidden>
+<div class="column-menu-title">Show / hide columns</div>
+<button type="button" class="column-menu-select-all" id="columnSelectAllButton">Select all columns</button>
+<label class="column-option"><input type="checkbox" data-column-toggle="date" checked> Date</label>
+<label class="column-option"><input type="checkbox" data-column-toggle="entryNo"> Entry No</label>
+<label class="column-option"><input type="checkbox" data-column-toggle="name" checked> Name</label>
+<label class="column-option"><input type="checkbox" data-column-toggle="serviceType"> Service Type</label>
+<label class="column-option"><input type="checkbox" data-column-toggle="amount" checked> Amount</label>
+<label class="column-option"><input type="checkbox" data-column-toggle="costCutting"> Cost Cutting</label>
+<label class="column-option"><input type="checkbox" data-column-toggle="paymentMode" checked> Payment Mode</label>
+<label class="column-option"><input type="checkbox" data-column-toggle="createdBy"> Created By</label>
+<label class="column-option"><input type="checkbox" data-column-toggle="createdOn"> Entry Creation On</label>
+<label class="column-option"><input type="checkbox" data-column-toggle="actions" checked> Actions</label>
+</div>
+</div>
+</div>
+</div>
+<div class="table-wrap">
+<table class="entries-table">
+<thead><tr><th data-column="date">Date</th><th data-column="entryNo" hidden>Entry No</th><th data-column="name">Name</th><th data-column="serviceType" hidden>Service Type</th><th data-column="amount">Amount</th><th data-column="costCutting" hidden>Cost Cutting</th><th data-column="paymentMode">Payment Mode</th><th data-column="createdBy" hidden>Created By</th><th data-column="createdOn" hidden>Entry Creation On</th><th data-column="actions">Actions</th></tr></thead>
+<tbody id="entriesTableBody"><tr><td class="entries-empty" colspan="10">Loading customer entries...</td></tr></tbody>
+</table>
+</div>
+<div id="listStatus" role="status" aria-live="polite"></div>
+</section>
+
+<section class="entry-panel" id="entryPanel" hidden>
+<div class="heading-row">
+<h2>Add New Entry</h2>
+<button type="button" class="close-entry-btn" id="closeEntryButton">Close</button>
+<div class="date-control">
+<span class="date-display" id="selectedDate" aria-live="polite"></span>
+<button type="button" class="date-button" id="datePickerButton" aria-label="Select entry date" title="Select entry date">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+<rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+<path d="M7.5 3.5V7M16.5 3.5V7M4 9.5H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+<path d="M8 13H10M14 13H16M8 16.5H10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+</svg>
+</button>
+<input type="date" id="entryDate" class="date-input-hidden" aria-label="Entry date" required>
+</div>
+</div>
+<div class="sub" id="formSubtitle">Sign in to add transaction details</div>
+
+<div class="login-box">
+<button type="button" class="btn google-btn" id="googleSignInBtn">Continue with Google</button>
+<div id="userEmail"></div>
+</div>
+
+<form id="entryForm">
+<div class="form-group">
+<label>Entry No</label>
+<input type="text" id="entryNo" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Enter Entry No" required oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+</div>
+<div class="form-group">
+<label>Name</label>
+<select id="staff" required>
+<option value="">Select Staff Member</option>
+<option value="Amir Khan">Amir Khan</option>
+<option value="Ashu Kumar">Ashu Kumar</option>
+<option value="Jaan Mohd">Jaan Mohd</option>
+<option value="Suhail Khan">Suhail Khan</option>
+</select>
+</div>
+<div class="form-group">
+<label>Service Type</label>
+<input type="text" id="serviceType" placeholder="e.g., Haircut, Coloring, Facial, etc." required>
+</div>
+<div class="form-group">
+<label>Amount (₹)</label>
+<input type="number" id="amount" placeholder="0" min="1" step="1" required>
+</div>
+<div class="form-group">
+<label>Cost Cutting (₹)</label>
+<input type="number" id="cost" placeholder="0" min="0" step="1">
+</div>
+<div class="form-group">
+<label>Payment Mode</label>
+<select id="payment"><option value="Cash">Cash</option><option value="Online">Online</option></select>
+</div>
+<button type="submit" class="btn" id="submitBtn">Save and New Entry</button>
+<button type="button" class="btn dashboard-btn" id="dashboardBtn">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3.5 12 12 4l8.5 8M5.5 10.5V20h13v-9.5M9 20v-6h6v6"/></svg>
+<span>Dashboard</span>
+</button>
+</form>
+<div id="status" role="status" aria-live="polite"></div>
+</section>
+</div>
+
+<script src="/admin-nav.js" defer></script>
+<script>
+const DASHBOARD_URL='/employee-dashboard';
+const GOOGLE_CLIENT_ID='';
+const STORAGE_CREDENTIAL='salon_google_credential';
+const STORAGE_EMAIL='salon_user_email';
+let googleCredential=null,userEmail='',isAuthenticated=false,isSubmitting=false,googleAuthRequired=true,todayDate='',editingEntryId=null,currentPage=1,totalEntries=0,columnPreferencesLoaded=false;
+let allowPreviousEntry=false,maxPreviousEntryDays=0;
+
+function safeStorageGet(key){try{return localStorage.getItem(key)}catch(e){return null}}
+function safeStorageSet(key,value){try{localStorage.setItem(key,value);return true}catch(e){return false}}
+function safeStorageRemove(key){try{localStorage.removeItem(key)}catch(e){}}
+
+function decodeJwtPayload(token){
+try{
+const p=token.split('.');
+if(p.length!==3)return null;
+return JSON.parse(atob(p[1].replace(/-/g,'+').replace(/_/g,'/')));
+}catch(e){return null}
+}
+
+function showStatus(m,t){
+const s=document.getElementById('status');
+s.textContent=m;s.className=t;s.style.display='block';
+}
+function hideStatus(){
+const s=document.getElementById('status');
+s.textContent='';s.className='';s.style.display='none';
+}
+
+function updateUIAfterLogin(){
+const e=document.getElementById('userEmail');
+e.textContent='✉';
+e.title=userEmail;
+e.dataset.email=userEmail;
+e.className='authenticated';
+e.style.display='flex';
+document.getElementById('googleSignInBtn').style.display='none';
+document.getElementById('entryForm').classList.add('visible');
+document.getElementById('entryForm').style.display='block';
+loadColumnPreferences();
+loadStaff().catch(error=>showStatus(error.message||'Could not load employees.','error'));
+loadEntries(1).catch(error=>showEntriesMessage(error.message||'Could not load customer entries.'));
+}
+
+async function loadStaff(){
+const response=await fetch('/api/staff',{
+headers:googleCredential?{Authorization:'Bearer '+googleCredential}:{}
+});
+const result=await response.json();
+if(!response.ok)throw new Error(result.error||'Could not load employees.');
+if(!result.length&&googleAuthRequired){
+const staffSelect=document.getElementById('staff');
+staffSelect.replaceChildren(new Option('No active employees found',''));
+throw new Error('No active employees found. Ask an administrator to import the employee list.');
+}
+if(!result.length)return;
+const staffSelect=document.getElementById('staff');
+staffSelect.replaceChildren(new Option('Select Staff Member',''));
+for(const employee of result){
+staffSelect.add(new Option(employee.employeeName,employee.employeeName));
+}
+}
+
+function showEntriesMessage(message){
+const body=document.getElementById('entriesTableBody');
+const cell=document.createElement('td');
+cell.className='entries-empty';
+cell.colSpan=10;
+cell.textContent=message;
+const row=document.createElement('tr');
+row.appendChild(cell);
+body.replaceChildren(row);
+updatePagination(0,1);
+}
+
+function formatEntryDate(value){
+const datePart=typeof value==='string'?value.slice(0,10):'';
+const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(datePart);
+if(!match)return '—';
+return new Intl.DateTimeFormat('en-IN',{
+day:'2-digit',
+month:'short',
+year:'numeric'
+}).format(new Date(Number(match[1]),Number(match[2])-1,Number(match[3])));
+}
+
+function formatCreatedOn(value){
+if(typeof value!=='string')return '—';
+const date=new Date(value);
+if(Number.isNaN(date.getTime()))return '—';
+return new Intl.DateTimeFormat('en-IN',{
+day:'2-digit',
+month:'short',
+year:'numeric',
+hour:'2-digit',
+minute:'2-digit',
+hour12:true,
+timeZone:'Asia/Kolkata'
+}).format(date);
+}
+
+function formatEntryAmount(value){
+const amount=Number(value);
+return Number.isFinite(amount)
+?new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(amount)
+:'—';
+}
+
+function renderEntries(entries){
+const body=document.getElementById('entriesTableBody');
+if(!Array.isArray(entries))throw new Error('The customer entries response was invalid.');
+if(entries.length===0){
+showEntriesMessage('No customer entries found.');
+return;
+}
+
+const rows=entries.map(entry=>{
+const row=document.createElement('tr');
+const values=[
+['date',formatEntryDate(entry.entryDate)],
+['entryNo',entry.entryNo],
+['name',entry.staff],
+['serviceType',entry.serviceType],
+['amount',formatEntryAmount(entry.amount)],
+['costCutting',formatEntryAmount(entry.costCutting)],
+['paymentMode',entry.paymentMode],
+['createdBy',entry.createdBy],
+['createdOn',formatCreatedOn(entry.createdAt)]
+];
+values.forEach(([column,value])=>{
+const cell=document.createElement('td');
+cell.dataset.column=column;
+cell.textContent=value===undefined||value===null||value===''?'—':String(value);
+row.appendChild(cell);
+});
+
+const actionsCell=document.createElement('td');
+actionsCell.dataset.column='actions';
+const actions=document.createElement('div');
+actions.className='entry-actions';
+const editButton=document.createElement('button');
+editButton.type='button';
+editButton.className='entry-action';
+editButton.textContent='Edit';
+editButton.setAttribute('aria-label',`Edit entry ${entry.entryNo}`);
+editButton.addEventListener('click',()=>openEntryForm(entry));
+const deleteButton=document.createElement('button');
+deleteButton.type='button';
+deleteButton.className='entry-action delete';
+deleteButton.textContent='Delete';
+deleteButton.setAttribute('aria-label',`Delete entry ${entry.entryNo}`);
+deleteButton.addEventListener('click',()=>deleteEntry(entry._id,deleteButton));
+actions.append(editButton,deleteButton);
+actionsCell.appendChild(actions);
+row.appendChild(actionsCell);
+return row;
+});
+body.replaceChildren(...rows);
+applyColumnVisibility();
+}
+
+function updatePagination(total,page){
+totalEntries=total;
+currentPage=page;
+const start=total===0?0:(page-1)*100+1;
+const end=Math.min(page*100,total);
+document.getElementById('pageRange').textContent=`${start}-${end}/${total}`;
+document.getElementById('previousPageButton').disabled=page<=1||total===0;
+document.getElementById('nextPageButton').disabled=end>=total;
+}
+
+async function loadEntries(page=currentPage){
+if(googleAuthRequired&&(!googleCredential||!isAuthenticated)){
+showEntriesMessage('Add an entry and sign in with Google to view recent entries.');
+return;
+}
+const response=await fetch('/api/collections?page='+encodeURIComponent(page),{
+headers:googleCredential?{Authorization:'Bearer '+googleCredential}:{}
+});
+let result;
+try{
+result=await response.json();
+}catch(error){
+throw new Error('The server returned an invalid customer entries response.');
+}
+if(!response.ok)throw new Error(result.error||'Could not load customer entries.');
+if(!Number.isSafeInteger(result.total)||!Number.isSafeInteger(result.page)||result.limit!==100){
+throw new Error('The customer entries pagination response was invalid.');
+}
+updatePagination(result.total,result.page);
+renderEntries(result.entries);
+}
+
+function getColumnPreferenceKey(){
+const identity=userEmail||'local';
+return `salon_customer_entry_columns_${identity.toLowerCase()}`;
+}
+
+function applyColumnVisibility(){
+const checkedColumns=new Set(
+Array.from(document.querySelectorAll('[data-column-toggle]:checked'),input=>input.dataset.columnToggle)
+);
+document.querySelectorAll('.entries-table [data-column]').forEach(cell=>{
+cell.hidden=!checkedColumns.has(cell.dataset.column);
+});
+}
+
+function loadColumnPreferences(){
+const saved=safeStorageGet(getColumnPreferenceKey());
+if(saved){
+try{
+const columns=JSON.parse(saved);
+if(Array.isArray(columns)){
+document.querySelectorAll('[data-column-toggle]').forEach(input=>{
+input.checked=columns.includes(input.dataset.columnToggle);
+});
+}
+}catch(error){
+safeStorageRemove(getColumnPreferenceKey());
+}
+}
+columnPreferencesLoaded=true;
+applyColumnVisibility();
+const inputs=[...document.querySelectorAll('[data-column-toggle]')];
+document.getElementById('columnSelectAllButton').textContent=inputs.every(input=>input.checked)?'Hide all columns':'Select all columns';
+}
+
+function saveColumnPreferences(){
+if(!columnPreferencesLoaded)return;
+const inputs=[...document.querySelectorAll('[data-column-toggle]')];
+const visibleColumns=inputs.filter(input=>input.checked).map(input=>input.dataset.columnToggle);
+safeStorageSet(getColumnPreferenceKey(),JSON.stringify(visibleColumns));
+applyColumnVisibility();
+document.getElementById('columnSelectAllButton').textContent=inputs.every(input=>input.checked)?'Hide all columns':'Select all columns';
+}
+
+function showListStatus(message,type){
+const status=document.getElementById('listStatus');
+status.textContent=message;
+status.className=type;
+}
+
+function clearListStatus(){
+const status=document.getElementById('listStatus');
+status.textContent='';
+status.className='';
+}
+
+function setEntryFormMode(entry=null){
+editingEntryId=entry?entry._id:null;
+document.querySelector('#entryPanel .heading-row h2').textContent=entry?'Edit Entry':'Add New Entry';
+document.getElementById('submitBtn').textContent=entry?'Update Entry':'Save and New Entry';
+}
+
+function openEntryForm(entry=null){
+clearListStatus();
+if(entry){
+setEntryFormMode(entry);
+document.getElementById('entryNo').value=entry.entryNo??'';
+document.getElementById('entryDate').value=typeof entry.entryDate==='string'?entry.entryDate.slice(0,10):'';
+document.getElementById('staff').value=entry.staff||'';
+document.getElementById('serviceType').value=entry.serviceType||'';
+document.getElementById('amount').value=entry.amount??'';
+document.getElementById('cost').value=entry.costCutting??'';
+document.getElementById('payment').value=entry.paymentMode||'Cash';
+updateDisplayedDate();
+}else{
+setEntryFormMode();
+document.getElementById('entryForm').reset();
+document.getElementById('entryDate').value=todayDate;
+document.getElementById('cost').value='';
+updateDisplayedDate();
+}
+document.getElementById('entryListPanel').hidden=true;
+document.getElementById('entryPanel').hidden=false;
+document.getElementById('addEntryButton').setAttribute('aria-expanded','true');
+}
+
+function closeEntryForm(){
+document.getElementById('entryPanel').hidden=true;
+document.getElementById('entryListPanel').hidden=false;
+document.getElementById('addEntryButton').setAttribute('aria-expanded','false');
+setEntryFormMode();
+hideStatus();
+}
+
+async function deleteEntry(id,button){
+if(!id){
+showListStatus('Could not delete this entry because its record ID is missing.','error');
+return;
+}
+if(!window.confirm('Delete this customer entry permanently? This action cannot be undone.'))return;
+button.disabled=true;
+clearListStatus();
+try{
+const response=await fetch('/api/collections/'+encodeURIComponent(id),{
+method:'DELETE',
+headers:googleCredential?{Authorization:'Bearer '+googleCredential}:{}
+});
+const result=await response.json();
+if(!response.ok)throw new Error(result.error||'Could not delete customer entry.');
+await loadEntries(currentPage);
+showListStatus(result.message||'Customer entry deleted successfully.','success');
+}catch(error){
+showListStatus(error.message||'Could not delete customer entry.','error');
+button.disabled=false;
+}
+}
+
+function checkExistingSession(){
+const c=safeStorageGet(STORAGE_CREDENTIAL),e=safeStorageGet(STORAGE_EMAIL);
+if(c&&e){
+googleCredential=c;userEmail=e;isAuthenticated=true;updateUIAfterLogin();
+}
+}
+
+function getRedirectUri(){
+return window.location.origin+window.location.pathname;
+}
+
+function randomString(length=32){
+const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+let out='';
+const bytes=new Uint8Array(length);
+crypto.getRandomValues(bytes);
+for(let i=0;i<length;i++)out+=chars[bytes[i]%chars.length];
+return out;
+}
+
+async function startGoogleLogin(){
+try{
+const state=randomString(32);
+safeStorageSet('salon_oauth_state',state);
+
+const redirectUri=getRedirectUri();
+const params=new URLSearchParams({
+client_id:GOOGLE_CLIENT_ID,
+redirect_uri:redirectUri,
+response_type:'token',
+scope:'openid email profile',
+state:state,
+include_granted_scopes:'true',
+prompt:'select_account'
+});
+
+showStatus('Opening Google Sign-In...','loading');
+window.location.assign('https://accounts.google.com/o/oauth2/v2/auth?'+params.toString());
+}catch(err){
+showStatus('Google Sign-In could not be started. Please try again.','error');
+}
+}
+
+async function handleOAuthReturn(){
+const hash=window.location.hash ? window.location.hash.substring(1) : '';
+if(!hash)return;
+
+const p=new URLSearchParams(hash);
+const error=p.get('error');
+const accessToken=p.get('access_token');
+const returnedState=p.get('state');
+const savedState=safeStorageGet('salon_oauth_state');
+
+history.replaceState(null,document.title,window.location.pathname+window.location.search);
+
+if(error){
+safeStorageRemove('salon_oauth_state');
+showStatus('Google Sign-In was cancelled or denied.','error');
+return;
+}
+if(!accessToken){
+showStatus('Google Sign-In did not return an account. Please try again.','error');
+return;
+}
+if(savedState && returnedState && savedState!==returnedState){
+showStatus('Google verification failed. Please try again.','error');
+return;
+}
+
+try{
+showStatus('Verifying Google account...','loading');
+const r=await fetch('https://openidconnect.googleapis.com/v1/userinfo',{
+method:'GET',
+headers:{Authorization:'Bearer '+accessToken}
+});
+if(!r.ok)throw new Error('Google account verification failed.');
+const info=await r.json();
+if(!info.email)throw new Error('Google account email could not be detected.');
+
+googleCredential=accessToken;
+userEmail=info.email;
+isAuthenticated=true;
+safeStorageSet(STORAGE_CREDENTIAL,googleCredential);
+safeStorageSet(STORAGE_EMAIL,userEmail);
+safeStorageRemove('salon_oauth_state');
+updateUIAfterLogin();
+openEntryForm();
+hideStatus();
+}catch(err){
+googleCredential=null;
+userEmail='';
+isAuthenticated=false;
+safeStorageRemove(STORAGE_CREDENTIAL);
+safeStorageRemove(STORAGE_EMAIL);
+showStatus(err.message||'Google account verification failed.','error');
+}
+}
+
+async function sendToMongo(d){
+const response=await fetch('/api/save-collection',{
+method:'POST',
+headers:{
+'Content-Type':'application/json',
+'Authorization':'Bearer '+googleCredential
+},
+body:JSON.stringify(d)
+});
+const result=await response.json();
+if(!response.ok)throw new Error(result.error||'Could not save collection entry.');
+return result;
+}
+
+document.getElementById('googleSignInBtn').addEventListener('click',startGoogleLogin);
+document.getElementById('addEntryButton').addEventListener('click',()=>openEntryForm());
+document.getElementById('closeEntryButton').addEventListener('click',closeEntryForm);
+document.getElementById('previousPageButton').addEventListener('click',()=>{
+if(currentPage>1)loadEntries(currentPage-1).catch(error=>showEntriesMessage(error.message||'Could not load customer entries.'));
+});
+document.getElementById('nextPageButton').addEventListener('click',()=>{
+if(currentPage*100<totalEntries)loadEntries(currentPage+1).catch(error=>showEntriesMessage(error.message||'Could not load customer entries.'));
+});
+document.getElementById('columnMenuButton').addEventListener('click',()=>{
+const menu=document.getElementById('columnMenu');
+menu.hidden=!menu.hidden;
+document.getElementById('columnMenuButton').setAttribute('aria-expanded',String(!menu.hidden));
+});
+document.querySelectorAll('[data-column-toggle]').forEach(input=>{
+input.addEventListener('change',saveColumnPreferences);
+});
+document.getElementById('columnSelectAllButton').addEventListener('click',()=>{
+const inputs=[...document.querySelectorAll('[data-column-toggle]')];
+const select=!inputs.every(input=>input.checked);
+for(const input of inputs)input.checked=select;
+saveColumnPreferences();
+document.getElementById('columnSelectAllButton').textContent=select?'Hide all columns':'Select all columns';
+});
+document.addEventListener('click',event=>{
+const picker=document.querySelector('.column-picker');
+if(!picker.contains(event.target)){
+document.getElementById('columnMenu').hidden=true;
+document.getElementById('columnMenuButton').setAttribute('aria-expanded','false');
+}
+});
+
+document.getElementById('datePickerButton').addEventListener('click',()=>{
+if(!allowPreviousEntry)return;
+const dateInput=document.getElementById('entryDate');
+if(typeof dateInput.showPicker==='function'){
+dateInput.showPicker();
+}else{
+dateInput.click();
+}
+});
+
+function updateDisplayedDate(){
+const dateValue=document.getElementById('entryDate').value;
+const dateDisplay=document.getElementById('selectedDate');
+if(!dateValue){
+dateDisplay.textContent='';
+return;
+}
+const [year,month,day]=dateValue.split('-').map(Number);
+dateDisplay.textContent=new Intl.DateTimeFormat('en-IN',{
+day:'2-digit',
+month:'short',
+year:'numeric'
+}).format(new Date(year,month-1,day));
+}
+
+function getEarliestAllowedEntryDate(){
+const earliest=new Date(`${todayDate}T00:00:00.000Z`);
+earliest.setUTCDate(earliest.getUTCDate()-(allowPreviousEntry?maxPreviousEntryDays:0));
+return earliest.toISOString().slice(0,10);
+}
+
+document.getElementById('entryDate').addEventListener('change',updateDisplayedDate);
+
+document.getElementById('entryForm').addEventListener('submit',async function(ev){
+ev.preventDefault();
+if(isSubmitting)return;
+hideStatus();
+if(googleAuthRequired&&(!googleCredential||!isAuthenticated)){
+showStatus('Please sign in with Google first.','error');
+return;
+}
+
+const entryNo=document.getElementById('entryNo').value.replace(/[^0-9]/g,'');
+const entryDate=document.getElementById('entryDate').value;
+const staff=document.getElementById('staff').value;
+const serviceType=document.getElementById('serviceType').value.trim();
+const amount=parseFloat(document.getElementById('amount').value)||0;
+const costCutting=parseFloat(document.getElementById('cost').value)||0;
+const paymentMode=document.getElementById('payment').value;
+
+if(!entryNo){showStatus('Please enter Entry No.','error');return}
+if(!entryDate){showStatus('Please select the entry date.','error');return}
+if(!staff){showStatus('Please select a staff member.','error');return}
+if(!serviceType){showStatus('Please enter the service type.','error');return}
+if(amount<=0){showStatus('Please enter a valid amount.','error');return}
+
+isSubmitting=true;
+const b=document.getElementById('submitBtn');
+const wasEditing=Boolean(editingEntryId);
+b.disabled=true;
+b.textContent=wasEditing?'Updating...':'Saving...';
+showStatus(wasEditing?'Updating...':'Saving...','loading');
+
+try{
+const entryData={entryNo,entryDate,staff,serviceType,amount,costCutting,paymentMode};
+if(editingEntryId){
+const response=await fetch('/api/collections/'+encodeURIComponent(editingEntryId),{
+method:'PUT',
+headers:{
+'Content-Type':'application/json',
+'Authorization':'Bearer '+googleCredential
+},
+body:JSON.stringify(entryData)
+});
+const result=await response.json();
+if(!response.ok)throw new Error(result.error||'Could not update customer entry.');
+}else{
+await sendToMongo(entryData);
+}
+document.getElementById('entryForm').reset();
+document.getElementById('cost').value='';
+document.getElementById('entryDate').value=todayDate;
+updateDisplayedDate();
+try{
+await loadEntries(wasEditing?currentPage:1);
+closeEntryForm();
+showListStatus(wasEditing?'Customer entry updated successfully.':'Customer entry saved successfully.','success');
+}catch(refreshError){
+showStatus('Entry was saved, but the recent entries list could not refresh: '+refreshError.message,'error');
+}
+}catch(err){
+showStatus('Failed to save: '+err.message,'error');
+}
+isSubmitting=false;
+b.disabled=false;
+b.textContent=editingEntryId?'Update Entry':'Save and New Entry';
+});
+
+document.getElementById('dashboardBtn').addEventListener('click',()=>{
+window.location.href=DASHBOARD_URL;
+});
+
+window.addEventListener('load',async function(){
+try{
+const response=await fetch('/api/public-config');
+if(!response.ok)throw new Error('Could not load app configuration.');
+const config=await response.json();
+googleAuthRequired=true;
+allowPreviousEntry=config.allowPreviousEntry===true;
+maxPreviousEntryDays=Number.isInteger(config.maxPreviousEntryDays)?config.maxPreviousEntryDays:0;
+todayDate=config.todayDate;
+const entryDateInput=document.getElementById('entryDate');
+entryDateInput.value=todayDate;
+entryDateInput.max=todayDate;
+entryDateInput.min=getEarliestAllowedEntryDate();
+entryDateInput.disabled=!allowPreviousEntry;
+document.getElementById('datePickerButton').disabled=!allowPreviousEntry;
+updateDisplayedDate();
+const token=safeStorageGet(STORAGE_CREDENTIAL);
+if(!token){window.location.replace('/login');return}
+const sessionResponse=await fetch('/api/session',{headers:{Authorization:'Bearer '+token}});
+const session=await sessionResponse.json();
+if(!sessionResponse.ok){safeStorageRemove(STORAGE_CREDENTIAL);safeStorageRemove(STORAGE_EMAIL);window.location.replace('/login');return}
+if(session.employee.role!=='Admin'&&!session.permissions.includes('Counter Cash')){
+document.querySelector('.login-box').style.display='none';
+showEntriesMessage('Customer Entry access is not assigned to your account.');
+return;
+}
+googleCredential=token;
+userEmail=session.employee.userId;
+isAuthenticated=true;
+updateUIAfterLogin();
+}catch(err){
+showEntriesMessage(err.message||'Could not initialize Customer Entry. Please refresh the page.');
+}
+});
+</script>
+</body>
+</html>

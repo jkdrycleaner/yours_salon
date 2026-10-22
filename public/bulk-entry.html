@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Bulk Entry — YOURS SALON</title><link rel="stylesheet" href="/admin-nav.css"><style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1040px,100%);margin:auto;padding:28px 20px 40px}.heading h1{margin:0;font-size:26px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.notice{margin-top:15px;padding:11px 13px;background:#fff9e8;border:1px solid #ead9a9;border-radius:9px;color:#765b14;font-size:12px;line-height:1.5}.panel{padding:17px;margin-top:13px;background:#fff;border:1px solid #e1e7ee;border-radius:13px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.panel h2{margin:0;font-size:16px}.help{margin:7px 0 12px;color:#758397;font-size:12px;line-height:1.45}.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button,.file-label{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 11px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.actions button.secondary,.file-label.secondary{background:#eff2f5;color:#344054}.actions button.template{background:#fff4d5;color:#765b14}.file-label input{display:none}.actions button:disabled{opacity:.6;cursor:not-allowed}.status{display:none;margin-top:10px;padding:9px;border-radius:8px;font-size:12px;white-space:pre-line}.status.show{display:block;background:#eaf8f1;color:#286b53}.status.error{background:#fff0ef;color:#a13932}@media(max-width:600px){.wrap{padding:20px 12px 30px}.panel-head{align-items:flex-start;flex-direction:column}.actions>*{flex:1}.actions .file-label{flex:1}}
+</style></head>
+<body><main class="wrap"><section class="heading"><h1>Bulk Entry</h1><p>Download templates and import Employee, Collection, Expense, Salary and Counter records from CSV or Excel files.</p></section><div class="notice">Templates contain headings only. New fields added to entry forms are included automatically. Imports are validated before saving; keep a backup before importing.</div><div id="panels"></div></main><script src="/auth-guard.js"></script><script src="/admin-nav.js"></script><script>
+const definitions=[
+  {key:'employees',title:'Employees',help:'Employee master records. Matching Employee IDs are updated.',importUrl:'/api/employees/import',exportKey:'employees'},
+  {key:'customer-entry',title:'Collection Records',help:'Customer collection entries. Rows with a matching _id can be restored or updated.',importUrl:'/api/data-port/customer-entry/import',exportKey:'customer-entry'},
+  {key:'expense',title:'Expense Records',help:'Employee ID, Entry Date, Expense Type SR, Amount, Payment Mode and Remark.',importUrl:'/api/data-port/employee-records/import',exportKey:'expense',recordType:'expense'},
+  {key:'salary',title:'Salary Records',help:'Employee ID, Entry Date, Salary Month, Amount, Payment Mode and Remark.',importUrl:'/api/data-port/employee-records/import',exportKey:'salary',recordType:'salary'},
+  {key:'counter',title:'Counter Cash Records',help:'Employee ID, Entry Date, Amount and Remark. Counter payment mode is Cash.',importUrl:'/api/data-port/employee-records/import',exportKey:'counter',recordType:'counter'}
+];
+const panels=document.getElementById('panels');
+function message(box,text,error=false){box.textContent=text;box.className='status show'+(error?' error':'')}
+function today(){const date=new Date();return date.toISOString().slice(0,10)}
+function authHeaders(){return salonAuth.headers(false)}
+async function download(url,fallbackName){
+  const response=await fetch(url,{headers:authHeaders()});
+  if(!response.ok){let body={};try{body=await response.json()}catch{}throw new Error(body.error||'Could not download the file.')}
+  const disposition=response.headers.get('Content-Disposition')||'';
+  const match=/filename="([^"]+)"/.exec(disposition);
+  const blob=await response.blob();
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=match?.[1]||fallbackName;
+  document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(link.href),4000);
+}
+function makePanel(def){
+  const section=document.createElement('section');section.className='panel';section.dataset.key=def.key;
+  section.innerHTML=`<div class="panel-head"><h2>${def.title}</h2><div class="actions"><button type="button" class="template" data-template="xlsx">Template Excel</button><button type="button" class="template secondary" data-template="csv">Template CSV</button><button type="button" data-export="xlsx">Export Excel</button><button type="button" class="secondary" data-export="csv">Export CSV</button><label class="file-label secondary">Choose file<input type="file" accept=".csv,.xlsx"></label><button type="button" class="secondary" data-import disabled>Import</button></div></div><p class="help">${def.help}</p><div class="status" role="status"></div>`;
+  const box=section.querySelector('.status'),input=section.querySelector('input'),importButton=section.querySelector('[data-import]');
+  input.addEventListener('change',()=>{importButton.disabled=!input.files.length;box.className='status'});
+  for(const button of section.querySelectorAll('[data-template]')){
+    button.addEventListener('click',async()=>{
+      button.disabled=true;
+      try{await download(`/api/data-port/${def.exportKey}/template?format=${button.dataset.template}`,`yours-salon-${def.exportKey}-template.${button.dataset.template}`)}
+      catch(error){message(box,error.message||'Could not download the template.',true)}
+      finally{button.disabled=false}
+    });
+  }
+  for(const button of section.querySelectorAll('[data-export]')){
+    button.addEventListener('click',async()=>{
+      button.disabled=true;
+      try{await download(`/api/data-port/${def.exportKey}/export?format=${button.dataset.export}`,`yours-salon-${def.exportKey}-${today()}.${button.dataset.export}`)}
+      catch(error){message(box,error.message||'Could not export the data.',true)}
+      finally{button.disabled=false}
+    });
+  }
+  importButton.addEventListener('click',async()=>{
+    if(!input.files.length)return;
+    importButton.disabled=true;
+    const data=new FormData();
+    data.append('file',input.files[0]);
+    if(def.recordType)data.append('recordType',def.recordType);
+    try{
+      const response=await fetch(def.importUrl,{method:'POST',headers:authHeaders(),body:data});
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok){
+        const details=Array.isArray(result.rowErrors)?`\n${result.rowErrors.join('\n')}`:'';
+        throw new Error((result.error||'Could not import the file.')+details);
+      }
+      const counts=`Inserted: ${result.inserted||0}, Updated: ${result.updated||0}, Processed: ${result.processed||0}`;
+      message(box,`${result.message||'Import complete.'}\n${counts}`);
+      input.value='';
+      if(window.salonUi?.showSuccess)await window.salonUi.showSuccess('Import complete.');
+    }catch(error){
+      message(box,error.message||'Could not import the file.',true);
+    }finally{
+      importButton.disabled=true;
+    }
+  });
+  return section;
+}
+for(const def of definitions)panels.append(makePanel(def));
+</script></body></html>

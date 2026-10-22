@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>My dashboard — YOURS SALON</title>
+   <link rel="stylesheet" href="/admin-nav.css"><link rel="stylesheet" href="/table-view.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1160px,100%);margin:auto;padding:22px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#fff;border:1px solid #e2e8ef;border-radius:15px}.brand{display:flex;align-items:center;gap:10px;font-weight:800}.brand img{width:42px;height:42px;object-fit:contain;border-radius:10px}.nav{display:flex;gap:8px;flex-wrap:wrap}a,button{min-height:38px;padding:9px 12px;border:1px solid #dce3eb;border-radius:9px;background:#fff;color:#344054;text-decoration:none;font:700 12px Arial;cursor:pointer}
+    .heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:24px 0 14px}.heading h1{margin:0;font-size:26px}.heading p{margin:5px 0 0;color:#748196;font-size:12px}.heading input{height:40px;padding:7px 10px;border:1px solid #d7e0e8;border-radius:9px;font:inherit}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.card{padding:18px;border:1px solid #e3e9ef;border-radius:15px;background:#fff;box-shadow:0 8px 22px #20334b08}.label{color:#758397;font-size:11px;font-weight:700}.value{margin-top:10px;font-size:24px;font-weight:800;letter-spacing:-.02em}.card:nth-child(1){background:linear-gradient(145deg,#edfbf5,#fff)}.card:nth-child(2){background:linear-gradient(145deg,#eff6ff,#fff)}.card:nth-child(3){background:linear-gradient(145deg,#fff8e8,#fff)}.card:nth-child(4){background:linear-gradient(145deg,#f7f0ff,#fff)}.detail{margin-top:8px;color:#8793a3;font-size:10px}
+    .panel{margin-top:14px;padding:18px;background:#fff;border:1px solid #e2e8ef;border-radius:15px}.panelHead{display:flex;align-items:center;justify-content:space-between;gap:10px}.panel h2{margin:0;font-size:16px}.muted{margin-top:5px;color:#8190a1;font-size:11px}.scroll{margin-top:12px;overflow:auto}table{width:100%;min-width:650px;border-collapse:collapse;font-size:12px}th,td{padding:10px;border-bottom:1px solid #edf0f4;text-align:left;white-space:nowrap}th{color:#718096;font-size:10px;text-transform:uppercase}tbody tr:last-child td{border-bottom:0}.empty{text-align:center;padding:22px;color:#8a96a5}
+    .status{display:none;margin-top:12px;padding:11px;border-radius:9px;background:#fff0ef;color:#a13832;font-size:13px}.status.show{display:block}
+     @media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.wrap{padding:11px}.heading{align-items:flex-start;flex-direction:column}.heading h1{font-size:23px}.cards{gap:8px}.card{padding:13px}.value{font-size:20px}.nav a,.nav button{min-height:34px;padding:7px;font-size:11px}.panel{padding:13px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="heading" id="dashboardHeading"><div><h1 id="title">My dashboard</h1><p id="rule">Your month-wise collection and salary summary.</p></div><label>Month <input id="month" type="month"></label></section>
+    <div id="dashboardContent">
+    <section class="cards">
+      <article class="card"><div class="label">MY COLLECTION</div><div class="value" id="collection">₹0</div><div class="detail">Customer entry total for this month</div></article>
+      <article class="card"><div class="label">EARNED SALARY</div><div class="value" id="earned">₹0</div><div class="detail" id="salaryRule">Based on your employee salary rule</div></article>
+      <article class="card"><div class="label">MY EXPENSES</div><div class="value" id="expenses">₹0</div><div class="detail">Expenses assigned to your account</div></article>
+      <article class="card"><div class="label">NET PAYABLE</div><div class="value" id="payable">₹0</div><div class="detail">Earned salary less expenses and salary paid</div></article>
+    </section>
+    <section class="panel"><div class="panelHead"><h2>My activity</h2><span id="summary" class="muted"></span></div><div class="muted">Only records associated with your employee account are shown.</div>
+      <div class="scroll"><table id="activityTable" data-table-view><thead><tr><th>Date</th><th>Entry</th><th>Details</th><th>Payment</th><th>Amount</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="5">Loading your records...</td></tr></tbody></table></div>
+    </section>
+    </div>
+    <div id="status" class="status" role="status"></div>
+  </main>
+  <script src="/auth-guard.js"></script><script src="/admin-nav.js"></script>
+  <script>
+    const tokenKey='salon_google_credential';const monthInput=document.getElementById('month'),rows=document.getElementById('rows'),statusBox=document.getElementById('status');
+    function money(value){return'₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+    function dateText(value){const date=new Date(value);return Number.isNaN(date.getTime())?'—':date.toLocaleDateString('en-IN')}
+    async function request(url,options={}){const response=await fetch(url,{...options,headers:{Authorization:'Bearer '+localStorage.getItem(tokenKey),'Content-Type':'application/json',...(options.headers||{})}});const result=await response.json();if(response.status===401){localStorage.removeItem(tokenKey);location.replace('/login');throw new Error(result.error||'Sign-in required.')}if(!response.ok)throw new Error(result.error||'Could not load your dashboard.');return result}
+    function display(data){
+      const summary=data.summary;document.getElementById('collection').textContent=money(summary.collection);document.getElementById('earned').textContent=money(summary.earnedSalary);document.getElementById('expenses').textContent=money(summary.expenses);document.getElementById('payable').textContent=money(summary.payable);
+      document.getElementById('salaryRule').textContent=summary.salaryMode==='fixed'?`Fixed salary ${money(summary.fixedMonthlySalary)} per month`:`${summary.salaryPercentage}% of collection`;
+      document.getElementById('summary').textContent=`Salary paid this month: ${money(summary.salaryPaid)}`;
+      const combined=[
+        ...data.collections.map(entry=>({date:entry.entryDate,type:'Customer collection',detail:entry.serviceType,mode:entry.paymentMode,amount:entry.amount})),
+        ...data.records.map(record=>({date:record.entryDate,type:record.recordType==='expense'?'Employee expense':record.recordType==='salary'?'Salary paid':'Cash at counter',detail:record.expenseType||record.remark||'—',mode:record.paymentMode,amount:record.amount}))
+      ].sort((a,b)=>new Date(b.date)-new Date(a.date));
+      rows.replaceChildren();
+      if(!combined.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty';td.textContent='No records for this month.';tr.append(td);rows.append(tr);return}
+      for(const item of combined){const tr=document.createElement('tr');for(const value of [dateText(item.date),item.type,item.detail||'—',item.mode||'—',money(item.amount)]){const td=document.createElement('td');td.textContent=value;tr.append(td)}rows.append(tr)}
+    }
+    async function load(){statusBox.className='status';rows.innerHTML='<tr><td class="empty" colspan="5">Loading your records...</td></tr>';try{display(await request('/api/my-data?month='+encodeURIComponent(monthInput.value)))}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}}
+    async function initialize(){
+      const now=new Date();monthInput.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+      try{const session=await request('/api/session');if(session.employee.role==='Admin'){location.replace('/admin-dashboard');return}if(session.employee.mustChangePassword){location.replace('/password-change');return}document.getElementById('title').textContent=session.employee.employeeName+' dashboard';await load()}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}
+    }
+     monthInput.addEventListener('change',load);initialize();
+  </script>
+  <script src="/table-view.js"></script>
+</body>
+</html>

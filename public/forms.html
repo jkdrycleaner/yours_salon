@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Forms — YOURS SALON</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1060px,100%);margin:auto;padding:24px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;background:#fff;border:1px solid #e3e8ef;border-radius:16px;box-shadow:0 8px 24px #1b2a3b0b}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}.brand img{width:44px;height:44px;object-fit:contain;border-radius:10px}.brandName{font-weight:800;font-size:17px}.identity{margin-top:4px;color:#788699;font-size:12px}
+    .actions{display:flex;flex-wrap:wrap;gap:8px}button,.link{min-height:39px;padding:9px 13px;border:0;border-radius:9px;background:#c99a23;color:#fff;font:700 12px Arial;text-decoration:none;cursor:pointer}.secondary{background:#eff2f5;color:#344054}
+    h1{margin:26px 0 7px;font-size:26px}.sub{margin:0 0 18px;color:#718096;font-size:13px;line-height:1.5}
+    .modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.module{min-height:128px;padding:18px;border:1px solid #e1e7ee;border-radius:14px;background:#fff;text-align:left;box-shadow:0 5px 18px #1b2a3b08}.module.active{border-color:#e2c56c;box-shadow:0 8px 20px #aa83111a}.module strong{display:block;font-size:15px}.module span{display:block;margin-top:8px;color:#7c899b;font-size:12px;line-height:1.45}
+    .panel{margin-top:16px;padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.panel h2{margin:0 0 5px;font-size:18px}.panel .help{margin:0 0 16px;color:#79879a;font-size:12px;line-height:1.5}
+    .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:11px;font-weight:700;color:#526176}.field input,.field select,.field textarea{width:100%;min-height:42px;padding:9px 11px;border:1px solid #d9e0e7;border-radius:9px;background:#fff;color:#243244;font:14px Arial}.field textarea{min-height:82px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:#d1a228;box-shadow:0 0 0 3px #f8f0d7}
+    .wide{grid-column:1/-1}.submit{margin-top:16px;min-width:150px}.status{display:none;margin-top:12px;padding:11px;border-radius:9px;font-size:13px;line-height:1.45}.status.show{display:block;background:#eaf8f1;color:#22694d}.status.error{display:block;background:#fff0ef;color:#9a352f}
+    .empty{padding:20px;border:1px dashed #d4dce5;border-radius:12px;color:#718096;font-size:13px;background:#fff}
+    @media(max-width:650px){.wrap{padding:12px}.top{align-items:flex-start;padding:12px}.brandName{font-size:14px}.actions{justify-content:flex-end}.actions button,.actions a{min-height:35px;padding:8px;font-size:11px}.fields{grid-template-columns:1fr}.wide{grid-column:auto}.panel{padding:15px}.module{min-height:110px;padding:14px}h1{font-size:22px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div class="brand"><img id="logo" alt="" hidden><div><div id="brandName" class="brandName">Salon</div><div id="who" class="identity">Loading your account...</div></div></div>
+      <div class="actions"><a id="dashboardLink" class="link secondary" href="/employee-dashboard" hidden>My dashboard</a><a id="adminLink" class="link secondary" href="/admin" hidden>Admin data</a><a class="link secondary" href="/customer-entry">Entry list</a><button id="logout" class="secondary" type="button">Sign out</button></div>
+    </header>
+    <h1>Entry forms</h1>
+    <p class="sub">Open a form below. Employee access and expense types are controlled by the administrator.</p>
+    <div id="modules" class="modules"></div>
+    <section id="formPanel" class="panel" hidden></section>
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+  </main>
+  <script src="/btn-theme.js"></script>
+  <script>
+    const tokenKey='salon_google_credential';
+    const statusBox=document.getElementById('status');
+    let session=null,staff=[],expenseTypes=[],config=null,activeModule='';
+    const modules=[
+      {key:'customer',permission:'Customer Entry',title:'Customer Entry',description:'Record a salon collection.'},
+      {key:'expense',permission:'Daily Expense',title:'Employee Expenses',description:'Record an assigned employee expense.'},
+      {key:'salary',permission:'Salary',title:'Employee Salary',description:'Record salary paid for a selected month.'},
+      {key:'counter',permission:'Cash At Counter',title:'Cash At Counter',description:'Record a counter cash entry.'}
+    ];
+    function authHeaders(json=true){const headers={};const token=localStorage.getItem(tokenKey);if(token)headers.Authorization='Bearer '+token;if(json)headers['Content-Type']='application/json';return headers}
+    async function request(url,options={}){const response=await fetch(url,options);const result=await response.json();if(!response.ok){if(response.status===401){localStorage.removeItem(tokenKey);location.replace('/login')}throw new Error(result.error||'Request failed.')}return result}
+    function showStatus(message,error=false){statusBox.textContent=message;statusBox.className='status show'+(error?' error':'')}
+    function addField(container,label,id,type='text',required=true,wide=false){
+      const wrap=document.createElement('div');wrap.className='field'+(wide?' wide':'');const title=document.createElement('label');title.htmlFor=id;title.textContent=label;
+      const input=document.createElement(type==='select'?'select':type==='textarea'?'textarea':'input');input.id=id;input.name=id;if(type!=='select'&&type!=='textarea')input.type=type;input.required=required;
+      wrap.append(title,input);container.append(wrap);return input
+    }
+    function addOptions(select,values,firstLabel){
+      select.replaceChildren(new Option(firstLabel,''));
+      for(const item of values){const value=typeof item==='string'?item:item.value;const label=typeof item==='string'?item:item.label;select.add(new Option(label,value))}
+    }
+    function renderModules(){
+      const container=document.getElementById('modules');container.replaceChildren();
+      const allowed=modules.filter(item=>session.employee.role==='Admin'||session.permissions.includes(item.permission));
+      for(const item of allowed){const button=document.createElement('button');button.type='button';button.className='module'+(item.key===activeModule?' active':'');const title=document.createElement('strong');title.textContent=item.title;const text=document.createElement('span');text.textContent=item.description;button.append(title,text);button.addEventListener('click',()=>openForm(item.key));container.append(button)}
+      if(!allowed.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No entry permissions are assigned. Please contact your administrator.';container.append(empty)}
+    }
+    function commonTarget(container){
+      if(session.employee.role!=='Admin')return null;
+      const select=addField(container,'Employee','employeeId','select');
+      addOptions(select,staff.map(x=>({value:x._id,label:x.employeeName+' · '+x.employeeId})),'Select employee');
+      return select;
+    }
+    function applyDateLimit(input){
+      const today=config.todayDate;input.max=today;
+      if(!config.allowPreviousEntry)input.min=today;
+      else{const [year,month,day]=today.split('-').map(Number);input.min=new Date(Date.UTC(year,month-1,day-config.maxPreviousEntryDays)).toISOString().slice(0,10)}
+      input.value=today;
+    }
+    function openForm(key){
+      activeModule=key;renderModules();const panel=document.getElementById('formPanel');panel.hidden=false;panel.replaceChildren();
+      const descriptor=modules.find(item=>item.key===key);const heading=document.createElement('h2');heading.textContent=descriptor.title;panel.append(heading);
+      const help=document.createElement('p');help.className='help';help.textContent=session.employee.role==='Admin'?'Administrator access: choose an employee and enter the form details.':'Entries are saved under your employee account.';panel.append(help);
+      const form=document.createElement('form');const grid=document.createElement('div');grid.className='fields';form.append(grid);let target=null;let fields={};
+      if(key!=='customer')target=commonTarget(grid);
+      if(key==='customer'){
+        fields.entryNo=addField(grid,'Entry number','entryNo','number');fields.entryNo.min='1';fields.entryNo.step='1';
+        fields.entryDate=addField(grid,'Entry date','entryDate','date');applyDateLimit(fields.entryDate);
+        fields.staff=addField(grid,'Employee','staff','select');
+        const staffOptions=session.employee.role==='Admin'?staff:staff.filter(person=>person._id===session.employee.employeeId);
+        addOptions(fields.staff,staffOptions.map(item=>({value:item._id,label:item.employeeName})),'Select employee');
+        if(session.employee.role!=='Admin')fields.staff.value=session.employee.employeeId;
+        fields.serviceType=addField(grid,'Service type','serviceType');
+        fields.amount=addField(grid,'Amount (₹)','amount','number');fields.amount.min='0.01';fields.amount.step='0.01';
+        fields.costCutting=addField(grid,'Cost cutting (₹)','costCutting','number',false);fields.costCutting.min='0';fields.costCutting.step='0.01';
+        fields.paymentMode=addField(grid,'Payment mode','paymentMode','select');addOptions(fields.paymentMode,['Cash','Online'],'Select payment mode');fields.paymentMode.value='Cash';
+      }else{
+        fields.entryDate=addField(grid,'Entry date','entryDate','date');applyDateLimit(fields.entryDate);
+        if(key==='expense'){
+          fields.expenseTypeSr=addField(grid,'Assigned expense type','expenseTypeSr','select');
+          const types=session.employee.role==='Admin'?expenseTypes:session.expenseTypes;
+          addOptions(fields.expenseTypeSr,types.map(item=>({value:String(item.sr),label:item.sr+' · '+item.name})),'Select expense type');
+        }
+        if(key==='salary'){
+          fields.salaryMonth=addField(grid,'Salary month','salaryMonth','month');
+          fields.salaryMonth.value=config.todayDate.slice(0,7);
+        }
+        fields.amount=addField(grid,'Amount (₹)','amount','number');fields.amount.min='0.01';fields.amount.step='0.01';
+        if(key!=='counter'){fields.paymentMode=addField(grid,'Payment mode','paymentMode','select');addOptions(fields.paymentMode,['Cash','Online'],'Select payment mode');fields.paymentMode.value='Cash'}
+        fields.remark=addField(grid,'Remark','remark','textarea',false,true);
+      }
+      const submit=document.createElement('button');submit.type='submit';submit.className='submit';submit.textContent='Save entry';form.append(submit);
+      form.addEventListener('submit',async event=>{
+        event.preventDefault();submit.disabled=true;submit.textContent='Saving...';
+        try{
+          if(key==='customer'){
+            await request('/api/save-collection',{method:'POST',headers:authHeaders(),body:JSON.stringify({
+              entryNo:fields.entryNo.value,entryDate:fields.entryDate.value,
+              staff:staff.find(item=>item._id===fields.staff.value)?.employeeName||'',
+              serviceType:fields.serviceType.value,amount:fields.amount.value,costCutting:fields.costCutting.value,
+              paymentMode:fields.paymentMode.value,staffId:fields.staff.value
+            })});
+          }else{
+            const recordType=key==='counter'?'counter':key;
+            await request('/api/employee-records',{method:'POST',headers:authHeaders(),body:JSON.stringify({
+              recordType,employeeId:target?.value,entryDate:fields.entryDate.value,
+              expenseTypeSr:fields.expenseTypeSr?.value,salaryMonth:fields.salaryMonth?.value,
+              amount:fields.amount.value,paymentMode:fields.paymentMode?.value||'Cash',
+              remark:fields.remark?.value||''
+            })});
+          }
+          showStatus('Entry saved successfully.');form.reset();
+          if(fields.entryDate)applyDateLimit(fields.entryDate);
+          if(fields.paymentMode)fields.paymentMode.value='Cash';
+          if(fields.salaryMonth)fields.salaryMonth.value=config.todayDate.slice(0,7);
+        }catch(error){showStatus(error.message,true)}
+        finally{submit.disabled=false;submit.textContent='Save entry'}
+      });
+      panel.append(form);panel.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+    async function initialize(){
+      try{
+        [session,config]=await Promise.all([request('/api/session',{headers:authHeaders(false)}),request('/api/public-config')]);
+        staff=await request('/api/staff',{headers:authHeaders(false)});
+        if(session.employee.role==='Admin')expenseTypes=await request('/api/expense-types',{headers:authHeaders(false)}).then(rows=>rows.filter(row=>row.status==='Active'));
+        document.getElementById('who').textContent=session.employee.employeeName+' · '+session.employee.role;
+        if(session.employee.role==='Admin')document.getElementById('adminLink').hidden=false;
+        else document.getElementById('dashboardLink').hidden=false;
+        const branding=await request('/api/shop-branding');
+        document.getElementById('brandName').textContent=branding.name||'Salon';
+        if(branding.logoUrl){const logo=document.getElementById('logo');logo.src=branding.logoUrl;logo.hidden=false}
+        renderModules();
+      }catch(error){showStatus(error.message,true)}
+    }
+    document.getElementById('logout').addEventListener('click',()=>{localStorage.removeItem(tokenKey);location.replace('/login')});
+    initialize();
+  </script>
+</body>
+</html>

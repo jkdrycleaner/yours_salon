@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Admin Dashboard - YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}
+    .wrap{width:min(1180px,100%);margin:auto;padding:28px 20px 40px}
+    .heading{margin-bottom:18px}
+    .heading h1{margin:0;font-size:27px}
+    .heading p{margin:6px 0 0;color:#758397;font-size:13px}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .card{padding:17px;border:1px solid #e1e7ee;border-radius:14px;background:#fff;box-shadow:0 8px 22px #20334b08}
+    .card span{display:block;color:#758397;font-size:11px;font-weight:700}
+    .card strong{display:block;margin-top:10px;font-size:20px}
+    .card:nth-child(1){background:#edf9f4}.card:nth-child(2){background:#fff8e8}
+    .card:nth-child(3){background:#eff6ff}.card:nth-child(4){background:#f4efff}
+    .panel{margin-top:14px;padding:18px;border:1px solid #e1e7ee;border-radius:14px;background:#fff}
+    .panel h2{margin:0 0 12px;font-size:17px}
+    .quick-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+    .quick-links a{padding:13px;border:1px solid #e2e8ef;border-radius:10px;background:#fafbfc;color:#344054;text-decoration:none;font-size:12px;font-weight:700}
+    .quick-links a:hover{border-color:#d2ad4c;background:#fffaf0}
+    @media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:520px){.wrap{padding:20px 12px 30px}.heading h1{font-size:23px}.card{padding:13px}.quick-links{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="heading">
+      <h1>Admin Dashboard</h1>
+      <p>Manage salon operations, records, employees and reports from one place.</p>
+    </section>
+    <section class="cards" aria-label="Admin areas">
+      <article class="card"><span>RECORDS</span><strong>Collection, expense and salary</strong></article>
+      <article class="card"><span>PEOPLE</span><strong>Employees and permissions</strong></article>
+      <article class="card"><span>REPORTS</span><strong>Reports and activity history</strong></article>
+      <article class="card"><span>SETTINGS</span><strong>Rates, shop and configuration</strong></article>
+    </section>
+    <section class="panel">
+      <h2>Quick access</h2>
+      <nav class="quick-links" aria-label="Admin quick access">
+        <a href="/collection-table">Collection Records</a>
+        <a href="/expense-table">Expense Records</a>
+        <a href="/salary-table">Salary Records</a>
+        <a href="/counter-table">Counter Cash Records</a>
+        <a href="/employees">Employee List</a>
+        <a href="/user-access">User Access</a>
+        <a href="/reports">Reports</a>
+        <a href="/activity-report">Activity Report</a>
+        <a href="/config">Configuration</a>
+        <a href="/shop-details">Shop Details</a>
+        <a href="/rate-list">Rate List</a>
+        <a href="/bulk-entry">Bulk Entry</a>
+      </nav>
+    </section>
+  </main>
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js"></script>
+</body>
+</html>

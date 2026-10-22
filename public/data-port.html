@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>YOURS SALON — Data Port</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:18px}
+    .container{width:100%;max-width:900px;margin:0 auto;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
+    .logo{font-size:24px;font-weight:700;color:#A77B12;margin-bottom:18px;border-bottom:1px solid #ECEDEF;padding-bottom:12px}
+    .logo span{color:#C49A32}
+    h1{font-size:21px;margin:0}
+    h2{font-size:16px;margin:0}
+    .sub,.help{color:#737780;font-size:13px;line-height:1.5}
+    .sub{margin:7px 0 18px}
+    .panel{padding:16px;margin:14px 0;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .help{font-size:12px;margin:9px 0 12px}
+    .actions{display:flex;flex-wrap:wrap;gap:8px}
+    button,.file-label{display:inline-flex;align-items:center;justify-content:center;min-height:39px;border:0;border-radius:8px;padding:9px 13px;background:#C49A32;color:#211A0B;font-size:13px;font-weight:700;text-align:center;cursor:pointer}
+    button.secondary,.file-label{background:#F0F1F3;color:#34383E}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    input[type=file]{display:none}
+    .status{display:none;margin-top:10px;padding:9px 10px;border-radius:7px;font-size:12px;white-space:pre-line}
+    .status.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
+    .status.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
+    .notice{padding:12px;background:#FFF9E9;border:1px solid #E9D9AA;border-radius:8px;color:#765B14;font-size:12px;line-height:1.5}
+    @media(max-width:600px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.panel-head{align-items:flex-start;flex-direction:column}.actions>*{flex:1}}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="logo">YOURS <span>SALON</span></div>
+    <h1>Data Port</h1>
+    <p class="sub">Import or export Employee, Customer Entry, and Expense Type data as CSV or Excel (.xlsx).</p>
+    <p class="notice">Exports include all records. Employee imports update matching Employee IDs; Expense Type imports update matching SR values. Customer Entry imports update a matching MongoDB _id, while rows without an _id are added as new entries. Keep exported _id values unchanged when restoring Customer Entry data.</p>
+
+    <section class="panel" data-dataset="employees">
+      <div class="panel-head"><h2>Employee</h2></div>
+      <p class="help">Includes custom employee fields. Import requires Employee ID and Employee Name; existing Employee IDs are updated.</p>
+      <div class="actions">
+        <button type="button" data-export="employees" data-format="csv">Export CSV</button>
+        <button type="button" data-export="employees" data-format="xlsx">Export Excel</button>
+        <button type="button" class="secondary" data-template="employees">Download template</button>
+        <label class="file-label">Choose import file
+          <input type="file" data-import-file="employees" accept=".csv,.xlsx">
+        </label>
+        <button type="button" class="secondary" data-import="employees" disabled>Import Employee</button>
+      </div>
+      <div class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" data-dataset="customer-entry">
+      <div class="panel-head"><h2>Customer Entry</h2></div>
+      <p class="help">Includes entry date, payment and amount details. Customer Entry import validates the full file before saving any row.</p>
+      <div class="actions">
+        <button type="button" data-export="customer-entry" data-format="csv">Export CSV</button>
+        <button type="button" data-export="customer-entry" data-format="xlsx">Export Excel</button>
+        <button type="button" class="secondary" data-template="customer-entry">Download template</button>
+        <label class="file-label">Choose import file
+          <input type="file" data-import-file="customer-entry" accept=".csv,.xlsx">
+        </label>
+        <button type="button" class="secondary" data-import="customer-entry" disabled>Import Customer Entry</button>
+      </div>
+      <div class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" data-dataset="expense-types">
+      <div class="panel-head"><h2>Expense Type</h2></div>
+      <p class="help">Includes serial number, name, and status. Imports update matching SR values.</p>
+      <div class="actions">
+        <button type="button" data-export="expense-types" data-format="csv">Export CSV</button>
+        <button type="button" data-export="expense-types" data-format="xlsx">Export Excel</button>
+        <button type="button" class="secondary" data-template="expense-types">Download template</button>
+        <label class="file-label">Choose import file
+          <input type="file" data-import-file="expense-types" accept=".csv,.xlsx">
+        </label>
+        <button type="button" class="secondary" data-import="expense-types" disabled>Import Expense Type</button>
+      </div>
+      <div class="status" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+  <script src="/admin-nav.js" defer></script>
+  <script>
+    function authHeaders(){
+      const headers={};
+      const token=localStorage.getItem('salon_google_credential');
+      if(token)headers.Authorization='Bearer '+token;
+      return headers;
+    }
+
+    function statusFor(dataset){
+      return document.querySelector(`[data-dataset="${dataset}"] .status`);
+    }
+
+    function showStatus(dataset,message,type){
+      const status=statusFor(dataset);
+      status.textContent=message;
+      status.className=`status ${type}`;
+    }
+
+    async function downloadTemplate(dataset){
+      let headers;
+      if(dataset==='employees'){
+        const response=await fetch('/api/employee-fields',{headers:authHeaders()});
+        const fields=await response.json();
+        if(!response.ok)throw new Error(fields.error||'Could not load employee field names.');
+        headers=['SR','Employee ID','Email address','Mobile Number','Employee Name','Status','Joining Date','Date of Birth','PAN No.','Aadhaar Card No.','Address','City','State','Pin','Alternate Mobile No.','Expense Types','User ID','Role','Salary Mode','Salary Percentage','Fixed Monthly Salary','Photo URL',...fields.map(field=>field.label)];
+      }else if(dataset==='customer-entry'){
+        headers=['_id','Entry No','Entry Date','Staff','Service Type','Amount','Cost Cutting','Payment Mode','Email','Created At'];
+      }else{
+        headers=['SR','Expense Type','Status'];
+      }
+      const csv='\uFEFF'+headers.map(value=>`"${String(value).replace(/"/g,'""')}"`).join(',')+'\r\n';
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const link=document.createElement('a');
+      link.href=url;
+      link.download=`yours-salon-${dataset}-template.csv`;
+      link.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+      showStatus(dataset,`Downloaded ${link.download}.`,'success');
+    }
+
+    for(const button of document.querySelectorAll('[data-template]')){
+      button.addEventListener('click',async()=>{
+        const dataset=button.dataset.template;
+        button.disabled=true;
+        try{await downloadTemplate(dataset)}
+        catch(error){showStatus(dataset,error.message||'Could not download template.','error')}
+        finally{button.disabled=false}
+      });
+    }
+
+    for(const button of document.querySelectorAll('[data-export]')){
+      button.addEventListener('click',async()=>{
+        const {export:dataset,format}=button.dataset;
+        button.disabled=true;
+        showStatus(dataset,`Preparing ${format.toUpperCase()} export...`,'success');
+        try{
+          const response=await fetch(`/api/data-port/${dataset}/export?format=${format}`,{headers:authHeaders()});
+          if(!response.ok){
+            const result=await response.json();
+            throw new Error(result.error||'Could not export data.');
+          }
+          const blob=await response.blob();
+          const disposition=response.headers.get('Content-Disposition')||'';
+          const filename=disposition.match(/filename="([^"]+)"/)?.[1]||`yours-salon-${dataset}.${format}`;
+          const url=URL.createObjectURL(blob);
+          const link=document.createElement('a');
+          link.href=url;
+          link.download=filename;
+          link.click();
+          setTimeout(()=>URL.revokeObjectURL(url),1000);
+          showStatus(dataset,`Downloaded ${filename}.`,'success');
+        }catch(error){
+          showStatus(dataset,error.message||'Could not export data.','error');
+        }finally{
+          button.disabled=false;
+        }
+      });
+    }
+
+    for(const input of document.querySelectorAll('[data-import-file]')){
+      input.addEventListener('change',()=>{
+        const dataset=input.dataset.importFile;
+        const button=document.querySelector(`[data-import="${dataset}"]`);
+        button.disabled=!input.files.length;
+        if(input.files.length)showStatus(dataset,`Selected: ${input.files[0].name}`,'success');
+      });
+    }
+
+    for(const button of document.querySelectorAll('[data-import]')){
+      button.addEventListener('click',async()=>{
+        const dataset=button.dataset.import;
+        const input=document.querySelector(`[data-import-file="${dataset}"]`);
+        const file=input.files[0];
+        if(!file)return;
+        if(dataset==='customer-entry'&&!window.confirm('Import Customer Entry rows? Matching _id values will be updated; rows without _id will be added.'))return;
+        button.disabled=true;
+        showStatus(dataset,'Importing file...','success');
+        try{
+          const body=new FormData();
+          body.append('file',file);
+          const endpoint=dataset==='customer-entry'
+            ?'/api/data-port/customer-entry/import'
+            :`/api/${dataset}/import`;
+          const response=await fetch(endpoint,{method:'POST',headers:authHeaders(),body});
+          const result=await response.json();
+          if(!response.ok)throw new Error([result.error,...(result.rowErrors||[])].filter(Boolean).join('\n'));
+          const summary=result.inserted!==undefined
+            ?`${result.inserted} added, ${result.updated||0} updated`
+            :`${result.processed||0} processed`;
+          const rowErrors=(result.rowErrors||[]).join('\n');
+          showStatus(dataset,`Import complete: ${summary}.${rowErrors?'\n'+rowErrors:''}`,result.invalidRows?'error':'success');
+          input.value='';
+        }catch(error){
+          showStatus(dataset,error.message||'Could not import data.','error');
+        }finally{
+          button.disabled=!input.files.length;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

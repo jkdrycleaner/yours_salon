@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Records - YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/table-view.css">
+  <link rel="stylesheet" href="/date-range.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1250px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.links{display:flex;flex-wrap:wrap;gap:8px}.links a,.action{min-height:35px;padding:8px 11px;border:0;border-radius:8px;background:#eff2f5;color:#344054;text-decoration:none;font:700 12px Arial;cursor:pointer}.links a.add{background:#c99a23;color:#fff}.action.delete{background:#fff0ef;color:#9a352f}.action.deactivate{background:#fff9e8;color:#765b14}.filters{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-top:18px;padding:13px;background:#fafbfc;border:1px solid #e6ebf0;border-radius:11px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:#526176;font-weight:700}.field select{height:38px;min-width:150px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.filters button{height:38px;padding:8px 14px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.filters button.secondary{background:#eff2f5;color:#344054}.table-wrap{margin-top:16px;overflow:auto;border:1px solid #e1e7ee;border-radius:11px}table{width:100%;min-width:1080px;border-collapse:collapse;font-size:12px}th,td{padding:11px 12px;text-align:left;border-bottom:1px solid #edf0f4;white-space:nowrap}th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}tbody tr:last-child td{border-bottom:0}.empty{text-align:center;color:#7b8797;padding:25px}.status{display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px}.status.show{display:block;background:#fff0ef;color:#a13932}.row-actions{display:flex;gap:6px}.row-actions .action{min-height:30px;padding:6px 9px;font-size:11px}.row-inactive td{color:#a13932}.row-inactive td.sticky-action{background:#fff7f6}.badge{display:inline-block;padding:4px 7px;border-radius:99px;background:#e9f6f1;color:#286b53;font-size:10px;font-weight:700}.badge.inactive{background:#fff0ef;color:#a13932}.details-dialog{width:min(520px,92vw);padding:0;border:0;border-radius:14px;box-shadow:0 22px 60px #17233245}.details-dialog::backdrop{background:#17233266}.details-card{padding:20px}.details-card h2{margin:0 0 14px;font-size:18px}.details-list{display:grid;grid-template-columns:150px 1fr;gap:9px;margin:0}.details-list dt{color:#758397;font-size:12px;font-weight:700}.details-list dd{margin:0;color:#243244;font-size:12px;overflow-wrap:anywhere}.details-actions{display:flex;justify-content:flex-end;margin-top:17px}.details-actions button{min-height:36px;padding:8px 14px;border:0;border-radius:8px;background:#eff2f5;color:#344054;font:700 12px Arial;cursor:pointer}@media(max-width:620px){.wrap{padding:20px 12px 30px}.filters{align-items:stretch;flex-direction:column}.field select{width:100%}.filters button{width:100%}.links{width:100%}.links a{flex:1;text-align:center}.details-list{grid-template-columns:1fr}.details-list dt{margin-top:7px}}
+  </style>
+  <style>
+    .bulk-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;border:1px solid #e6ebf0;border-radius:9px;background:#f8fafc;font-size:12px;color:#475467}
+    .bulk-bar[hidden]{display:none}
+    .bulk-bar strong{color:#1d2939}
+    .bulk-bar .action{min-height:32px;padding:6px 11px}
+    .bulk-bar .delete{background:#9a352f;color:#fff}
+    .bulk-bar .clear{background:#eff2f5;color:#344054}
+    .select-column{width:38px;text-align:center;padding-left:10px;padding-right:10px}
+    .select-column input{width:16px;height:16px;margin:0;accent-color:#c99a23;cursor:pointer}
+    .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <div class="heading">
+        <div><h1 id="title">Records</h1><p id="description">View saved salon records.</p></div>
+        <div class="links"><a id="entryLink" class="add" href="#">Add</a></div>
+      </div>
+      <div class="filters">
+        <div class="field"><label>Date range</label><div id="dateRange"></div></div>
+        <div id="employeeField" class="field" hidden><label for="employee">Employee</label><select id="employee"><option value="">All employees</option></select></div>
+        <div class="field"><label for="statusFilter">Status</label><select id="statusFilter"><option value="Active">Active</option><option value="All">All</option><option value="Inactive">In-Active</option></select></div>
+        <button id="filter" type="button">Apply Filter</button>
+        <button id="clear" class="secondary" type="button">Clear</button>
+      </div>
+      <div id="status" class="status" role="status"></div>
+      <div id="bulkBar" class="bulk-bar" hidden>
+        <span><strong id="selectedCount">0</strong> row(s) selected</span>
+        <button id="bulkDelete" class="action delete" type="button" disabled>Delete Selected Permanently</button>
+        <button id="clearSelection" class="action clear" type="button" disabled>Clear Selection</button>
+      </div>
+      <div class="table-wrap">
+        <table id="recordsTable" data-table-view="server" data-page="1" data-page-size="10" data-total="0">
+          <thead id="head"></thead>
+          <tbody id="rows"><tr><td class="empty">Loading records...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <dialog id="detailsDialog" class="details-dialog">
+    <div class="details-card"><h2>Record details</h2><dl id="detailsList" class="details-list"></dl><div class="details-actions"><button id="closeDetails" type="button">Close</button></div></div>
+  </dialog>
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js"></script>
+  <script src="/table-view.js"></script>
+  <script src="/date-range.js"></script>
+  <script>
+    const routePath=location.pathname.replace(/\/+$/,'')||'/';
+    const moduleKey=routePath.split('/').pop().replace('-table','');
+    const definitions={
+      collection:{title:'Collection Records',description:'View collection records. Use Add to create a new entry.',permission:'Customer Entry',entry:'/collection-entry',entryPage:'collection-entry'},
+      expense:{title:'Expense Records',description:'View employee expense records. Use Add to create a new entry.',permission:'Daily Expense',entry:'/expense-entry',entryPage:'expense-entry'},
+      salary:{title:'Salary Records',description:'View salary payment records. Use Add to create a new entry.',permission:'Salary',entry:'/salary-entry',entryPage:'salary-entry'},
+      counter:{title:'Counter Cash Records',description:'View counter cash records. Use Add to create a new entry.',permission:'Cash At Counter',entry:'/counter-entry',entryPage:'counter-entry'}
+    };
+    const definition=definitions[moduleKey]||definitions.collection;
+    const table=document.getElementById('recordsTable'),head=document.getElementById('head'),body=document.getElementById('rows'),statusBox=document.getElementById('status'),detailsDialog=document.getElementById('detailsDialog'),detailsList=document.getElementById('detailsList');
+    const statusFilter=document.getElementById('statusFilter');
+    const bulkBar=document.getElementById('bulkBar'),selectedCount=document.getElementById('selectedCount'),bulkDeleteButton=document.getElementById('bulkDelete'),clearSelectionButton=document.getElementById('clearSelection');
+    let page=1,session=null,dateControl=null,selectedIds=new Set(),lastPageIds=[],selectAllCheckbox=null;
+    document.getElementById('title').textContent=definition.title;
+    document.getElementById('description').textContent=definition.description;
+    const entryLink=document.getElementById('entryLink');
+    entryLink.href=definition.entry;
+    function money(value){return'INR '+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+    function dateText(value){if(!value)return'—';const date=new Date(value);return Number.isNaN(date.getTime())?'—':date.toLocaleDateString('en-IN')}
+    function dateTimeText(value){if(!value)return'—';const date=new Date(value);return Number.isNaN(date.getTime())?'—':date.toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})}
+    function columns(){
+      if(moduleKey==='collection')return[['Entry No','entryNo'],['Date','entryDate','date'],['Employee','staff'],['Service','serviceType'],['Amount','amount','money'],['Cost Cutting','costCutting','money'],['Payment','paymentMode'],['Remark','remark'],['Status','status'],['Entry Creation On','createdAt','datetime'],['Created By','createdBy'],['Actions','__actions']];
+      return[['Date','entryDate','date'],['Employee','employeeName'],...(moduleKey==='expense'?[['Expense Type','expenseType']]:[]),...(moduleKey==='salary'?[['Salary Month','salaryMonth']]:[]),['Amount','amount','money'],['Payment','paymentMode'],['Remark','remark'],['Status','status'],['Entry Creation On','createdAt','datetime'],['Created By','createdBy'],['Actions','__actions']];
+    }
+    function displayValue(record,key,format){const value=record[key]||(format==='datetime'?record.entryDate:'');return format==='date'?dateText(value):format==='datetime'?dateTimeText(value):format==='money'?money(value):String(value??'—')}
+    function can(action){
+      if(!session)return false;
+      const access=session.actionAccess?.[moduleKey];
+      if(access)return access[action]===true;
+      return session.employee.role==='Admin'||session.permissions.includes(definition.permission);
+    }
+    function showDetails(record){
+      detailsList.replaceChildren();
+      for(const [label,key,format] of columns().filter(([,key])=>key!=='__actions')){
+        const item=document.createElement('div'),term=document.createElement('dt'),value=document.createElement('dd');term.textContent=label;value.textContent=displayValue(record,key,format);item.append(term,value);detailsList.append(item);
+      }
+      if(typeof detailsDialog.showModal==='function')detailsDialog.showModal();else detailsDialog.hidden=false;
+    }
+    function actionCell(record){
+      const cell=document.createElement('td'),actions=document.createElement('div');cell.className='sticky-action';actions.className='row-actions';
+      const view=document.createElement('button');view.type='button';view.className='action';view.textContent='View';view.addEventListener('click',()=>showDetails(record));
+      actions.append(view);
+      if(record.status!=='Inactive'&&can('edit')&&session.pageAccess?.[definition.entryPage]!==false){const edit=document.createElement('a');edit.className='action';edit.textContent='Edit';edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;actions.append(edit)}
+      if(record.status!=='Inactive'&&can('delete')){const remove=document.createElement('button');remove.type='button';remove.className='action delete';remove.textContent='Delete';remove.addEventListener('click',()=>softDelete(record,remove));actions.append(remove)}
+      if(record.status!=='Inactive'&&can('deactivate')){const deactivate=document.createElement('button');deactivate.type='button';deactivate.className='action deactivate';deactivate.textContent='Deactivate';deactivate.addEventListener('click',()=>deactivateRecord(record,deactivate));actions.append(deactivate)}
+      cell.append(actions);return cell;
+    }
+    function statusCell(record){
+      const cell=document.createElement('td'),badge=document.createElement('span');
+      badge.className='badge'+(record.status==='Inactive'?' inactive':'');
+      badge.textContent=record.status==='Inactive'?(record.inactiveAction||'Inactive'):'Active';
+      cell.append(badge);return cell;
+    }
+    function canBulkDelete(){return session?.employee?.accountType==='Super Admin'}
+    function selectionCell(record){
+      const cell=document.createElement('td'),checkbox=document.createElement('input');
+      cell.className='select-column';checkbox.type='checkbox';checkbox.dataset.rowSelect='true';
+      checkbox.checked=selectedIds.has(String(record._id));
+      checkbox.setAttribute('aria-label',`Select record ${record.entryNo||record._id}`);
+      checkbox.addEventListener('change',()=>{
+        const id=String(record._id);
+        if(checkbox.checked)selectedIds.add(id);else selectedIds.delete(id);
+        updateBulkBar();
+      });
+      cell.append(checkbox);return cell;
+    }
+    function updateBulkBar(){
+      const can=canBulkDelete();
+      if(!can)selectedIds.clear();
+      bulkBar.hidden=!can;
+      selectedCount.textContent=String(selectedIds.size);
+      bulkDeleteButton.disabled=!can||selectedIds.size===0;
+      clearSelectionButton.disabled=!can||selectedIds.size===0;
+      if(selectAllCheckbox){
+        const selectedOnPage=lastPageIds.filter(id=>selectedIds.has(id)).length;
+        selectAllCheckbox.checked=lastPageIds.length>0&&selectedOnPage===lastPageIds.length;
+        selectAllCheckbox.indeterminate=selectedOnPage>0&&selectedOnPage<lastPageIds.length;
+      }
+    }
+    function clearSelection(){
+      selectedIds.clear();
+      body.querySelectorAll('input[data-row-select]').forEach(checkbox=>{checkbox.checked=false});
+      updateBulkBar();
+    }
+    async function bulkDelete(){
+      if(!canBulkDelete()||selectedIds.size===0)return;
+      const count=selectedIds.size;
+      if(!window.confirm(`Permanently delete ${count} selected row(s)? This cannot be undone.`))return;
+      bulkDeleteButton.disabled=true;statusBox.className='status';
+      try{
+        const result=await salonAuth.request('/api/super-admin/bulk-delete',{
+          method:'POST',
+          body:JSON.stringify({module:moduleKey,ids:[...selectedIds]})
+        });
+        selectedIds.clear();
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Selected rows permanently deleted.');
+        await load();
+      }catch(error){
+        statusBox.textContent=error.message||'Could not permanently delete the selected rows.';
+        statusBox.className='status show';
+      }finally{
+        updateBulkBar();
+      }
+    }
+    function render(data){
+      const currentColumns=columns(),selectable=canBulkDelete();head.replaceChildren();
+      const headerRow=document.createElement('tr');selectAllCheckbox=null;
+      if(selectable){
+        const th=document.createElement('th');th.className='select-column';th.dataset.fixedColumn='true';
+        const checkbox=document.createElement('input');checkbox.type='checkbox';
+        const label=document.createElement('span');label.className='visually-hidden';label.textContent='Select';
+        checkbox.setAttribute('aria-label','Select all records on this page');
+        checkbox.addEventListener('change',()=>{
+          for(const id of lastPageIds){
+            if(checkbox.checked)selectedIds.add(id);else selectedIds.delete(id);
+          }
+          body.querySelectorAll('input[data-row-select]').forEach(rowCheckbox=>{rowCheckbox.checked=checkbox.checked});
+          updateBulkBar();
+        });
+        selectAllCheckbox=checkbox;th.append(checkbox,label);headerRow.append(th);
+      }
+      for(const [label] of currentColumns){const th=document.createElement('th');th.textContent=label;if(label==='Actions')th.className='sticky-action';headerRow.append(th)}
+      head.append(headerRow);body.replaceChildren();
+      lastPageIds=data.records.map(record=>String(record._id));
+      if(!data.records.length){const empty=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=currentColumns.length+(selectable?1:0);cell.className='empty';cell.textContent='No records found.';empty.append(cell);body.append(empty)}
+      for(const record of data.records){
+        const tr=document.createElement('tr');
+        if(record.status==='Inactive')tr.className='row-inactive';
+        if(selectable)tr.append(selectionCell(record));
+        for(const [,key,format] of currentColumns){
+          if(key==='__actions')tr.append(actionCell(record));
+          else if(key==='status')tr.append(statusCell(record));
+          else tr.append(Object.assign(document.createElement('td'),{textContent:displayValue(record,key,format)}));
+        }
+        body.append(tr);
+      }
+      page=data.page;table.dataset.page=String(data.page);table.dataset.pageSize=String(data.limit);table.dataset.total=String(data.total);table.dataset.dataset=moduleKey;
+      updateBulkBar();
+    }
+    async function load(){
+      const range=dateControl.getRange();
+      const params=new URLSearchParams({module:moduleKey,page:String(page),limit:'10',from:range.from,to:range.to,status:statusFilter.value});
+      if(document.getElementById('employee').value)params.set('employeeId',document.getElementById('employee').value);
+      try{render(await salonAuth.request('/api/module-records?'+params.toString()))}
+      catch(error){body.innerHTML='<tr><td class="empty">Could not load records.</td></tr>';statusBox.textContent=error.message;statusBox.className='status show'}
+    }
+    async function softDelete(record,button){
+      if(!record._id||!window.confirm('Move this record to In-Active? It will remain available under the In-Active filter.'))return;
+      button.disabled=true;statusBox.className='status';
+      try{const endpoint=moduleKey==='collection'?`/api/collections/${encodeURIComponent(record._id)}`:`/api/employee-records/${encodeURIComponent(record._id)}`;const result=await salonAuth.request(endpoint,{method:'DELETE'});if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Record moved to In-Active.');await load()}
+      catch(error){statusBox.textContent=error.message||'Could not move the record to In-Active.';statusBox.className='status show';button.disabled=false}
+    }
+    async function deactivateRecord(record,button){
+      if(!record._id||!window.confirm('Deactivate this record? It will move to In-Active.'))return;
+      button.disabled=true;statusBox.className='status';
+      try{const endpoint=moduleKey==='collection'?`/api/collections/${encodeURIComponent(record._id)}/deactivate`:`/api/employee-records/${encodeURIComponent(record._id)}/deactivate`;const result=await salonAuth.request(endpoint,{method:'PATCH'});if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Record deactivated.');await load()}
+      catch(error){statusBox.textContent=error.message||'Could not deactivate the record.';statusBox.className='status show';button.disabled=false}
+    }
+    dateControl=SalonDateRange.mount(document.getElementById('dateRange'),{defaultPreset:'last30',onChange:()=>{clearSelection();page=1;load()}});
+    document.getElementById('filter').addEventListener('click',()=>{clearSelection();page=1;load()});
+    statusFilter.addEventListener('change',()=>{clearSelection();page=1;load()});
+    document.getElementById('clear').addEventListener('click',()=>{clearSelection();dateControl.reset(false);statusFilter.value='Active';document.getElementById('employee').value='';page=1;load()});
+    clearSelectionButton.addEventListener('click',clearSelection);
+    bulkDeleteButton.addEventListener('click',bulkDelete);
+    document.getElementById('closeDetails').addEventListener('click',()=>detailsDialog.close?.());
+    table.addEventListener('table-view-page-change',event=>{page=event.detail.page;load()});
+    (async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
+      if(session.employee.role==='Admin'){document.getElementById('employeeField').hidden=false;const staff=await salonAuth.request('/api/staff');for(const employee of staff)document.getElementById('employee').add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id))}
+      if(!can('add')||session.pageAccess?.[definition.entryPage]===false)entryLink.hidden=true;
+      updateBulkBar();
+      await load()}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}})();
+  </script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Add Employee - YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
+    .container{width:100%;max-width:1180px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    h1{font-size:21px;margin:0}
+    h2{font-size:16px;margin:0 0 13px}
+    .sub,.help{color:#737780;font-size:13px;line-height:1.5}
+    .sub{margin:7px 0 18px}
+    .panel{padding:16px;margin:14px 0;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
+    .actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+    button,.link{display:inline-flex;align-items:center;justify-content:center;min-height:39px;border:0;border-radius:8px;padding:9px 13px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
+    button{background:#C49A32;color:#211A0B}
+    button.secondary,.link{background:#F0F1F3;color:#34383E}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .help{font-size:12px;margin:10px 0 0}
+    .form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{font-size:11px;font-weight:700;color:#656B74}
+    .field input,.field select{width:100%;height:39px;padding:7px 10px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;color:#242424;font:inherit}
+    .field input:focus,.field select:focus{outline:0;border-color:#C49A32;box-shadow:0 0 0 3px rgba(196,154,50,.14)}
+    .expense-type-field{grid-column:span 2}
+    .expense-type-toolbar{display:flex;justify-content:flex-end}
+    .expense-type-toolbar button{min-height:30px;padding:6px 9px;font-size:11px}
+    .expense-type-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px;padding:9px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF}
+    .expense-type-option{display:flex;align-items:center;gap:8px;min-width:0;padding:7px;border-radius:6px;background:#F8F9FA;font-size:12px;overflow-wrap:anywhere}
+    .field .expense-type-option input{flex:0 0 18px;width:18px;height:18px;min-height:18px;margin:0;padding:0;border:0;background:transparent;box-shadow:none;accent-color:#C49A32}
+    .field .expense-type-option input:focus{outline:2px solid rgba(196,154,50,.45);outline-offset:2px;box-shadow:none}
+    .form-actions{display:flex;gap:9px;margin-top:13px}
+    .add-row{display:flex;gap:8px;margin-top:13px}
+    .add-row input{flex:1;min-width:0;height:39px;padding:7px 10px;border:1px solid #D9DDE3;border-radius:8px;font:inherit}
+    .photo-preview{display:flex;align-items:center;gap:10px;margin-top:6px}
+    .photo-preview img{width:64px;height:64px;object-fit:cover;border:1px solid #E5E7EB;border-radius:8px;background:#FFF}
+    [hidden]{display:none!important}
+    #status{display:none;margin-top:12px;padding:10px;border-radius:7px;font-size:13px;white-space:pre-line}
+    #status.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
+    #status.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
+    @media(max-width:720px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:450px){.form-grid{grid-template-columns:1fr}.expense-type-field{grid-column:1}header{align-items:flex-start;flex-direction:column}.actions>*{flex:1}}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <div><h1 id="formTitle">Add Employee</h1><p class="sub">Create a new employee. The default login password is 1234 and must be changed at first sign-in.</p></div>
+      <div class="actions"><a class="link" href="/employees">Back to Employee List</a></div>
+    </header>
+
+    <section class="panel">
+      <form id="employeeForm">
+        <div class="form-grid">
+          <div class="field"><label for="sr">SR</label><input id="sr" name="sr" type="number" min="0"></div>
+          <div class="field"><label for="employeeId">Employee ID *</label><input id="employeeId" name="employeeId" required maxlength="100"></div>
+          <div class="field"><label for="emailAddress">Email address</label><input id="emailAddress" name="emailAddress" type="email" maxlength="254"></div>
+          <div class="field"><label for="mobileNumber">Mobile number *</label><input id="mobileNumber" name="mobileNumber" type="tel" inputmode="numeric" required minlength="10" maxlength="20"></div>
+          <div class="field"><label for="employeeName">Employee Name *</label><input id="employeeName" name="employeeName" required maxlength="150"></div>
+          <div class="field"><label for="statusSelect">Status</label><select id="statusSelect" name="status"><option>Active</option><option>Inactive</option></select></div>
+          <div class="field"><label for="joiningDate">Joining Date</label><input id="joiningDate" name="joiningDate" type="date"></div>
+          <div class="field"><label for="dateOfBirth">Date of Birth</label><input id="dateOfBirth" name="dateOfBirth" type="date"></div>
+          <div class="field"><label for="panNumber">PAN No.</label><input id="panNumber" name="panNumber" maxlength="10" autocapitalize="characters"></div>
+          <div class="field"><label for="aadhaarCardNumber">Aadhaar Card No.</label><input id="aadhaarCardNumber" name="aadhaarCardNumber" type="tel" inputmode="numeric" maxlength="14"></div>
+          <div class="field"><label for="address">Address</label><input id="address" name="address" maxlength="500"></div>
+          <div class="field"><label for="city">City</label><input id="city" name="city" maxlength="100"></div>
+          <div class="field"><label for="state">State</label><input id="state" name="state" maxlength="100"></div>
+          <div class="field"><label for="pinCode">Pin</label><input id="pinCode" name="pinCode" type="text" inputmode="numeric" maxlength="6"></div>
+          <div class="field"><label for="alternateMobileNumber">Alternate Mobile No.</label><input id="alternateMobileNumber" name="alternateMobileNumber" type="tel" inputmode="numeric" maxlength="20"></div>
+          <div class="field expense-type-field"><label>Expense Types</label><div class="expense-type-toolbar"><button id="expenseTypeSelectAll" type="button" class="secondary">Select all</button></div><div id="expenseTypeOptions" class="expense-type-options" role="group" aria-label="Expense Types"></div><span class="help">Select one or more expense types.</span></div>
+          <div class="field"><label for="userId">Login User ID *</label><input id="userId" name="userId" required maxlength="100" autocomplete="username"></div>
+          <div class="field"><label for="role">Role</label><select id="role" name="role"><option value="Employee">Employee</option><option value="Admin">Admin</option></select></div>
+          <div class="field"><label for="salaryMode">Salary calculation</label><select id="salaryMode" name="salaryMode"><option value="percentage">Percentage of collection</option><option value="fixed">Fixed monthly salary</option></select></div>
+          <div class="field" id="salaryPercentageField"><label for="salaryPercentage">Collection percentage (%)</label><input id="salaryPercentage" name="salaryPercentage" type="number" min="0" max="100" step="0.01" value="50"></div>
+          <div class="field" id="fixedMonthlySalaryField" hidden><label for="fixedMonthlySalary">Fixed monthly salary (₹)</label><input id="fixedMonthlySalary" name="fixedMonthlySalary" type="number" min="0" step="0.01" value="0" disabled></div>
+          <div class="field"><label for="employeePhoto">Photo</label><input id="employeePhoto" type="file" accept="image/jpeg,image/png,image/webp"><input id="photoUrl" name="photoUrl" type="hidden"><div class="photo-preview" id="photoPreview" hidden><img id="photoPreviewImage" alt="Employee photo preview"><button id="removePhotoButton" type="button" class="secondary">Remove photo</button></div><span class="help">Upload a JPG, PNG, or WebP image.</span></div>
+        </div>
+        <div id="customFields"></div>
+        <div class="add-row">
+          <input id="newFieldLabel" type="text" maxlength="50" placeholder="Add another employee field">
+          <button id="addFieldButton" type="button" class="secondary">Add field</button>
+        </div>
+        <div class="form-actions">
+          <button id="submitEmployee" type="submit">Save Employee</button>
+          <a class="link" href="/employees">Cancel</a>
+        </div>
+      </form>
+      <div id="status" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+  <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script>
+  <script>
+    const form=document.getElementById('employeeForm');
+    const statusBox=document.getElementById('status');
+    const editId=new URLSearchParams(location.search).get('edit')||'';
+    let expenseTypes=[];
+    let employeeFields=[];
+    let editingEmployee=null;
+
+    function authHeaders(json=true){
+      const headers={};
+      if(json)headers['Content-Type']='application/json';
+      const token=localStorage.getItem('salon_google_credential');
+      if(token)headers.Authorization='Bearer '+token;
+      return headers;
+    }
+
+    function showStatus(message,type){
+      statusBox.textContent=message;
+      statusBox.className=type||'';
+    }
+
+    function renderEmployeeFields(){
+      const container=document.getElementById('customFields');
+      const currentValues=Object.fromEntries([...container.querySelectorAll('[data-custom-key]')].map(input=>[
+        input.dataset.customKey,input.value
+      ]));
+      container.replaceChildren();
+      if(!employeeFields.length)return;
+      const grid=document.createElement('div');
+      grid.className='form-grid';
+      for(const field of employeeFields){
+        const wrapper=document.createElement('div');
+        wrapper.className='field';
+        const label=document.createElement('label');
+        label.textContent=field.label;
+        const input=document.createElement('input');
+        input.type='text';
+        input.maxLength=500;
+        input.dataset.customKey=field.key;
+        input.dataset.customLabel=field.label;
+        input.value=currentValues[field.key]||'';
+        wrapper.append(label,input);
+        grid.append(wrapper);
+      }
+      container.append(grid);
+    }
+
+    async function loadEmployeeFields(){
+      const response=await fetch('/api/employee-fields',{headers:authHeaders(false)});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'Could not load employee custom fields.');
+      employeeFields=result.filter(field=>!['mobileno','mobilenumber'].includes(
+        String(field.label).trim().toLowerCase().replace(/[^a-z0-9]/g,'')
+      ));
+      renderEmployeeFields();
+    }
+
+    async function loadExpenseTypes(){
+      const response=await fetch('/api/expense-types',{headers:authHeaders(false)});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'Could not load expense types.');
+      expenseTypes=result;
+      const selectedValues=[...document.querySelectorAll('[data-expense-type]:checked')].map(input=>input.value);
+      const options=document.getElementById('expenseTypeOptions');
+      options.replaceChildren();
+      for(const expenseType of expenseTypes.filter(item=>item.status==='Active')){
+        const label=document.createElement('label');
+        label.className='expense-type-option';
+        const checkbox=document.createElement('input');
+        checkbox.type='checkbox';
+        checkbox.value=String(expenseType.sr);
+        checkbox.dataset.expenseType='true';
+        checkbox.checked=selectedValues.includes(checkbox.value);
+        const text=document.createElement('span');
+        text.textContent=expenseType.name;
+        label.append(checkbox,text);
+        options.append(label);
+      }
+      updateExpenseTypeSelectAll();
+    }
+
+    function updateExpenseTypeSelectAll(){
+      const checkboxes=[...document.querySelectorAll('[data-expense-type]')];
+      const button=document.getElementById('expenseTypeSelectAll');
+      button.textContent=checkboxes.length&&checkboxes.every(checkbox=>checkbox.checked)?'Clear all':'Select all';
+      button.disabled=checkboxes.length===0;
+    }
+
+    document.getElementById('expenseTypeSelectAll').addEventListener('click',()=>{
+      const checkboxes=[...document.querySelectorAll('[data-expense-type]')];
+      const select=!(checkboxes.length&&checkboxes.every(checkbox=>checkbox.checked));
+      for(const checkbox of checkboxes)checkbox.checked=select;
+      updateExpenseTypeSelectAll();
+    });
+
+    document.getElementById('expenseTypeOptions').addEventListener('change',updateExpenseTypeSelectAll);
+
+    function updatePhotoPreview(photoUrl){
+      const preview=document.getElementById('photoPreview');
+      const image=document.getElementById('photoPreviewImage');
+      image.src=photoUrl;
+      preview.hidden=!photoUrl;
+    }
+
+    async function compressPhoto(file){
+      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
+        throw new Error('Choose a JPG, PNG, or WebP image.');
+      }
+      if(file.size>10000000){
+        throw new Error('Choose a photo smaller than 10 MB.');
+      }
+      const imageUrl=await new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(reader.result);
+        reader.onerror=()=>reject(new Error('Could not read the selected photo.'));
+        reader.readAsDataURL(file);
+      });
+      const image=await new Promise((resolve,reject)=>{
+        const loadedImage=new Image();
+        loadedImage.onload=()=>resolve(loadedImage);
+        loadedImage.onerror=()=>reject(new Error('The selected file is not a valid image.'));
+        loadedImage.src=imageUrl;
+      });
+      const scale=Math.min(1,600/Math.max(image.naturalWidth,image.naturalHeight));
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));
+      canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+      canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+      let quality=0.82;
+      let compressed=canvas.toDataURL('image/jpeg',quality);
+      while(compressed.length>900000&&quality>0.45){
+        quality-=0.1;
+        compressed=canvas.toDataURL('image/jpeg',quality);
+      }
+      if(compressed.length>1000000)throw new Error('Photo is too large after compression. Choose a smaller image.');
+      return compressed;
+    }
+
+    document.getElementById('employeePhoto').addEventListener('change',async event=>{
+      const file=event.target.files[0];
+      if(!file)return;
+      try{
+        const photo=await compressPhoto(file);
+        document.getElementById('photoUrl').value=photo;
+        updatePhotoPreview(photo);
+      }catch(error){
+        event.target.value='';
+        showStatus(error.message||'Could not process the selected photo.','error');
+      }
+    });
+
+    document.getElementById('removePhotoButton').addEventListener('click',()=>{
+      document.getElementById('photoUrl').value='';
+      document.getElementById('employeePhoto').value='';
+      updatePhotoPreview('');
+    });
+
+    function updateSalaryFields(){
+      const fixed=document.getElementById('salaryMode').value==='fixed';
+      document.getElementById('salaryPercentageField').hidden=fixed;
+      document.getElementById('salaryPercentage').disabled=fixed;
+      document.getElementById('fixedMonthlySalaryField').hidden=!fixed;
+      document.getElementById('fixedMonthlySalary').disabled=!fixed;
+    }
+
+    document.getElementById('salaryMode').addEventListener('change',updateSalaryFields);
+
+    function formData(){
+      const data=Object.fromEntries(new FormData(form).entries());
+      data.expenseTypeSrs=[...document.querySelectorAll('[data-expense-type]:checked')].map(input=>input.value);
+      data.customFields=Object.fromEntries([...document.querySelectorAll('[data-custom-key]')].map(input=>[
+        input.dataset.customKey,input.value
+      ]));
+      return data;
+    }
+
+    function fillEmployee(employee){
+      editingEmployee=employee;
+      document.getElementById('formTitle').textContent='Edit Employee';
+      document.title='Edit Employee - YOURS SALON';
+      document.getElementById('submitEmployee').textContent='Update Employee';
+      for(const field of ['sr','employeeId','emailAddress','mobileNumber','employeeName','status','joiningDate','dateOfBirth','panNumber','aadhaarCardNumber','address','city','state','pinCode','alternateMobileNumber','userId','role','salaryMode','salaryPercentage','fixedMonthlySalary','photoUrl']){
+        const element=document.getElementById(field==='status'?'statusSelect':field);
+        element.value=employee[field]??'';
+      }
+      updatePhotoPreview(employee.photoUrl||'');
+      updateSalaryFields();
+      const employeeExpenseTypes=employee.expenseTypes?.length
+        ?employee.expenseTypes.map(item=>String(item.sr))
+        :employee.expenseTypeSr?[String(employee.expenseTypeSr)]:[];
+      for(const checkbox of document.querySelectorAll('[data-expense-type]')){
+        checkbox.checked=employeeExpenseTypes.includes(checkbox.value);
+      }
+      for(const input of document.querySelectorAll('[data-custom-key]')){
+        input.value=employee.customFields?.[input.dataset.customKey]||'';
+      }
+      updateExpenseTypeSelectAll();
+    }
+
+    document.getElementById('addFieldButton').addEventListener('click',async()=>{
+      const input=document.getElementById('newFieldLabel');
+      const label=input.value.trim();
+      if(!label){
+        showStatus('Enter a name for the new employee field.','error');
+        input.focus();
+        return;
+      }
+      const button=document.getElementById('addFieldButton');
+      button.disabled=true;
+      try{
+        const response=await fetch('/api/employee-fields',{
+          method:'POST',
+          headers:authHeaders(),
+          body:JSON.stringify({label})
+        });
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Could not add employee field.');
+        input.value='';
+        await loadEmployeeFields();
+        showStatus(`Added employee field: ${result.label}.`,'success');
+      }catch(error){
+        showStatus(error.message||'Could not add employee field.','error');
+      }finally{
+        button.disabled=false;
+      }
+    });
+
+    form.addEventListener('submit',async event=>{
+      event.preventDefault();
+      const button=document.getElementById('submitEmployee');
+      button.disabled=true;
+      try{
+        const response=await fetch(editingEmployee?`/api/employees/${encodeURIComponent(editingEmployee._id)}`:'/api/employees',{
+          method:editingEmployee?'PUT':'POST',
+          headers:authHeaders(),
+          body:JSON.stringify(formData())
+        });
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Could not save employee.');
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(editingEmployee?'Employee updated.':'Employee added.');
+        location.replace('/employees');
+      }catch(error){
+        showStatus(error.message||'Could not save employee.','error');
+        button.disabled=false;
+      }
+    });
+
+    (async()=>{
+      try{
+        await Promise.all([loadEmployeeFields(),loadExpenseTypes()]);
+        if(editId){
+          const list=await (await fetch('/api/employees?status=All',{headers:authHeaders(false)})).json();
+          const employee=Array.isArray(list)?list.find(item=>item._id===editId):null;
+          if(!employee)throw new Error('The selected employee could not be found.');
+          fillEmployee(employee);
+        }
+        updateSalaryFields();
+      }catch(error){
+        showStatus(error.message||'Could not load employee data.','error');
+      }
+    })();
+  </script>
+</body>
+</html>
