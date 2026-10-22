@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>YOURS SALON — Expense Types</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/table-view.css">
+  <style>
+    *{box-sizing:border-box}
+     body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
+     .container{width:100%;max-width:920px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
+    .logo{font-size:24px;font-weight:700;color:#A77B12;margin-bottom:18px;border-bottom:1px solid #ECEDEF;padding-bottom:12px}
+    .logo span{color:#C49A32}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{font-size:21px;margin:0}
+    h2{font-size:16px;margin:0 0 13px}
+    .sub,.help{color:#737780;font-size:13px;line-height:1.5}
+    .sub{margin:7px 0 18px}
+    .panel{padding:16px;margin:14px 0;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
+    .actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+    button,.link{display:inline-flex;align-items:center;justify-content:center;min-height:39px;border:0;border-radius:8px;padding:9px 13px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
+    button{background:#C49A32;color:#211A0B}
+    button.secondary,.link{background:#F0F1F3;color:#34383E}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .help{font-size:12px;margin:10px 0 0}
+    .form-grid{display:grid;grid-template-columns:120px minmax(180px,1fr) 160px auto;align-items:end;gap:10px}
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{font-size:11px;font-weight:700;color:#656B74}
+    .field input,.field select{width:100%;height:39px;padding:7px 10px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;color:#242424;font:inherit}
+    .field input:focus,.field select:focus{outline:0;border-color:#C49A32;box-shadow:0 0 0 3px rgba(196,154,50,.14)}
+    .table-wrap{overflow:auto;border:1px solid #E5E7EB;border-radius:9px;background:#FFF}
+    table{border-collapse:collapse;width:100%;min-width:520px;font-size:13px}
+    th,td{text-align:left;padding:11px;border-bottom:1px solid #ECEDEF}
+    th{background:#F7F8FA;color:#555B64;font-size:11px}
+    tbody tr:last-child td{border-bottom:0}
+    .badge{display:inline-block;padding:4px 8px;border-radius:99px;background:#E9F6F1;color:#286B53;font-weight:700}
+    .badge.inactive{background:#F0F1F3;color:#656B74}
+    .row-actions{display:flex;gap:6px}
+    .row-actions button{min-height:30px;padding:5px 9px;font-size:11px}
+    #status{display:none;margin-top:12px;padding:10px;border-radius:7px;font-size:13px;white-space:pre-line}
+    #status.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
+    #status.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
+    #emptyState{padding:18px;text-align:center;color:#737780;font-size:13px}
+    [hidden]{display:none!important}
+    @media(max-width:720px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.form-grid{grid-template-columns:1fr 1fr}.form-grid button{grid-column:1/-1}}
+    @media(max-width:440px){header{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="container">
+     <h1>Expense Types</h1>
+    <p class="sub">Manage expense type names, serial numbers, and active status. Active types appear in the Employee form, ordered by SR.</p>
+
+    <section class="panel">
+      <div class="actions" style="justify-content:space-between;margin-bottom:12px">
+        <h2 id="formTitle" style="margin:0">Expense Type</h2>
+        <button id="addTypeButton" type="button" aria-label="Add expense type">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span>
+        </button>
+      </div>
+      <div id="expenseTypeFormPanel" hidden>
+      <form id="expenseTypeForm" class="form-grid">
+        <div class="field"><label for="sr">SR *</label><input id="sr" name="sr" type="number" min="1" step="1" required></div>
+        <div class="field"><label for="name">Expense Type *</label><input id="name" name="name" maxlength="100" required></div>
+        <div class="field"><label for="statusSelect">Status</label><select id="statusSelect" name="status"><option>Active</option><option>Inactive</option></select></div>
+        <button id="saveButton" type="submit">Save type</button>
+      </form>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Expense type list</h2>
+      <div class="table-wrap">
+        <table id="expenseTypeTable" data-table-view>
+          <thead><tr><th>SR</th><th>Expense Type</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="typeRows"></tbody>
+        </table>
+        <div id="emptyState">Loading expense types...</div>
+      </div>
+    </section>
+    <div id="status" role="status" aria-live="polite"></div>
+  </main>
+  <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script>
+  <script>
+    const form=document.getElementById('expenseTypeForm');
+    const rowsElement=document.getElementById('typeRows');
+    const emptyState=document.getElementById('emptyState');
+    const statusBox=document.getElementById('status');
+    let expenseTypes=[];
+    let editingId='';
+
+    function authHeaders(json=true){
+      const headers={};
+      if(json)headers['Content-Type']='application/json';
+      const token=localStorage.getItem('salon_google_credential');
+      if(token)headers.Authorization='Bearer '+token;
+      return headers;
+    }
+
+    function showStatus(message,type){
+      statusBox.textContent=message;
+      statusBox.className=type;
+    }
+
+    function setAddTypeButton(isOpen){
+      const button=document.getElementById('addTypeButton');
+      button.setAttribute('aria-label',isOpen?'Close expense type form':'Add expense type');
+      button.innerHTML=isOpen
+        ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg><span>Close</span>'
+        :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span>';
+    }
+
+    function renderTypes(){
+      rowsElement.replaceChildren();
+      emptyState.hidden=expenseTypes.length>0;
+      emptyState.textContent='No expense types found.';
+      for(const expenseType of expenseTypes){
+        const row=document.createElement('tr');
+        for(const value of [expenseType.sr,expenseType.name]){
+          const cell=document.createElement('td');
+          cell.textContent=String(value);
+          row.append(cell);
+        }
+        const statusCell=document.createElement('td');
+        const badge=document.createElement('span');
+        badge.className='badge'+(expenseType.status==='Active'?'':' inactive');
+        badge.textContent=expenseType.status;
+        statusCell.append(badge);
+        row.append(statusCell);
+        const actionsCell=document.createElement('td');
+        const actions=document.createElement('div');
+        actions.className='row-actions';
+        const edit=document.createElement('button');
+        edit.type='button';
+        edit.className='secondary';
+        edit.textContent='Edit';
+        edit.addEventListener('click',()=>editType(expenseType));
+        actions.append(edit);
+        actionsCell.append(actions);
+        row.append(actionsCell);
+        rowsElement.append(row);
+      }
+    }
+
+    async function loadTypes(){
+      const response=await fetch('/api/expense-types',{headers:authHeaders(false)});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'Could not load expense types.');
+      expenseTypes=result;
+      renderTypes();
+    }
+
+    function resetForm(){
+      form.reset();
+      document.getElementById('expenseTypeFormPanel').hidden=true;
+      editingId='';
+      document.getElementById('formTitle').textContent='Expense Type';
+      document.getElementById('saveButton').textContent='Save type';
+      setAddTypeButton(false);
+    }
+
+    function editType(expenseType){
+      document.getElementById('expenseTypeFormPanel').hidden=false;
+      editingId=expenseType._id;
+      document.getElementById('sr').value=expenseType.sr;
+      document.getElementById('name').value=expenseType.name;
+      document.getElementById('statusSelect').value=expenseType.status;
+      document.getElementById('formTitle').textContent='Edit expense type';
+      document.getElementById('saveButton').textContent='Update type';
+      setAddTypeButton(true);
+      document.getElementById('formTitle').scrollIntoView({behavior:'smooth',block:'center'});
+    }
+
+    document.getElementById('addTypeButton').addEventListener('click',()=>{
+      const panel=document.getElementById('expenseTypeFormPanel');
+      if(!panel.hidden){
+        resetForm();
+        return;
+      }
+      resetForm();
+      panel.hidden=false;
+      document.getElementById('formTitle').textContent='Add expense type';
+      setAddTypeButton(true);
+      document.getElementById('formTitle').scrollIntoView({behavior:'smooth',block:'center'});
+    });
+
+    form.addEventListener('submit',async event=>{
+      event.preventDefault();
+      const button=document.getElementById('saveButton');
+      const wasEditing=Boolean(editingId);
+      button.disabled=true;
+      try{
+        const response=await fetch(editingId?`/api/expense-types/${encodeURIComponent(editingId)}`:'/api/expense-types',{
+          method:editingId?'PUT':'POST',
+          headers:authHeaders(),
+          body:JSON.stringify(Object.fromEntries(new FormData(form).entries()))
+        });
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Could not save expense type.');
+        resetForm();
+        await loadTypes();
+        showStatus(wasEditing?'Expense type updated.':'Expense type added.','success');
+      }catch(error){
+        showStatus(error.message||'Could not save expense type.','error');
+      }finally{
+        button.disabled=false;
+      }
+    });
+
+    loadTypes().catch(error=>{
+      emptyState.hidden=false;
+      emptyState.textContent='Could not load expense types.';
+      showStatus(error.message||'Could not load expense types.','error');
+    });
+  </script>
+  <script src="/table-view.js"></script>
+</body>
+</html>
