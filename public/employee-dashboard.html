@@ -4,57 +4,449 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>My dashboard — YOURS SALON</title>
-   <link rel="stylesheet" href="/admin-nav.css"><link rel="stylesheet" href="/table-view.css">
+  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/table-view.css">
+  <link rel="stylesheet" href="/mobile.css">
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1160px,100%);margin:auto;padding:22px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#fff;border:1px solid #e2e8ef;border-radius:15px}.brand{display:flex;align-items:center;gap:10px;font-weight:800}.brand img{width:42px;height:42px;object-fit:contain;border-radius:10px}.nav{display:flex;gap:8px;flex-wrap:wrap}a,button{min-height:38px;padding:9px 12px;border:1px solid #dce3eb;border-radius:9px;background:#fff;color:#344054;text-decoration:none;font:700 12px Arial;cursor:pointer}
+    .wrap>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#fff;border:1px solid #e2e8ef;border-radius:15px}.brand{display:flex;align-items:center;gap:10px;font-weight:800}.brand img{width:42px;height:42px;object-fit:contain;border-radius:10px}.nav{display:flex;gap:8px;flex-wrap:wrap}a,button{min-height:38px;padding:9px 12px;border:1px solid #dce3eb;border-radius:9px;background:#fff;color:#344054;text-decoration:none;font:700 12px Arial;cursor:pointer}
     .heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:24px 0 14px}.heading h1{margin:0;font-size:26px}.heading p{margin:5px 0 0;color:#748196;font-size:12px}.heading input{height:40px;padding:7px 10px;border:1px solid #d7e0e8;border-radius:9px;font:inherit}
     .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.card{padding:18px;border:1px solid #e3e9ef;border-radius:15px;background:#fff;box-shadow:0 8px 22px #20334b08}.label{color:#758397;font-size:11px;font-weight:700}.value{margin-top:10px;font-size:24px;font-weight:800;letter-spacing:-.02em}.card:nth-child(1){background:linear-gradient(145deg,#edfbf5,#fff)}.card:nth-child(2){background:linear-gradient(145deg,#eff6ff,#fff)}.card:nth-child(3){background:linear-gradient(145deg,#fff8e8,#fff)}.card:nth-child(4){background:linear-gradient(145deg,#f7f0ff,#fff)}.detail{margin-top:8px;color:#8793a3;font-size:10px}
     .panel{margin-top:14px;padding:18px;background:#fff;border:1px solid #e2e8ef;border-radius:15px}.panelHead{display:flex;align-items:center;justify-content:space-between;gap:10px}.panel h2{margin:0;font-size:16px}.muted{margin-top:5px;color:#8190a1;font-size:11px}.scroll{margin-top:12px;overflow:auto}table{width:100%;min-width:650px;border-collapse:collapse;font-size:12px}th,td{padding:10px;border-bottom:1px solid #edf0f4;text-align:left;white-space:nowrap}th{color:#718096;font-size:10px;text-transform:uppercase}tbody tr:last-child td{border-bottom:0}.empty{text-align:center;padding:22px;color:#8a96a5}
     .status{display:none;margin-top:12px;padding:11px;border-radius:9px;background:#fff0ef;color:#a13832;font-size:13px}.status.show{display:block}
-     @media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.wrap{padding:11px}.heading{align-items:flex-start;flex-direction:column}.heading h1{font-size:23px}.cards{gap:8px}.card{padding:13px}.value{font-size:20px}.nav a,.nav button{min-height:34px;padding:7px;font-size:11px}.panel{padding:13px}}
+    .row-actions{display:flex;gap:5px}.row-actions a,.row-actions button{min-height:30px;padding:5px 8px;border-radius:6px;background:#eff2f5;color:#344054;font-size:10px;text-decoration:none}.row-actions .delete{background:#fff0ef;color:#b42318}
+    @media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.wrap{padding:11px}.heading{align-items:flex-start;flex-direction:column}.heading h1{font-size:23px}.cards{gap:8px}.card{padding:13px}.value{font-size:20px}.nav a,.nav button{min-height:34px;padding:7px;font-size:11px}.panel{padding:13px}}
   </style>
 </head>
 <body>
   <main class="wrap">
     <section class="heading" id="dashboardHeading"><div><h1 id="title">My dashboard</h1><p id="rule">Your month-wise collection and salary summary.</p></div><label>Month <input id="month" type="month"></label></section>
+    <section class="admin-view-bar" id="adminViewBar" hidden>
+      <label>Employee <select id="adminEmployee"><option value="">Select employee</option></select></label>
+      <div class="admin-view-actions" id="adminActions"></div>
+    </section>
     <div id="dashboardContent">
-    <section class="cards">
-      <article class="card"><div class="label">MY COLLECTION</div><div class="value" id="collection">₹0</div><div class="detail">Customer entry total for this month</div></article>
-      <article class="card"><div class="label">EARNED SALARY</div><div class="value" id="earned">₹0</div><div class="detail" id="salaryRule">Based on your employee salary rule</div></article>
-      <article class="card"><div class="label">MY EXPENSES</div><div class="value" id="expenses">₹0</div><div class="detail">Expenses assigned to your account</div></article>
-      <article class="card"><div class="label">NET PAYABLE</div><div class="value" id="payable">₹0</div><div class="detail">Earned salary less expenses and salary paid</div></article>
-    </section>
-    <section class="panel"><div class="panelHead"><h2>My activity</h2><span id="summary" class="muted"></span></div><div class="muted">Only records associated with your employee account are shown.</div>
-      <div class="scroll"><table id="activityTable" data-table-view><thead><tr><th>Date</th><th>Entry</th><th>Details</th><th>Payment</th><th>Amount</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="5">Loading your records...</td></tr></tbody></table></div>
-    </section>
+      <section class="cards">
+        <article class="card"><div class="label">MY COLLECTION</div><div class="value" id="collection">₹0</div><div class="detail">Customer entry total for this month</div></article>
+        <article class="card"><div class="label">EARNED SALARY</div><div class="value" id="earned">₹0</div><div class="detail" id="salaryRule">Based on your employee salary rule</div></article>
+        <article class="card"><div class="label">MY EXPENSES</div><div class="value" id="expenses">₹0</div><div class="detail">Expenses assigned to your account</div></article>
+        <article class="card"><div class="label">NET PAYABLE</div><div class="value" id="payable">₹0</div><div class="detail">Earned salary less expenses and salary paid</div></article>
+      </section>
+      <section class="panel"><div class="panelHead"><h2>My activity</h2><span id="summary" class="muted"></span></div><div class="muted">Only records associated with your employee account are shown.</div>
+        <div class="scroll"><table id="activityTable" data-table-view><thead><tr><th>Date</th><th>Entry</th><th>Details</th><th>Payment</th><th>Amount</th><th id="actionsHead" hidden>Actions</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="5">Loading your records...</td></tr></tbody></table></div>
+      </section>
     </div>
+    <div id="mobileDashboard" class="m-dash"><div class="m-empty">Loading your dashboard...</div></div>
     <div id="status" class="status" role="status"></div>
   </main>
-  <script src="/auth-guard.js"></script><script src="/admin-nav.js"></script>
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js"></script>
+  <script src="/mobile.js"></script>
   <script>
-    const tokenKey='salon_google_credential';const monthInput=document.getElementById('month'),rows=document.getElementById('rows'),statusBox=document.getElementById('status');
-    function money(value){return'₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
-    function dateText(value){const date=new Date(value);return Number.isNaN(date.getTime())?'—':date.toLocaleDateString('en-IN')}
-    async function request(url,options={}){const response=await fetch(url,{...options,headers:{Authorization:'Bearer '+localStorage.getItem(tokenKey),'Content-Type':'application/json',...(options.headers||{})}});const result=await response.json();if(response.status===401){localStorage.removeItem(tokenKey);location.replace('/login');throw new Error(result.error||'Sign-in required.')}if(!response.ok)throw new Error(result.error||'Could not load your dashboard.');return result}
-    function display(data){
-      const summary=data.summary;document.getElementById('collection').textContent=money(summary.collection);document.getElementById('earned').textContent=money(summary.earnedSalary);document.getElementById('expenses').textContent=money(summary.expenses);document.getElementById('payable').textContent=money(summary.payable);
-      document.getElementById('salaryRule').textContent=summary.salaryMode==='fixed'?`Fixed salary ${money(summary.fixedMonthlySalary)} per month`:`${summary.salaryPercentage}% of collection`;
-      document.getElementById('summary').textContent=`Salary paid this month: ${money(summary.salaryPaid)}`;
-      const combined=[
-        ...data.collections.map(entry=>({date:entry.entryDate,type:'Customer collection',detail:entry.serviceType,mode:entry.paymentMode,amount:entry.amount})),
-        ...data.records.map(record=>({date:record.entryDate,type:record.recordType==='expense'?'Employee expense':record.recordType==='salary'?'Salary paid':'Cash at counter',detail:record.expenseType||record.remark||'—',mode:record.paymentMode,amount:record.amount}))
-      ].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const tokenKey = 'salon_google_credential';
+    const monthInput = document.getElementById('month');
+    const rows = document.getElementById('rows');
+    const statusBox = document.getElementById('status');
+    const mobileDashboard = document.getElementById('mobileDashboard');
+    const adminViewBar = document.getElementById('adminViewBar');
+    const adminEmployee = document.getElementById('adminEmployee');
+    const adminActions = document.getElementById('adminActions');
+    const actionsHead = document.getElementById('actionsHead');
+    let session = null;
+    let isAdminView = false;
+    let staff = [];
+
+    const permissionByModule = {
+      collection: 'Customer Entry',
+      expense: 'Daily Expense',
+      salary: 'Salary',
+      counter: 'Cash At Counter'
+    };
+
+    function money(value) {
+      return '₹' + Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+
+    function dateText(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-IN');
+    }
+
+    function dateKey(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function monthLabel(value) {
+      const date = new Date(`${value}-01T00:00:00`);
+      return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+    }
+
+    function initials(name) {
+      return String(name || 'U').trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'U';
+    }
+
+    function greeting() {
+      const hour = new Date().getHours();
+      return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    }
+
+    function canAdd(moduleKey) {
+      if (isAdminView) return true;
+      if (!session) return false;
+      const access = session.actionAccess?.[moduleKey]?.add;
+      if (access !== undefined) return access === true;
+      return session.permissions?.includes(permissionByModule[moduleKey]);
+    }
+
+    function canOpenEntry(moduleKey) {
+      if (isAdminView) return true;
+      return session?.pageAccess?.[`${moduleKey}-entry`] !== false;
+    }
+
+    async function request(url, options = {}) {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem(tokenKey),
+          'Content-Type': 'application/json',
+          ...(options.headers || {})
+        }
+      });
+      const result = await response.json();
+      if (response.status === 401) {
+        localStorage.removeItem(tokenKey);
+        location.replace('/login');
+        throw new Error(result.error || 'Sign-in required.');
+      }
+      if (!response.ok) throw new Error(result.error || 'Could not load your dashboard.');
+      return result;
+    }
+
+    function collectionServices(entry) {
+      if (Array.isArray(entry.items) && entry.items.length) {
+        return entry.items.map(item => ({
+          name: item.shortName || item.serviceType || 'Other',
+          amount: Number(item.amount || 0)
+        }));
+      }
+      return [{ name: entry.serviceType || 'Other', amount: Number(entry.amount || 0) }];
+    }
+
+    function combinedActivity(data) {
+      return [
+        ...data.collections.map(entry => ({
+          id: String(entry._id || ''),
+          kind: 'collection',
+          date: entry.entryDate,
+          type: 'Customer collection',
+          detail: entry.serviceType,
+          mode: entry.paymentMode,
+          amount: entry.amount,
+          editHref: `/collection-entry?edit=${encodeURIComponent(entry._id)}`,
+          deleteEndpoint: `/api/collections/${encodeURIComponent(entry._id)}`
+        })),
+        ...data.records.map(record => ({
+          id: String(record._id || ''),
+          kind: record.recordType,
+          date: record.entryDate,
+          type: record.recordType === 'expense' ? 'Employee expense' : record.recordType === 'salary' ? 'Salary paid' : 'Cash at counter',
+          detail: record.expenseType || record.remark || '—',
+          mode: record.paymentMode,
+          amount: record.amount,
+          editHref: `/${record.recordType}-entry?edit=${encodeURIComponent(record._id)}`,
+          deleteEndpoint: `/api/employee-records/${encodeURIComponent(record._id)}`
+        }))
+      ].sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+
+    function adminActionCell(item) {
+      const cell = document.createElement('td');
+      const actions = document.createElement('div');
+      actions.className = 'row-actions';
+      const edit = document.createElement('a');
+      edit.href = item.editHref;
+      edit.textContent = 'Edit';
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'delete';
+      remove.textContent = 'Delete';
+      remove.addEventListener('click', () => adminDelete(item, remove));
+      actions.append(edit, remove);
+      cell.append(actions);
+      return cell;
+    }
+
+    async function adminDelete(item, button) {
+      if (!item.id || !window.confirm('Move this record to In-Active?')) return;
+      button.disabled = true;
+      statusBox.className = 'status';
+      try {
+        await request(item.deleteEndpoint, { method: 'DELETE' });
+        if (window.salonUi?.showSuccess) await window.salonUi.showSuccess('Record moved to In-Active.');
+        await load();
+      } catch (error) {
+        statusBox.textContent = error.message || 'Could not delete the record.';
+        statusBox.className = 'status show';
+        button.disabled = false;
+      }
+    }
+
+    function display(data) {
+      const summary = data.summary;
+      const employee = data.employee || session.employee;
+      const combined = combinedActivity(data);
+      document.getElementById('collection').textContent = money(summary.collection);
+      document.getElementById('earned').textContent = money(summary.earnedSalary);
+      document.getElementById('expenses').textContent = money(summary.expenses);
+      document.getElementById('payable').textContent = money(summary.payable);
+      document.getElementById('salaryRule').textContent = summary.salaryMode === 'fixed'
+        ? `Fixed salary ${money(summary.fixedMonthlySalary)} per month`
+        : `${summary.salaryPercentage}% of collection`;
+      document.getElementById('summary').textContent = `Salary paid this month: ${money(summary.salaryPaid)}`;
+      document.getElementById('title').textContent = `${employee.employeeName || 'Employee'} dashboard`;
+      actionsHead.hidden = !isAdminView;
       rows.replaceChildren();
-      if(!combined.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty';td.textContent='No records for this month.';tr.append(td);rows.append(tr);return}
-      for(const item of combined){const tr=document.createElement('tr');for(const value of [dateText(item.date),item.type,item.detail||'—',item.mode||'—',money(item.amount)]){const td=document.createElement('td');td.textContent=value;tr.append(td)}rows.append(tr)}
+      if (!combined.length) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = isAdminView ? 6 : 5;
+        td.className = 'empty';
+        td.textContent = 'No records for this month.';
+        tr.append(td);
+        rows.append(tr);
+      } else {
+        for (const item of combined) {
+          const tr = document.createElement('tr');
+          for (const value of [dateText(item.date), item.type, item.detail || '—', item.mode || '—', money(item.amount)]) {
+            const td = document.createElement('td');
+            td.textContent = value;
+            tr.append(td);
+          }
+          if (isAdminView) tr.append(adminActionCell(item));
+          rows.append(tr);
+        }
+      }
+      renderMobile(data, combined, employee);
     }
-    async function load(){statusBox.className='status';rows.innerHTML='<tr><td class="empty" colspan="5">Loading your records...</td></tr>';try{display(await request('/api/my-data?month='+encodeURIComponent(monthInput.value)))}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}}
-    async function initialize(){
-      const now=new Date();monthInput.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-      try{const session=await request('/api/session');if(session.employee.role==='Admin'){location.replace('/admin-dashboard');return}if(session.employee.mustChangePassword){location.replace('/password-change');return}document.getElementById('title').textContent=session.employee.employeeName+' dashboard';await load()}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}
+
+    function renderMobile(data, combined, employee) {
+      const summary = data.summary;
+      const today = dateKey(new Date());
+      const todayCollections = data.collections.filter(entry => dateKey(entry.entryDate) === today);
+      const todayRecords = data.records.filter(record => dateKey(record.entryDate) === today);
+      const todayCollection = todayCollections.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+      const todayExpense = todayRecords.filter(record => record.recordType === 'expense').reduce((sum, record) => sum + Number(record.amount || 0), 0);
+      const todayEarned = summary.salaryMode === 'fixed'
+        ? Number(summary.fixedMonthlySalary || 0) / 30
+        : todayCollection * Number(summary.salaryPercentage || 0) / 100;
+
+      const serviceTotals = new Map();
+      for (const entry of data.collections) {
+        for (const service of collectionServices(entry)) {
+          serviceTotals.set(service.name, (serviceTotals.get(service.name) || 0) + service.amount);
+        }
+      }
+      const topService = [...serviceTotals.entries()].sort((a, b) => b[1] - a[1])[0];
+      const firstName = String(employee.employeeName || 'there').split(/\s+/)[0];
+      const quickLinks = [];
+      for (const moduleKey of ['collection', 'expense', 'salary', 'counter']) {
+        if (canAdd(moduleKey) && canOpenEntry(moduleKey)) {
+          const suffix = isAdminView ? `?employeeId=${encodeURIComponent(employee.employeeId || '')}` : '';
+          quickLinks.push(`<a class="m-quick-link" href="/${moduleKey}-entry${suffix}">+ ${moduleKey === 'collection' ? 'Add Work' : moduleKey === 'counter' ? 'Counter' : moduleKey.charAt(0).toUpperCase() + moduleKey.slice(1)}</a>`);
+        }
+      }
+
+      mobileDashboard.innerHTML = `
+        <div class="m-greeting">
+          <h1>${escapeHtml(greeting())}, ${escapeHtml(firstName)}</h1>
+          <p>${escapeHtml(new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }))}</p>
+        </div>
+        <section class="m-today-card">
+          <div class="m-today-label">TODAY</div>
+          <div class="m-today-title">Collection</div>
+          <div class="m-today-amount">${money(todayCollection)}</div>
+          <div class="m-today-split">
+            <div>Expense<strong>${money(todayExpense)}</strong></div>
+            <div>Salary earned<strong>${money(todayEarned)}</strong></div>
+          </div>
+        </section>
+        ${topService ? `<section class="m-topper">
+          <span class="m-topper-avatar">${window.salonMobile?.svg ? window.salonMobile.svg('profile') : ''}<span class="m-topper-crown">♛</span></span>
+          <div><div class="m-topper-label">Top service this month</div><strong>${escapeHtml(topService[0])}</strong><small>${money(topService[1])} collection</small></div>
+        </section>` : ''}
+        <div class="m-section-head">
+          <h2>This month</h2>
+          <input id="mobileMonth" class="m-month-input" type="month" value="${escapeHtml(data.month)}" aria-label="Dashboard month">
+        </div>
+        <section class="m-cards">
+          <article class="m-card"><div class="m-card-label">Collection</div><div class="m-card-value">${money(summary.collection)}</div><div class="m-card-note">Customer entries this month</div></article>
+          <article class="m-card"><div class="m-card-label">Expense</div><div class="m-card-value">${money(summary.expenses)}</div><div class="m-card-note">Assigned to your account</div></article>
+          <article class="m-card"><div class="m-card-label">Salary earned</div><div class="m-card-value">${money(summary.earnedSalary)}</div><div class="m-card-note">${summary.salaryMode === 'fixed' ? 'Fixed monthly salary' : `${summary.salaryPercentage}% of collection`}</div></article>
+          <article class="m-card dark"><div class="m-card-label">Net payable</div><div class="m-card-value">${money(summary.payable)}</div><div class="m-card-note">After expenses and salary paid</div></article>
+        </section>
+        <section class="m-panel">
+          <div class="m-panel-head"><div><h2>Salary breakdown</h2><p class="m-panel-sub">How this month's payable is calculated.</p></div></div>
+          <div class="m-breakdown">
+            <div class="m-breakdown-row"><span>Earned salary</span><strong>${money(summary.earnedSalary)}</strong></div>
+            <div class="m-breakdown-row"><span>Less: expenses</span><strong>− ${money(summary.expenses)}</strong></div>
+            <div class="m-breakdown-row"><span>Less: salary paid</span><strong>− ${money(summary.salaryPaid)}</strong></div>
+            <div class="m-breakdown-row"><span>Net payable</span><strong>${money(summary.payable)}</strong></div>
+          </div>
+        </section>
+        <section class="m-panel">
+          <div class="m-panel-head"><div><h2>Collection summary</h2><p class="m-panel-sub">Daily and service-wise totals.</p></div></div>
+          <div class="m-tabs"><button type="button" class="m-tab active" data-tab="daily">Daily</button><button type="button" class="m-tab" data-tab="service">Service</button></div>
+          <div class="m-bars" id="mobileBars"></div>
+        </section>
+        <section class="m-panel">
+          <div class="m-panel-head"><div><h2>Recent activity</h2><p class="m-panel-sub">Your latest entries this month.</p></div><a class="m-quick-link" href="/collection-table">View all</a></div>
+          <div class="m-activity-list">
+            ${combined.length ? combined.slice(0, 6).map(item => `<div class="m-activity"><span class="m-activity-icon">${window.salonMobile?.svg ? window.salonMobile.svg(item.kind === 'collection' ? 'collection' : item.kind === 'expense' ? 'expense' : item.kind === 'salary' ? 'salary' : 'counter') : ''}</span><div><strong>${escapeHtml(item.type)}</strong><small>${escapeHtml(dateText(item.date))} · ${escapeHtml(item.detail || '—')}</small></div><span class="m-activity-amount ${item.kind === 'expense' ? 'expense' : item.kind === 'salary' ? 'salary' : ''}">${money(item.amount)}</span></div>`).join('') : '<div class="m-empty">No records for this month.</div>'}
+          </div>
+        </section>
+        ${quickLinks.length ? `<section class="m-panel"><div class="m-panel-head"><div><h2>Quick actions</h2><p class="m-panel-sub">Create a new entry.</p></div></div><div class="m-quick-links">${quickLinks.join('')}</div></section>` : ''}
+      `;
+
+      const mobileMonth = document.getElementById('mobileMonth');
+      mobileMonth?.addEventListener('change', () => {
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mobileMonth.value)) return;
+        monthInput.value = mobileMonth.value;
+        load();
+      });
+
+      const daily = new Map();
+      for (const entry of data.collections) {
+        const key = dateKey(entry.entryDate);
+        daily.set(key, (daily.get(key) || 0) + Number(entry.amount || 0));
+      }
+      const dailyRows = [...daily.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-7);
+      const serviceRows = [...serviceTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const drawBars = mode => {
+        const source = mode === 'service' ? serviceRows : dailyRows;
+        const max = Math.max(...source.map(row => row[1]), 1);
+        const bars = document.getElementById('mobileBars');
+        if (!bars) return;
+        bars.innerHTML = source.length ? source.map(([label, value]) => {
+          const width = Math.max(4, Math.round(value / max * 100));
+          const text = mode === 'service' ? label : new Date(`${label}T00:00:00`).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+          return `<div class="m-bar-row"><span title="${escapeHtml(text)}">${escapeHtml(text)}</span><span class="m-bar-track"><span class="m-bar-fill" style="width:${width}%"></span></span><strong>${money(value)}</strong></div>`;
+        }).join('') : '<div class="m-empty">No collection data for this month.</div>';
+      };
+      drawBars('daily');
+      mobileDashboard.querySelectorAll('.m-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          mobileDashboard.querySelectorAll('.m-tab').forEach(item => item.classList.toggle('active', item === tab));
+          drawBars(tab.dataset.tab);
+        });
+      });
     }
-     monthInput.addEventListener('change',load);initialize();
+
+    function updateAdminActions() {
+      const employeeId = adminEmployee.value;
+      if (!employeeId) {
+        adminActions.replaceChildren();
+        return;
+      }
+      const employee = staff.find(item => item._id === employeeId);
+      adminActions.innerHTML = ['collection', 'expense', 'salary', 'counter'].map(moduleKey =>
+        `<a href="/${moduleKey}-entry?employeeId=${encodeURIComponent(employeeId)}">+ ${moduleKey === 'counter' ? 'Counter' : moduleKey.charAt(0).toUpperCase() + moduleKey.slice(1)}</a>`
+      ).join('');
+      if (employee) document.getElementById('title').textContent = `${employee.employeeName} dashboard`;
+    }
+
+    async function load() {
+      statusBox.className = 'status';
+      rows.innerHTML = '<tr><td class="empty" colspan="5">Loading your records...</td></tr>';
+      try {
+        const month = monthInput.value;
+        const url = isAdminView
+          ? `/api/employee-dashboard/${encodeURIComponent(adminEmployee.value)}?month=${encodeURIComponent(month)}`
+          : `/api/my-data?month=${encodeURIComponent(month)}`;
+        if (isAdminView && !adminEmployee.value) {
+          statusBox.textContent = 'Select an employee to view the dashboard.';
+          statusBox.className = 'status show';
+          rows.innerHTML = '<tr><td class="empty" colspan="6">Select an employee.</td></tr>';
+          mobileDashboard.innerHTML = '<div class="m-empty">Select an employee to view the dashboard.</div>';
+          return;
+        }
+        display(await request(url));
+      } catch (error) {
+        statusBox.textContent = error.message;
+        statusBox.className = 'status show';
+        rows.innerHTML = `<tr><td class="empty" colspan="${isAdminView ? 6 : 5}">Could not load records.</td></tr>`;
+        mobileDashboard.innerHTML = `<div class="m-empty">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function initialize() {
+      const now = new Date();
+      monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      try {
+        session = await (window.salonReady || request('/api/session'));
+        if (!session) return;
+        if (session.employee.mustChangePassword) {
+          location.replace('/password-change');
+          return;
+        }
+        isAdminView = location.pathname.replace(/\/+$/, '') === '/employee-view';
+        if (session.employee.role === 'Admin') {
+          if (!isAdminView) {
+            location.replace('/employee-view');
+            return;
+          }
+          document.title = 'Employee dashboard — YOURS SALON';
+          adminViewBar.hidden = false;
+          staff = await request('/api/staff');
+          adminEmployee.replaceChildren(new Option('Select employee', ''));
+          for (const employee of staff) {
+            adminEmployee.add(new Option(`${employee.employeeName} · ${employee.employeeId}`, employee._id));
+          }
+          const requestedId = new URLSearchParams(location.search).get('employeeId');
+          const selected = staff.some(employee => employee._id === requestedId) ? requestedId : staff[0]?._id || '';
+          adminEmployee.value = selected;
+          if (selected) {
+            const url = new URL(location.href);
+            url.searchParams.set('employeeId', selected);
+            history.replaceState(null, '', url);
+          }
+          updateAdminActions();
+          adminEmployee.addEventListener('change', () => {
+            const url = new URL(location.href);
+            if (adminEmployee.value) url.searchParams.set('employeeId', adminEmployee.value);
+            else url.searchParams.delete('employeeId');
+            history.replaceState(null, '', url);
+            updateAdminActions();
+            load();
+          });
+          await load();
+          return;
+        }
+        if (isAdminView) {
+          location.replace('/employee-dashboard');
+          return;
+        }
+        adminViewBar.hidden = true;
+        await load();
+      } catch (error) {
+        statusBox.textContent = error.message;
+        statusBox.className = 'status show';
+      }
+    }
+
+    monthInput.addEventListener('change', () => {
+      const mobileMonth = document.getElementById('mobileMonth');
+      if (mobileMonth) mobileMonth.value = monthInput.value;
+      load();
+    });
+    initialize();
   </script>
   <script src="/table-view.js"></script>
 </body>

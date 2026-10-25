@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Entry — YOURS SALON</title>
   <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/my-work.css">
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(920px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:16px}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.links{display:flex;flex-wrap:wrap;gap:8px}.links a{min-height:38px;padding:9px 12px;border-radius:9px;background:#eff2f5;color:#344054;text-decoration:none;font-size:12px;font-weight:700}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.wide{grid-column:1/-1}.field label{color:#526176;font-size:11px;font-weight:700}.field input,.field select,.field textarea{width:100%;min-height:42px;padding:9px 11px;border:1px solid #d9e0e7;border-radius:9px;background:#fff;color:#243244;font:14px Arial}.field textarea{min-height:90px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:#d1a228;box-shadow:0 0 0 3px #f8f0d7}.actions{display:flex;align-items:center;gap:10px;margin-top:18px}.actions button{min-height:42px;padding:10px 16px;border:0;border-radius:9px;background:#c99a23;color:#fff;font:700 13px Arial;cursor:pointer}.actions button:disabled{opacity:.6;cursor:wait}.status{display:none;margin-top:14px;padding:11px;border-radius:9px;font-size:13px;line-height:1.45}.status.show{display:block;background:#eaf8f1;color:#22694d}.status.error{display:block;background:#fff0ef;color:#9a352f}.empty{padding:22px;text-align:center;color:#718096;background:#fff;border:1px dashed #d4dce5;border-radius:12px}@media(max-width:600px){.wrap{padding:18px 12px 30px}.heading{flex-direction:column}.grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.panel{padding:15px}.actions button{width:100%}}
   </style>
 </head>
 <body>
-  <main class="wrap">
+  <main class="wrap m-page">
     <section class="panel">
       <div class="heading"><div><h1 id="title">Entry</h1><p id="description">Save a new salon record.</p></div><div class="links"><a id="tableLink" href="#">View Records</a></div></div>
       <div id="empty" class="empty" hidden></div>
@@ -18,12 +20,83 @@
       <div id="status" class="status" role="status" aria-live="polite"></div>
     </section>
   </main>
+  <section id="mobileAddWork" class="aw-page" hidden>
+    <div class="aw-greeting">
+      <div>
+        <p id="awGreeting">Good Morning</p>
+        <h1 id="awEmployeeName">Employee</h1>
+      </div>
+      <div class="aw-date"><span id="awDay"></span><strong id="awDate"></strong></div>
+    </div>
+    <div class="aw-toprow">
+      <div class="aw-today-pill"><span>TODAY</span><strong id="awTodayTotal">₹0</strong><small id="awTodayCount" hidden></small></div>
+      <a class="aw-all-link" href="/collection-table">All Work <span class="aw-all-chevron">›</span></a>
+    </div>
+    <form id="awForm" class="aw-form" novalidate>
+      <div class="aw-main-card">
+        <div class="aw-date-row">
+          <div class="aw-field">
+            <label for="awDateSelect">Date</label>
+            <div class="aw-date-control">
+              <select id="awDateSelect" name="entryDate" required></select>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9.5h17"/></svg>
+            </div>
+          </div>
+          <div class="aw-field">
+            <label for="awEntryNo">Entry No.</label>
+            <div class="aw-entry-control"><span>#</span><input id="awEntryNo" name="entryNo" type="number" min="1" step="1" inputmode="numeric" required></div>
+          </div>
+        </div>
+        <div class="aw-hint-row"><span>Tap A Service To Add &middot; Tap &ndash; To Remove</span><button id="awClearAll" type="button">Clear All</button></div>
+        <div class="aw-service-grid">
+          <div id="awMainServices" class="aw-services"></div>
+          <button id="awOtherButton" class="aw-other-card" type="button">
+            <span class="aw-other-copy"><strong>Other</strong><small>All Services</small></span>
+            <span class="aw-other-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg></span>
+          </button>
+        </div>
+        <div class="aw-lower-row">
+          <div class="aw-field"><label for="awCostCutting">Cost Cutting</label><div class="aw-money-control"><span>₹</span><input id="awCostCutting" name="costCutting" type="number" min="0" step="0.01" inputmode="decimal" value="0"></div></div>
+          <div class="aw-field"><label>Payment</label><div class="aw-pay"><label><input type="radio" name="paymentMode" value="Cash" checked><span>Cash</span></label><label><input type="radio" name="paymentMode" value="Online"><span>Online</span></label></div></div>
+        </div>
+        <div class="aw-field aw-remark-field"><label for="awRemark">Remark (Optional)</label><textarea id="awRemark" name="remark" maxlength="1000" placeholder="Add A Note"></textarea></div>
+        <div id="awStatus" class="aw-status" role="status" aria-live="polite"></div>
+      </div>
+    </form>
+    <div class="aw-bottom-bar">
+      <div class="aw-total-box"><span>TOTAL &middot; <b id="awItemCount">0</b> ITEMS</span><strong id="awTotal">₹0</strong></div>
+      <button id="awSave" class="aw-save" type="submit" form="awForm">Save Work</button>
+    </div>
+  </section>
+  <div id="awSheetOverlay" class="aw-sheet-overlay"></div>
+  <section id="awServiceSheet" class="aw-sheet" role="dialog" aria-label="All services">
+    <div class="aw-sheet-handle"></div>
+    <div class="aw-sheet-head"><h2>All Services</h2><button id="awSheetClose" type="button" hidden>Close</button></div>
+    <label class="aw-search-control">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <input id="awServiceSearch" type="search" placeholder="Search Service">
+    </label>
+    <div id="awAllServices" class="aw-sheet-list"></div>
+    <div class="aw-custom" hidden>
+      <h3>Add Custom Service</h3>
+      <div class="aw-custom-row">
+        <input id="awCustomName" maxlength="150" placeholder="Service name">
+        <input id="awCustomRate" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Rate">
+        <button id="awCustomAdd" type="button">Add</button>
+      </div>
+      <p id="awCustomStatus" role="status"></p>
+    </div>
+    <button id="awSheetDone" class="aw-sheet-done" type="button">Done</button>
+  </section>
   <script src="/auth-guard.js"></script>
   <script src="/admin-nav.js"></script>
+  <script src="/mobile.js"></script>
   <script>
     const routePath=location.pathname.replace(/\/+$/,'')||'/';
     const moduleKey=routePath.split('/').pop().replace('-entry','');
-    const editId=new URLSearchParams(location.search).get('edit')||'';
+    const queryParams=new URLSearchParams(location.search);
+    const editId=queryParams.get('edit')||'';
+    const preselectedEmployeeId=queryParams.get('employeeId')||'';
     const definitions={
       collection:{title:'Collection Entry',description:'Record a salon collection for an employee.',permission:'Customer Entry',table:'/collection-table'},
       expense:{title:'Expense Entry',description:'Record an assigned employee expense.',permission:'Daily Expense',table:'/expense-table'},
@@ -60,12 +133,284 @@
       wrap.append(label,select);fields.append(wrap);return select;
     }
     function showStatus(message,error=false){statusBox.textContent=message;statusBox.className='status show'+(error?' error':'')}
+    const isMobileViewport=window.matchMedia('(max-width:700px)').matches;
+    const mobileAddWork=document.getElementById('mobileAddWork');
+    const awDateSelect=document.getElementById('awDateSelect'),awEntryNo=document.getElementById('awEntryNo');
+    const awMainServices=document.getElementById('awMainServices'),awAllServices=document.getElementById('awAllServices');
+    const awTotal=document.getElementById('awTotal'),awItemCount=document.getElementById('awItemCount');
+    const awTodayTotal=document.getElementById('awTodayTotal'),awTodayCount=document.getElementById('awTodayCount');
+    const awStatus=document.getElementById('awStatus'),awSave=document.getElementById('awSave');
+    const awSheet=document.getElementById('awServiceSheet'),awSheetOverlay=document.getElementById('awSheetOverlay');
+    const awSearch=document.getElementById('awServiceSearch'),awCustomStatus=document.getElementById('awCustomStatus'),awSheetDone=document.getElementById('awSheetDone');
+    let awMeta=null,awServices=[],awQuantities=new Map(),awEditing=null,awEditDate='',awBusy=false,awEventsBound=false;
+    function awMoney(value){return '₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+    function awDateLabel(value){if(!value)return'';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?String(value):date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+    function awSetStatus(message,error=false){awStatus.textContent=message;awStatus.className='aw-status show'+(error?' error':'')}
+    function awGreetingText(){const hour=new Date().getHours();return hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening'}
+    function awFindService(serviceType){return awServices.find(item=>String(item.serviceType).toLowerCase()===String(serviceType).toLowerCase())}
+    function awSortServices(){awServices.sort((left,right)=>{const leftSr=Number.isFinite(Number(left.sr))?Number(left.sr):Number.MAX_SAFE_INTEGER;const rightSr=Number.isFinite(Number(right.sr))?Number(right.sr):Number.MAX_SAFE_INTEGER;return leftSr-rightSr||String(left.serviceType).localeCompare(String(right.serviceType))})}
+    function awAddService(item,overrides={}){
+      const existing=awFindService(item.serviceType);
+      if(existing){Object.assign(existing,overrides);return existing}
+      const service={_id:String(item._id||item.serviceType),sr:Number(item.sr||0),serviceType:item.serviceType,shortName:item.shortName||item.serviceType,rate:Number(item.rate||0),category:item.category||'Other',status:item.status||'Active',...overrides};
+      awServices.push(service);awSortServices();return service;
+    }
+    function awSelectedItems(){
+      return awServices.filter(service=>Number(awQuantities.get(service.serviceType)||0)>0).map(service=>{
+        const quantity=Number(awQuantities.get(service.serviceType)||0);
+        return{serviceType:service.serviceType,shortName:service.shortName||service.serviceType,rate:Number(service.rate||0),quantity,amount:Math.round(Number(service.rate||0)*quantity*100)/100};
+      });
+    }
+    function awTotalValue(){return Math.round(awSelectedItems().reduce((sum,item)=>sum+item.amount,0)*100)/100}
+    function awChange(service,delta){
+      const key=service.serviceType;
+      const next=Math.max(0,Math.min(999,Number(awQuantities.get(key)||0)+delta));
+      if(next>0)awQuantities.set(key,next);else awQuantities.delete(key);
+      awRenderServices();
+    }
+    function awQtyControls(service){
+      const wrap=document.createElement('span');wrap.className='aw-qty';
+      const minus=document.createElement('button');minus.type='button';minus.setAttribute('aria-label',`Remove one ${service.serviceType}`);minus.textContent='−';
+      const qty=document.createElement('strong');qty.textContent=String(awQuantities.get(service.serviceType)||0);
+      const plus=document.createElement('button');plus.type='button';plus.setAttribute('aria-label',`Add one ${service.serviceType}`);plus.textContent='+';
+      minus.addEventListener('click',event=>{event.stopPropagation();awChange(service,-1)});
+      plus.addEventListener('click',event=>{event.stopPropagation();awChange(service,1)});
+      wrap.append(minus,qty,plus);return wrap;
+    }
+    function awServiceCard(service){
+      const qty=Number(awQuantities.get(service.serviceType)||0);
+      const card=document.createElement('div');card.className='aw-service'+(qty?' selected':'');card.tabIndex=0;card.setAttribute('role','button');
+      card.setAttribute('aria-label',`${service.shortName||service.serviceType}, ${awMoney(service.rate)}`);
+      if(qty){const badge=document.createElement('span');badge.className='aw-qty-badge';badge.textContent=String(qty);card.append(badge)}
+      const copy=document.createElement('span');copy.className='aw-service-copy';
+      const name=document.createElement('strong');name.className='aw-service-name';name.textContent=service.shortName||service.serviceType;
+      const rate=document.createElement('small');rate.className='aw-service-rate';rate.textContent=awMoney(service.rate);
+      copy.append(name,rate);
+      const action=document.createElement('span');action.className='aw-service-action';
+      if(qty){
+        const minus=document.createElement('button');minus.type='button';minus.className='aw-minus';minus.setAttribute('aria-label',`Remove one ${service.serviceType}`);minus.textContent='−';
+        minus.addEventListener('click',event=>{event.stopPropagation();awChange(service,-1)});
+        action.append(minus);
+      }else{
+        const plus=document.createElement('span');plus.className='aw-plus';plus.textContent='+';plus.setAttribute('aria-hidden','true');
+        action.append(plus);
+      }
+      card.append(copy,action);
+      card.addEventListener('click',event=>{if(event.target.closest('button'))return;awChange(service,1)});
+      card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();awChange(service,1)}});
+      return card;
+    }
+    function awSheetRow(service){
+      const qty=Number(awQuantities.get(service.serviceType)||0);
+      const row=document.createElement('div');row.className='aw-sheet-row'+(qty?' selected':'');
+      const info=document.createElement('div');info.className='aw-sheet-row-name';
+      const name=document.createElement('strong');name.textContent=service.shortName||service.serviceType;
+      const rate=document.createElement('small');rate.textContent=`${awMoney(service.rate)} Each`;
+      info.append(name,rate);
+      const controls=document.createElement('span');controls.className='aw-sheet-controls';
+      if(qty){
+        const minus=document.createElement('button');minus.type='button';minus.className='aw-minus';minus.setAttribute('aria-label',`Remove one ${service.serviceType}`);minus.textContent='−';
+        const count=document.createElement('strong');count.textContent=String(qty);
+        const plus=document.createElement('button');plus.type='button';plus.className='aw-plus';plus.setAttribute('aria-label',`Add one ${service.serviceType}`);plus.textContent='+';
+        minus.addEventListener('click',event=>{event.stopPropagation();awChange(service,-1)});
+        plus.addEventListener('click',event=>{event.stopPropagation();awChange(service,1)});
+        controls.append(minus,count,plus);
+      }else{
+        const add=document.createElement('button');add.type='button';add.className='aw-plus';add.textContent='+';add.setAttribute('aria-label',`Add ${service.serviceType}`);
+        add.addEventListener('click',event=>{event.stopPropagation();awChange(service,1)});
+        controls.append(add);
+      }
+      row.append(info,controls);
+      row.addEventListener('click',event=>{if(event.target.closest('button'))return;awChange(service,1)});
+      return row;
+    }
+    function awRenderSheet(){
+      const search=String(awSearch.value||'').trim().toLowerCase();
+      const list=awServices.filter(service=>!search||`${service.serviceType} ${service.shortName||''}`.toLowerCase().includes(search));
+      awAllServices.replaceChildren();
+      if(!list.length){const empty=document.createElement('div');empty.className='m-empty';empty.textContent=search?'No matching service.':'No active services in the Rate List.';awAllServices.append(empty)}
+      else for(const service of list)awAllServices.append(awSheetRow(service));
+      const selected=awSelectedItems();
+      const count=selected.reduce((sum,item)=>sum+item.quantity,0);
+      awSheetDone.textContent=`Done${count?` · ${count} ${count===1?'Item':'Items'} · ${awMoney(awTotalValue())}`:''}`;
+    }
+    function awRenderServices(){
+      awSortServices();
+      const main=awServices.filter(service=>(service.category||'Main')!=='Other');
+      awMainServices.replaceChildren();
+      if(!main.length){const empty=document.createElement('div');empty.className='m-empty';empty.textContent='No Main services in the Rate List.';awMainServices.append(empty)}
+      else for(const service of main)awMainServices.append(awServiceCard(service));
+      const selected=awSelectedItems();
+      awItemCount.textContent=String(selected.reduce((sum,item)=>sum+item.quantity,0));
+      awTotal.textContent=awMoney(awTotalValue());
+      awSave.textContent=awEditing?'Update Work':'Save Work';
+      awRenderSheet();
+    }
+    function awRenderDateOptions(dates,selected){
+      const set=new Set([...(dates||[]),selected,awEditDate].filter(Boolean));
+      awDateSelect.replaceChildren();
+      for(const date of [...set].sort((left,right)=>right.localeCompare(left))){
+        awDateSelect.add(new Option(awDateLabel(date),date));
+      }
+      awDateSelect.value=set.has(selected)?selected:(awMeta?.todayDate||'');
+    }
+    async function awLoadMeta(date,options={}){
+      const query=date?`?date=${encodeURIComponent(date)}`:'';
+      const meta=await salonAuth.request('/api/collection-entry-meta'+query);
+      const previous=awServices;
+      awMeta=meta;
+      awServices=meta.services.map(item=>({_id:String(item._id),sr:Number(item.sr||0),serviceType:item.serviceType,shortName:item.shortName||item.serviceType,rate:Number(item.rate||0),category:item.category||'Main',status:item.status||'Active'}));
+      for(const [key,qty] of awQuantities){
+        if(qty>0&&!awFindService(key)){
+          const old=previous.find(service=>service.serviceType===key);
+          if(old)awServices.push({...old});
+        }
+      }
+      awSortServices();
+      awRenderDateOptions(meta.allowedDates,date||meta.todayDate);
+      awTodayTotal.textContent=awMoney(meta.todayTotal);
+      awTodayCount.textContent=`${Number(meta.todayCount||0)} ${Number(meta.todayCount||0)===1?'entry':'entries'}`;
+      if(awEditing&&awDateSelect.value===awEditDate&&!options.forceNext)awEntryNo.value=String(awEditing.entryNo);
+      else awEntryNo.value=String(meta.nextEntryNo);
+      awRenderServices();
+    }
+    function awApplyEditingRecord(record){
+      const source=Array.isArray(record.items)&&record.items.length
+        ? record.items
+        : [{serviceType:record.serviceType,shortName:record.serviceType,rate:record.amount,quantity:1,amount:record.amount}];
+      for(const item of source){
+        const existing=awFindService(item.serviceType);
+        const service=existing||awAddService({...item,category:'Other',status:'Inactive',sr:999999});
+        if(Number(item.rate)>0)service.rate=Number(item.rate);
+        if(item.shortName)service.shortName=item.shortName;
+        awQuantities.set(service.serviceType,Number(item.quantity||1));
+      }
+      document.getElementById('awCostCutting').value=String(Number(record.costCutting||0));
+      const payment=document.querySelector(`input[name="paymentMode"][value="${record.paymentMode==='Online'?'Online':'Cash'}"]`);
+      if(payment)payment.checked=true;
+      document.getElementById('awRemark').value=record.remark||'';
+    }
+    function awOpenSheet(){awSheetOverlay.classList.add('open');awSheet.classList.add('open');document.body.classList.add('aw-sheet-locked')}
+    function awCloseSheet(){awSheetOverlay.classList.remove('open');awSheet.classList.remove('open');document.body.classList.remove('aw-sheet-locked')}
+    async function awAddCustomService(){
+      const name=String(document.getElementById('awCustomName').value||'').trim();
+      const rate=Number(document.getElementById('awCustomRate').value);
+      awCustomStatus.className='';
+      if(!name){awCustomStatus.textContent='Enter the service name.';return}
+      if(!Number.isFinite(rate)||rate<=0){awCustomStatus.textContent='Enter a valid rate.';return}
+      const button=document.getElementById('awCustomAdd');button.disabled=true;awCustomStatus.textContent='Adding...';
+      try{
+        const item=await salonAuth.request('/api/collection-custom-services',{method:'POST',body:JSON.stringify({serviceType:name,rate})});
+        const service=awAddService(item,{category:item.category||'Other',status:'Active'});
+        awQuantities.set(service.serviceType,1);
+        document.getElementById('awCustomName').value='';document.getElementById('awCustomRate').value='';
+        awCustomStatus.className='ok';awCustomStatus.textContent='Custom service added.';
+        awRenderServices();
+      }catch(error){
+        if(error.payload?.service){
+          const service=awAddService(error.payload.service,{category:error.payload.service.category||'Other'});
+          awQuantities.set(service.serviceType,1);
+          awCustomStatus.className='';awCustomStatus.textContent='That service already existed, so it was selected.';
+          awRenderServices();
+        }else{
+          awCustomStatus.textContent=error.message||'Could not add the custom service.';
+        }
+      }finally{button.disabled=false}
+    }
+    function awBindEvents(){
+      if(awEventsBound)return;awEventsBound=true;
+      document.getElementById('awForm').addEventListener('submit',async event=>{
+        event.preventDefault();
+        if(awBusy)return;
+        const items=awSelectedItems();
+        if(!items.length){awSetStatus('Add at least one service.',true);return}
+        const date=awDateSelect.value;
+        const entryNo=Number(awEntryNo.value);
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){awSetStatus('Select a valid entry date.',true);return}
+        if(!Number.isSafeInteger(entryNo)||entryNo<1){awSetStatus('Enter a valid Entry No.',true);return}
+        const costCutting=Number(document.getElementById('awCostCutting').value||0);
+        if(!Number.isFinite(costCutting)||costCutting<0){awSetStatus('Enter a valid Cost Cutting amount.',true);return}
+        const paymentMode=document.querySelector('input[name="paymentMode"]:checked')?.value||'Cash';
+        const total=Math.round(items.reduce((sum,item)=>sum+item.amount,0)*100)/100;
+        awBusy=true;awSave.disabled=true;awSave.textContent=awEditing?'Updating...':'Saving...';awSetStatus('');
+        try{
+          const payload={
+            entryDate:date,
+            entryNo,
+            staffId:session.employee.employeeId,
+            staff:session.employee.employeeName,
+            serviceType:items.map(item=>`${item.shortName}${item.quantity>1?` x${item.quantity}`:''}`).join(', ').slice(0,1000),
+            amount:total,
+            items,
+            costCutting,
+            paymentMode,
+            remark:String(document.getElementById('awRemark').value||'').trim()
+          };
+          await salonAuth.request(awEditing?`/api/collections/${encodeURIComponent(awEditing._id)}`:'/api/save-collection',{
+            method:awEditing?'PUT':'POST',
+            body:JSON.stringify(payload)
+          });
+          if(awEditing){
+            if(window.salonUi?.showSuccess)await window.salonUi.showSuccess('Work entry updated successfully.');
+            location.replace('/collection-table');return;
+          }
+          awQuantities.clear();
+          document.getElementById('awCostCutting').value='0';
+          document.getElementById('awRemark').value='';
+          const cash=document.querySelector('input[name="paymentMode"][value="Cash"]');if(cash)cash.checked=true;
+          await awLoadMeta(date);
+          awSetStatus('Work saved successfully.');
+        }catch(error){awSetStatus(error.message||'Could not save the work entry.',true)}
+        finally{awBusy=false;awSave.disabled=false;awSave.textContent=awEditing?'Update Work':'Save Work'}
+      });
+      awDateSelect.addEventListener('change',async()=>{
+        if(awBusy||!awMeta)return;
+        try{await awLoadMeta(awDateSelect.value,{forceNext:!awEditing||awDateSelect.value!==awEditDate});awSetStatus('')}
+        catch(error){awSetStatus(error.message||'Could not load that date.',true)}
+      });
+      document.getElementById('awOtherButton').addEventListener('click',awOpenSheet);
+      document.getElementById('awClearAll').addEventListener('click',()=>{awQuantities.clear();awRenderServices();awSetStatus('')});
+      document.getElementById('awSheetClose').addEventListener('click',awCloseSheet);
+      document.getElementById('awSheetDone').addEventListener('click',awCloseSheet);
+      awSheetOverlay.addEventListener('click',awCloseSheet);
+      awSearch.addEventListener('input',awRenderSheet);
+      document.getElementById('awCustomAdd').addEventListener('click',awAddCustomService);
+      document.getElementById('awCustomRate').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();awAddCustomService()}});
+      document.addEventListener('keydown',event=>{if(event.key==='Escape')awCloseSheet()});
+    }
+    async function awInit(){
+      document.querySelector('main.wrap').hidden=true;
+      mobileAddWork.hidden=false;
+      document.body.classList.add('aw-mobile-page');
+      document.title=`${editId?'Edit':'Add'} Work - YOURS SALON`;
+      const employee=session.employee||{};
+      const addAccess=session.actionAccess?.collection?.add===true||(!session.actionAccess&&(employee.role==='Admin'||session.permissions.includes('Customer Entry')));
+      if(!addAccess)document.querySelector('.aw-custom').hidden=true;
+      document.getElementById('awGreeting').textContent=awGreetingText();
+      document.getElementById('awEmployeeName').textContent=employee.employeeName||'Employee';
+      document.getElementById('awDate').textContent=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      document.getElementById('awDay').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long'});
+      if(editId){
+        const result=await salonAuth.request(`/api/module-records?module=collection&id=${encodeURIComponent(editId)}&limit=1`);
+        awEditing=result.records?.[0]||null;
+        if(!awEditing)throw new Error('The selected work entry could not be found.');
+        awEditDate=String(awEditing.entryDate).slice(0,10);
+      }
+      awBindEvents();
+      await awLoadMeta(awEditDate);
+      if(awEditing){
+        awApplyEditingRecord(awEditing);
+        awEntryNo.value=String(awEditing.entryNo);
+        awRenderServices();
+      }
+    }
     function buildForm(){
       fields.replaceChildren();document.title=`${editingRecord?'Edit ':''}${definition.title} - YOURS SALON`;document.getElementById('title').textContent=editingRecord?`Edit ${definition.title}`:definition.title;
       let employeeSelect=null;
       if(session.employee.role==='Admin'){
         employeeSelect=field('Employee','employeeId','select',true);
         options(employeeSelect,staff.map(item=>({value:item._id,label:`${item.employeeName} · ${item.employeeId}`})),'Select employee');
+        if(preselectedEmployeeId&&staff.some(item=>item._id===preselectedEmployeeId))employeeSelect.value=preselectedEmployeeId;
       }
       addEntryDateField();
       if(moduleKey==='collection'){
@@ -124,6 +469,9 @@
         if(session.employee.role!=='Admin'&&(requiredAccess===false||(requiredAccess===undefined&&!session.permissions.includes(definition.permission)))){
           document.getElementById('empty').hidden=false;document.getElementById('empty').textContent=`You do not have ${definition.permission} access.`;return;
         }
+        if(moduleKey==='collection'&&session.employee.role!=='Admin'&&isMobileViewport){
+          await awInit();return;
+        }
         config=await salonAuth.request('/api/public-config');
         staff=await salonAuth.request('/api/staff');
         if(session.employee.role==='Admin')expenseTypes=await salonAuth.request('/api/expense-types');
@@ -133,7 +481,10 @@
           if(!editingRecord)throw new Error('The selected record could not be found.');
         }
         buildForm();
-      }catch(error){document.getElementById('empty').hidden=false;document.getElementById('empty').textContent=error.message||'Could not load the entry form.'}
+      }catch(error){
+        if(mobileAddWork&&!mobileAddWork.hidden){awSetStatus(error.message||'Could not load the entry form.',true);return}
+        document.getElementById('empty').hidden=false;document.getElementById('empty').textContent=error.message||'Could not load the entry form.';
+      }
     })();
   </script>
 </body>

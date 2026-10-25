@@ -7,6 +7,19 @@
   <link rel="stylesheet" href="/admin-nav.css">
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1100px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.employee-bar{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin-top:18px;padding:13px;background:#fafbfc;border:1px solid #e6ebf0;border-radius:11px}.field{display:flex;flex-direction:column;gap:5px;min-width:240px}.field label{font-size:11px;color:#526176;font-weight:700}.field select{height:38px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.employee-bar .actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}.employee-bar button{min-height:38px;padding:8px 14px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.employee-bar button.secondary{background:#eff2f5;color:#344054}.employee-bar button:disabled{opacity:.55;cursor:not-allowed}.access-grid{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(0,1.6fr);gap:14px;margin-top:15px}.card{padding:15px;border:1px solid #e1e7ee;border-radius:12px;background:#fff}.card h2{margin:0 0 4px;font-size:15px}.card .help{margin:0 0 12px;color:#758397;font-size:11px;line-height:1.4}.page-list{display:grid;gap:5px;max-height:440px;overflow:auto;padding-right:4px}.option{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;background:#fafbfc;font-size:12px;cursor:pointer}.option:hover{background:#f5f7fa}.option input{width:16px;height:16px;margin:0;accent-color:#c99a23;flex:none}.option.disabled{opacity:.65;cursor:not-allowed}.option small{margin-left:auto;color:#8a94a3;font-size:10px}.actions-table{width:100%;border-collapse:collapse;font-size:12px}.actions-table th,.actions-table td{padding:9px 8px;border-bottom:1px solid #edf0f4;text-align:center;white-space:nowrap}.actions-table th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}.actions-table th:first-child,.actions-table td:first-child{text-align:left}.actions-table input{width:16px;height:16px;margin:0;accent-color:#c99a23}.status{display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px}.status.show{display:block;background:#eaf8f1;color:#286b53}.status.error{display:block;background:#fff0ef;color:#a13932}.empty{padding:22px;text-align:center;color:#758397;font-size:13px}@media(max-width:800px){.access-grid{grid-template-columns:1fr}.employee-bar .actions{margin-left:0;width:100%}.employee-bar button{flex:1}}
+    .page-group{padding:8px;border:1px solid #e6ebf0;border-radius:9px;background:#fbfcfd}
+    .page-group+.page-group{margin-top:6px}
+    .page-group-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#344054;cursor:pointer}
+    .page-group-title input{width:16px;height:16px;margin:0;accent-color:#c99a23;flex:none}
+    .page-group-pages{margin:5px 0 0 24px;color:#7a8697;font-size:10px;line-height:1.45}
+    .action-modules{display:grid;gap:10px}
+    .action-module{border:1px solid #e6ebf0;border-radius:9px;overflow:hidden;background:#fff}
+    .action-module h3{margin:0;padding:9px 10px;background:#fafbfc;border-bottom:1px solid #edf0f4;font-size:12px;color:#344054}
+    .action-module table{width:100%;border-collapse:collapse;font-size:11px}
+    .action-module th,.action-module td{padding:7px 8px;border-bottom:1px solid #f0f2f5;text-align:center;white-space:nowrap}
+    .action-module th:first-child,.action-module td:first-child{text-align:left;color:#526176}
+    .action-module th{color:#758397;font-size:9px;text-transform:uppercase;letter-spacing:.03em}
+    .action-module input{width:16px;height:16px;margin:0;accent-color:#c99a23}
   </style>
 </head>
 <body>
@@ -23,18 +36,13 @@
         <div class="access-grid">
           <section class="card">
             <h2>Page Access</h2>
-            <p class="help">Uncheck a page to hide it from the employee navigation and block direct access.</p>
+            <p class="help">Configuration, Reports and Employee List are group rights. New pages added to a group inherit its access automatically.</p>
             <div id="pageList" class="page-list"></div>
           </section>
           <section class="card">
             <h2>Action Rights</h2>
-            <p class="help">Add, View, Edit, Delete and Deactivate rights are checked separately for each module.</p>
-            <div style="overflow:auto">
-              <table class="actions-table">
-                <thead><tr><th>Module</th><th>Add</th><th>View</th><th>Edit</th><th>Delete</th><th>Deactivate</th></tr></thead>
-                <tbody id="actionRows"></tbody>
-              </table>
-            </div>
+            <p class="help">Rights are saved per group or module. Delete is soft In-Active; permanent delete stays restricted to the Super Admin.</p>
+            <div id="actionRows" class="action-modules"></div>
           </section>
         </div>
       </div>
@@ -51,16 +59,54 @@
       statusBox.className='status show'+(error?' error':'');
     }
 
+    const actionLabels={add:'Add',view:'View',edit:'Edit',delete:'Delete',deactivate:'De-Activate',export:'Export'};
+
     function pageCheckboxes(pages){
       pageList.replaceChildren();
-      for(const page of data.pages.filter(item=>!item.adminOnly)){
+      const dashboard=data.pages.find(page=>page.key==='dashboard');
+      if(dashboard){
         const label=document.createElement('label');
-        label.className='option'+(page.key==='dashboard'?' disabled':'');
+        label.className='option disabled';
+        const checkbox=document.createElement('input');
+        checkbox.type='checkbox';
+        checkbox.dataset.pageKey='dashboard';
+        checkbox.checked=true;
+        checkbox.disabled=true;
+        const text=document.createElement('span');
+        text.textContent=dashboard.label;
+        label.append(checkbox,text);
+        pageList.append(label);
+      }
+      const groupPageKeys=new Set();
+      for(const group of data.groups||[]){
+        for(const pageKey of group.pages)groupPageKeys.add(pageKey);
+        const wrapper=document.createElement('div');
+        wrapper.className='page-group';
+        const label=document.createElement('label');
+        label.className='page-group-title';
+        const checkbox=document.createElement('input');
+        checkbox.type='checkbox';
+        checkbox.dataset.pageKey=group.key;
+        checkbox.checked=pages.has(group.key);
+        const text=document.createElement('span');
+        text.textContent=group.label;
+        label.append(checkbox,text);
+        const description=document.createElement('div');
+        description.className='page-group-pages';
+        description.textContent=(data.pages||[])
+          .filter(page=>group.pages.includes(page.key))
+          .map(page=>page.label)
+          .join(', ');
+        wrapper.append(label,description);
+        pageList.append(wrapper);
+      }
+      for(const page of data.pages.filter(item=>!item.adminOnly&&item.key!=='dashboard'&&!groupPageKeys.has(item.key))){
+        const label=document.createElement('label');
+        label.className='option';
         const checkbox=document.createElement('input');
         checkbox.type='checkbox';
         checkbox.dataset.pageKey=page.key;
         checkbox.checked=pages.has(page.key);
-        if(page.key==='dashboard'){checkbox.checked=true;checkbox.disabled=true;}
         const text=document.createElement('span');
         text.textContent=page.label;
         label.append(checkbox,text);
@@ -71,12 +117,30 @@
     function actionCheckboxes(moduleAccess){
       actionRows.replaceChildren();
       for(const module of data.actions.filter(item=>!item.adminOnly)){
+        const values=moduleAccess[module.key]||{};
+        const section=document.createElement('section');
+        section.className='action-module';
+        const heading=document.createElement('h3');
+        heading.textContent=module.label;
+        const table=document.createElement('table');
+        const thead=document.createElement('thead');
+        const headRow=document.createElement('tr');
+        const moduleHead=document.createElement('th');
+        moduleHead.textContent='Module';
+        headRow.append(moduleHead);
+        const actions=module.actions||['add','view','edit','delete'];
+        for(const action of actions){
+          const th=document.createElement('th');
+          th.textContent=action==='delete'&&module.combinedDelete?'Delete/De-Activate':actionLabels[action]||action;
+          headRow.append(th);
+        }
+        thead.append(headRow);
+        const tbody=document.createElement('tbody');
         const row=document.createElement('tr');
         const name=document.createElement('td');
         name.textContent=module.label;
         row.append(name);
-        const values=moduleAccess[module.key]||{};
-        for(const action of ['add','view','edit','delete','deactivate']){
+        for(const action of actions){
           const cell=document.createElement('td');
           const checkbox=document.createElement('input');
           checkbox.type='checkbox';
@@ -86,7 +150,10 @@
           cell.append(checkbox);
           row.append(cell);
         }
-        actionRows.append(row);
+        tbody.append(row);
+        table.append(thead,tbody);
+        section.append(heading,table);
+        actionRows.append(section);
       }
     }
 
@@ -103,6 +170,9 @@
       const pages=rule
         ?new Set(rule.pages)
         :new Set(Object.keys(defaults.pages).filter(key=>defaults.pages[key]===true));
+      for(const group of data.groups||[]){
+        if(group.pages.every(key=>pages.has(key)))pages.add(group.key);
+      }
       const moduleAccess={};
       for(const module of data.actions.filter(item=>!item.adminOnly)){
         moduleAccess[module.key]=rule
@@ -120,7 +190,7 @@
       const grouped=new Map();
       for(const checkbox of actionRows.querySelectorAll('input[data-module]')){
         const module=checkbox.dataset.module;
-        if(!grouped.has(module))grouped.set(module,{module,add:false,view:false,edit:false,delete:false,deactivate:false});
+        if(!grouped.has(module))grouped.set(module,{module,add:false,view:false,edit:false,delete:false,deactivate:false,export:false});
         grouped.get(module)[checkbox.dataset.action]=checkbox.checked;
       }
       return {pages,actions:[...grouped.values()]};

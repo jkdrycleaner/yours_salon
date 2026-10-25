@@ -12,7 +12,7 @@
      .container{width:100%;max-width:920px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
     .logo{font-size:24px;font-weight:700;color:#A77B12;margin-bottom:18px;border-bottom:1px solid #ECEDEF;padding-bottom:12px}
     .logo span{color:#C49A32}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .container>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
     h1{font-size:21px;margin:0}
     h2{font-size:16px;margin:0 0 13px}
     .sub,.help{color:#737780;font-size:13px;line-height:1.5}
@@ -44,7 +44,7 @@
     #emptyState{padding:18px;text-align:center;color:#737780;font-size:13px}
     [hidden]{display:none!important}
     @media(max-width:720px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.form-grid{grid-template-columns:1fr 1fr}.form-grid button{grid-column:1/-1}}
-    @media(max-width:440px){header{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}}
+    @media(max-width:440px){.container>header{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -89,6 +89,8 @@
     const statusBox=document.getElementById('status');
     let expenseTypes=[];
     let editingId='';
+    let canAddType=false;
+    let canEditType=false;
 
     function authHeaders(json=true){
       const headers={};
@@ -131,12 +133,14 @@
         const actionsCell=document.createElement('td');
         const actions=document.createElement('div');
         actions.className='row-actions';
-        const edit=document.createElement('button');
-        edit.type='button';
-        edit.className='secondary';
-        edit.textContent='Edit';
-        edit.addEventListener('click',()=>editType(expenseType));
-        actions.append(edit);
+        if(canEditType){
+          const edit=document.createElement('button');
+          edit.type='button';
+          edit.className='secondary';
+          edit.textContent='Edit';
+          edit.addEventListener('click',()=>editType(expenseType));
+          actions.append(edit);
+        }
         actionsCell.append(actions);
         row.append(actionsCell);
         rowsElement.append(row);
@@ -161,6 +165,7 @@
     }
 
     function editType(expenseType){
+      if(!canEditType)return;
       document.getElementById('expenseTypeFormPanel').hidden=false;
       editingId=expenseType._id;
       document.getElementById('sr').value=expenseType.sr;
@@ -173,6 +178,7 @@
     }
 
     document.getElementById('addTypeButton').addEventListener('click',()=>{
+      if(!canAddType)return;
       const panel=document.getElementById('expenseTypeFormPanel');
       if(!panel.hidden){
         resetForm();
@@ -187,6 +193,7 @@
 
     form.addEventListener('submit',async event=>{
       event.preventDefault();
+      if(editingId?!canEditType:!canAddType)return;
       const button=document.getElementById('saveButton');
       const wasEditing=Boolean(editingId);
       button.disabled=true;
@@ -208,7 +215,13 @@
       }
     });
 
-    loadTypes().catch(error=>{
+    (async()=>{
+      const session=await window.salonReady;
+      canAddType=session?.employee?.role==='Admin'||session?.actionAccess?.configuration?.add===true;
+      canEditType=session?.employee?.role==='Admin'||session?.actionAccess?.configuration?.edit===true;
+      document.getElementById('addTypeButton').hidden=!canAddType;
+      await loadTypes();
+    })().catch(error=>{
       emptyState.hidden=false;
       emptyState.textContent='Could not load expense types.';
       showStatus(error.message||'Could not load expense types.','error');

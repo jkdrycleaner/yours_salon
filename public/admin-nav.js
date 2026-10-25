@@ -2,18 +2,18 @@
   const tokenKey = 'salon_google_credential';
   const allItems = [
     { href: '/admin-dashboard', label: 'Dashboard', admin: true, page: 'dashboard', icon: '<path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h8M8 17h5"/>' },
+    { href: '/employee-view', label: 'Employee Dashboard', admin: true, page: 'dashboard', icon: '<path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/>' },
     { href: '/employee-dashboard', label: 'Dashboard', employee: true, page: 'dashboard', icon: '<path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/>' },
     { href: '/collection-table', label: 'Collection Records', permission: 'Customer Entry', page: 'collection-records', icon: '<path d="M4 5.5h16v13H4z"/><path d="M8 9h8M8 12.5h5M8 16h3"/>' },
     { href: '/expense-table', label: 'Expense Records', permission: 'Daily Expense', page: 'expense-records', icon: '<path d="M4 5.5h16v13H4z"/><path d="M8 9h5M8 12.5h8M8 16h6"/><path d="M16 9h2v2"/>' },
     { href: '/salary-table', label: 'Salary Records', permission: 'Salary', page: 'salary-records', icon: '<path d="M4 5.5h16v13H4z"/><circle cx="12" cy="12" r="3"/><path d="M7 9h.01M17 15h.01"/>' },
     { href: '/counter-table', label: 'Counter Cash Records', permission: 'Cash At Counter', page: 'counter-records', icon: '<path d="M4 6.5h16v11H4z"/><path d="M7 10h10M7 13.5h6"/><circle cx="17" cy="15.5" r="1"/>' },
-    { href: '/employees', label: 'Employee List', admin: true, page: 'employee-list', icon: '<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 3.5 4.8"/>' }
+    { href: '/employees', label: 'Employee List', page: 'employee-list', icon: '<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 3.5 4.8"/>' }
   ];
   const navGroups = [
     {
       id: 'reports',
       label: 'Reports',
-      admin: true,
       icon: '<path d="M4 19.5V4.5h16v15z"/><path d="M8 16v-4M12 16V8M16 16v-6"/>',
       children: [
         { href: '/reports?period=daily', label: 'Daily', page: 'reports', period: 'daily' },
@@ -25,21 +25,26 @@
     {
       id: 'configuration',
       label: 'Configuration',
-      admin: true,
       icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4v-.2a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1z"/>',
       children: [
         { href: '/config', label: 'General', page: 'configuration' },
-        { href: '/user-access', label: 'User Access', page: 'user-access' },
+        { href: '/user-access', label: 'User Access', page: 'user-access', admin: true },
         { href: '/shop-details', label: 'Shop Details', page: 'shop-information' },
         { href: '/expense-types', label: 'Expense Types', page: 'expense-types' },
         { href: '/rate-list', label: 'Rate List', page: 'rate-list' },
-        { href: '/bulk-entry', label: 'Bulk Entry', page: 'bulk-entry' }
+        { href: '/bulk-entry', label: 'Bulk Entry', page: 'bulk-entry' },
+        { href: '/import-validation', label: 'Import Validation', page: 'import-validation' }
       ]
     }
   ];
   const pageMeta = {
     '/admin-dashboard': { parent: 'Admin Portal', parentHref: '/admin-dashboard', title: 'Dashboard', titleHref: '/admin-dashboard' },
     '/employee-dashboard': { parent: 'Employee Portal', parentHref: '/employee-dashboard', title: 'Dashboard', titleHref: '/employee-dashboard' },
+    '/employee-view': { parent: 'Employee Portal', parentHref: '/employee-view', title: 'Employee Dashboard', titleHref: '/employee-view' },
+    '/profile': { parent: 'Employee Portal', parentHref: '/employee-dashboard', title: 'My Profile', titleHref: '/profile' },
+    '/settings': { parent: 'Employee Portal', parentHref: '/employee-dashboard', title: 'Settings', titleHref: '/settings' },
+    '/attendance': { parent: 'Employee Portal', parentHref: '/employee-dashboard', title: 'Attendance', titleHref: '/attendance' },
+    '/customers': { parent: 'Employee Portal', parentHref: '/employee-dashboard', title: 'Customers', titleHref: '/customers' },
     '/collection-entry': { parent: 'Collection Records', parentHref: '/collection-table', title: 'Add Customer Entry', titleHref: '/collection-entry' },
     '/collection-table': { parent: 'Customer Entry', parentHref: '/collection-entry', title: 'Collection Records', titleHref: '/collection-table' },
     '/expense-entry': { parent: 'Expense Records', parentHref: '/expense-table', title: 'Add Expense Entry', titleHref: '/expense-entry' },
@@ -58,6 +63,7 @@
     '/config': { parent: 'Configuration', parentHref: '/config', title: 'General Configuration', titleHref: '/config' },
     '/shop-details': { parent: 'Configuration', parentHref: '/config', title: 'Shop Information', titleHref: '/shop-details' },
     '/bulk-entry': { parent: 'Configuration', parentHref: '/config', title: 'Bulk Entry', titleHref: '/bulk-entry' },
+    '/import-validation': { parent: 'Configuration', parentHref: '/config', title: 'Import Validation', titleHref: '/import-validation' },
     '/password-change': { parent: 'Account', parentHref: '/admin-dashboard', title: 'Change Password', titleHref: '/password-change' },
     '/password-change.html': { parent: 'Account', parentHref: '/admin-dashboard', title: 'Change Password', titleHref: '/password-change.html' }
   };
@@ -156,14 +162,18 @@
       if (item.admin) return isAdmin;
       if (item.employee) return !isAdmin;
       if (isAdmin) return true;
-      if (session.pageAccess && item.page) return session.pageAccess[item.page] !== false;
+      if (item.page) return session.pageAccess?.[item.page] === true;
       return session.permissions?.includes(item.permission);
     });
     const groups = navGroups
-      .filter(group => !group.admin || isAdmin)
       .map(group => ({
         ...group,
-        children: group.children.filter(child => !child.admin || isAdmin)
+        children: group.children.filter(child => {
+          if (child.admin) return isAdmin;
+          if (isAdmin) return true;
+          if (child.page) return session.pageAccess?.[child.page] === true;
+          return true;
+        })
       }))
       .filter(group => group.children.length);
     return [...singles, ...groups];
@@ -250,7 +260,6 @@
     profileMenu.append(password, logout);
     profile.append(profileButton, profileMenu);
     actions.append(searchWrap, profile);
-    header.append(brand, actions);
 
     const pageBar = document.createElement('div');
     pageBar.className = 'salon-page-bar';
@@ -277,13 +286,16 @@
     overlay.className = 'salon-sidebar-overlay';
     const sidebar = document.createElement('aside');
     sidebar.className = 'salon-sidebar';
+    sidebar.id = 'salon-sidebar';
     sidebar.setAttribute('aria-label', 'Salon navigation');
     const menuToggle = document.createElement('button');
     menuToggle.className = 'salon-menu-toggle';
     menuToggle.type = 'button';
     menuToggle.setAttribute('aria-expanded', 'false');
+    menuToggle.setAttribute('aria-controls', 'salon-sidebar');
     menuToggle.setAttribute('aria-label', 'Open menu');
     menuToggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span>';
+    header.append(brand, actions);
     const nav = document.createElement('nav');
     nav.className = 'salon-nav-items';
     const empty = document.createElement('div');
@@ -507,6 +519,14 @@
     });
     document.body.classList.add('salon-layout');
     document.body.prepend(header, pageBar, overlay, sidebar);
+    function syncHeaderHeight() {
+      const height = Math.ceil(header.getBoundingClientRect().height);
+      if (height > 0) document.documentElement.style.setProperty('--salon-header-height', `${height}px`);
+    }
+    syncHeaderHeight();
+    if (window.ResizeObserver) new ResizeObserver(syncHeaderHeight).observe(header);
+    window.addEventListener('resize', syncHeaderHeight);
+    window.addEventListener('load', syncHeaderHeight);
     if (!window.salonApplyButtonTheme) {
       const buttonThemeScript = document.createElement('script');
       buttonThemeScript.src = '/btn-theme.js';

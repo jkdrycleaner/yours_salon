@@ -1,11 +1,30 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Reports — YOURS SALON</title><link rel="stylesheet" href="/admin-nav.css"><link rel="stylesheet" href="/table-view.css"><style>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Reports — YOURS SALON</title><link rel="stylesheet" href="/admin-nav.css"><link rel="stylesheet" href="/table-view.css"><link rel="stylesheet" href="/mobile.css"><style>
 *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1250px,100%);margin:auto;padding:28px 20px 40px}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.heading h1{margin:0;font-size:26px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.filters{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin-top:18px;padding:13px;background:#fff;border:1px solid #e1e7ee;border-radius:12px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:#526176;font-weight:700}.field input,.field select{height:38px;min-width:145px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.filters button{height:38px;padding:8px 13px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.filters button.secondary{background:#eff2f5;color:#344054}.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:13px}.card{padding:14px;border:1px solid #e1e7ee;border-radius:12px;background:#fff}.card span{display:block;color:#758397;font-size:10px;font-weight:700}.card strong{display:block;margin-top:8px;font-size:18px}.table-wrap{margin-top:15px;overflow:auto;border:1px solid #e1e7ee;border-radius:12px;background:#fff}table{width:100%;min-width:850px;border-collapse:collapse;font-size:12px}th,td{padding:10px 11px;text-align:left;border-bottom:1px solid #edf0f4;white-space:nowrap}th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}.empty{text-align:center;color:#7b8797;padding:25px}.status{display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px}.status.show{display:block;background:#fff0ef;color:#a13932}@media(max-width:850px){.cards{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:600px){.wrap{padding:20px 12px 30px}.heading{flex-direction:column}.filters{align-items:stretch;flex-direction:column}.field input,.field select,.filters button{width:100%}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style><style>
+@media(max-width:700px){
+  body.mobile-employee .m-page .cards{grid-template-columns:1fr 1fr;gap:10px;margin-top:0}
+  body.mobile-employee .m-page .card{padding:15px;border-radius:16px;box-shadow:0 6px 18px #1b2a3b08}
+  body.mobile-employee .m-page .card span{font-size:9px;letter-spacing:.04em}
+  body.mobile-employee .m-page .card strong{margin-top:8px;font-size:17px;letter-spacing:-.02em}
+  body.mobile-employee .m-page .card:nth-child(1) strong{color:#138a4b}
+  body.mobile-employee .m-page .card:nth-child(2) strong{color:#9a5b0b}
+  body.mobile-employee .m-page .card:nth-child(3) strong{color:#2563c9}
+  body.mobile-employee .m-page .card:nth-child(5){background:#202b38;border-color:#202b38}
+  body.mobile-employee .m-page .card:nth-child(5) span{color:#cbd3dc}
+  body.mobile-employee .m-page .card:nth-child(5) strong{color:#f4c64d}
+  body.mobile-employee .m-page .heading>div:last-child{display:flex;gap:7px}
+  body.mobile-employee .m-page .heading>div:last-child button{min-height:38px;padding:8px 11px;font-size:11px}
+  body.mobile-employee .m-page .filters{display:none}
+  body.mobile-employee .m-page .filters.mobile-open{display:flex}
+  body.mobile-employee .m-page .table-wrap{display:none!important}
+  body.mobile-employee .m-mobile-report{display:block}
+}
 </style></head>
-<body><main class="wrap"><section class="heading"><div><h1 id="reportTitle">Reports</h1><p id="range">Daily, weekly and monthly salon reports</p></div><div><button id="excel" class="secondary" type="button">Excel</button> <button id="pdf" class="secondary" type="button">PDF</button></div></section><section class="filters"><div class="field"><label for="period">Period</label><select id="period"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option></select></div><div class="field"><label for="date">Anchor date</label><input id="date" type="date"></div><div class="field"><label for="employee">Employee</label><select id="employee"><option value="">All employees</option></select></div><button id="load" type="button">Load Report</button></section><section class="cards"><div class="card"><span>COLLECTION</span><strong id="collection">INR 0</strong></div><div class="card"><span>EXPENSE</span><strong id="expense">INR 0</strong></div><div class="card"><span>SALARY</span><strong id="salary">INR 0</strong></div><div class="card"><span>COUNTER CASH</span><strong id="counter">INR 0</strong></div><div class="card"><span>NET</span><strong id="net">INR 0</strong></div></section><div id="status" class="status" role="status"></div><div class="table-wrap"><table id="reportTable" data-table-view="local"><thead><tr><th>Date</th><th>Type</th><th>Employee</th><th>Details</th><th>Amount</th><th>Payment</th><th>Created By</th></tr></thead><tbody id="rows"><tr><td colspan="7" class="empty">Loading report...</td></tr></tbody></table></div></main>
-<script src="/auth-guard.js"></script><script src="/admin-nav.js"></script><script src="/table-view.js"></script><script>
-const money=value=>'INR '+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2});const dateInput=document.getElementById('date'),periodInput=document.getElementById('period'),employeeInput=document.getElementById('employee'),rows=document.getElementById('rows'),statusBox=document.getElementById('status');dateInput.value=new Date().toISOString().slice(0,10);function dateText(value){return new Date(value).toLocaleDateString('en-IN')}function params(){const value=new URLSearchParams({period:periodInput.value,date:dateInput.value});if(employeeInput.value)value.set('employeeId',employeeInput.value);return value}function render(data){for(const key of ['collection','expense','salary','counter','net'])document.getElementById(key).textContent=money(data.summary[key]);document.getElementById('range').textContent=`${data.from} to ${data.to}`;rows.replaceChildren();if(!data.rows.length){const tr=document.createElement('tr');tr.innerHTML='<td colspan="7" class="empty">No data found for this period.</td>';rows.append(tr);return}for(const item of data.rows){const tr=document.createElement('tr');for(const value of [dateText(item.date),item.type,item.employeeName,item.detail||'—',money(item.amount),item.paymentMode||'—',item.createdBy||'—']){const td=document.createElement('td');td.textContent=value;tr.append(td)}rows.append(tr)}}async function load(){statusBox.className='status';try{render(await salonAuth.request('/api/reports?'+params().toString()))}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}}async function download(format){try{const response=await fetch('/api/reports/export?'+new URLSearchParams({...Object.fromEntries(params()),format}),{headers:salonAuth.headers()});if(!response.ok){const result=await response.json();throw new Error(result.error||'Could not export report.')}const blob=await response.blob();const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`yours-salon-report.${format}`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}}document.getElementById('load').addEventListener('click',load);document.getElementById('excel').addEventListener('click',()=>download('xlsx'));document.getElementById('pdf').addEventListener('click',()=>download('pdf'));(async()=>{try{const session=await window.salonReady;if(!session)return;const staff=await salonAuth.request('/api/staff');for(const item of staff)employeeInput.add(new Option(`${item.employeeName} · ${item.employeeId}`,item._id));await load()}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}})();
+<body><main class="wrap m-page"><section class="heading"><div><h1 id="reportTitle">Reports</h1><p id="range">Daily, weekly and monthly salon reports</p></div><div><button id="excel" class="secondary" type="button">Excel</button> <button id="pdf" class="secondary" type="button">PDF</button></div></section><div class="m-filter-bar" id="mobileReportFilterBar"><button id="mobileReportFilterButton" class="m-filter-button" type="button">Filter <span id="mobileReportFilterCount" class="m-filter-count">0</span></button><span id="mobileReportFilterChips" style="display:flex;gap:7px"></span></div><section class="filters" id="reportFilters"><div class="field"><label for="period">Period</label><select id="period"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option></select></div><div class="field"><label for="date">Anchor date</label><input id="date" type="date"></div><div class="field"><label for="employee">Employee</label><select id="employee"><option value="">All employees</option></select></div><button id="load" type="button">Load Report</button><button id="mobileReportFilterClose" class="secondary m-filter-close" type="button">Close</button></section><div id="mobileReportFilterOverlay" class="m-filter-overlay"></div><section class="cards"><div class="card"><span>COLLECTION</span><strong id="collection">INR 0</strong></div><div class="card"><span>EXPENSE</span><strong id="expense">INR 0</strong></div><div class="card"><span>SALARY</span><strong id="salary">INR 0</strong></div><div class="card"><span>COUNTER CASH</span><strong id="counter">INR 0</strong></div><div class="card"><span>NET</span><strong id="net">INR 0</strong></div></section><div id="status" class="status" role="status"></div><div id="mobileReport" class="m-mobile-report"></div><div class="table-wrap"><table id="reportTable" data-table-view="local"><thead><tr><th>Date</th><th>Type</th><th>Employee</th><th>Details</th><th>Amount</th><th>Payment</th><th>Created By</th></tr></thead><tbody id="rows"><tr><td colspan="7" class="empty">Loading report...</td></tr></tbody></table></div></main>
+<script src="/auth-guard.js"></script><script src="/admin-nav.js"></script><script src="/mobile.js"></script><script src="/table-view.js"></script><script>
+const money=value=>'INR '+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2});const dateInput=document.getElementById('date'),periodInput=document.getElementById('period'),employeeInput=document.getElementById('employee'),rows=document.getElementById('rows'),statusBox=document.getElementById('status');dateInput.value=new Date().toISOString().slice(0,10);function dateText(value){return new Date(value).toLocaleDateString('en-IN')}function params(){const value=new URLSearchParams({period:periodInput.value,date:dateInput.value});if(employeeInput.value)value.set('employeeId',employeeInput.value);return value}function render(data){for(const key of ['collection','expense','salary','counter','net'])document.getElementById(key).textContent=money(data.summary[key]);document.getElementById('range').textContent=`${data.from} to ${data.to}`;rows.replaceChildren();if(!data.rows.length){const tr=document.createElement('tr');tr.innerHTML='<td colspan="7" class="empty">No data found for this period.</td>';rows.append(tr);return}for(const item of data.rows){const tr=document.createElement('tr');for(const value of [dateText(item.date),item.type,item.employeeName,item.detail||'—',money(item.amount),item.paymentMode||'—',item.createdBy||'—']){const td=document.createElement('td');td.textContent=value;tr.append(td)}rows.append(tr)}}async function load(){statusBox.className='status';try{render(await salonAuth.request('/api/reports?'+params().toString()))}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}}async function download(format){try{const response=await fetch('/api/reports/export?'+new URLSearchParams({...Object.fromEntries(params()),format}),{headers:salonAuth.headers()});if(!response.ok){const result=await response.json();throw new Error(result.error||'Could not export report.')}const blob=await response.blob();const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`yours-salon-report.${format}`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}}document.getElementById('load').addEventListener('click',load);document.getElementById('excel').addEventListener('click',()=>download('xlsx'));document.getElementById('pdf').addEventListener('click',()=>download('pdf'));(async()=>{try{const session=await window.salonReady;if(!session)return;const canExport=session.employee?.role==='Admin'||session.actionAccess?.reports?.export===true;document.getElementById('excel').hidden=!canExport;document.getElementById('pdf').hidden=!canExport;const staff=await salonAuth.request('/api/staff');for(const item of staff)employeeInput.add(new Option(`${item.employeeName} · ${item.employeeId}`,item._id));await load()}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}})();
 </script><script>
 (() => {
   const period = document.getElementById('period');
@@ -27,5 +46,132 @@ const money=value=>'INR '+Number(value||0).toLocaleString('en-IN',{maximumFracti
     document.getElementById('load').click();
   });
   update();
+})();
+</script>
+<script>
+(() => {
+  const mobileReport = document.getElementById('mobileReport');
+  const filterButton = document.getElementById('mobileReportFilterButton');
+  const filterCount = document.getElementById('mobileReportFilterCount');
+  const filterChips = document.getElementById('mobileReportFilterChips');
+  const filters = document.getElementById('reportFilters');
+  const overlay = document.getElementById('mobileReportFilterOverlay');
+  const closeButton = document.getElementById('mobileReportFilterClose');
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+  }
+
+  function updateFilterBar() {
+    const chips = [
+      periodInput.value.charAt(0).toUpperCase() + periodInput.value.slice(1),
+      dateInput.value,
+      employeeInput.value ? employeeInput.options[employeeInput.selectedIndex]?.textContent : 'All employees'
+    ].filter(Boolean);
+    filterCount.textContent = String(chips.length);
+    filterChips.replaceChildren();
+    for (const text of chips) {
+      const chip = document.createElement('span');
+      chip.className = 'm-chip';
+      chip.textContent = text;
+      filterChips.append(chip);
+    }
+  }
+
+  function closeFilters() {
+    filters.classList.remove('mobile-open');
+    overlay.classList.remove('open');
+    document.documentElement.classList.remove('m-filter-locked');
+  }
+
+  function openFilters() {
+    filters.classList.add('mobile-open');
+    overlay.classList.add('open');
+    document.documentElement.classList.add('m-filter-locked');
+  }
+
+  function renderMobileReport(data) {
+    mobileReport.replaceChildren();
+    if (!data.rows.length) {
+      const empty = document.createElement('div');
+      empty.className = 'm-empty';
+      empty.textContent = 'No data found for this period.';
+      mobileReport.append(empty);
+      return;
+    }
+    let lastDate = '';
+    for (const item of data.rows) {
+      const day = dateText(item.date);
+      if (day !== lastDate) {
+        const label = document.createElement('div');
+        label.className = 'm-record-group';
+        label.textContent = day;
+        mobileReport.append(label);
+        lastDate = day;
+      }
+      const card = document.createElement('article');
+      card.className = 'm-record-card';
+      const summary = document.createElement('div');
+      summary.className = 'm-record-summary';
+      const main = document.createElement('div');
+      const title = document.createElement('div');
+      title.className = 'm-record-title';
+      const chip = document.createElement('span');
+      chip.className = 'm-entry-chip';
+      chip.textContent = item.type || 'Report';
+      const name = document.createElement('strong');
+      name.textContent = item.employeeName || 'Employee';
+      title.append(chip, name);
+      const sub = document.createElement('div');
+      sub.className = 'm-record-sub';
+      sub.textContent = `${item.detail || '—'}${item.paymentMode ? ` · ${item.paymentMode}` : ''}`;
+      main.append(title, sub);
+      const side = document.createElement('div');
+      side.style.textAlign = 'right';
+      const amount = document.createElement('div');
+      amount.className = 'm-record-amount' + (String(item.type).toLowerCase().includes('expense') ? ' expense' : String(item.type).toLowerCase().includes('salary') ? ' salary' : '');
+      amount.textContent = money(item.amount);
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'm-record-toggle';
+      toggle.setAttribute('aria-label', 'Show report details');
+      toggle.innerHTML = '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
+      side.append(amount, toggle);
+      summary.append(main, side);
+      const details = document.createElement('div');
+      details.className = 'm-record-details';
+      const created = document.createElement('div');
+      created.className = 'm-detail-row';
+      const term = document.createElement('span');
+      term.textContent = 'Created by';
+      const value = document.createElement('strong');
+      value.textContent = item.createdBy || '—';
+      created.append(term, value);
+      details.append(created);
+      toggle.addEventListener('click', () => {
+        card.classList.toggle('open');
+        toggle.setAttribute('aria-label', card.classList.contains('open') ? 'Hide report details' : 'Show report details');
+      });
+      card.append(summary, details);
+      mobileReport.append(card);
+    }
+  }
+
+  const baseRender = render;
+  render = function (data) {
+    baseRender(data);
+    renderMobileReport(data);
+    updateFilterBar();
+  };
+
+  filterButton.addEventListener('click', openFilters);
+  closeButton.addEventListener('click', closeFilters);
+  overlay.addEventListener('click', closeFilters);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeFilters(); });
+  document.getElementById('load').addEventListener('click', closeFilters);
+  periodInput.addEventListener('change', updateFilterBar);
+  dateInput.addEventListener('change', updateFilterBar);
+  employeeInput.addEventListener('change', updateFilterBar);
+  updateFilterBar();
 })();
 </script></body></html>

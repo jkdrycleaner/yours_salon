@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>My Profile — YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/mobile.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(820px,100%);margin:auto;padding:28px 20px 40px}.profile-panel{padding:20px;border:1px solid #e1e7ee;border-radius:16px;background:#fff;box-shadow:0 8px 24px #1b2a3b08}.profile-head{display:flex;align-items:center;gap:16px}.profile-avatar{display:grid;place-items:center;width:82px;height:82px;overflow:hidden;border:3px solid #f1dfad;border-radius:50%;background:#fff5dc;color:#7b5f12;font:800 24px Arial}.profile-avatar img{width:100%;height:100%;object-fit:cover}.profile-head h1{margin:0;font-size:26px}.profile-head p{margin:5px 0 0;color:#758397;font-size:13px}.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;margin-top:20px}.profile-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #edf0f4;font-size:13px}.profile-row span{color:#758397}.profile-row strong{text-align:right;overflow-wrap:anywhere}.profile-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.profile-actions a,.profile-actions button{min-height:40px;padding:9px 13px;border:0;border-radius:9px;background:#eff2f5;color:#344054;font:700 12px Arial;text-decoration:none;cursor:pointer}.profile-actions .primary{background:#c99a23;color:#fff}.status{display:none;margin-top:12px;padding:11px;border-radius:9px;background:#fff0ef;color:#a13832;font-size:13px}.status.show{display:block}@media(max-width:700px){.profile-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap m-page">
+    <div class="m-page-head">
+      <div><h1>My Profile</h1><p>Your employee account details.</p></div>
+      <a class="m-add-button" href="/settings">Settings</a>
+    </div>
+    <section class="profile-panel" id="profilePanel">
+      <div class="profile-head">
+        <div class="profile-avatar" id="profileAvatar">U</div>
+        <div><h1 id="profileName">Loading...</h1><p id="profileRole">Employee account</p></div>
+      </div>
+      <div class="profile-grid" id="profileDetails"></div>
+      <div class="profile-actions"><a class="primary" href="/employee-dashboard">Back to dashboard</a><a href="/password-change">Change password</a></div>
+    </section>
+    <div id="status" class="status" role="status"></div>
+  </main>
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js"></script>
+  <script src="/mobile.js"></script>
+  <script>
+    (() => {
+      const statusBox = document.getElementById('status');
+      const details = document.getElementById('profileDetails');
+      function initials(name) {
+        return String(name || 'U').trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'U';
+      }
+      function value(text) {
+        return text === null || text === undefined || text === '' ? '—' : String(text);
+      }
+      function row(label, text) {
+        const item = document.createElement('div');
+        item.className = 'profile-row';
+        const term = document.createElement('span');
+        term.textContent = label;
+        const detail = document.createElement('strong');
+        detail.textContent = value(text);
+        item.append(term, detail);
+        return item;
+      }
+      (async () => {
+        try {
+          const session = await window.salonReady;
+          if (!session) return;
+          if (session.employee.mustChangePassword) {
+            location.replace('/password-change');
+            return;
+          }
+          const result = await salonAuth.request('/api/my-profile');
+          const employee = result.employee;
+          document.getElementById('profileName').textContent = employee.employeeName || 'Employee';
+          document.getElementById('profileRole').textContent = `${employee.accountType || 'Employee'}${employee.employeeCode ? ` · ${employee.employeeCode}` : ''}`;
+          const avatar = document.getElementById('profileAvatar');
+          avatar.replaceChildren();
+          if (employee.photoUrl) {
+            const image = document.createElement('img');
+            image.src = employee.photoUrl;
+            image.alt = `${employee.employeeName || 'Employee'} photo`;
+            image.addEventListener('error', () => { avatar.textContent = initials(employee.employeeName); }, { once: true });
+            avatar.append(image);
+          } else {
+            avatar.textContent = initials(employee.employeeName);
+          }
+          details.append(
+            row('Employee ID', employee.employeeCode),
+            row('Mobile number', employee.mobileNumber),
+            row('Email address', employee.emailAddress),
+            row('Joining date', employee.joiningDate),
+            row('Date of birth', employee.dateOfBirth),
+            row('Alternate mobile', employee.alternateMobileNumber),
+            row('Address', employee.address),
+            row('City / State', [employee.city, employee.state].filter(Boolean).join(', ')),
+            row('PIN code', employee.pinCode),
+            row('Salary rule', employee.salaryMode === 'fixed' ? `Fixed ${Number(employee.fixedMonthlySalary || 0).toLocaleString('en-IN')}` : `${employee.salaryPercentage ?? 50}% of collection`)
+          );
+        } catch (error) {
+          statusBox.textContent = error.message || 'Could not load your profile.';
+          statusBox.className = 'status show';
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>

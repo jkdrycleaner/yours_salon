@@ -21,9 +21,20 @@
     .setting-copy strong{display:block;font-size:14px;line-height:1.4}
     .help{display:block;font-size:12px;font-weight:400;margin-top:5px}
     .date-rule{margin-top:12px;padding:14px;background:#FFF;border:1px solid #E5E7EB;border-radius:8px}
-    .date-rule-grid{display:grid;grid-template-columns:minmax(180px,1fr) minmax(230px,1.2fr);gap:12px}
+    .date-rule-grid{display:grid;grid-template-columns:minmax(210px,1fr) minmax(230px,1fr);gap:12px}
     .field{display:flex;flex-direction:column;gap:5px;min-width:0}
     .field label{font-size:11px;font-weight:700;color:#555B64}
+    .employee-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .employee-count{font-size:11px;font-weight:400;color:#7A808A}
+    .employee-picker{border:1px solid #D9DDE3;border-radius:8px;background:#FFF;overflow:hidden}
+    .employee-picker-tools{display:flex;align-items:center;gap:6px;padding:5px 8px;border-bottom:1px solid #EDEFF2;background:#F8F9FA}
+    .link-button{min-height:0;padding:2px 5px;border:0;background:transparent;color:#8A6A1F;font-size:11px;font-weight:700}
+    .employee-checklist{max-height:146px;overflow:auto;padding:5px;display:grid;gap:1px}
+    .employee-check{display:flex;align-items:flex-start;gap:7px;padding:5px 6px;border-radius:6px;cursor:pointer;font-size:12px;line-height:1.35}
+    .employee-check:hover{background:#F7F8FA}
+    .employee-check input{width:15px;height:15px;margin:1px 0 0;accent-color:#C49A32;flex:0 0 auto;cursor:pointer}
+    .employee-check span{min-width:0;overflow-wrap:anywhere}
+    .employee-empty{padding:10px 8px;color:#777;font-size:12px}
     select,input[type=date]{width:100%;min-width:0;height:38px;padding:7px 9px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;font:13px Arial;color:#242424}
     .date-add{display:flex;gap:8px}
     .date-field{position:relative;flex:1;min-width:0}
@@ -71,8 +82,17 @@
       <div class="date-rule">
         <div class="date-rule-grid">
           <div class="field">
-            <label for="dateEmployee">Employee</label>
-            <select id="dateEmployee"></select>
+            <div class="employee-label-row">
+              <label id="dateEmployeeLabel">Employees</label>
+              <span id="dateEmployeeCount" class="employee-count"></span>
+            </div>
+            <div class="employee-picker">
+              <div class="employee-picker-tools">
+                <button id="selectAllDateEmployees" class="link-button" type="button">Select all</button>
+                <button id="clearDateEmployees" class="link-button" type="button">Clear</button>
+              </div>
+              <div id="dateEmployeeList" class="employee-checklist" role="group" aria-labelledby="dateEmployeeLabel"></div>
+            </div>
           </div>
           <div class="field">
             <label for="allowedDateInput">Add previous date</label>
@@ -112,7 +132,10 @@
     const statusBox=document.getElementById('status');
     const saveButtons=[document.getElementById('saveTop'),document.getElementById('saveBottom')];
     const allowPreviousEntryInput=document.getElementById('allowPreviousEntry');
-    const dateEmployeeSelect=document.getElementById('dateEmployee');
+    const dateEmployeeList=document.getElementById('dateEmployeeList');
+    const dateEmployeeCount=document.getElementById('dateEmployeeCount');
+    const selectAllDateEmployeesButton=document.getElementById('selectAllDateEmployees');
+    const clearDateEmployeesButton=document.getElementById('clearDateEmployees');
     const dateField=document.getElementById('dateField');
     const allowedDateInput=document.getElementById('allowedDateInput');
     const addAllowedDateButton=document.getElementById('addAllowedDate');
@@ -122,9 +145,12 @@
     let permissions=[];
     let dateAccessRows=[];
     let todayDate='';
-    let selectedEmployeeId='';
+    let selectedEmployeeIds=new Set();
     let configLoaded=false;
     let addingDate=false;
+    let canEditConfig=false;
+    let canAddDate=false;
+    let canDeleteDate=false;
 
     function authHeaders(json=true){
       const headers={};
@@ -172,41 +198,69 @@
         .sort((left,right)=>left.employeeName.localeCompare(right.employeeName));
     }
 
-    function selectedEmployee(){
-      return employees.find(employee=>employee._id===selectedEmployeeId)||null;
+    function selectedEmployees(){
+      return activeEmployees().filter(employee=>selectedEmployeeIds.has(employee._id));
     }
 
     function renderDateRuleState(){
       const enabled=allowPreviousEntryInput.checked;
+      const selected=selectedEmployees();
       allowedDateInput.disabled=!enabled;
-      addAllowedDateButton.disabled=!enabled||addingDate;
+      addAllowedDateButton.disabled=!enabled||addingDate||!selected.length||!canAddDate;
+      dateEmployeeCount.textContent=selected.length?`${selected.length} selected`:'None selected';
       if(!enabled){
-        dateRuleHelp.textContent='Previous-date entries are off. Turn this on to add a date; existing rows stay saved.';
+        dateRuleHelp.textContent='Previous-date entries are off. Turn this on to add dates; existing rows stay saved.';
         return;
       }
-      const employee=selectedEmployee();
-      dateRuleHelp.textContent=employee
-        ? `Select any date in the calendar. It saves for ${employee.employeeName} immediately.`
-        : 'Add an active employee before selecting previous dates.';
+      dateRuleHelp.textContent=selected.length
+        ? `Select a previous date. It saves for ${selected.length} employee(s) immediately and expires today at 11:59 PM.`
+        : 'Select at least one active employee before adding a previous date.';
     }
 
     function renderDateEmployeeOptions(){
       const active=activeEmployees();
-      const previous=selectedEmployeeId;
-      dateEmployeeSelect.replaceChildren();
+      const previous=new Set(selectedEmployeeIds);
+      dateEmployeeList.replaceChildren();
       if(!active.length){
-        selectedEmployeeId='';
-        dateEmployeeSelect.disabled=true;
-        dateEmployeeSelect.add(new Option('No active employees',''));
+        selectedEmployeeIds.clear();
+        const empty=document.createElement('div');
+        empty.className='employee-empty';
+        empty.textContent='No active employees.';
+        dateEmployeeList.append(empty);
         renderDateRuleState();
         return;
       }
-      dateEmployeeSelect.disabled=false;
       for(const employee of active){
-        dateEmployeeSelect.add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));
+        const label=document.createElement('label');
+        label.className='employee-check';
+        const checkbox=document.createElement('input');
+        checkbox.type='checkbox';
+        checkbox.value=employee._id;
+        checkbox.checked=previous.has(employee._id);
+        checkbox.addEventListener('change',()=>{
+          if(checkbox.checked)selectedEmployeeIds.add(employee._id);
+          else selectedEmployeeIds.delete(employee._id);
+          renderDateRuleState();
+        });
+        const text=document.createElement('span');
+        text.textContent=`${employee.employeeName} · ${employee.employeeId}`;
+        label.append(checkbox,text);
+        dateEmployeeList.append(label);
       }
-      selectedEmployeeId=active.some(employee=>employee._id===previous)?previous:active[0]._id;
-      dateEmployeeSelect.value=selectedEmployeeId;
+      const activeIds=new Set(active.map(employee=>employee._id));
+      selectedEmployeeIds=new Set([...selectedEmployeeIds].filter(id=>activeIds.has(id)));
+      if(!selectedEmployeeIds.size&&active.length)selectedEmployeeIds.add(active[0]._id);
+      for(const checkbox of dateEmployeeList.querySelectorAll('input[type=checkbox]')){
+        checkbox.checked=selectedEmployeeIds.has(checkbox.value);
+      }
+      renderDateRuleState();
+    }
+
+    function setDateEmployeeSelection(selectAll){
+      selectedEmployeeIds=new Set(selectAll?activeEmployees().map(employee=>employee._id):[]);
+      for(const checkbox of dateEmployeeList.querySelectorAll('input[type=checkbox]')){
+        checkbox.checked=selectAll;
+      }
       renderDateRuleState();
     }
 
@@ -249,6 +303,7 @@
         remove.textContent='Remove';
         remove.setAttribute('aria-label',`Remove ${access.employeeName} access for ${dateLabel(access.date)}`);
         remove.addEventListener('click',()=>removeDateAccess(access));
+        remove.hidden=!canDeleteDate;
         actionCell.append(remove);
 
         row.append(employeeCell,dateCell,addedCell,expiryCell,actionCell);
@@ -265,13 +320,14 @@
     }
 
     async function addAllowedDate(){
-      if(addingDate)return;
+      if(addingDate||!canAddDate)return;
       if(!allowPreviousEntryInput.checked){
         showStatus('Turn on previous-date entries first.','error');
         return;
       }
-      if(!selectedEmployeeId){
-        showStatus('Select an active employee first.','error');
+      const employeeIds=[...selectedEmployeeIds];
+      if(!employeeIds.length){
+        showStatus('Select at least one active employee first.','error');
         return;
       }
       const value=allowedDateInput.value;
@@ -290,18 +346,26 @@
         const response=await fetch('/api/date-access',{
           method:'POST',
           headers:authHeaders(),
-          body:JSON.stringify({employeeId:selectedEmployeeId,date:value})
+          body:JSON.stringify({employeeIds,date:value})
         });
         const result=await response.json();
         if(!response.ok)throw new Error(result.error||'Could not save date access.');
-        dateAccessRows=dateAccessRows.filter(access=>access._id!==result._id);
-        dateAccessRows.push(result);
+        const savedRows=Array.isArray(result.rows)?result.rows:[];
+        const savedIds=new Set(savedRows.map(access=>access._id));
+        dateAccessRows=dateAccessRows.filter(access=>!savedIds.has(access._id));
+        dateAccessRows.push(...savedRows);
         dateAccessRows.sort((left,right)=>
           right.date.localeCompare(left.date)||left.employeeName.localeCompare(right.employeeName)
         );
         allowedDateInput.value='';
         renderDateAccessRows();
-        showStatus('Date access saved. It expires automatically after the allowed day.','success');
+        const skipped=Array.isArray(result.skipped)?result.skipped:[];
+        if(savedRows.length){
+          const skippedText=skipped.length?` ${skipped.length} already allowed.`:'';
+          showStatus(`Date access saved for ${savedRows.length} employee(s). It expires today at 11:59 PM.${skippedText}`,'success');
+        }else{
+          showStatus('Selected employees can already enter that date.','error');
+        }
       }catch(error){
         showStatus(error.message||'Could not save date access.','error');
       }finally{
@@ -311,6 +375,7 @@
     }
 
     async function removeDateAccess(access){
+      if(!canDeleteDate)return;
       if(!window.confirm(`Remove ${access.employeeName}'s access for ${dateLabel(access.date)}?`))return;
       try{
         const response=await fetch(`/api/date-access/${encodeURIComponent(access._id)}`,{
@@ -328,6 +393,11 @@
     }
 
     async function loadPage(){
+      const session=await window.salonReady;
+      const isAdmin=session?.employee?.role==='Admin';
+      canEditConfig=isAdmin||session?.actionAccess?.configuration?.edit===true;
+      canAddDate=isAdmin||session?.actionAccess?.configuration?.add===true;
+      canDeleteDate=isAdmin||session?.actionAccess?.configuration?.delete===true;
       const [configResponse,employeesResponse,dateAccessResponse]=await Promise.all([
         fetch('/api/config',{headers:authHeaders(false)}),
         fetch('/api/employees',{headers:authHeaders(false)}),
@@ -345,17 +415,17 @@
       dateAccessRows=Array.isArray(dateAccessData)?dateAccessData:[];
       todayDate=config.todayDate||shiftIsoDate(new Date().toISOString().slice(0,10),0);
       const yesterday=shiftIsoDate(todayDate,-1);
-      allowedDateInput.min=yesterday;
+      allowedDateInput.removeAttribute('min');
       allowedDateInput.max=yesterday;
       allowedDateInput.value=yesterday;
       renderDateEmployeeOptions();
       renderDateAccessRows();
       configLoaded=true;
-      saveButtons.forEach(button=>button.disabled=false);
+      saveButtons.forEach(button=>button.disabled=!canEditConfig);
     }
 
     async function saveConfiguration(){
-      if(!configLoaded)return;
+      if(!configLoaded||!canEditConfig)return;
       const allowPreviousEntry=allowPreviousEntryInput.checked;
       saveButtons.forEach(button=>button.disabled=true);
       showStatus('Saving configuration...','success');
@@ -377,10 +447,8 @@
     }
 
     allowPreviousEntryInput.addEventListener('change',renderDateRuleState);
-    dateEmployeeSelect.addEventListener('change',()=>{
-      selectedEmployeeId=dateEmployeeSelect.value;
-      renderDateRuleState();
-    });
+    selectAllDateEmployeesButton.addEventListener('click',()=>setDateEmployeeSelection(true));
+    clearDateEmployeesButton.addEventListener('click',()=>setDateEmployeeSelection(false));
     addAllowedDateButton.addEventListener('click',addAllowedDate);
     allowedDateInput.addEventListener('keydown',event=>{
       if(event.key==='Enter'){

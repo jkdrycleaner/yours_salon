@@ -20,6 +20,29 @@ const SESSION_COOKIE = 'salon_session';
 const SESSION_MAX_AGE_SECONDS = 8 * 60 * 60;
 const googleAuthRequired = false;
 const defaultPermissionCategories = ['Customer Entry', 'Daily Expense', 'Salary', 'Cash At Counter'];
+const accessGroupDefinitions = [
+    {
+        key: 'configuration',
+        label: 'Configuration',
+        description: 'General Configuration, Shop Details, Expense Types, Rate List, Bulk Entry and Import Validation.',
+        pages: ['configuration', 'shop-information', 'expense-types', 'rate-list', 'bulk-entry', 'import-validation'],
+        actions: ['add', 'view', 'edit', 'delete']
+    },
+    {
+        key: 'reports',
+        label: 'Reports',
+        description: 'Reports and Activity Report.',
+        pages: ['reports', 'activity-report'],
+        actions: ['add', 'view', 'edit', 'delete', 'deactivate', 'export']
+    },
+    {
+        key: 'employee-list',
+        label: 'Employee List',
+        description: 'Employee List and Add Employee.',
+        pages: ['employee-list', 'employee-entry'],
+        actions: ['add', 'view', 'edit', 'deactivate']
+    }
+];
 const accessPageDefinitions = [
     { key: 'dashboard', label: 'Dashboard', path: '/employee-dashboard' },
     { key: 'collection-records', label: 'Collection Records', path: '/collection-table', permission: 'Customer Entry' },
@@ -30,25 +53,28 @@ const accessPageDefinitions = [
     { key: 'salary-entry', label: 'Salary Entry', path: '/salary-entry', permission: 'Salary', action: 'add' },
     { key: 'counter-records', label: 'Counter Cash Records', path: '/counter-table', permission: 'Cash At Counter' },
     { key: 'counter-entry', label: 'Counter Cash Entry', path: '/counter-entry', permission: 'Cash At Counter', action: 'add' },
-    { key: 'employee-list', label: 'Employee List', path: '/employees', adminOnly: true },
-    { key: 'employee-entry', label: 'Add Employee', path: '/employee-entry', adminOnly: true },
+    { key: 'employee-list', label: 'Employee List', path: '/employees', group: 'employee-list' },
+    { key: 'employee-entry', label: 'Add Employee', path: '/employee-entry', group: 'employee-list' },
     { key: 'user-access', label: 'User Access', path: '/user-access', adminOnly: true },
-    { key: 'reports', label: 'Reports', path: '/reports', adminOnly: true },
-    { key: 'activity-report', label: 'Activity Report', path: '/activity-report', adminOnly: true },
-    { key: 'configuration', label: 'General Configuration', path: '/config', adminOnly: true },
-    { key: 'expense-types', label: 'Expense Types', path: '/expense-types', adminOnly: true },
-    { key: 'rate-list', label: 'Rate List', path: '/rate-list', adminOnly: true },
-    { key: 'bulk-entry', label: 'Bulk Entry', path: '/bulk-entry', adminOnly: true },
-    { key: 'shop-information', label: 'Shop Information', path: '/shop-details', adminOnly: true }
+    { key: 'reports', label: 'Reports', path: '/reports', group: 'reports' },
+    { key: 'activity-report', label: 'Activity Report', path: '/activity-report', group: 'reports' },
+    { key: 'configuration', label: 'General Configuration', path: '/config', group: 'configuration' },
+    { key: 'expense-types', label: 'Expense Types', path: '/expense-types', group: 'configuration' },
+    { key: 'rate-list', label: 'Rate List', path: '/rate-list', group: 'configuration' },
+    { key: 'bulk-entry', label: 'Bulk Entry', path: '/bulk-entry', group: 'configuration' },
+    { key: 'import-validation', label: 'Import Validation', path: '/import-validation', group: 'configuration' },
+    { key: 'shop-information', label: 'Shop Information', path: '/shop-details', group: 'configuration' }
 ];
 const accessActionDefinitions = [
-    { key: 'collection', label: 'Collection', permission: 'Customer Entry' },
-    { key: 'expense', label: 'Expense', permission: 'Daily Expense' },
-    { key: 'salary', label: 'Salary', permission: 'Salary' },
-    { key: 'counter', label: 'Cash At Counter', permission: 'Cash At Counter' },
-    { key: 'employees', label: 'Employees', adminOnly: true },
-    { key: 'configuration', label: 'Configuration', adminOnly: true }
+    { key: 'collection', label: 'Collection', permission: 'Customer Entry', actions: ['add', 'view', 'edit', 'delete'], combinedDelete: true },
+    { key: 'expense', label: 'Expense', permission: 'Daily Expense', actions: ['add', 'view', 'edit', 'delete'], combinedDelete: true },
+    { key: 'salary', label: 'Salary', permission: 'Salary', actions: ['add', 'view', 'edit', 'delete'], combinedDelete: true },
+    { key: 'counter', label: 'Cash At Counter', permission: 'Cash At Counter', actions: ['add', 'view', 'edit', 'delete'], combinedDelete: true },
+    { key: 'employees', label: 'Employee List', group: 'employee-list', actions: ['add', 'view', 'edit', 'deactivate'] },
+    { key: 'configuration', label: 'Configuration', group: 'configuration', actions: ['add', 'view', 'edit', 'delete'] },
+    { key: 'reports', label: 'Reports', group: 'reports', actions: ['add', 'view', 'edit', 'delete', 'deactivate', 'export'] }
 ];
+const allAccessActions = ['add', 'view', 'edit', 'delete', 'deactivate', 'export'];
 const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 const bootstrapAdminUserId = String(process.env.ADMIN_USER_ID || '').trim().toLowerCase();
 const bootstrapAdminPasswordHash = process.env.ADMIN_PASSWORD
@@ -234,6 +260,16 @@ const collectionSchema = new mongoose.Schema({
     staffId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
     staff: { type: String, required: true, trim: true },
     serviceType: { type: String, required: true, trim: true },
+    items: {
+        type: [new mongoose.Schema({
+            serviceType: { type: String, required: true, trim: true, maxlength: 150 },
+            shortName: { type: String, trim: true, default: '', maxlength: 60 },
+            rate: { type: Number, required: true, min: 0 },
+            quantity: { type: Number, required: true, min: 1 },
+            amount: { type: Number, required: true, min: 0 }
+        }, { _id: false })],
+        default: undefined
+    },
     amount: { type: Number, required: true, min: 0 },
     costCutting: { type: Number, default: 0, min: 0 },
     paymentMode: { type: String, required: true, enum: ['Cash', 'Online'] },
@@ -290,7 +326,8 @@ const accessActionSchema = new mongoose.Schema({
     view: { type: Boolean, default: false },
     edit: { type: Boolean, default: false },
     delete: { type: Boolean, default: false },
-    deactivate: { type: Boolean, default: false }
+    deactivate: { type: Boolean, default: false },
+    export: { type: Boolean, default: false }
 }, { _id: false });
 const accessRuleSchema = new mongoose.Schema({
     employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true },
@@ -312,6 +349,103 @@ const appConfigSchema = new mongoose.Schema({
 const AppConfig = mongoose.models.AppConfig ||
     mongoose.model('AppConfig', appConfigSchema);
 
+const importRuleSchema = new mongoose.Schema({
+    dataset: { type: String, required: true, unique: true, trim: true },
+    enabled: { type: Boolean, default: false },
+    requiredColumns: { type: [String], default: [] },
+    duplicateKeys: { type: [String], default: [] },
+    duplicateAction: { type: String, enum: ['reject', 'skip'], default: 'reject' },
+    masterChecks: { type: mongoose.Schema.Types.Mixed, default: {} },
+    valueRules: { type: mongoose.Schema.Types.Mixed, default: {} },
+    maxRows: { type: Number, default: 1000, min: 1, max: 1000 }
+}, { timestamps: true });
+const ImportRule = mongoose.models.ImportRule ||
+    mongoose.model('ImportRule', importRuleSchema);
+
+const importDatasetDefinitions = [
+    {
+        key: 'employees',
+        label: 'Employees',
+        columns: ['sr', 'employeeid', 'emailaddress', 'mobilenumber', 'employeename', 'designation', 'joiningdate', 'dateofbirth', 'gender', 'bloodgroup', 'address', 'city', 'state', 'pincode', 'alternatemobileno', 'expensetypes', 'userid', 'role', 'salarymode', 'salarypercentage', 'fixedmonthlysalary', 'photourl'],
+        defaults: {
+            enabled: false,
+            requiredColumns: ['employeeid', 'employeename', 'userid'],
+            duplicateKeys: ['employeeid'],
+            duplicateAction: 'skip',
+            masterChecks: { expenseType: true },
+            valueRules: { validDate: true, email: true },
+            maxRows: 1000
+        }
+    },
+    {
+        key: 'customer-entry',
+        label: 'Collection Records',
+        columns: ['entryno', 'entrydate', 'staff', 'servicetype', 'amount', 'costcutting', 'paymentmode', 'remark', 'email'],
+        defaults: {
+            enabled: true,
+            requiredColumns: ['entryno', 'entrydate', 'staff', 'servicetype', 'amount', 'paymentmode'],
+            duplicateKeys: ['entryno', 'entrydate'],
+            duplicateAction: 'reject',
+            masterChecks: { employee: true },
+            valueRules: { positiveAmount: true, validDate: true, paymentMode: true, email: true, remarkLength: true },
+            maxRows: 1000
+        }
+    },
+    {
+        key: 'expense',
+        label: 'Expense Records',
+        columns: ['employeeid', 'entrydate', 'expensetypesr', 'amount', 'paymentmode', 'remark'],
+        defaults: {
+            enabled: false,
+            requiredColumns: ['employeeid', 'entrydate', 'expensetypesr', 'amount', 'paymentmode'],
+            duplicateKeys: ['employeeid', 'entrydate', 'expensetypesr', 'amount'],
+            duplicateAction: 'reject',
+            masterChecks: { employee: true, expenseType: true },
+            valueRules: { positiveAmount: true, validDate: true, paymentMode: true },
+            maxRows: 1000
+        }
+    },
+    {
+        key: 'salary',
+        label: 'Salary Records',
+        columns: ['employeeid', 'entrydate', 'salarymonth', 'amount', 'paymentmode', 'remark'],
+        defaults: {
+            enabled: false,
+            requiredColumns: ['employeeid', 'entrydate', 'salarymonth', 'amount', 'paymentmode'],
+            duplicateKeys: ['employeeid', 'salarymonth'],
+            duplicateAction: 'reject',
+            masterChecks: { employee: true },
+            valueRules: { positiveAmount: true, validDate: true, paymentMode: true },
+            maxRows: 1000
+        }
+    },
+    {
+        key: 'counter',
+        label: 'Counter Cash Records',
+        columns: ['employeeid', 'entrydate', 'amount', 'remark'],
+        defaults: {
+            enabled: false,
+            requiredColumns: ['employeeid', 'entrydate', 'amount'],
+            duplicateKeys: ['employeeid', 'entrydate', 'amount'],
+            duplicateAction: 'reject',
+            masterChecks: { employee: true },
+            valueRules: { positiveAmount: true, validDate: true },
+            maxRows: 1000
+        }
+    }
+];
+const defaultImportRules = Object.fromEntries(importDatasetDefinitions.map(definition => [
+    definition.key,
+    definition.defaults
+]));
+
+async function importRuleFor(dataset) {
+    const defaults = defaultImportRules[dataset];
+    if (!defaults) return null;
+    const stored = await ImportRule.findOne({ dataset }).lean();
+    return { ...defaults, ...(stored || {}), dataset };
+}
+
 const employeeDateAccessSchema = new mongoose.Schema({
     employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true },
     date: { type: String, required: true, trim: true },
@@ -326,11 +460,71 @@ const EmployeeDateAccess = mongoose.models.EmployeeDateAccess ||
     mongoose.model('EmployeeDateAccess', employeeDateAccessSchema);
 
 const rateListSchema = new mongoose.Schema({
+    sr: { type: Number, default: 0, min: 0 },
     serviceType: { type: String, required: true, unique: true, trim: true, maxlength: 150 },
+    shortName: { type: String, trim: true, default: '', maxlength: 60 },
     rate: { type: Number, required: true, min: 0, max: 100000000 },
-    status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }
+    category: { type: String, enum: ['Main', 'Other'], default: 'Main' },
+    status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+    createdBy: { type: String, trim: true, default: '', maxlength: 150 }
 }, { timestamps: true });
 const RateList = mongoose.models.RateList || mongoose.model('RateList', rateListSchema);
+
+function rateListSort(left, right) {
+    const leftSr = Number.isFinite(Number(left?.sr)) ? Number(left.sr) : Number.MAX_SAFE_INTEGER;
+    const rightSr = Number.isFinite(Number(right?.sr)) ? Number(right.sr) : Number.MAX_SAFE_INTEGER;
+    return leftSr - rightSr || String(left?.serviceType || '').localeCompare(String(right?.serviceType || ''));
+}
+
+function escapeRegex(value) {
+    return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeCollectionItems(value) {
+    if (value === undefined || value === null || value === '') return null;
+    if (!Array.isArray(value)) {
+        const error = new Error('The services list is invalid.');
+        error.status = 400;
+        throw error;
+    }
+    const items = [];
+    for (const raw of value) {
+        if (!raw || typeof raw !== 'object') {
+            const error = new Error('The services list contains an invalid item.');
+            error.status = 400;
+            throw error;
+        }
+        const serviceType = String(raw.serviceType || raw.name || '').trim().slice(0, 150);
+        const shortName = String(raw.shortName || serviceType).trim().slice(0, 60) || serviceType.slice(0, 60);
+        const rate = Number(raw.rate);
+        const quantity = Number(raw.quantity ?? 1);
+        if (!serviceType || !Number.isFinite(rate) || rate < 0 || rate > 100000000 ||
+            !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 999) {
+            const error = new Error('Enter a valid service, rate, and quantity.');
+            error.status = 400;
+            throw error;
+        }
+        const amount = Math.round(rate * quantity * 100) / 100;
+        if (!Number.isFinite(amount) || amount <= 0) {
+            const error = new Error('The service total must be greater than zero.');
+            error.status = 400;
+            throw error;
+        }
+        items.push({ serviceType, shortName, rate, quantity, amount });
+        if (items.length > 50) {
+            const error = new Error('A single entry can contain at most 50 services.');
+            error.status = 400;
+            throw error;
+        }
+    }
+    if (!items.length) return null;
+    const total = Math.round(items.reduce((sum, item) => sum + item.amount, 0) * 100) / 100;
+    const summary = items
+        .map(item => `${item.shortName || item.serviceType}${item.quantity > 1 ? ` x${item.quantity}` : ''}`)
+        .join(', ')
+        .slice(0, 1000);
+    return { items, total, summary };
+}
 
 const auditLogSchema = new mongoose.Schema({
     actorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', default: null },
@@ -479,12 +673,9 @@ function parseEntryDate(value) {
         : '';
 }
 
-function dateAccessExpiry(date) {
-    const validDate = parseEntryDate(date);
-    if (!validDate) return null;
-    const start = new Date(`${validDate}T00:00:00.000+05:30`);
-    if (Number.isNaN(start.getTime())) return null;
-    return new Date(start.getTime() + (2 * 24 * 60 * 60 * 1000));
+function dateAccessExpiry() {
+    const end = new Date(`${getTodayDate()}T23:59:59.999+05:30`);
+    return Number.isNaN(end.getTime()) ? null : end;
 }
 
 async function activeDateAccessForEmployee(employeeId, date) {
@@ -546,7 +737,7 @@ async function migrateLegacyDateAccess() {
     for (const rule of config.employeeAllowedDates || []) {
         if (!mongoose.isValidObjectId(rule.employeeId)) continue;
         for (const date of rule.dates || []) {
-            const expiresAt = dateAccessExpiry(date);
+            const expiresAt = dateAccessExpiry();
             if (!expiresAt || expiresAt <= now) continue;
             operations.push({
                 updateOne: {
@@ -727,14 +918,20 @@ async function verifyEmployee(req, res, next) {
 
 const adminOnlyPagePaths = new Set([
     '/admin-dashboard', '/admin-dashboard.html', '/admin', '/admin.html',
-    '/employee-entry', '/employee-entry.html', '/user-access', '/user-access.html',
-    '/employees', '/employees.html', '/expense-types', '/expense-types.html',
-    '/rate-list', '/rate-list.html', '/config', '/config.html',
-    '/shop-details', '/shop-details.html', '/bulk-entry', '/bulk-entry.html',
-    '/data-port', '/data-port.html', '/reports', '/reports.html',
-    '/activity-report', '/activity-report.html'
+    '/employee-view', '/employee-view.html',
+    '/user-access', '/user-access.html'
 ]);
-const employeeOnlyPagePaths = new Set(['/employee-dashboard', '/employee-dashboard.html']);
+const accessPagePathSet = new Set(accessPageDefinitions.flatMap(definition => [
+    definition.path,
+    `${definition.path}.html`
+]));
+const employeeOnlyPagePaths = new Set([
+    '/employee-dashboard', '/employee-dashboard.html',
+    '/profile', '/profile.html',
+    '/settings', '/settings.html',
+    '/attendance', '/attendance.html',
+    '/customers', '/customers.html'
+]);
 const authenticatedPagePaths = new Set(['/password-change', '/password-change.html']);
 const legacyPageRedirects = new Map([
     ['/admin', '/admin-dashboard'],
@@ -779,6 +976,30 @@ function requireSuperAdmin(req, res, next) {
     return next();
 }
 
+function requireAnyPageAccess(...pageKeys) {
+    return async (req, res, next) => {
+        try {
+            for (const pageKey of pageKeys) {
+                if (await hasPageAccess(req.employee, pageKey)) return next();
+            }
+            return res.status(403).json({ error: 'You do not have access to this page.' });
+        } catch (error) {
+            return next(error);
+        }
+    };
+}
+
+function requireActionPermission(moduleKey, action) {
+    return async (req, res, next) => {
+        try {
+            if (await hasActionAccess(req.employee, moduleKey, action)) return next();
+            return res.status(403).json({ error: 'You do not have permission for this action.' });
+        } catch (error) {
+            return next(error);
+        }
+    };
+}
+
 function permissionAllows(config, employee, category) {
     if (isAdmin(employee)) return true;
     const aliases = category.trim().toLowerCase() === 'customer entry'
@@ -810,29 +1031,44 @@ function defaultPageAccess(config, employee, definition) {
 function defaultActionAccess(config, employee, definition, action) {
     if (isAdmin(employee)) return true;
     if (definition.adminOnly) return false;
-    if (action === 'deactivate') return false;
+    if (definition.group) return false;
+    if (action === 'deactivate' || action === 'export') return false;
     return definition.permission ? permissionAllows(config, employee, definition.permission) : false;
+}
+
+function accessRuleAllowsPage(rule, definition) {
+    if (!rule) return false;
+    return rule.pages.includes(definition.key) ||
+        Boolean(definition.group && rule.pages.includes(definition.group));
+}
+
+function accessRuleAllowsAction(actionRule, definition, action) {
+    if (!actionRule) return false;
+    if (definition.combinedDelete && (action === 'delete' || action === 'deactivate')) {
+        return Boolean(actionRule.delete || actionRule.deactivate);
+    }
+    return Boolean(actionRule[action]);
 }
 
 async function hasPageAccess(employee, pageKey) {
     if (isAdmin(employee) || pageKey === 'dashboard') return true;
     const definition = accessPageDefinitions.find(item => item.key === pageKey);
-    if (!definition) return false;
+    if (!definition || definition.adminOnly) return false;
     const config = await AppConfig.findOne({ key: 'collection' }).lean();
     const rule = accessRuleFor(config, employee);
-    if (rule) return rule.pages.includes(pageKey);
+    if (rule) return accessRuleAllowsPage(rule, definition);
     return defaultPageAccess(config, employee, definition);
 }
 
 async function hasActionAccess(employee, moduleKey, action) {
     if (isAdmin(employee)) return true;
     const definition = accessActionDefinitions.find(item => item.key === moduleKey);
-    if (!definition) return false;
+    if (!definition || definition.adminOnly) return false;
     const config = await AppConfig.findOne({ key: 'collection' }).lean();
     const rule = accessRuleFor(config, employee);
     if (rule) {
         const actionRule = rule.actions?.find(item => item.module === moduleKey);
-        return Boolean(actionRule?.[action]);
+        return accessRuleAllowsAction(actionRule, definition, action);
     }
     return defaultActionAccess(config, employee, definition, action);
 }
@@ -846,13 +1082,25 @@ function accessSnapshotFromConfig(config, employee) {
     const rule = accessRuleFor(config, employee);
     const pages = Object.fromEntries(accessPageDefinitions.map(definition => [
         definition.key,
-        isAdmin(employee) || (rule ? rule.pages.includes(definition.key) : defaultPageAccess(config, employee, definition))
+        isAdmin(employee)
+            ? true
+            : definition.adminOnly
+                ? false
+                : rule
+                    ? accessRuleAllowsPage(rule, definition)
+                    : defaultPageAccess(config, employee, definition)
     ]));
     const actions = Object.fromEntries(accessActionDefinitions.map(definition => {
         const actionRule = rule?.actions?.find(item => item.module === definition.key);
-        return [definition.key, Object.fromEntries(['add', 'view', 'edit', 'delete', 'deactivate'].map(action => [
+        return [definition.key, Object.fromEntries(allAccessActions.map(action => [
             action,
-            isAdmin(employee) || (rule ? Boolean(actionRule?.[action]) : defaultActionAccess(config, employee, definition, action))
+            isAdmin(employee)
+                ? true
+                : definition.adminOnly
+                    ? false
+                    : rule
+                        ? accessRuleAllowsAction(actionRule, definition, action)
+                        : defaultActionAccess(config, employee, definition, action)
         ]))];
     }));
     return { pages, actions };
@@ -1177,7 +1425,8 @@ app.use((req, res, next) => {
     const isProtectedHtml = req.method === 'GET' &&
         normalizedPath.endsWith('.html') && normalizedPath !== '/login.html';
     const isProtectedRoute = req.method === 'GET' && (
-        adminOnlyPagePaths.has(normalizedPath) || employeeOnlyPagePaths.has(normalizedPath) || authenticatedPagePaths.has(normalizedPath) ||
+        adminOnlyPagePaths.has(normalizedPath) || employeeOnlyPagePaths.has(normalizedPath) ||
+        authenticatedPagePaths.has(normalizedPath) || accessPagePathSet.has(normalizedPath) ||
         normalizedPath.endsWith('-entry') || normalizedPath.endsWith('-table')
     );
     if (isProtectedHtml || isProtectedRoute) return requirePageAuth(req, res, next);
@@ -1204,6 +1453,30 @@ app.get('/admin', (req, res) => {
 
 app.get('/employee-dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'employee-dashboard.html'));
+});
+
+app.get('/employee-view', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'employee-dashboard.html'));
+});
+
+app.get('/employee-view.html', (req, res) => {
+    res.redirect('/employee-view');
+});
+
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
+app.get('/settings', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'settings.html'));
+});
+
+app.get('/attendance', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'attendance.html'));
+});
+
+app.get('/customers', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'customers.html'));
 });
 
 app.get('/employee-entry', (req, res) => {
@@ -1285,6 +1558,10 @@ app.get('/health', (req, res) => {
 
 app.get('/config', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'config.html'));
+});
+
+app.get('/import-validation', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'import-validation.html'));
 });
 
 app.get('/employees', (req, res) => {
@@ -1863,59 +2140,113 @@ app.get('/api/session', requireSecureAuth, verifyEmployee, async (req, res) => {
     }
 });
 
+function employeeProfileDetails(employee) {
+    return {
+        ...employeePublicDetails(employee),
+        employeeCode: employee?.employeeId || '',
+        mobileNumber: employee?.mobileNumber || '',
+        alternateMobileNumber: employee?.alternateMobileNumber || '',
+        joiningDate: employee?.joiningDate || '',
+        dateOfBirth: employee?.dateOfBirth || '',
+        address: employee?.address || '',
+        city: employee?.city || '',
+        state: employee?.state || '',
+        pinCode: employee?.pinCode || '',
+        designation: employee?.designation || '',
+        status: employee?.status || 'Active'
+    };
+}
+
+async function employeeDashboardData(employee, month) {
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
+        const error = new Error('Select a valid month.');
+        error.status = 400;
+        throw error;
+    }
+    const start = new Date(`${month}-01T00:00:00.000Z`);
+    const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
+    const collectionFilter = await employeeCollectionFilter(employee);
+    applyStatusFilter(collectionFilter, 'Active');
+    const [collections, records] = await Promise.all([
+        CollectionEntry.find({
+            ...collectionFilter,
+            entryDate: { $gte: start, $lt: end }
+        }).sort({ entryDate: -1, createdAt: -1 }).lean(),
+        EmployeeRecord.find({
+            employeeId: employee._id,
+            status: { $ne: 'Inactive' },
+            $or: [
+                { recordType: { $in: ['expense', 'counter'] }, entryDate: { $gte: start, $lt: end } },
+                { recordType: 'salary', salaryMonth: month }
+            ]
+        }).sort({ entryDate: -1, createdAt: -1 }).lean()
+    ]);
+    const collectionTotal = collections.reduce((sum, entry) => sum + entry.amount, 0);
+    const earnedSalary = employee.salaryMode === 'fixed'
+        ? Number(employee.fixedMonthlySalary || 0)
+        : collectionTotal * Number(employee.salaryPercentage ?? 50) / 100;
+    const expenses = records.filter(record => record.recordType === 'expense')
+        .reduce((sum, record) => sum + record.amount, 0);
+    const salaryPaid = records.filter(record => record.recordType === 'salary')
+        .reduce((sum, record) => sum + record.amount, 0);
+    return {
+        month,
+        employee: employeeProfileDetails(employee),
+        collections,
+        records,
+        summary: {
+            collection: collectionTotal,
+            earnedSalary,
+            expenses,
+            salaryPaid,
+            payable: Math.max(0, earnedSalary - expenses - salaryPaid),
+            salaryMode: employee.salaryMode || 'percentage',
+            salaryPercentage: employee.salaryPercentage ?? 50,
+            fixedMonthlySalary: employee.fixedMonthlySalary ?? 0
+        }
+    };
+}
+
+app.get('/api/my-profile', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        if (!req.employee?._id || isAdmin(req.employee)) {
+            return res.status(403).json({ error: 'Profile is only available to employee accounts.' });
+        }
+        return res.json({ employee: employeeProfileDetails(req.employee) });
+    } catch (error) {
+        console.error('Employee profile error:', error);
+        return res.status(500).json({ error: 'Could not load your profile.' });
+    }
+});
+
 app.get('/api/my-data', requireSecureAuth, verifyEmployee, async (req, res) => {
     try {
         if (!req.employee?._id || isAdmin(req.employee)) {
             return res.status(403).json({ error: 'Employee dashboard is only available to employee accounts.' });
         }
         const month = String(req.query.month || getTodayDate().slice(0, 7));
-        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
-            return res.status(400).json({ error: 'Select a valid month.' });
-        }
-        const start = new Date(`${month}-01T00:00:00.000Z`);
-        const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
-        const collectionFilter = await employeeCollectionFilter(req.employee);
-        applyStatusFilter(collectionFilter, 'Active');
-        const [collections, records] = await Promise.all([
-            CollectionEntry.find({
-                ...collectionFilter,
-                entryDate: { $gte: start, $lt: end }
-            }).sort({ entryDate: -1, createdAt: -1 }).lean(),
-            EmployeeRecord.find({
-                employeeId: req.employee._id,
-                status: { $ne: 'Inactive' },
-                $or: [
-                    { recordType: { $in: ['expense', 'counter'] }, entryDate: { $gte: start, $lt: end } },
-                    { recordType: 'salary', salaryMonth: month }
-                ]
-            }).sort({ entryDate: -1, createdAt: -1 }).lean()
-        ]);
-        const collectionTotal = collections.reduce((sum, entry) => sum + entry.amount, 0);
-        const earnedSalary = req.employee.salaryMode === 'fixed'
-            ? Number(req.employee.fixedMonthlySalary || 0)
-            : collectionTotal * Number(req.employee.salaryPercentage ?? 50) / 100;
-        const expenses = records.filter(record => record.recordType === 'expense')
-            .reduce((sum, record) => sum + record.amount, 0);
-        const salaryPaid = records.filter(record => record.recordType === 'salary')
-            .reduce((sum, record) => sum + record.amount, 0);
-        return res.json({
-            month,
-            collections,
-            records,
-            summary: {
-                collection: collectionTotal,
-                earnedSalary,
-                expenses,
-                salaryPaid,
-                payable: Math.max(0, earnedSalary - expenses - salaryPaid),
-                salaryMode: req.employee.salaryMode || 'percentage',
-                salaryPercentage: req.employee.salaryPercentage ?? 50,
-                fixedMonthlySalary: req.employee.fixedMonthlySalary ?? 0
-            }
-        });
+        return res.json(await employeeDashboardData(req.employee, month));
     } catch (error) {
         console.error('Employee dashboard data error:', error);
-        return res.status(500).json({ error: 'Could not load your dashboard data.' });
+        return res.status(error.status || 500).json({ error: error.message || 'Could not load your dashboard data.' });
+    }
+});
+
+app.get('/api/employee-dashboard/:employeeId', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+    try {
+        if (!mongoose.isValidObjectId(req.params.employeeId)) {
+            return res.status(400).json({ error: 'Select a valid employee.' });
+        }
+        const employee = await Employee.findById(req.params.employeeId).lean();
+        if (!employee) return res.status(404).json({ error: 'Employee not found.' });
+        if (isAdmin(employee)) {
+            return res.status(400).json({ error: 'Choose an employee account to view this dashboard.' });
+        }
+        const month = String(req.query.month || getTodayDate().slice(0, 7));
+        return res.json(await employeeDashboardData(employee, month));
+    } catch (error) {
+        console.error('Admin employee dashboard data error:', error);
+        return res.status(error.status || 500).json({ error: error.message || 'Could not load the employee dashboard.' });
     }
 });
 
@@ -2119,7 +2450,7 @@ app.get('/api/module-records', requireSecureAuth, verifyEmployee, async (req, re
             Math.max(1, Math.ceil(total / limit))
         );
         const query = moduleKey === 'collection'
-            ? CollectionEntry.find(filter).select('entryNo entryDate staff staffId serviceType amount costCutting paymentMode remark createdBy createdAt status inactiveAction inactiveAt inactiveBy')
+            ? CollectionEntry.find(filter).select('entryNo entryDate staff staffId serviceType items amount costCutting paymentMode remark createdBy createdAt status inactiveAction inactiveAt inactiveBy')
             : EmployeeRecord.find(filter);
         const records = await query.sort({ entryDate: -1, createdAt: -1, _id: -1 })
             .skip((page - 1) * limit).limit(limit).lean();
@@ -2130,7 +2461,74 @@ app.get('/api/module-records', requireSecureAuth, verifyEmployee, async (req, re
     }
 });
 
-app.get('/api/reports', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/my-work', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        if (!await hasActionAccess(req.employee, 'collection', 'view')) {
+            return res.status(403).json({ error: 'You do not have Collection view access.' });
+        }
+        const requestedPage = Number.parseInt(req.query.page, 10);
+        const requestedLimit = Number.parseInt(req.query.limit, 10);
+        const limit = Math.min(100, Math.max(1, Number.isSafeInteger(requestedLimit) ? requestedLimit : 20));
+        const filter = isAdmin(req.employee)
+            ? {}
+            : await employeeCollectionFilter(req.employee);
+        if (isAdmin(req.employee) && req.query.employeeId) {
+            if (!mongoose.isValidObjectId(req.query.employeeId)) {
+                return res.status(400).json({ error: 'Invalid employee filter.' });
+            }
+            filter.staffId = req.query.employeeId;
+        }
+        applyStatusFilter(filter, req.query.status);
+        const from = parseDateStart(req.query.from);
+        const to = parseDateStart(req.query.to);
+        if (from || to) {
+            if (!from || !to || to < from) {
+                return res.status(400).json({ error: 'Select a valid date range.' });
+            }
+            filter.entryDate = { $gte: from, $lt: nextDate(to) };
+        }
+        const total = await CollectionEntry.countDocuments(filter);
+        const page = Math.min(
+            Number.isSafeInteger(requestedPage) ? Math.max(1, requestedPage) : 1,
+            Math.max(1, Math.ceil(total / limit))
+        );
+        const [records, dateGroups] = await Promise.all([
+            CollectionEntry.find(filter)
+                .select('entryNo entryDate staff staffId serviceType items amount costCutting paymentMode remark createdBy createdAt status inactiveAction inactiveAt inactiveBy')
+                .sort({ entryDate: -1, entryNo: -1, createdAt: -1, _id: -1 })
+                .skip((page - 1) * limit)
+                .limit(limit)
+                .lean(),
+            CollectionEntry.aggregate([
+                { $match: filter },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: '%Y-%m-%d', date: '$entryDate' } },
+                        count: { $sum: 1 },
+                        total: { $sum: '$amount' }
+                    }
+                },
+                { $sort: { _id: -1 } }
+            ])
+        ]);
+        return res.json({
+            records,
+            page,
+            limit,
+            total,
+            dateGroups: dateGroups.map(group => ({
+                date: group._id,
+                count: Number(group.count || 0),
+                total: Number(group.total || 0)
+            }))
+        });
+    } catch (error) {
+        console.error('My work read error:', error);
+        return res.status(500).json({ error: 'Could not load your work entries.' });
+    }
+});
+
+app.get('/api/reports', requireSecureAuth, verifyEmployee, requireAnyPageAccess('reports'), async (req, res) => {
     try {
         const range = reportRange(req.query);
         let employeeId = '';
@@ -2144,7 +2542,7 @@ app.get('/api/reports', requireSecureAuth, verifyEmployee, requireAdmin, async (
     }
 });
 
-app.get('/api/reports/export', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/reports/export', requireSecureAuth, verifyEmployee, requireAnyPageAccess('reports'), requireActionPermission('reports', 'export'), async (req, res) => {
     try {
         const format = String(req.query.format || '').toLowerCase();
         if (!['xlsx', 'pdf'].includes(format)) return res.status(400).json({ error: 'Choose Excel or PDF format.' });
@@ -2189,7 +2587,7 @@ app.get('/api/reports/export', requireSecureAuth, verifyEmployee, requireAdmin, 
     }
 });
 
-app.get('/api/activity-logs', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/activity-logs', requireSecureAuth, verifyEmployee, requireAnyPageAccess('activity-report', 'reports'), async (req, res) => {
     try {
         const now = Date.now();
         const minimum = new Date(now - 30 * 24 * 60 * 60 * 1000);
@@ -2239,7 +2637,7 @@ app.get('/api/admin-data', requireSecureAuth, verifyEmployee, requireAdmin, asyn
         );
         const query = dataset === 'collections'
             ? CollectionEntry.find()
-                .select('entryNo entryDate staff serviceType amount costCutting paymentMode remark createdBy createdAt')
+                .select('entryNo entryDate staff serviceType items amount costCutting paymentMode remark createdBy createdAt')
             : EmployeeRecord.find({ recordType: dataset });
         const records = await query.sort({ entryDate: -1, createdAt: -1, _id: -1 })
             .skip((page - 1) * limit).limit(limit).lean();
@@ -2253,7 +2651,10 @@ app.get('/api/admin-data', requireSecureAuth, verifyEmployee, requireAdmin, asyn
 app.get('/api/staff', requireSecureAuth, verifyEmployee, async (req, res) => {
     try {
         const filter = { status: 'Active' };
-        if (!isAdmin(req.employee)) filter._id = req.employee._id;
+        const canSeeAll = isAdmin(req.employee) ||
+            await hasPageAccess(req.employee, 'reports') ||
+            await hasPageAccess(req.employee, 'employee-list');
+        if (!canSeeAll) filter._id = req.employee._id;
         const [employees, config] = await Promise.all([
             Employee.find(filter, { employeeId: 1, employeeName: 1 }).sort({ sr: 1, employeeName: 1 }).lean(),
             AppConfig.findOne({ key: 'collection' }).lean()
@@ -2283,7 +2684,7 @@ app.get('/api/staff', requireSecureAuth, verifyEmployee, async (req, res) => {
     }
 });
 
-app.get('/api/expense-types', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/expense-types', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration', 'employee-list'), async (req, res) => {
     try {
         await ensureDefaultExpenseTypes();
         const expenseTypes = await ExpenseType.find().sort({ sr: 1 }).lean();
@@ -2294,7 +2695,7 @@ app.get('/api/expense-types', requireSecureAuth, verifyEmployee, requireAdmin, a
     }
 });
 
-app.post('/api/expense-types', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.post('/api/expense-types', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'add'), async (req, res) => {
     try {
         const sr = Number(req.body.sr);
         const name = String(req.body.name ?? '').trim();
@@ -2321,7 +2722,7 @@ app.post('/api/expense-types', requireSecureAuth, verifyEmployee, requireAdmin, 
     }
 });
 
-app.put('/api/expense-types/:id', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.put('/api/expense-types/:id', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'edit'), async (req, res) => {
     try {
         if (!mongoose.isValidObjectId(req.params.id)) {
             return res.status(400).json({ error: 'Invalid expense type ID.' });
@@ -2374,7 +2775,8 @@ app.post(
     '/api/expense-types/import',
     requireSecureAuth,
     verifyEmployee,
-    requireAdmin,
+    requireAnyPageAccess('configuration'),
+    requireActionPermission('configuration', 'add'),
     (req, res, next) => upload.single('file')(req, res, error => {
         if (error) return res.status(400).json({ error: error.message });
         return next();
@@ -2476,9 +2878,10 @@ app.post(
     }
 );
 
-app.get('/api/rate-list', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/rate-list', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), async (req, res) => {
     try {
-        const rates = await RateList.find().sort({ serviceType: 1 }).lean();
+        const rates = await RateList.find().lean();
+        rates.sort(rateListSort);
         return res.json(rates);
     } catch (error) {
         console.error('Rate list read error:', error);
@@ -2486,15 +2889,23 @@ app.get('/api/rate-list', requireSecureAuth, verifyEmployee, requireAdmin, async
     }
 });
 
-app.post('/api/rate-list', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.post('/api/rate-list', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'add'), async (req, res) => {
     try {
         const serviceType = String(req.body.serviceType || '').trim();
+        const shortName = String(req.body.shortName || '').trim().slice(0, 60) || serviceType.slice(0, 60);
         const rate = Number(req.body.rate);
+        const category = String(req.body.category || 'Main').trim();
         const status = String(req.body.status || 'Active').trim();
-        if (!serviceType || serviceType.length > 150 || !Number.isFinite(rate) || rate < 0 || rate > 100000000 || !['Active', 'Inactive'].includes(status)) {
-            return res.status(400).json({ error: 'Enter a valid service type, rate, and status.' });
+        const sr = req.body.sr === undefined || req.body.sr === '' ? 0 : Number(req.body.sr);
+        if (!serviceType || serviceType.length > 150 || !Number.isFinite(rate) || rate < 0 || rate > 100000000 ||
+            !['Main', 'Other'].includes(category) || !['Active', 'Inactive'].includes(status) ||
+            !Number.isSafeInteger(sr) || sr < 0) {
+            return res.status(400).json({ error: 'Enter a valid SR No, service type, short name, rate, category, and status.' });
         }
-        const item = await RateList.create({ serviceType, rate, status });
+        const item = await RateList.create({
+            sr, serviceType, shortName, rate, category, status,
+            createdBy: req.employee?.employeeName || ''
+        });
         await recordAudit(req, {
             action: 'CREATE', page: 'Rate List', module: 'Rate List', recordType: 'RateList',
             recordId: String(item._id), newValue: item
@@ -2508,20 +2919,25 @@ app.post('/api/rate-list', requireSecureAuth, verifyEmployee, requireAdmin, asyn
     }
 });
 
-app.put('/api/rate-list/:id', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.put('/api/rate-list/:id', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'edit'), async (req, res) => {
     try {
         if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: 'Invalid rate list item.' });
-        const serviceType = String(req.body.serviceType || '').trim();
-        const rate = Number(req.body.rate);
-        const status = String(req.body.status || '').trim();
-        if (!serviceType || serviceType.length > 150 || !Number.isFinite(rate) || rate < 0 || rate > 100000000 || !['Active', 'Inactive'].includes(status)) {
-            return res.status(400).json({ error: 'Enter a valid service type, rate, and status.' });
-        }
         const before = await RateList.findById(req.params.id).lean();
         if (!before) return res.status(404).json({ error: 'Rate list item not found.' });
+        const serviceType = String(req.body.serviceType || '').trim();
+        const shortName = String(req.body.shortName || '').trim().slice(0, 60) || serviceType.slice(0, 60);
+        const rate = Number(req.body.rate);
+        const category = String(req.body.category || before.category || 'Main').trim();
+        const status = String(req.body.status || '').trim();
+        const sr = req.body.sr === undefined || req.body.sr === '' ? Number(before.sr || 0) : Number(req.body.sr);
+        if (!serviceType || serviceType.length > 150 || !Number.isFinite(rate) || rate < 0 || rate > 100000000 ||
+            !['Main', 'Other'].includes(category) || !['Active', 'Inactive'].includes(status) ||
+            !Number.isSafeInteger(sr) || sr < 0) {
+            return res.status(400).json({ error: 'Enter a valid SR No, service type, short name, rate, category, and status.' });
+        }
         const item = await RateList.findByIdAndUpdate(
             req.params.id,
-            { $set: { serviceType, rate, status } },
+            { $set: { sr, serviceType, shortName, rate, category, status } },
             { returnDocument: 'after', runValidators: true }
         ).lean();
         await recordAudit(req, {
@@ -2537,7 +2953,110 @@ app.put('/api/rate-list/:id', requireSecureAuth, verifyEmployee, requireAdmin, a
     }
 });
 
-app.get('/api/config', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.post('/api/collection-custom-services', requireSecureAuth, verifyEmployee, verifyCollectionAccess, async (req, res) => {
+    try {
+        if (!await hasActionAccess(req.employee, 'collection', 'add')) {
+            return res.status(403).json({ error: 'You do not have Collection add access.' });
+        }
+        const serviceType = String(req.body.serviceType || req.body.name || '').trim();
+        const rate = Number(req.body.rate);
+        if (!serviceType || serviceType.length > 150) {
+            return res.status(400).json({ error: 'Enter a valid service name.' });
+        }
+        if (!Number.isFinite(rate) || rate <= 0 || rate > 100000000) {
+            return res.status(400).json({ error: 'Enter a valid service rate.' });
+        }
+        const existing = await RateList.findOne({
+            serviceType: { $regex: `^${escapeRegex(serviceType)}$`, $options: 'i' }
+        }).lean();
+        if (existing) {
+            return res.status(409).json({
+                error: 'That service already exists in the Rate List.',
+                service: existing
+            });
+        }
+        const last = await RateList.findOne().sort({ sr: -1, createdAt: -1 }).select('sr').lean();
+        const sr = Number.isSafeInteger(Number(last?.sr)) ? Number(last.sr) + 1 : 1;
+        const item = await RateList.create({
+            sr,
+            serviceType,
+            shortName: serviceType.slice(0, 60),
+            rate,
+            category: 'Other',
+            status: 'Active',
+            createdBy: req.employee?.employeeName || ''
+        });
+        await recordAudit(req, {
+            action: 'CREATE', page: 'Collection Entry', module: 'Customer Entry', recordType: 'RateList',
+            recordId: String(item._id), newValue: item
+        });
+        return res.status(201).json(item);
+    } catch (error) {
+        if (error.code === 11000) return res.status(409).json({ error: 'That service already exists in the Rate List.' });
+        if (error.name === 'ValidationError') return res.status(400).json({ error: error.message });
+        console.error('Custom service create error:', error);
+        return res.status(500).json({ error: 'Could not add the custom service.' });
+    }
+});
+
+app.get('/api/collection-entry-meta', requireSecureAuth, verifyEmployee, verifyCollectionAccess, async (req, res) => {
+    try {
+        const canAdd = await hasActionAccess(req.employee, 'collection', 'add');
+        const canEdit = await hasActionAccess(req.employee, 'collection', 'edit');
+        if (!canAdd && !canEdit) {
+            return res.status(403).json({ error: 'You do not have Collection entry access.' });
+        }
+        const dateText = String(req.query.date || getTodayDate()).trim();
+        const entryDate = parseDateStart(dateText);
+        if (!entryDate) return res.status(400).json({ error: 'Select a valid entry date.' });
+        const today = getTodayDate();
+        const todayDate = parseDateStart(today);
+        const config = await AppConfig.findOne({ key: 'collection' }).lean();
+        const collectionFilter = await employeeCollectionFilter(req.employee);
+        const activeCollectionFilter = { ...collectionFilter };
+        applyStatusFilter(activeCollectionFilter, 'Active');
+        const [lastEntry, services, todayAggregate, accessRows] = await Promise.all([
+            CollectionEntry.findOne({ entryDate }).sort({ entryNo: -1 }).select('entryNo').lean(),
+            RateList.find({ status: 'Active' }).lean(),
+            CollectionEntry.aggregate([
+                { $match: { ...activeCollectionFilter, entryDate: todayDate } },
+                { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } }
+            ]),
+            config?.allowPreviousEntry && !isAdmin(req.employee)
+                ? EmployeeDateAccess.find({ employeeId: req.employee._id, expiresAt: { $gt: new Date() } })
+                    .select('date').lean()
+                : []
+        ]);
+        services.sort(rateListSort);
+        const allowedDates = new Set([today]);
+        if (config?.allowPreviousEntry) {
+            for (const row of accessRows) allowedDates.add(row.date);
+        }
+        return res.json({
+            date: dateText,
+            todayDate: today,
+            allowPreviousEntry: config?.allowPreviousEntry ?? false,
+            allowedDates: [...allowedDates].sort((left, right) => right.localeCompare(left)),
+            nextEntryNo: Number(lastEntry?.entryNo || 0) + 1,
+            todayTotal: Number(todayAggregate[0]?.total || 0),
+            todayCount: Number(todayAggregate[0]?.count || 0),
+            services: services.map(item => ({
+                _id: String(item._id),
+                sr: Number(item.sr || 0),
+                serviceType: item.serviceType,
+                shortName: item.shortName || item.serviceType,
+                rate: Number(item.rate || 0),
+                category: item.category || 'Main',
+                status: item.status || 'Active'
+            }))
+        });
+    } catch (error) {
+        console.error('Collection entry meta error:', error);
+        return res.status(500).json({ error: 'Could not load the collection entry form.' });
+    }
+});
+
+app.get('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), async (req, res) => {
     try {
         const config = await AppConfig.findOne({ key: 'collection' }).lean();
         const permissionMap = new Map();
@@ -2572,7 +3091,7 @@ app.get('/api/config', requireSecureAuth, verifyEmployee, requireAdmin, async (r
     }
 });
 
-app.put('/api/config', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.put('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'edit'), async (req, res) => {
     try {
         const { allowPreviousEntry, permissions } = req.body;
         if (typeof allowPreviousEntry !== 'boolean' || !Array.isArray(permissions)) {
@@ -2659,7 +3178,7 @@ app.put('/api/config', requireSecureAuth, verifyEmployee, requireAdmin, async (r
     }
 });
 
-app.get('/api/date-access', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/date-access', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), async (req, res) => {
     try {
         const rows = await EmployeeDateAccess.find({
             expiresAt: { $gt: new Date() }
@@ -2671,57 +3190,94 @@ app.get('/api/date-access', requireSecureAuth, verifyEmployee, requireAdmin, asy
     }
 });
 
-app.post('/api/date-access', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.post('/api/date-access', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'add'), async (req, res) => {
     try {
-        const employeeId = String(req.body.employeeId || '');
+        const submittedIds = Array.isArray(req.body.employeeIds)
+            ? req.body.employeeIds
+            : [req.body.employeeId];
+        const employeeIds = [...new Set(submittedIds.map(value => String(value || '').trim()).filter(Boolean))];
         const date = parseEntryDate(req.body.date);
-        if (!mongoose.isValidObjectId(employeeId) || !date) {
-            return res.status(400).json({ error: 'Select an employee and a valid date.' });
+        if (!employeeIds.length || employeeIds.some(id => !mongoose.isValidObjectId(id)) || !date) {
+            return res.status(400).json({ error: 'Select at least one employee and a valid date.' });
         }
         const today = getTodayDate();
         if (date >= today) {
             return res.status(400).json({ error: 'Select a previous date. Today is already allowed.' });
         }
-        const expiresAt = dateAccessExpiry(date);
-        if (!expiresAt || expiresAt <= new Date()) {
-            return res.status(400).json({ error: 'This date has already expired and can no longer be allowed.' });
+        const now = new Date();
+        const expiresAt = dateAccessExpiry();
+        if (!expiresAt || expiresAt <= now) {
+            return res.status(400).json({ error: 'Previous-date access can only be granted during the creation day.' });
         }
-        const employee = await Employee.findOne({ _id: employeeId, status: 'Active' })
+        const employees = await Employee.find({ _id: { $in: employeeIds }, status: 'Active' })
             .select('_id employeeId employeeName')
             .lean();
-        if (!employee) {
-            return res.status(400).json({ error: 'Select an active employee.' });
+        if (employees.length !== employeeIds.length) {
+            const activeIds = new Set(employees.map(employee => String(employee._id)));
+            return res.status(400).json({
+                error: 'Select only active employees.',
+                employeeIds: employeeIds.filter(id => !activeIds.has(id))
+            });
         }
-        const existing = await EmployeeDateAccess.findOne({ employeeId, date }).lean();
-        if (existing) {
-            if (existing.expiresAt > new Date()) {
-                return res.status(409).json({ error: 'This employee can already enter that date.' });
+        const employeesById = new Map(employees.map(employee => [String(employee._id), employee]));
+        const rows = [];
+        const skipped = [];
+        for (const employeeId of employeeIds) {
+            const employee = employeesById.get(employeeId);
+            const existing = await EmployeeDateAccess.findOne({ employeeId, date }).lean();
+            if (existing) {
+                if (existing.expiresAt > now) {
+                    skipped.push({
+                        employeeId,
+                        employeeCode: employee.employeeId,
+                        employeeName: employee.employeeName,
+                        reason: 'Already allowed'
+                    });
+                    continue;
+                }
+                await EmployeeDateAccess.deleteOne({ _id: existing._id });
             }
-            await EmployeeDateAccess.deleteOne({ _id: existing._id });
+            try {
+                const row = await EmployeeDateAccess.create({
+                    employeeId,
+                    date,
+                    grantedAt: now,
+                    grantedBy: req.employee?.employeeName || 'Admin',
+                    expiresAt
+                });
+                rows.push(row.toObject());
+            } catch (error) {
+                if (error.code !== 11000) throw error;
+                skipped.push({
+                    employeeId,
+                    employeeCode: employee.employeeId,
+                    employeeName: employee.employeeName,
+                    reason: 'Already allowed'
+                });
+            }
         }
-        const row = await EmployeeDateAccess.create({
-            employeeId,
-            date,
-            grantedAt: new Date(),
-            grantedBy: req.employee?.employeeName || 'Admin',
-            expiresAt
+        const serialized = await dateAccessRowsWithEmployees(rows);
+        if (serialized.length) {
+            await recordAudit(req, {
+                action: 'CREATE', page: 'General Configuration', module: 'Configuration',
+                recordType: 'EmployeeDateAccess',
+                recordId: serialized.length === 1 ? serialized[0]._id : `${serialized.length} employees`,
+                newValue: { date, expiresAt, rows: serialized, skipped }
+            });
+        }
+        return res.status(serialized.length ? 201 : 200).json({
+            message: `${serialized.length} date-access row(s) saved.`,
+            saved: serialized.length,
+            skipped,
+            rows: serialized
         });
-        const [serialized] = await dateAccessRowsWithEmployees([row.toObject()]);
-        await recordAudit(req, {
-            action: 'CREATE', page: 'General Configuration', module: 'Configuration',
-            recordType: 'EmployeeDateAccess', recordId: String(row._id), newValue: serialized
-        });
-        return res.status(201).json(serialized);
     } catch (error) {
-        if (error.code === 11000) {
-            return res.status(409).json({ error: 'This employee can already enter that date.' });
-        }
         console.error('Date access create error:', error);
         return res.status(500).json({ error: 'Could not save previous-date access.' });
     }
 });
 
-app.delete('/api/date-access/:id', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.delete('/api/date-access/:id', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'delete'), async (req, res) => {
     try {
         if (!mongoose.isValidObjectId(req.params.id)) {
             return res.status(400).json({ error: 'Invalid date-access row.' });
@@ -2741,6 +3297,69 @@ app.delete('/api/date-access/:id', requireSecureAuth, verifyEmployee, requireAdm
     }
 });
 
+app.get('/api/import-rules', requireSecureAuth, verifyEmployee, requireAnyPageAccess('import-validation'), async (req, res) => {
+    try {
+        const rules = await Promise.all(importDatasetDefinitions.map(async definition => {
+            const stored = await ImportRule.findOneAndUpdate(
+                { dataset: definition.key },
+                { $setOnInsert: { dataset: definition.key, ...definition.defaults } },
+                { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
+            ).lean();
+            return {
+                dataset: definition.key,
+                label: definition.label,
+                columns: definition.columns,
+                rule: { ...definition.defaults, ...(stored || {}) }
+            };
+        }));
+        return res.json({ datasets: rules });
+    } catch (error) {
+        console.error('Import rule read error:', error);
+        return res.status(500).json({ error: 'Could not load import validation settings.' });
+    }
+});
+
+app.put('/api/import-rules/:dataset', requireSecureAuth, verifyEmployee, requireAnyPageAccess('import-validation'), requireActionPermission('configuration', 'edit'), async (req, res) => {
+    try {
+        const definition = importDatasetDefinitions.find(item => item.key === req.params.dataset);
+        if (!definition) return res.status(404).json({ error: 'Import dataset not found.' });
+        const allowedColumns = new Set(definition.columns);
+        const requiredColumns = Array.isArray(req.body.requiredColumns)
+            ? [...new Set(req.body.requiredColumns.map(String).filter(column => allowedColumns.has(column)))]
+            : [];
+        const duplicateKeys = Array.isArray(req.body.duplicateKeys)
+            ? [...new Set(req.body.duplicateKeys.map(String).filter(column => allowedColumns.has(column)))]
+            : [];
+        const duplicateAction = req.body.duplicateAction === 'skip' ? 'skip' : 'reject';
+        const maxRows = Math.min(1000, Math.max(1, Number(req.body.maxRows) || 1000));
+        const masterChecks = Object.fromEntries(['employee', 'expenseType'].map(key => [key, req.body.masterChecks?.[key] === true]));
+        const valueRules = Object.fromEntries(['positiveAmount', 'validDate', 'paymentMode', 'email', 'remarkLength', 'futureDate'].map(key => [key, req.body.valueRules?.[key] === true]));
+        const rule = await ImportRule.findOneAndUpdate(
+            { dataset: definition.key },
+            {
+                $set: {
+                    enabled: req.body.enabled === true,
+                    requiredColumns,
+                    duplicateKeys,
+                    duplicateAction,
+                    masterChecks,
+                    valueRules,
+                    maxRows
+                }
+            },
+            { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
+        ).lean();
+        await recordAudit(req, {
+            action: 'UPDATE', page: 'Import Validation', module: 'Configuration',
+            recordType: 'ImportRule', recordId: definition.key, newValue: rule
+        });
+        return res.json({ dataset: definition.key, rule });
+    } catch (error) {
+        console.error('Import rule update error:', error);
+        return res.status(500).json({ error: 'Could not save import validation settings.' });
+    }
+});
+
 app.get('/api/user-access', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
     try {
         const [config, activeEmployees] = await Promise.all([
@@ -2750,6 +3369,7 @@ app.get('/api/user-access', requireSecureAuth, verifyEmployee, requireAdmin, asy
         const employees = activeEmployees.filter(employee => !isAdmin(employee));
         return res.json({
             pages: accessPageDefinitions,
+            groups: accessGroupDefinitions,
             actions: accessActionDefinitions,
             employees,
             rules: config?.accessRules || [],
@@ -2796,9 +3416,12 @@ app.put('/api/user-access/:employeeId', requireSecureAuth, verifyEmployee, requi
         if (!Array.isArray(req.body.pages) || !Array.isArray(req.body.actions)) {
             return res.status(400).json({ error: 'Page and action access settings are required.' });
         }
-        const validPages = new Set(accessPageDefinitions
-            .filter(definition => !definition.adminOnly)
-            .map(definition => definition.key));
+        const validPages = new Set([
+            ...accessPageDefinitions
+                .filter(definition => !definition.adminOnly)
+                .map(definition => definition.key),
+            ...accessGroupDefinitions.map(group => group.key)
+        ]);
         const pages = [...new Set(['dashboard', ...req.body.pages.map(String)])].filter(page => validPages.has(page));
         const validActions = new Map(accessActionDefinitions.map(definition => [definition.key, definition]));
         const actions = [];
@@ -2806,14 +3429,13 @@ app.put('/api/user-access/:employeeId', requireSecureAuth, verifyEmployee, requi
             const module = String(submitted?.module || '');
             const definition = validActions.get(module);
             if (!definition || definition.adminOnly) continue;
-            actions.push({
-                module,
-                add: submitted.add === true,
-                view: submitted.view === true,
-                edit: submitted.edit === true,
-                delete: submitted.delete === true,
-                deactivate: submitted.deactivate === true
-            });
+            const actionValues = Object.fromEntries(allAccessActions.map(action => [action, submitted[action] === true]));
+            if (definition.combinedDelete) {
+                const combined = actionValues.delete || actionValues.deactivate;
+                actionValues.delete = combined;
+                actionValues.deactivate = combined;
+            }
+            actions.push({ module, ...actionValues });
         }
         const existingRules = (previousConfig?.accessRules || [])
             .filter(rule => String(rule.employeeId) !== String(employee._id));
@@ -2863,7 +3485,7 @@ app.post('/api/user-access/:employeeId/reset-password', requireSecureAuth, verif
     }
 });
 
-app.get('/api/shop-details', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/shop-details', requireSecureAuth, verifyEmployee, requireAnyPageAccess('shop-information'), async (req, res) => {
     try {
         const details = await ShopDetails.findOneAndUpdate(
             { key: 'primary' },
@@ -2877,7 +3499,7 @@ app.get('/api/shop-details', requireSecureAuth, verifyEmployee, requireAdmin, as
     }
 });
 
-app.put('/api/shop-details', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.put('/api/shop-details', requireSecureAuth, verifyEmployee, requireAnyPageAccess('shop-information'), requireActionPermission('configuration', 'edit'), async (req, res) => {
     try {
         const submittedSettings = req.body?.settings;
         if (!submittedSettings || typeof submittedSettings !== 'object' || Array.isArray(submittedSettings)) {
@@ -2949,7 +3571,7 @@ app.put('/api/shop-details', requireSecureAuth, verifyEmployee, requireAdmin, as
     }
 });
 
-app.get('/api/employees', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/employees', requireSecureAuth, verifyEmployee, requireAnyPageAccess('employee-list', 'configuration', 'reports'), async (req, res) => {
     try {
         const employeeFilter = {};
         applyStatusFilter(employeeFilter, req.query.status || 'Active');
@@ -2971,7 +3593,7 @@ app.get('/api/employees', requireSecureAuth, verifyEmployee, requireAdmin, async
     }
 });
 
-app.get('/api/employee-fields', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/employee-fields', requireSecureAuth, verifyEmployee, requireAnyPageAccess('employee-list', 'configuration', 'reports'), async (req, res) => {
     try {
         const fields = (await EmployeeField.find().sort({ createdAt: 1, _id: 1 }).lean())
             .filter(field => !isRedundantMobileField(field));
@@ -2982,7 +3604,7 @@ app.get('/api/employee-fields', requireSecureAuth, verifyEmployee, requireAdmin,
     }
 });
 
-app.post('/api/employee-fields', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.post('/api/employee-fields', requireSecureAuth, verifyEmployee, requireAnyPageAccess('employee-list'), requireActionPermission('employees', 'add'), async (req, res) => {
     try {
         const label = typeof req.body.label === 'string' ? req.body.label.trim() : '';
         if (!label || label.length > 50) {
@@ -3015,7 +3637,7 @@ app.post('/api/employee-fields', requireSecureAuth, verifyEmployee, requireAdmin
     }
 });
 
-app.get('/api/data-port/:dataset/export', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/data-port/:dataset/export', requireSecureAuth, verifyEmployee, requireAnyPageAccess('bulk-entry'), async (req, res) => {
     try {
         const { dataset } = req.params;
         const format = String(req.query.format || 'xlsx').toLowerCase();
@@ -3106,7 +3728,7 @@ app.get('/api/data-port/:dataset/export', requireSecureAuth, verifyEmployee, req
     }
 });
 
-app.get('/api/data-port/:dataset/template', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.get('/api/data-port/:dataset/template', requireSecureAuth, verifyEmployee, requireAnyPageAccess('bulk-entry'), async (req, res) => {
     try {
         const { dataset } = req.params;
         const format = String(req.query.format || 'csv').toLowerCase();
@@ -3161,13 +3783,15 @@ app.post(
     '/api/data-port/customer-entry/import',
     requireSecureAuth,
     verifyEmployee,
-    requireAdmin,
+    requireAnyPageAccess('bulk-entry'),
+    requireActionPermission('configuration', 'add'),
     (req, res, next) => upload.single('file')(req, res, error => {
         if (error) return res.status(400).json({ error: error.message });
         return next();
     }),
     async (req, res) => {
         try {
+            const previewOnly = ['true', '1'].includes(String(req.body.preview || req.query.preview || '').toLowerCase());
             if (!req.file) return res.status(400).json({ error: 'Choose an .xlsx or .csv file to upload.' });
             const extension = path.extname(req.file.originalname).toLowerCase();
             let rows;
@@ -3176,22 +3800,60 @@ app.post(
             else return res.status(400).json({ error: 'Only .xlsx and .csv files are supported.' });
             if (!rows.length) return res.status(400).json({ error: 'The uploaded file is empty.' });
 
+            const rule = await importRuleFor('customer-entry');
+            const applyRules = rule?.enabled !== false;
+            const valueRules = applyRules ? (rule?.valueRules || {}) : {};
+            const checkEmployeeMaster = applyRules && rule?.masterChecks?.employee === true;
+            const checkDuplicates = applyRules && (rule?.duplicateKeys?.length || 0) > 0;
+            const checkPositiveAmount = !applyRules || valueRules.positiveAmount === true;
+            const checkPaymentMode = !applyRules || valueRules.paymentMode === true;
+            const checkEmail = !applyRules || valueRules.email === true;
+            const checkRemarkLength = !applyRules || valueRules.remarkLength === true;
+            const maxRows = Math.min(1000, Math.max(1, Number(rule?.maxRows) || 1000));
+            const dataRowCount = rows.slice(1).filter(row => row.some(cell => String(cell ?? '').trim())).length;
+            if (dataRowCount > maxRows) {
+                return res.status(400).json({ error: `This file has ${dataRowCount} rows. The limit is ${maxRows} rows per import.` });
+            }
+
             const headerIndexes = new Map();
             rows[0].forEach((header, index) => headerIndexes.set(normalizeHeader(header), index));
-            const requiredHeaders = ['entryno', 'entrydate', 'staff', 'servicetype', 'amount', 'paymentmode'];
+            const requiredHeaders = rule?.enabled && rule.requiredColumns?.length
+                ? rule.requiredColumns
+                : ['entryno', 'entrydate', 'staff', 'servicetype', 'amount', 'paymentmode'];
             const missingHeaders = requiredHeaders.filter(header => !headerIndexes.has(header));
             if (missingHeaders.length) {
                 return res.status(400).json({ error: `Missing required columns: ${missingHeaders.join(', ')}.` });
             }
 
+            const config = await AppConfig.findOne({ key: 'collection' }).lean();
+            const today = getTodayDate();
+            const employees = await Employee.find({ status: 'Active' })
+                .select('_id employeeId employeeName')
+                .lean();
+            const staffByName = new Map();
+            const staffByCode = new Map();
+            for (const employee of employees) {
+                staffByName.set(String(employee.employeeName || '').trim().toLowerCase(), employee);
+                staffByCode.set(String(employee.employeeId || '').trim().toLowerCase(), employee);
+            }
+
+            const previewColumns = ['Entry No', 'Entry Date', 'Staff', 'Service Type', 'Amount', 'Cost Cutting', 'Payment Mode', 'Email', 'Remark'];
+            const previewRows = [];
             const documents = [];
+            const documentPreviews = [];
             const errors = [];
             const suppliedIds = new Set();
             const suppliedEntryKeys = new Set();
+            const addRowError = (preview, message, indexes = []) => {
+                preview.errors.push(message);
+                preview.errorIndexes.push(...indexes);
+                errors.push(`Row ${preview.rowNumber}: ${message}`);
+            };
             for (let index = 1; index < rows.length; index += 1) {
                 const row = rows[index];
                 if (!row.some(cell => String(cell ?? '').trim())) continue;
-                const entryNo = Number(getCell(row, headerIndexes, ['entryno']));
+                const rawEntryNo = getCell(row, headerIndexes, ['entryno']);
+                const entryNo = Number(rawEntryNo);
                 const rawDate = getCell(row, headerIndexes, ['entrydate']);
                 const entryDateText = rawDate instanceof Date
                     ? rawDate.toISOString().slice(0, 10)
@@ -3200,7 +3862,8 @@ app.post(
                 const entryDate = entryDateMatch ? new Date(`${entryDateText}T00:00:00.000Z`) : null;
                 const staff = String(getCell(row, headerIndexes, ['staff'])).trim();
                 const serviceType = String(getCell(row, headerIndexes, ['servicetype'])).trim();
-                const amount = Number(getCell(row, headerIndexes, ['amount']));
+                const rawAmount = getCell(row, headerIndexes, ['amount']);
+                const amount = Number(rawAmount);
                 const rawCost = getCell(row, headerIndexes, ['costcutting']);
                 const costCutting = rawCost === '' || rawCost === undefined ? 0 : Number(rawCost);
                 const paymentMode = String(getCell(row, headerIndexes, ['paymentmode'])).trim();
@@ -3208,66 +3871,115 @@ app.post(
                 const remark = rawRemark.slice(0, 1000);
                 const rawId = String(getCell(row, headerIndexes, ['_id', 'id'])).trim();
                 const email = String(getCell(row, headerIndexes, ['email'])).trim().toLowerCase();
-                if (!Number.isSafeInteger(entryNo) || entryNo <= 0 ||
-                    !entryDate || Number.isNaN(entryDate.getTime()) ||
-                    !staff || !serviceType || !Number.isFinite(amount) || amount <= 0 ||
-                    !Number.isFinite(costCutting) || costCutting < 0 ||
-                    !['Cash', 'Online'].includes(paymentMode) ||
-                    rawRemark.length > 1000 ||
-                    (rawId && !mongoose.isValidObjectId(rawId)) ||
-                    (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
-                    errors.push(`Row ${index + 1}: check Entry No, Entry Date, Staff, Service Type, Amount, Cost Cutting, Payment Mode, and optional ID/Email.`);
-                    continue;
+                const preview = {
+                    rowNumber: index + 1,
+                    cells: [
+                        String(rawEntryNo ?? ''), entryDateText, staff, serviceType, String(rawAmount ?? ''),
+                        String(rawCost ?? ''), paymentMode, email, rawRemark
+                    ],
+                    errors: [],
+                    errorIndexes: []
+                };
+                previewRows.push(preview);
+                const staffMatch = staffByName.get(staff.toLowerCase()) || staffByCode.get(staff.toLowerCase());
+                if (!Number.isSafeInteger(entryNo) || entryNo <= 0) {
+                    addRowError(preview, 'Entry No must be a positive whole number.', [0]);
                 }
-                if (rawId && suppliedIds.has(rawId)) {
-                    errors.push(`Row ${index + 1}: duplicate _id ${rawId}.`);
-                    continue;
+                if (!entryDate || Number.isNaN(entryDate.getTime()) || entryDate.toISOString().slice(0, 10) !== entryDateText) {
+                    addRowError(preview, 'Entry Date must be a valid date in YYYY-MM-DD format.', [1]);
+                } else if (staffMatch) {
+                    const dateAccessError = await entryDateError(entryDateText, today, config, staffMatch._id);
+                    if (dateAccessError) addRowError(preview, dateAccessError, [1]);
+                } else if (entryDateText > today) {
+                    addRowError(preview, 'Future entry dates are not allowed.', [1]);
+                } else if (entryDateText < today) {
+                    addRowError(preview, 'Staff must match an active employee for previous-date entries.', [2]);
                 }
+                if (!staff) {
+                    addRowError(preview, 'Staff is required.', [2]);
+                } else if (checkEmployeeMaster && !staffMatch) {
+                    addRowError(preview, `Staff "${staff}" was not found in the active Employee Master.`, [2]);
+                }
+                if (!serviceType) addRowError(preview, 'Service Type is required.', [3]);
+                if (!Number.isFinite(amount) || amount < 0) addRowError(preview, 'Amount must be 0 or greater.', [4]);
+                else if (checkPositiveAmount && amount <= 0) addRowError(preview, 'Amount must be greater than 0.', [4]);
+                if (!Number.isFinite(costCutting) || costCutting < 0) addRowError(preview, 'Cost Cutting must be 0 or greater.', [5]);
+                if (checkPaymentMode && !['Cash', 'Online'].includes(paymentMode)) addRowError(preview, 'Payment Mode must be Cash or Online.', [6]);
+                if (checkRemarkLength && rawRemark.length > 1000) addRowError(preview, 'Remark cannot be more than 1000 characters.', [8]);
+                if (rawId && !mongoose.isValidObjectId(rawId)) addRowError(preview, 'The optional _id value is invalid.', []);
+                if (checkEmail && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) addRowError(preview, 'Email address is invalid.', [7]);
+                if (rawId && suppliedIds.has(rawId)) addRowError(preview, `Duplicate _id ${rawId} in the file.`, []);
                 if (rawId) suppliedIds.add(rawId);
-                const entryKey = `${entryDateText}:${entryNo}`;
-                if (suppliedEntryKeys.has(entryKey)) {
-                    errors.push(`Row ${index + 1}: Entry No ${entryNo} is duplicated for ${entryDateText}.`);
-                    continue;
+                if (checkDuplicates && entryDate && Number.isSafeInteger(entryNo)) {
+                    const entryKey = `${entryDateText}:${entryNo}`;
+                    if (suppliedEntryKeys.has(entryKey)) {
+                        addRowError(preview, `Entry No ${entryNo} is duplicated for ${entryDateText} in the file.`, [0, 1]);
+                    } else {
+                        suppliedEntryKeys.add(entryKey);
+                    }
                 }
-                suppliedEntryKeys.add(entryKey);
+                if (preview.errors.length) continue;
                 const rawCreatedAt = getCell(row, headerIndexes, ['createdat']);
                 const createdAt = rawCreatedAt instanceof Date
                     ? rawCreatedAt
                     : rawCreatedAt ? new Date(rawCreatedAt) : undefined;
-                documents.push({
+                const document = {
                     ...(rawId ? { _id: new mongoose.Types.ObjectId(rawId) } : {}),
                     entryNo,
                     entryDate,
                     staff,
+                    ...(staffMatch ? { staffId: staffMatch._id } : {}),
                     serviceType,
                     amount,
                     costCutting,
-                    paymentMode,
+                    paymentMode: ['Cash', 'Online'].includes(paymentMode) ? paymentMode : 'Cash',
                     remark,
                     email,
                     ...(createdAt && !Number.isNaN(createdAt.getTime()) ? { createdAt } : {})
-                });
+                };
+                documents.push(document);
+                documentPreviews.push(preview);
             }
-            if (!errors.length && documents.length) {
+            if (checkDuplicates && documents.length) {
                 const existingEntries = await CollectionEntry.find({
                     $or: documents.map(document => ({ entryDate: document.entryDate, entryNo: document.entryNo }))
-                }).select('_id entryDate entryNo').lean();
+                }).select('_id entryDate entryNo amount staff status').lean();
                 const existingByKey = new Map(existingEntries.map(entry => [
                     `${entry.entryDate.toISOString().slice(0, 10)}:${entry.entryNo}`,
-                    String(entry._id)
+                    entry
                 ]));
-                for (const document of documents) {
+                for (let index = 0; index < documents.length; index += 1) {
+                    const document = documents[index];
+                    const preview = documentPreviews[index];
                     const key = `${document.entryDate.toISOString().slice(0, 10)}:${document.entryNo}`;
-                    const existingId = existingByKey.get(key);
-                    if (existingId && String(document._id || '') !== existingId) {
-                        errors.push(`Entry No ${document.entryNo} already exists for ${key.split(':')[0]}.`);
+                    const existing = existingByKey.get(key);
+                    if (existing && String(document._id || '') !== String(existing._id)) {
+                        addRowError(
+                            preview,
+                            `Entry No ${document.entryNo} already exists for ${key.split(':')[0]} (Amount: ${existing.amount}, Staff: ${existing.staff}, Status: ${existing.status || 'Active'}).`,
+                            [0, 1]
+                        );
                     }
                 }
             }
+            const previewPayload = {
+                preview: true,
+                canImport: errors.length === 0 && documents.length > 0,
+                columns: previewColumns,
+                rows: previewRows,
+                errors: errors.slice(0, 100),
+                summary: {
+                    total: previewRows.length,
+                    valid: previewRows.filter(row => !row.errors.length).length,
+                    invalid: previewRows.filter(row => row.errors.length).length
+                }
+            };
+            if (previewOnly) return res.json(previewPayload);
             if (errors.length) {
                 return res.status(400).json({
-                    error: 'Import stopped because some rows are invalid. Correct them and upload again; no entries were imported.',
-                    rowErrors: errors.slice(0, 25)
+                    ...previewPayload,
+                    preview: false,
+                    error: 'Import stopped because some rows are invalid. Correct them and upload again; no entries were imported.'
                 });
             }
             if (!documents.length) return res.status(400).json({ error: 'No customer entry rows found.' });
@@ -3303,7 +4015,8 @@ app.post(
     '/api/data-port/employee-records/import',
     requireSecureAuth,
     verifyEmployee,
-    requireAdmin,
+    requireAnyPageAccess('bulk-entry'),
+    requireActionPermission('configuration', 'add'),
     (req, res, next) => upload.single('file')(req, res, error => {
         if (error) return res.status(400).json({ error: error.message });
         return next();
@@ -3314,6 +4027,7 @@ app.post(
             if (!['expense', 'salary', 'counter'].includes(recordType)) {
                 return res.status(400).json({ error: 'Select Expense, Salary, or Cash At Counter for import.' });
             }
+            const previewOnly = ['true', '1'].includes(String(req.body.preview || req.query.preview || '').toLowerCase());
             if (!req.file) return res.status(400).json({ error: 'Choose an .xlsx or .csv file to upload.' });
             const extension = path.extname(req.file.originalname).toLowerCase();
             const rows = extension === '.xlsx'
@@ -3324,12 +4038,26 @@ app.post(
             if (!rows) return res.status(400).json({ error: 'Only .xlsx and .csv files are supported.' });
             if (!rows.length) return res.status(400).json({ error: 'The uploaded file is empty.' });
 
+            const rule = await importRuleFor(recordType);
+            const maxRows = Math.min(1000, Math.max(1, Number(rule?.maxRows) || 1000));
+            const dataRowCount = rows.slice(1).filter(row => row.some(cell => String(cell ?? '').trim())).length;
+            if (dataRowCount > maxRows) {
+                return res.status(400).json({ error: `This file has ${dataRowCount} rows. The limit is ${maxRows} rows per import.` });
+            }
+
             const headerIndexes = new Map();
             rows[0].forEach((header, index) => headerIndexes.set(normalizeHeader(header), index));
-            const requiredHeaders = ['employeeid', 'entrydate', 'amount'];
-            if (recordType !== 'counter') requiredHeaders.push('paymentmode');
-            if (recordType === 'expense') requiredHeaders.push('expensetypesr');
-            if (recordType === 'salary') requiredHeaders.push('salarymonth');
+            const configuredHeaders = rule?.enabled && rule.requiredColumns?.length
+                ? rule.requiredColumns
+                : null;
+            const requiredHeaders = configuredHeaders
+                ? [...configuredHeaders]
+                : ['employeeid', 'entrydate', 'amount'];
+            if (!configuredHeaders) {
+                if (recordType !== 'counter') requiredHeaders.push('paymentmode');
+                if (recordType === 'expense') requiredHeaders.push('expensetypesr');
+                if (recordType === 'salary') requiredHeaders.push('salarymonth');
+            }
             const missingHeaders = requiredHeaders.filter(header => !headerIndexes.has(header));
             if (missingHeaders.length) return res.status(400).json({ error: `Missing required columns: ${missingHeaders.join(', ')}.` });
 
@@ -3340,6 +4068,13 @@ app.post(
             const employeesById = new Map(employees.map(employee => [employee.employeeId, employee]));
             const config = await AppConfig.findOne({ key: 'collection' }).lean();
             const today = getTodayDate();
+            const previewColumns = recordType === 'expense'
+                ? ['Employee ID', 'Entry Date', 'Expense Type SR', 'Amount', 'Payment Mode', 'Remark']
+                : recordType === 'salary'
+                    ? ['Employee ID', 'Entry Date', 'Salary Month', 'Amount', 'Payment Mode', 'Remark']
+                    : ['Employee ID', 'Entry Date', 'Amount', 'Remark'];
+            const previewRows = [];
+            const documentPreviews = [];
             const documents = [];
             const errors = [];
             for (let index = 1; index < rows.length; index += 1) {
@@ -3353,7 +4088,8 @@ app.post(
                     : String(rawDate ?? '').trim().slice(0, 10);
                 const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(entryDateText);
                 const date = dateMatch ? new Date(`${entryDateText}T00:00:00.000Z`) : null;
-                const amount = Number(getCell(row, headerIndexes, ['amount']));
+                const rawAmount = getCell(row, headerIndexes, ['amount']);
+                const amount = Number(rawAmount);
                 const paymentMode = recordType === 'counter'
                     ? 'Cash'
                     : String(getCell(row, headerIndexes, ['paymentmode'])).trim();
@@ -3361,20 +4097,51 @@ app.post(
                     ? Number(getCell(row, headerIndexes, ['expensetypesr'])) : undefined;
                 const salaryMonth = recordType === 'salary'
                     ? String(getCell(row, headerIndexes, ['salarymonth'])).trim() : undefined;
+                const rawRemark = String(getCell(row, headerIndexes, ['remark', 'remarks'])).trim();
+                const preview = {
+                    rowNumber: index + 1,
+                    cells: recordType === 'expense'
+                        ? [employeeId, entryDateText, String(expenseTypeSr ?? ''), String(rawAmount ?? ''), paymentMode, rawRemark]
+                        : recordType === 'salary'
+                            ? [employeeId, entryDateText, salaryMonth, String(rawAmount ?? ''), paymentMode, rawRemark]
+                            : [employeeId, entryDateText, String(rawAmount ?? ''), rawRemark],
+                    errors: [],
+                    errorIndexes: []
+                };
+                previewRows.push(preview);
+                const addError = (message, indexes) => {
+                    preview.errors.push(message);
+                    preview.errorIndexes.push(...indexes);
+                    errors.push(`Row ${preview.rowNumber}: ${message}`);
+                };
                 let expenseType = '';
                 if (recordType === 'expense' && Number.isSafeInteger(expenseTypeSr)) {
                     const type = await ExpenseType.findOne({ sr: expenseTypeSr, status: 'Active' }).lean();
                     expenseType = type?.name || '';
                 }
-                if (!employee || !date || Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== entryDateText ||
-                    await entryDateError(entryDateText, today, config, employee?._id) ||
-                    !Number.isFinite(amount) || amount <= 0 || amount > 100000000 ||
-                    !['Cash', 'Online'].includes(paymentMode) ||
-                    (recordType === 'expense' && (!Number.isSafeInteger(expenseTypeSr) || !expenseType)) ||
-                    (recordType === 'salary' && (!/^\d{4}-(0[1-9]|1[0-2])$/.test(salaryMonth) || salaryMonth > today.slice(0, 7)))) {
-                    errors.push(`Row ${index + 1}: check Employee ID, date, amount, payment mode, and module-specific fields.`);
-                    continue;
+                const dateAccessError = employee && date
+                    ? await entryDateError(entryDateText, today, config, employee._id)
+                    : null;
+                if (!employee) addError('Employee ID was not found in the active Employee Master.', [0]);
+                if (!date || Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== entryDateText) {
+                    addError('Entry Date must be a valid date in YYYY-MM-DD format.', [1]);
+                } else if (dateAccessError) {
+                    addError(dateAccessError, [1]);
                 }
+                if (!Number.isFinite(amount) || amount <= 0 || amount > 100000000) {
+                    addError('Amount must be greater than 0 and within the allowed range.', [recordType === 'counter' ? 2 : 3]);
+                }
+                if (recordType !== 'counter' && !['Cash', 'Online'].includes(paymentMode)) {
+                    addError('Payment Mode must be Cash or Online.', [4]);
+                }
+                if (recordType === 'expense' && (!Number.isSafeInteger(expenseTypeSr) || !expenseType)) {
+                    addError('Expense Type SR must match an active Expense Type.', [2]);
+                }
+                if (recordType === 'salary' && (!/^\d{4}-(0[1-9]|1[0-2])$/.test(salaryMonth) || salaryMonth > today.slice(0, 7))) {
+                    addError('Salary Month must be YYYY-MM and not in the future.', [2]);
+                }
+                if (rawRemark.length > 1000) addError('Remark cannot be more than 1000 characters.', [preview.cells.length - 1]);
+                if (preview.errors.length) continue;
                 documents.push({
                     recordType,
                     employeeId: employee._id,
@@ -3384,13 +4151,89 @@ app.post(
                     ...(recordType === 'salary' ? { salaryMonth } : {}),
                     paymentMode,
                     amount,
-                    remark: String(getCell(row, headerIndexes, ['remark', 'remarks'])).trim().slice(0, 1000),
+                    remark: rawRemark.slice(0, 1000),
                     createdBy: req.employee.employeeName || 'Admin'
                 });
+                documentPreviews.push(preview);
             }
+            const duplicateKeys = rule?.enabled
+                ? (rule.duplicateKeys || []).filter(key => ({
+                    employeeid: 'employeeId',
+                    entrydate: 'entryDate',
+                    expensetypesr: 'expenseTypeSr',
+                    salarymonth: 'salaryMonth',
+                    amount: 'amount',
+                    paymentmode: 'paymentMode',
+                    remark: 'remark'
+                })[key])
+                : [];
+            if (duplicateKeys.length && documents.length) {
+                const fieldByKey = {
+                    employeeid: 'employeeId',
+                    entrydate: 'entryDate',
+                    expensetypesr: 'expenseTypeSr',
+                    salarymonth: 'salaryMonth',
+                    amount: 'amount',
+                    paymentmode: 'paymentMode',
+                    remark: 'remark'
+                };
+                const duplicateValue = (record, key) => {
+                    const value = record[fieldByKey[key]];
+                    if (key === 'entrydate') {
+                        return value instanceof Date ? value.toISOString().slice(0, 10) : String(value || '');
+                    }
+                    return value instanceof Date ? value.toISOString() : String(value ?? '');
+                };
+                const duplicateKeyText = record => duplicateKeys.map(key => duplicateValue(record, key)).join('\u0001');
+                const filters = documents.map(document => Object.fromEntries(
+                    duplicateKeys.map(key => [fieldByKey[key], key === 'entrydate'
+                        ? document.entryDate
+                        : document[fieldByKey[key]]])
+                ));
+                const existingRecords = await EmployeeRecord.find({
+                    recordType,
+                    status: 'Active',
+                    $or: filters
+                }).select('employeeId entryDate expenseTypeSr salaryMonth amount paymentMode remark').lean();
+                const existingKeys = new Map(existingRecords.map(record => [duplicateKeyText(record), record]));
+                const fileKeys = new Map();
+                for (let index = documents.length - 1; index >= 0; index -= 1) {
+                    const document = documents[index];
+                    const preview = documentPreviews[index];
+                    const key = duplicateKeyText(document);
+                    const existing = existingKeys.get(key) || fileKeys.get(key);
+                    if (!existing) {
+                        fileKeys.set(key, document);
+                        continue;
+                    }
+                    const message = `Duplicate record already exists for ${duplicateKeys.join(', ')}.`;
+                    if (rule.duplicateAction === 'skip') {
+                        documents.splice(index, 1);
+                        documentPreviews.splice(index, 1);
+                    } else {
+                        preview.errors.push(message);
+                        preview.errorIndexes.push(0);
+                        errors.push(`Row ${preview.rowNumber}: ${message}`);
+                    }
+                }
+            }
+            const previewPayload = {
+                preview: true,
+                canImport: errors.length === 0 && documents.length > 0,
+                columns: previewColumns,
+                rows: previewRows,
+                errors: errors.slice(0, 100),
+                summary: {
+                    total: previewRows.length,
+                    valid: previewRows.filter(row => !row.errors.length).length,
+                    invalid: previewRows.filter(row => row.errors.length).length
+                }
+            };
+            if (previewOnly) return res.json(previewPayload);
             if (errors.length) return res.status(400).json({
-                error: 'Import stopped because some rows are invalid. Correct them and upload again.',
-                rowErrors: errors.slice(0, 25)
+                ...previewPayload,
+                preview: false,
+                error: 'Import stopped because some rows are invalid. Correct them and upload again; no records were imported.'
             });
             if (!documents.length) return res.status(400).json({ error: 'No valid records found.' });
             const inserted = await EmployeeRecord.insertMany(documents, { ordered: true });
@@ -3406,7 +4249,7 @@ app.post(
     }
 );
 
-app.post('/api/employees', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.post('/api/employees', requireSecureAuth, verifyEmployee, requireAnyPageAccess('employee-entry', 'employee-list'), requireActionPermission('employees', 'add'), async (req, res) => {
     try {
         const fieldDefinitions = (await EmployeeField.find().lean())
             .filter(field => !isRedundantMobileField(field));
@@ -3441,7 +4284,7 @@ app.post('/api/employees', requireSecureAuth, verifyEmployee, requireAdmin, asyn
     }
 });
 
-app.put('/api/employees/:id', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.put('/api/employees/:id', requireSecureAuth, verifyEmployee, requireAnyPageAccess('employee-entry', 'employee-list'), requireActionPermission('employees', 'edit'), async (req, res) => {
     try {
         if (!mongoose.isValidObjectId(req.params.id)) {
             return res.status(400).json({ error: 'Invalid employee ID.' });
@@ -3505,7 +4348,7 @@ app.put('/api/employees/:id', requireSecureAuth, verifyEmployee, requireAdmin, a
     }
 });
 
-app.patch('/api/employees/:id/deactivate', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+app.patch('/api/employees/:id/deactivate', requireSecureAuth, verifyEmployee, requireAnyPageAccess('employee-list'), requireActionPermission('employees', 'deactivate'), async (req, res) => {
     try {
         if (!mongoose.isValidObjectId(req.params.id)) {
             return res.status(400).json({ error: 'Invalid employee ID.' });
@@ -3649,13 +4492,15 @@ app.post(
     '/api/employees/import',
     requireSecureAuth,
     verifyEmployee,
-    requireAdmin,
+    requireAnyPageAccess('bulk-entry'),
+    requireActionPermission('configuration', 'add'),
     (req, res, next) => upload.single('file')(req, res, error => {
         if (error) return res.status(400).json({ error: error.message });
         return next();
     }),
     async (req, res) => {
         try {
+            const previewOnly = ['true', '1'].includes(String(req.body.preview || req.query.preview || '').toLowerCase());
             if (!req.file) return res.status(400).json({ error: 'Choose an .xlsx or .csv file to upload.' });
             const extension = path.extname(req.file.originalname).toLowerCase();
             let rows;
@@ -3666,17 +4511,44 @@ app.post(
             } else {
                 return res.status(400).json({ error: 'Only .xlsx and .csv files are supported.' });
             }
+            if (!rows.length) return res.status(400).json({ error: 'The uploaded file is empty.' });
+            const rule = await importRuleFor('employees');
+            const maxRows = Math.min(1000, Math.max(1, Number(rule?.maxRows) || 1000));
+            const dataRowCount = rows.slice(1).filter(row => row.some(cell => String(cell ?? '').trim())).length;
+            if (dataRowCount > maxRows) {
+                return res.status(400).json({ error: `This file has ${dataRowCount} rows. The limit is ${maxRows} rows per import.` });
+            }
 
+            if (rule?.enabled && rule.requiredColumns?.length) {
+                const headerSet = new Set(rows[0].map(normalizeHeader));
+                const missingHeaders = rule.requiredColumns.filter(header => !headerSet.has(normalizeHeader(header)));
+                if (missingHeaders.length) {
+                    return res.status(400).json({ error: `Missing required columns: ${missingHeaders.join(', ')}.` });
+                }
+            }
             const fieldDefinitions = (await EmployeeField.find().lean())
                 .filter(field => !isRedundantMobileField(field));
             const { employees, errors } = rowsToEmployees(rows, fieldDefinitions);
-            if (!employees.length) {
-                return res.status(400).json({
-                    error: 'No valid employee rows found.',
-                    rowErrors: errors.slice(0, 25)
+            const headers = rows[0].map(header => String(header ?? '').trim() || 'Column');
+            const previewRows = [];
+            const errorsByRow = new Map();
+            for (const error of errors) {
+                const match = /^Row (\d+):\s*(.*)$/.exec(error);
+                if (!match) continue;
+                const rowNumber = Number(match[1]);
+                if (!errorsByRow.has(rowNumber)) errorsByRow.set(rowNumber, []);
+                errorsByRow.get(rowNumber).push(match[2]);
+            }
+            for (let index = 1; index < rows.length; index += 1) {
+                const row = rows[index];
+                if (!row.some(cell => String(cell ?? '').trim())) continue;
+                previewRows.push({
+                    rowNumber: index + 1,
+                    cells: headers.map((_, columnIndex) => String(row[columnIndex] ?? '')),
+                    errors: errorsByRow.get(index + 1) || [],
+                    errorIndexes: []
                 });
             }
-
             const deduplicatedEmployees = new Map();
             for (const employee of employees) {
                 try {
@@ -3689,9 +4561,31 @@ app.post(
                     errors.push(error.message);
                 }
             }
+            const previewPayload = {
+                preview: true,
+                canImport: errors.length === 0 && deduplicatedEmployees.size > 0,
+                columns: headers,
+                rows: previewRows,
+                errors: errors.slice(0, 100),
+                summary: {
+                    total: previewRows.length,
+                    valid: previewRows.filter(row => !row.errors.length).length,
+                    invalid: previewRows.filter(row => row.errors.length).length
+                }
+            };
+            if (previewOnly) return res.json(previewPayload);
+            if (errors.length) {
+                return res.status(400).json({
+                    ...previewPayload,
+                    preview: false,
+                    canImport: false,
+                    error: 'Import stopped because some rows are invalid. Correct them and upload again; no employees were imported.',
+                    rowErrors: errors.slice(0, 25)
+                });
+            }
             if (!deduplicatedEmployees.size) {
                 return res.status(400).json({
-                    error: 'No employee rows reference a valid active expense type.',
+                    error: 'No valid employee rows found.',
                     rowErrors: errors.slice(0, 25)
                 });
             }
@@ -3737,6 +4631,9 @@ app.post(
                 rowErrors: errors.slice(0, 25)
             });
         } catch (error) {
+            if (error.message.includes('must include') || error.message.includes('uploaded file is empty')) {
+                return res.status(400).json({ error: error.message });
+            }
             if (error.message.includes('Invalid') || error.message.includes('Unsupported')) {
                 return res.status(400).json({ error: 'Could not read the spreadsheet. Check that it is a valid .xlsx or .csv file.' });
             }
@@ -4038,7 +4935,7 @@ app.get('/api/collections', requireSecureAuth, verifyEmployee, verifyCollectionA
             .sort({ entryDate: -1, createdAt: -1, _id: -1 })
             .skip((page - 1) * limit)
             .limit(limit)
-            .select('entryNo entryDate staff serviceType amount costCutting paymentMode remark createdBy email createdAt status inactiveAction inactiveAt inactiveBy')
+            .select('entryNo entryDate staff serviceType items amount costCutting paymentMode remark createdBy email createdAt status inactiveAction inactiveAt inactiveBy')
             .lean();
         const legacyEmails = [...new Set(entries
             .filter(entry => !entry.createdBy && entry.email)
@@ -4078,6 +4975,7 @@ app.post('/api/save-collection', requireSecureAuth, verifyEmployee, verifyCollec
         const numericCostCutting = costCutting === undefined || costCutting === ''
             ? 0
             : Number(costCutting);
+        const parsedItems = normalizeCollectionItems(req.body.items);
         const dateMatch = typeof entryDate === 'string'
             ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(entryDate)
             : null;
@@ -4116,10 +5014,10 @@ app.post('/api/save-collection', requireSecureAuth, verifyEmployee, verifyCollec
         }
         const dateError = await entryDateError(entryDate, today, config, activeStaff._id);
         if (dateError) return res.status(400).json({ error: dateError });
-        if (typeof serviceType !== 'string' || !serviceType.trim()) {
-            return res.status(400).json({ error: 'Please enter the service type.' });
+        if (!parsedItems && (typeof serviceType !== 'string' || !serviceType.trim())) {
+            return res.status(400).json({ error: 'Please add at least one service.' });
         }
-        if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+        if (!parsedItems && (!Number.isFinite(numericAmount) || numericAmount <= 0)) {
             return res.status(400).json({ error: 'Please enter a valid amount.' });
         }
         if (!Number.isFinite(numericCostCutting) || numericCostCutting < 0) {
@@ -4140,8 +5038,9 @@ app.post('/api/save-collection', requireSecureAuth, verifyEmployee, verifyCollec
             entryDate: parsedEntryDate,
             staffId: isAdmin(req.employee) ? activeStaff._id : req.employee._id,
             staff: activeStaff.employeeName,
-            serviceType: serviceType.trim(),
-            amount: numericAmount,
+            serviceType: parsedItems ? parsedItems.summary : serviceType.trim(),
+            ...(parsedItems ? { items: parsedItems.items } : {}),
+            amount: parsedItems ? parsedItems.total : numericAmount,
             costCutting: numericCostCutting,
             paymentMode,
             remark,
@@ -4161,6 +5060,7 @@ app.post('/api/save-collection', requireSecureAuth, verifyEmployee, verifyCollec
         if (error.code === 11000) {
             return res.status(409).json({ error: 'An entry with the same Entry No. already exists for that date.' });
         }
+        if (error.status === 400) return res.status(400).json({ error: error.message });
         console.error('Collection save error:', error);
         return res.status(500).json({ error: 'Could not save the collection entry.' });
     }
@@ -4187,6 +5087,7 @@ app.put('/api/collections/:id', requireSecureAuth, verifyEmployee, verifyCollect
         const numericEntryNo = Number(entryNo);
         const numericAmount = Number(amount);
         const numericCostCutting = costCutting === undefined || costCutting === '' ? 0 : Number(costCutting);
+        const parsedItems = normalizeCollectionItems(req.body.items);
         const dateMatch = typeof entryDate === 'string' ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(entryDate) : null;
         const parsedEntryDate = dateMatch ? new Date(`${entryDate}T00:00:00.000Z`) : null;
         const validEntryDate = Boolean(
@@ -4225,10 +5126,10 @@ app.put('/api/collections/:id', requireSecureAuth, verifyEmployee, verifyCollect
         if (dateError && entryDate !== existingEntryDate) {
             return res.status(400).json({ error: dateError });
         }
-        if (typeof serviceType !== 'string' || !serviceType.trim()) {
-            return res.status(400).json({ error: 'Please enter the service type.' });
+        if (!parsedItems && (typeof serviceType !== 'string' || !serviceType.trim())) {
+            return res.status(400).json({ error: 'Please add at least one service.' });
         }
-        if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+        if (!parsedItems && (!Number.isFinite(numericAmount) || numericAmount <= 0)) {
             return res.status(400).json({ error: 'Please enter a valid amount.' });
         }
         if (!Number.isFinite(numericCostCutting) || numericCostCutting < 0) {
@@ -4249,19 +5150,28 @@ app.put('/api/collections/:id', requireSecureAuth, verifyEmployee, verifyCollect
         if (duplicate) {
             return res.status(409).json({ error: `Entry No. ${numericEntryNo} already exists for ${entryDate}.` });
         }
+        const preserveItems = !parsedItems &&
+            Array.isArray(before.items) &&
+            before.items.length > 0 &&
+            serviceType.trim() === before.serviceType &&
+            numericAmount === Number(before.amount || 0);
+        const setFields = {
+            entryNo: numericEntryNo,
+            entryDate: parsedEntryDate,
+            staffId: isAdmin(req.employee) ? activeStaff._id : req.employee._id,
+            staff: activeStaff.employeeName,
+            serviceType: parsedItems ? parsedItems.summary : serviceType.trim(),
+            amount: parsedItems ? parsedItems.total : numericAmount,
+            costCutting: numericCostCutting,
+            paymentMode,
+            remark
+        };
+        if (parsedItems) setFields.items = parsedItems.items;
+        const update = { $set: setFields };
+        if (!parsedItems && !preserveItems) update.$unset = { items: 1 };
         const entry = await CollectionEntry.findOneAndUpdate(
             updateFilter,
-            {
-                entryNo: numericEntryNo,
-                entryDate: parsedEntryDate,
-                staffId: isAdmin(req.employee) ? activeStaff._id : req.employee._id,
-                staff: activeStaff.employeeName,
-                serviceType: serviceType.trim(),
-                amount: numericAmount,
-                costCutting: numericCostCutting,
-                paymentMode,
-                remark
-            },
+            update,
             { new: true, runValidators: true }
         ).select('_id entryNo');
 
@@ -4275,6 +5185,7 @@ app.put('/api/collections/:id', requireSecureAuth, verifyEmployee, verifyCollect
         if (error.code === 11000) {
             return res.status(409).json({ error: 'An entry with the same Entry No. already exists for that date.' });
         }
+        if (error.status === 400) return res.status(400).json({ error: error.message });
         console.error('Collection update error:', error);
         return res.status(500).json({ error: 'Could not update the customer entry.' });
     }

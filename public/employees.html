@@ -10,7 +10,7 @@
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
     .container{width:100%;max-width:1180px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .container>header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
     h1{font-size:21px;margin:0}
     .sub{color:#737780;font-size:13px;line-height:1.5;margin:7px 0 18px}
     .toolbar{display:flex;align-items:end;flex-wrap:wrap;justify-content:space-between;gap:10px;padding:13px;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:11px}
@@ -59,7 +59,7 @@
 
     <section class="toolbar">
       <div class="field"><label for="statusFilter">Status</label><select id="statusFilter"><option value="Active">Active</option><option value="All">All</option><option value="Inactive">In-Active</option></select></div>
-      <div class="actions"><a class="link add" href="/employee-entry">Add Employee</a></div>
+      <div class="actions"><a id="addEmployeeLink" class="link add" href="/employee-entry">Add Employee</a></div>
     </section>
 
     <div id="bulkBar" class="bulk-bar" hidden>
@@ -120,6 +120,12 @@
       if(!value)return'—';
       const date=new Date(value);
       return Number.isNaN(date.getTime())?'—':date.toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+    }
+
+    function canAction(action){
+      if(!session)return false;
+      if(session.employee?.role==='Admin'||session.employee?.accountType==='Super Admin')return true;
+      return session.actionAccess?.employees?.[action]===true;
     }
 
     function canBulkDelete(){return session?.employee?.accountType==='Super Admin'}
@@ -276,12 +282,14 @@
         actionsCell.className='sticky-action';
         const actions=document.createElement('div');
         actions.className='row-actions';
-        const edit=document.createElement('a');
-        edit.className='link';
-        edit.textContent='Edit';
-        edit.href=`/employee-entry?edit=${encodeURIComponent(employee._id)}`;
-        actions.append(edit);
-        if(employee.status==='Active'){
+        if(canAction('edit')){
+          const edit=document.createElement('a');
+          edit.className='link';
+          edit.textContent='Edit';
+          edit.href=`/employee-entry?edit=${encodeURIComponent(employee._id)}`;
+          actions.append(edit);
+        }
+        if(employee.status==='Active'&&canAction('deactivate')){
           const deactivate=document.createElement('button');
           deactivate.type='button';
           deactivate.className='danger';
@@ -340,6 +348,7 @@
     (async()=>{
       session=await window.salonReady;
       if(!session)return;
+      document.getElementById('addEmployeeLink').hidden=!canAction('add');
       updateEmployeeBulkBar();
       await loadEmployeeFields();
       await loadEmployees();

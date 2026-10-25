@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Import Validation - YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1100px,100%);margin:auto;padding:28px 20px 40px}.heading h1{margin:0;font-size:26px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.notice{margin-top:15px;padding:11px 13px;background:#fff9e8;border:1px solid #ead9a9;border-radius:9px;color:#765b14;font-size:12px;line-height:1.5}.dataset{padding:17px;margin-top:13px;background:#fff;border:1px solid #e1e7ee;border-radius:13px}.dataset-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.dataset h2{margin:0;font-size:16px}.dataset .help{margin:6px 0 12px;color:#758397;font-size:12px;line-height:1.45}.enabled{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#344054;cursor:pointer}.enabled input{width:17px;height:17px;accent-color:#c99a23}.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px;margin-top:10px}.field{min-width:0}.field label,.group-label{display:block;margin-bottom:6px;color:#526176;font-size:11px;font-weight:700}.field input[type=number],.field select{width:100%;height:36px;padding:7px 9px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:12px Arial}.checks{display:grid;gap:4px;max-height:150px;overflow:auto;padding:7px;border:1px solid #e6ebf0;border-radius:8px;background:#fafbfc}.check{display:flex;align-items:flex-start;gap:7px;font-size:11px;line-height:1.35;color:#526176;cursor:pointer}.check input{width:15px;height:15px;margin:1px 0 0;accent-color:#c99a23;flex:none}.footer{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-top:12px}.footer button{min-height:34px;padding:7px 13px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.footer button:disabled{opacity:.6;cursor:not-allowed}.status{display:none;margin-top:9px;padding:8px 10px;border-radius:8px;font-size:12px}.status.show{display:block;background:#eaf8f1;color:#286b53}.status.error{background:#fff0ef;color:#a13932}.loading{padding:20px;color:#758397;font-size:13px}@media(max-width:600px){.wrap{padding:20px 12px 30px}.footer button{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="heading">
+      <h1>Import Validation</h1>
+      <p>Configure required columns, duplicate handling and master-data checks for Bulk Entry imports. Collection rules are active by default; other datasets are off until enabled.</p>
+    </section>
+    <div class="notice">Bulk Entry always rejects the whole file when any row has an error. Maximum 1000 rows is enforced by the import engine; you can set a lower per-dataset limit here.</div>
+    <div id="datasets"><div class="loading">Loading import rules...</div></div>
+  </main>
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js"></script>
+  <script>
+    const container=document.getElementById('datasets');
+    let canEditRules=false;
+    const actionLabels={positiveAmount:'Amount greater than 0',paymentMode:'Cash / Online payment mode',email:'Valid email address',remarkLength:'Remark up to 1000 characters'};
+    const masterLabels={employee:'Active Employee Master match',expenseType:'Active Expense Type match'};
+
+    function checkList(columns,selected,name){
+      const box=document.createElement('div');box.className='checks';
+      for(const column of columns){
+        const label=document.createElement('label');label.className='check';
+        const input=document.createElement('input');input.type='checkbox';input.value=column;input.dataset.group=name;input.checked=selected.includes(column);
+        const text=document.createElement('span');text.textContent=column;
+        label.append(input,text);box.append(label);
+      }
+      return box;
+    }
+
+    function checkedValues(root,name){
+      return [...root.querySelectorAll(`input[data-group="${name}"]:checked`)].map(input=>input.value);
+    }
+
+    function render(dataset){
+      const rule=dataset.rule||{};
+      const card=document.createElement('section');card.className='dataset';card.dataset.dataset=dataset.dataset;
+      const head=document.createElement('div');head.className='dataset-head';
+      const title=document.createElement('h2');title.textContent=dataset.label;
+      const enabledLabel=document.createElement('label');enabledLabel.className='enabled';
+      const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=rule.enabled===true;enabled.dataset.enabled='true';
+      const enabledText=document.createElement('span');enabledText.textContent='Apply these rules';
+      enabledLabel.append(enabled,enabledText);head.append(title,enabledLabel);
+      const isCollection=dataset.dataset==='customer-entry';
+      const help=document.createElement('p');help.className='help';help.textContent=isCollection?'Required columns, duplicates, master checks and value checks apply to Collection imports.':'Required columns and maximum rows apply to this dataset; duplicate checks apply to Expense, Salary and Counter imports.';
+      const settings=document.createElement('div');settings.className='settings';
+
+      const required=document.createElement('div');required.className='field';
+      const requiredLabel=document.createElement('span');requiredLabel.className='group-label';requiredLabel.textContent='Required columns';
+      required.append(requiredLabel,checkList(dataset.columns,rule.requiredColumns||[],'required'));
+
+      const duplicates=document.createElement('div');duplicates.className='field';
+      const duplicateLabel=document.createElement('span');duplicateLabel.className='group-label';duplicateLabel.textContent='Duplicate key columns';
+      duplicates.append(duplicateLabel,checkList(dataset.columns,rule.duplicateKeys||[],'duplicate'));
+
+      const behavior=document.createElement('div');behavior.className='field';
+      const behaviorLabel=document.createElement('label');behaviorLabel.textContent='When a duplicate is found';
+      const behaviorSelect=document.createElement('select');behaviorSelect.dataset.duplicateAction='true';
+      behaviorSelect.add(new Option('Reject the whole file','reject'));
+      behaviorSelect.add(new Option('Skip duplicate rows','skip'));
+      behaviorSelect.value=rule.duplicateAction==='skip'?'skip':'reject';
+      behavior.append(behaviorLabel,behaviorSelect);
+
+      const max=document.createElement('div');max.className='field';
+      const maxLabel=document.createElement('label');maxLabel.textContent='Maximum rows per file';
+      const maxInput=document.createElement('input');maxInput.type='number';maxInput.min='1';maxInput.max='1000';maxInput.value=String(rule.maxRows||1000);maxInput.dataset.maxRows='true';
+      max.append(maxLabel,maxInput);
+
+      const master=document.createElement('div');master.className='field';
+      const masterLabel=document.createElement('span');masterLabel.className='group-label';masterLabel.textContent='Master data checks';
+      const masterBox=document.createElement('div');masterBox.className='checks';
+      for(const [key,labelText] of Object.entries(masterLabels)){
+        if(key==='expenseType'&&dataset.dataset!=='expense')continue;
+        if(key==='employee'&&dataset.dataset==='employees')continue;
+        const label=document.createElement('label');label.className='check';
+        const input=document.createElement('input');input.type='checkbox';input.dataset.master=key;input.checked=rule.masterChecks?.[key]===true;
+        const text=document.createElement('span');text.textContent=labelText;
+        label.append(input,text);masterBox.append(label);
+      }
+      if(masterBox.children.length)master.append(masterLabel,masterBox);
+
+      const values=document.createElement('div');values.className='field';
+      const valuesLabel=document.createElement('span');valuesLabel.className='group-label';valuesLabel.textContent='Value checks';
+      const valuesBox=document.createElement('div');valuesBox.className='checks';
+      for(const [key,labelText] of Object.entries(actionLabels)){
+        const label=document.createElement('label');label.className='check';
+        const input=document.createElement('input');input.type='checkbox';input.dataset.valueRule=key;input.checked=rule.valueRules?.[key]===true;
+        const text=document.createElement('span');text.textContent=labelText;
+        label.append(input,text);valuesBox.append(label);
+      }
+      values.append(valuesLabel,valuesBox);
+
+      settings.append(required);
+      if(dataset.dataset!=='employees')settings.append(duplicates,behavior);
+      settings.append(max);
+      if(isCollection)settings.append(master,values);
+      const footer=document.createElement('div');footer.className='footer';
+      const save=document.createElement('button');save.type='button';save.textContent='Save rules';save.disabled=!canEditRules;
+      footer.append(save);
+      const status=document.createElement('div');status.className='status';status.setAttribute('role','status');
+      card.append(head,help,settings,footer,status);
+
+      save.addEventListener('click',async()=>{
+        if(!canEditRules)return;
+        save.disabled=true;status.className='status';
+        const payload={
+          enabled:enabled.checked,
+          requiredColumns:checkedValues(card,'required'),
+          duplicateKeys:checkedValues(card,'duplicate'),
+          duplicateAction:behaviorSelect.value,
+          maxRows:Number(maxInput.value)||1000,
+          masterChecks:Object.fromEntries([...card.querySelectorAll('input[data-master]')].map(input=>[input.dataset.master,input.checked])),
+          valueRules:Object.fromEntries([...card.querySelectorAll('input[data-value-rule]')].map(input=>[input.dataset.valueRule,input.checked]))
+        };
+        try{
+          const result=await salonAuth.request(`/api/import-rules/${encodeURIComponent(dataset.dataset)}`,{method:'PUT',body:JSON.stringify(payload)});
+          dataset.rule=result.rule;
+          status.textContent='Import validation rules saved.';
+          status.className='status show';
+          if(window.salonUi?.showSuccess)await window.salonUi.showSuccess('Import validation saved.');
+        }catch(error){
+          status.textContent=error.message||'Could not save import validation rules.';
+          status.className='status show error';
+        }finally{
+          save.disabled=false;
+        }
+      });
+      return card;
+    }
+
+    (async()=>{
+      try{
+        const session=await window.salonReady;
+        canEditRules=session?.employee?.role==='Admin'||session?.actionAccess?.configuration?.edit===true;
+        const data=await salonAuth.request('/api/import-rules');
+        container.replaceChildren();
+        for(const dataset of data.datasets||[])container.append(render(dataset));
+        if(!container.children.length)container.textContent='No import datasets available.';
+      }catch(error){
+        container.textContent=error.message||'Could not load import validation settings.';
+      }
+    })();
+  </script>
+</body>
+</html>

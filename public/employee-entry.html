@@ -9,7 +9,7 @@
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
     .container{width:100%;max-width:1180px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .container>header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
     h1{font-size:21px;margin:0}
     h2{font-size:16px;margin:0 0 13px}
     .sub,.help{color:#737780;font-size:13px;line-height:1.5}
@@ -43,7 +43,7 @@
     #status.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
     #status.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
     @media(max-width:720px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:450px){.form-grid{grid-template-columns:1fr}.expense-type-field{grid-column:1}header{align-items:flex-start;flex-direction:column}.actions>*{flex:1}}
+    @media(max-width:450px){.form-grid{grid-template-columns:1fr}.expense-type-field{grid-column:1}.container>header{align-items:flex-start;flex-direction:column}.actions>*{flex:1}}
   </style>
 </head>
 <body>
@@ -95,11 +95,15 @@
   <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script>
   <script>
     const form=document.getElementById('employeeForm');
+    form.hidden=true;
+    document.getElementById('addFieldButton').hidden=true;
     const statusBox=document.getElementById('status');
     const editId=new URLSearchParams(location.search).get('edit')||'';
     let expenseTypes=[];
     let employeeFields=[];
     let editingEmployee=null;
+    let canAddEmployee=false;
+    let canEditEmployee=false;
 
     function authHeaders(json=true){
       const headers={};
@@ -293,6 +297,7 @@
     }
 
     document.getElementById('addFieldButton').addEventListener('click',async()=>{
+      if(!canAddEmployee)return;
       const input=document.getElementById('newFieldLabel');
       const label=input.value.trim();
       if(!label){
@@ -322,6 +327,7 @@
 
     form.addEventListener('submit',async event=>{
       event.preventDefault();
+      if(editingEmployee?!canEditEmployee:!canAddEmployee)return;
       const button=document.getElementById('submitEmployee');
       button.disabled=true;
       try{
@@ -342,6 +348,18 @@
 
     (async()=>{
       try{
+        const session=await window.salonReady;
+        canAddEmployee=session?.employee?.role==='Admin'||session?.actionAccess?.employees?.add===true;
+        canEditEmployee=session?.employee?.role==='Admin'||session?.actionAccess?.employees?.edit===true;
+        const allowed=editId?canEditEmployee:canAddEmployee;
+        if(!allowed){
+          form.hidden=true;
+          document.getElementById('addFieldButton').hidden=true;
+          showStatus(editId?'You do not have permission to edit employees.':'You do not have permission to add employees.','error');
+          return;
+        }
+        form.hidden=false;
+        document.getElementById('addFieldButton').hidden=!canAddEmployee;
         await Promise.all([loadEmployeeFields(),loadExpenseTypes()]);
         if(editId){
           const list=await (await fetch('/api/employees?status=All',{headers:authHeaders(false)})).json();

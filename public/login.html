@@ -30,12 +30,9 @@ button,input{font:inherit}button{cursor:pointer}
 .dots{display:flex;gap:8px;align-items:center}
 .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45);border:0;padding:0}
 .dot.active{width:23px;border-radius:8px;background:#fff}
-.login-panel{min-width:0;min-height:0;display:flex;padding:18px clamp(22px,3.4vw,44px);overflow-y:auto}
-.panel-inner{width:min(440px,100%);position:relative;display:flex;flex-direction:column;margin:auto;padding:22px 0 6px}
-.theme-toggle{position:absolute;right:0;top:0;display:flex;padding:3px;border:1px solid var(--line);border-radius:30px;background:var(--card)}
-.theme-toggle button{width:36px;height:30px;border:0;border-radius:20px;background:transparent;color:var(--muted);font-size:15px;line-height:1}
-.theme-toggle button.active{background:var(--header);color:var(--headerText)}
-.brand{text-align:center;margin:0 0 10px;flex:0 0 auto}
+.login-panel{min-width:0;min-height:0;display:flex;padding:18px clamp(22px,3.4vw,44px);overflow-y:auto;scrollbar-width:thin}
+.panel-inner{width:min(440px,100%);position:relative;display:flex;flex-direction:column;margin:auto;padding:8px 0 2px}
+.brand{text-align:center;margin:0 0 8px;flex:0 0 auto}
 .logo{width:var(--logo-width);height:var(--logo-height);margin:0 auto 6px;object-fit:contain;display:block}
 .brand h1{font-family:Georgia,serif;font-weight:500;font-size:var(--brand-size);line-height:1.05;letter-spacing:.04em;margin:0}
 .brand p{margin:5px 0 0;color:var(--muted);font-size:13px}
@@ -110,6 +107,63 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
  .method-icon{height:36px}
  .input-wrap input,.login-btn{height:40px}
 }
+@media(min-width:901px) and (max-height:760px){
+ .login-panel{padding-top:10px;padding-bottom:8px}
+ .panel-inner{padding:4px 0 0}
+ .brand{margin-bottom:6px}
+ .logo{width:min(var(--logo-width),58px);height:min(var(--logo-height),58px);margin-bottom:3px}
+ .brand h1{font-size:clamp(26px,3.5vw,32px)}
+ .brand p{font-size:12px;margin-top:3px}
+ .welcome{margin-bottom:6px}
+ .welcome h2{font-size:20px;margin-bottom:2px}
+ .welcome p{font-size:12px}
+ .field{margin-bottom:6px}
+ .field label{margin-bottom:4px}
+ .input-wrap input,.login-btn{height:42px}
+ .forgot-row{margin:-2px 0 6px}
+ .or{margin:6px 0}
+ .method-icon{height:36px}
+ .help{margin-top:5px;font-size:9px}
+ .status{margin-top:4px;min-height:15px;font-size:11px}
+}
+@media(min-width:901px) and (max-height:620px){
+ .logo{width:min(var(--logo-width),46px);height:min(var(--logo-height),46px)}
+ .brand h1{font-size:27px}
+ .brand p{display:none}
+ .welcome h2{font-size:18px}
+ .welcome p{display:none}
+ .input-wrap input,.login-btn{height:40px}
+ .method-icon{height:32px}
+ .or{margin:5px 0}
+ .help{display:none}
+ .status{min-height:14px}
+}
+@media(max-width:900px) and (max-height:760px){
+ .visual{height:clamp(120px,22dvh,180px);min-height:120px;flex:0 0 22dvh}
+ .login-panel{padding:8px 16px 6px}
+ .panel-inner{padding-top:6px}
+ .brand{margin-bottom:6px}
+ .logo{width:min(var(--logo-width),54px);height:min(var(--logo-height),54px);margin-bottom:3px}
+ .brand p{font-size:11px;margin-top:3px}
+ .welcome{margin-bottom:6px}
+ .welcome h2{font-size:18px}
+ .welcome p{font-size:11px}
+ .field{margin-bottom:6px}
+ .input-wrap input,.login-btn{height:40px}
+ .or{margin:5px 0}
+ .method-icon{height:34px}
+ .help{margin-top:4px;font-size:9px}
+ .status{margin-top:4px;min-height:14px;font-size:11px}
+}
+@media(max-width:900px) and (max-height:620px){
+ .visual{display:none}
+ .login-panel{padding:10px 16px 8px}
+ .panel-inner{padding-top:4px}
+ .brand p{display:none}
+ .welcome p{display:none}
+ .welcome h2{font-size:19px}
+ .help{display:none}
+}
 </style>
 </head>
 <body>
@@ -124,10 +178,6 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
 </section>
 
 <section class="login-panel"><div class="panel-inner">
-<div class="theme-toggle" id="themeToggle">
-<button id="lightBtn" type="button" aria-label="Light theme">☀</button><button id="darkBtn" type="button" aria-label="Dark theme">☾</button>
-</div>
-
 <div class="brand">
 <img class="logo" id="logo" alt="" hidden>
 <h1 id="brandName">YOURS SALON</h1><p id="brandDescription">Salon Management System</p>
@@ -239,7 +289,20 @@ async function request(url,options={}){
   }
   return result;
 }
-function portalPath(employee){return employee.role==='Admin'?'/admin-dashboard':'/employee-dashboard'}
+async function portalPath(employee,knownSession=null){
+  if(employee.role==='Admin')return'/admin-dashboard';
+  if(!window.matchMedia('(max-width:700px)').matches)return'/employee-dashboard';
+  try{
+    const session=knownSession||await request('/api/session',{headers:authHeaders()});
+    const access=session.actionAccess?.collection;
+    const fallback=session.permissions?.includes('Customer Entry');
+    const canAdd=access?access.add===true:fallback;
+    const canView=access?access.view===true:fallback;
+    if(canAdd&&session.pageAccess?.['collection-entry']!==false)return'/collection-entry';
+    if(canView)return'/collection-table';
+  }catch{}
+  return'/employee-dashboard';
+}
 function hexToRgb(hex){return{r:parseInt(hex.slice(1,3),16),g:parseInt(hex.slice(3,5),16),b:parseInt(hex.slice(5,7),16)}}
 function readableText(hex){
   const color=hexToRgb(hex);
@@ -288,9 +351,7 @@ function applyBranding(branding){
   root.setProperty('--logo-height',logoHeight+'px');
   root.setProperty('--brand-size',nameSize+'px');
   applyButtonStyle(login.buttonStyle,login.buttonColor,login.buttonColor2);
-  const savedTheme=localStorage.getItem('salon_login_theme');
-  const defaultTheme=String(login.theme||'Combination').toLowerCase()==='dark'?'dark':'light';
-  setTheme(savedTheme||defaultTheme,false);
+  setTheme(String(login.theme||'Combination').toLowerCase()==='dark'?'dark':'light');
   renderSlides(login.slides||[],Number(login.slideDuration)||4000,name,branding.tagline);
   passwordLoginEnabled.value=login.showPassword!==false;
   loginForm.hidden=!passwordLoginEnabled.value||setupRequired;
@@ -355,15 +416,9 @@ function restartSlider(){
 document.getElementById('prevSlide').addEventListener('click',()=>showSlide(currentSlide-1,true));
 document.getElementById('nextSlide').addEventListener('click',()=>showSlide(currentSlide+1,true));
 
-function setTheme(theme,save){
-  const dark=theme==='dark';
-  document.body.classList.toggle('dark',dark);
-  document.getElementById('lightBtn').classList.toggle('active',!dark);
-  document.getElementById('darkBtn').classList.toggle('active',dark);
-  if(save)localStorage.setItem('salon_login_theme',dark?'dark':'light');
+function setTheme(theme){
+  document.body.classList.toggle('dark',theme==='dark');
 }
-document.getElementById('lightBtn').addEventListener('click',()=>setTheme('light',true));
-document.getElementById('darkBtn').addEventListener('click',()=>setTheme('dark',true));
 
 document.querySelectorAll('.eye').forEach(button=>{
   button.addEventListener('click',()=>{
@@ -424,7 +479,7 @@ loginForm.addEventListener('submit',async event=>{
     localStorage.setItem(tokenKey,result.token);
     localStorage.setItem('salon_user_email',result.employee.userId);
     if(result.employee.mustChangePassword){location.replace('/password-change');return}
-    location.replace(portalPath(result.employee));
+    location.replace(await portalPath(result.employee));
   }catch(error){
     showStatus(error.message,'error');
     if(error.payload?.blocked){
@@ -529,7 +584,7 @@ async function continueSession(){
   try{
     const session=await request('/api/session',{headers:authHeaders()});
     if(session.employee.mustChangePassword){location.replace('/password-change');return}
-    location.replace(portalPath(session.employee));
+    location.replace(await portalPath(session.employee,session));
   }catch{
     localStorage.removeItem(tokenKey);
     localStorage.removeItem('salon_user_email');

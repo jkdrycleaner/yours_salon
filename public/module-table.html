@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="/admin-nav.css">
   <link rel="stylesheet" href="/table-view.css">
   <link rel="stylesheet" href="/date-range.css">
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/my-work.css">
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1250px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.links{display:flex;flex-wrap:wrap;gap:8px}.links a,.action{min-height:35px;padding:8px 11px;border:0;border-radius:8px;background:#eff2f5;color:#344054;text-decoration:none;font:700 12px Arial;cursor:pointer}.links a.add{background:#c99a23;color:#fff}.action.delete{background:#fff0ef;color:#9a352f}.action.deactivate{background:#fff9e8;color:#765b14}.filters{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-top:18px;padding:13px;background:#fafbfc;border:1px solid #e6ebf0;border-radius:11px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:#526176;font-weight:700}.field select{height:38px;min-width:150px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.filters button{height:38px;padding:8px 14px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.filters button.secondary{background:#eff2f5;color:#344054}.table-wrap{margin-top:16px;overflow:auto;border:1px solid #e1e7ee;border-radius:11px}table{width:100%;min-width:1080px;border-collapse:collapse;font-size:12px}th,td{padding:11px 12px;text-align:left;border-bottom:1px solid #edf0f4;white-space:nowrap}th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}tbody tr:last-child td{border-bottom:0}.empty{text-align:center;color:#7b8797;padding:25px}.status{display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px}.status.show{display:block;background:#fff0ef;color:#a13932}.row-actions{display:flex;gap:6px}.row-actions .action{min-height:30px;padding:6px 9px;font-size:11px}.row-inactive td{color:#a13932}.row-inactive td.sticky-action{background:#fff7f6}.badge{display:inline-block;padding:4px 7px;border-radius:99px;background:#e9f6f1;color:#286b53;font-size:10px;font-weight:700}.badge.inactive{background:#fff0ef;color:#a13932}.details-dialog{width:min(520px,92vw);padding:0;border:0;border-radius:14px;box-shadow:0 22px 60px #17233245}.details-dialog::backdrop{background:#17233266}.details-card{padding:20px}.details-card h2{margin:0 0 14px;font-size:18px}.details-list{display:grid;grid-template-columns:150px 1fr;gap:9px;margin:0}.details-list dt{color:#758397;font-size:12px;font-weight:700}.details-list dd{margin:0;color:#243244;font-size:12px;overflow-wrap:anywhere}.details-actions{display:flex;justify-content:flex-end;margin-top:17px}.details-actions button{min-height:36px;padding:8px 14px;border:0;border-radius:8px;background:#eff2f5;color:#344054;font:700 12px Arial;cursor:pointer}@media(max-width:620px){.wrap{padding:20px 12px 30px}.filters{align-items:stretch;flex-direction:column}.field select{width:100%}.filters button{width:100%}.links{width:100%}.links a{flex:1;text-align:center}.details-list{grid-template-columns:1fr}.details-list dt{margin-top:7px}}
   </style>
@@ -23,25 +25,34 @@
   </style>
 </head>
 <body>
-  <main class="wrap">
+  <main class="wrap m-page">
     <section class="panel">
       <div class="heading">
         <div><h1 id="title">Records</h1><p id="description">View saved salon records.</p></div>
         <div class="links"><a id="entryLink" class="add" href="#">Add</a></div>
       </div>
-      <div class="filters">
+      <div class="m-filter-bar" id="mobileFilterBar">
+        <button id="mobileFilterButton" class="m-filter-button" type="button">Filter <span id="mobileFilterCount" class="m-filter-count">0</span></button>
+        <span id="mobileFilterChips" style="display:flex;gap:7px"></span>
+      </div>
+      <div class="filters" id="recordFilters">
         <div class="field"><label>Date range</label><div id="dateRange"></div></div>
         <div id="employeeField" class="field" hidden><label for="employee">Employee</label><select id="employee"><option value="">All employees</option></select></div>
         <div class="field"><label for="statusFilter">Status</label><select id="statusFilter"><option value="Active">Active</option><option value="All">All</option><option value="Inactive">In-Active</option></select></div>
         <button id="filter" type="button">Apply Filter</button>
         <button id="clear" class="secondary" type="button">Clear</button>
+        <button id="mobileFilterClose" class="secondary m-filter-close" type="button">Close</button>
       </div>
+      <div id="mobileFilterOverlay" class="m-filter-overlay"></div>
       <div id="status" class="status" role="status"></div>
       <div id="bulkBar" class="bulk-bar" hidden>
         <span><strong id="selectedCount">0</strong> row(s) selected</span>
         <button id="bulkDelete" class="action delete" type="button" disabled>Delete Selected Permanently</button>
         <button id="clearSelection" class="action clear" type="button" disabled>Clear Selection</button>
       </div>
+      <div class="m-list-meta" id="mobileListMeta"></div>
+      <div id="mobileRecords" class="m-mobile-records"></div>
+      <button id="mobileLoadMore" class="m-load-more" type="button" hidden>Load 10 more</button>
       <div class="table-wrap">
         <table id="recordsTable" data-table-view="server" data-page="1" data-page-size="10" data-total="0">
           <thead id="head"></thead>
@@ -50,11 +61,37 @@
       </div>
     </section>
   </main>
+  <section id="mobileAllWork" class="mw-page" hidden>
+    <div class="mw-head">
+      <h1>My Work</h1>
+      <a id="mwAdd" class="mw-add" href="/collection-entry">+ Add Work</a>
+    </div>
+    <div class="mw-toolbar">
+      <button id="mwFilterButton" class="mw-filter-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z"/></svg>Filter <span id="mwFilterCount">2</span></button>
+      <div id="mwChips" class="mw-chips"></div>
+    </div>
+    <div id="mwListMeta" class="mw-list-meta" hidden></div>
+    <div id="mwRecords"></div>
+    <button id="mwLoadMore" class="mw-load-more" type="button" hidden>Load more</button>
+    <div id="mwStatus" class="mw-status" role="status" aria-live="polite"></div>
+  </section>
+  <div id="mwFilterOverlay" class="mw-filter-overlay"></div>
+  <section id="mwFilterSheet" class="mw-filter-sheet" role="dialog" aria-label="Filter My Work">
+    <div class="mw-sheet-handle"></div>
+    <div class="mw-sheet-head"><h2>Filter</h2><button id="mwFilterClose" type="button" hidden>Close</button></div>
+    <div class="mw-filter-fields">
+      <label class="mw-field"><span>Date range</span><div id="mwDateRange" class="mw-date-range"></div></label>
+      <label id="mwEmployeeField" class="mw-field" hidden><span>Employee</span><select id="mwEmployee"><option value="">All employees</option></select></label>
+      <label class="mw-field"><span>Status</span><select id="mwStatusFilter"><option value="Active">Active</option><option value="All">All</option><option value="Inactive">In-Active</option></select></label>
+    </div>
+    <div class="mw-filter-actions"><button id="mwApply" type="button">Apply filter</button><button id="mwClear" class="secondary" type="button">Clear</button></div>
+  </section>
   <dialog id="detailsDialog" class="details-dialog">
     <div class="details-card"><h2>Record details</h2><dl id="detailsList" class="details-list"></dl><div class="details-actions"><button id="closeDetails" type="button">Close</button></div></div>
   </dialog>
   <script src="/auth-guard.js"></script>
   <script src="/admin-nav.js"></script>
+  <script src="/mobile.js"></script>
   <script src="/table-view.js"></script>
   <script src="/date-range.js"></script>
   <script>
@@ -70,7 +107,11 @@
     const table=document.getElementById('recordsTable'),head=document.getElementById('head'),body=document.getElementById('rows'),statusBox=document.getElementById('status'),detailsDialog=document.getElementById('detailsDialog'),detailsList=document.getElementById('detailsList');
     const statusFilter=document.getElementById('statusFilter');
     const bulkBar=document.getElementById('bulkBar'),selectedCount=document.getElementById('selectedCount'),bulkDeleteButton=document.getElementById('bulkDelete'),clearSelectionButton=document.getElementById('clearSelection');
-    let page=1,session=null,dateControl=null,selectedIds=new Set(),lastPageIds=[],selectAllCheckbox=null;
+    const mobileRecords=document.getElementById('mobileRecords'),mobileLoadMore=document.getElementById('mobileLoadMore'),mobileListMeta=document.getElementById('mobileListMeta');
+    const mobileFilterButton=document.getElementById('mobileFilterButton'),mobileFilterCount=document.getElementById('mobileFilterCount'),mobileFilterChips=document.getElementById('mobileFilterChips');
+    const recordFilters=document.getElementById('recordFilters'),mobileFilterOverlay=document.getElementById('mobileFilterOverlay');
+    const requestedEmployeeId=new URLSearchParams(location.search).get('employeeId')||'';
+    let page=1,session=null,dateControl=null,selectedIds=new Set(),lastPageIds=[],selectAllCheckbox=null,mobileAppending=false;
     document.getElementById('title').textContent=definition.title;
     document.getElementById('description').textContent=definition.description;
     const entryLink=document.getElementById('entryLink');
@@ -78,6 +119,13 @@
     function money(value){return'INR '+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
     function dateText(value){if(!value)return'—';const date=new Date(value);return Number.isNaN(date.getTime())?'—':date.toLocaleDateString('en-IN')}
     function dateTimeText(value){if(!value)return'—';const date=new Date(value);return Number.isNaN(date.getTime())?'—':date.toLocaleString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})}
+    function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[character])}
+    function recordTitle(record){
+      if(moduleKey==='collection')return record.serviceType||'Collection';
+      if(moduleKey==='expense')return record.expenseType||'Expense';
+      if(moduleKey==='salary')return `Salary · ${record.salaryMonth||dateText(record.entryDate)}`;
+      return 'Cash at counter';
+    }
     function columns(){
       if(moduleKey==='collection')return[['Entry No','entryNo'],['Date','entryDate','date'],['Employee','staff'],['Service','serviceType'],['Amount','amount','money'],['Cost Cutting','costCutting','money'],['Payment','paymentMode'],['Remark','remark'],['Status','status'],['Entry Creation On','createdAt','datetime'],['Created By','createdBy'],['Actions','__actions']];
       return[['Date','entryDate','date'],['Employee','employeeName'],...(moduleKey==='expense'?[['Expense Type','expenseType']]:[]),...(moduleKey==='salary'?[['Salary Month','salaryMonth']]:[]),['Amount','amount','money'],['Payment','paymentMode'],['Remark','remark'],['Status','status'],['Entry Creation On','createdAt','datetime'],['Created By','createdBy'],['Actions','__actions']];
@@ -102,7 +150,6 @@
       actions.append(view);
       if(record.status!=='Inactive'&&can('edit')&&session.pageAccess?.[definition.entryPage]!==false){const edit=document.createElement('a');edit.className='action';edit.textContent='Edit';edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;actions.append(edit)}
       if(record.status!=='Inactive'&&can('delete')){const remove=document.createElement('button');remove.type='button';remove.className='action delete';remove.textContent='Delete';remove.addEventListener('click',()=>softDelete(record,remove));actions.append(remove)}
-      if(record.status!=='Inactive'&&can('deactivate')){const deactivate=document.createElement('button');deactivate.type='button';deactivate.className='action deactivate';deactivate.textContent='Deactivate';deactivate.addEventListener('click',()=>deactivateRecord(record,deactivate));actions.append(deactivate)}
       cell.append(actions);return cell;
     }
     function statusCell(record){
@@ -145,7 +192,7 @@
     async function bulkDelete(){
       if(!canBulkDelete()||selectedIds.size===0)return;
       const count=selectedIds.size;
-      if(!window.confirm(`Permanently delete ${count} selected row(s)? This cannot be undone.`))return;
+      if(!window.confirm(`Permanently delete ${count} selected row(s) This cannot be undone.`))return;
       bulkDeleteButton.disabled=true;statusBox.className='status';
       try{
         const result=await salonAuth.request('/api/super-admin/bulk-delete',{
@@ -162,7 +209,246 @@
         updateBulkBar();
       }
     }
-    function render(data){
+    let mobileLastGroup='';
+    function renderMobile(data,append=false){
+      if(!append){mobileRecords.replaceChildren();mobileLastGroup='';}
+      if(!data.records.length&&!append){
+        const empty=document.createElement('div');empty.className='m-empty';empty.textContent='No records found.';mobileRecords.append(empty);
+      }
+      const pageTotal=data.records.reduce((sum,record)=>sum+Number(record.amount||0),0);
+      mobileListMeta.innerHTML=`<span><strong>${Number(data.total||0)}</strong> entries</span><span class="total">${money(pageTotal)} on this page</span>`;
+      for(const record of data.records){
+        const group=dateText(record.entryDate);
+        if(group!==mobileLastGroup){const label=document.createElement('div');label.className='m-record-group';label.textContent=group;mobileRecords.append(label);mobileLastGroup=group}
+        const card=document.createElement('article');card.className='m-record-card';
+        const summary=document.createElement('div');summary.className='m-record-summary';
+        const main=document.createElement('div');
+        const title=document.createElement('div');title.className='m-record-title';
+        const chip=document.createElement('span');chip.className='m-entry-chip';chip.textContent=moduleKey==='collection'?'Collection':moduleKey==='expense'?'Expense':moduleKey==='salary'?'Salary':'Counter';
+        const name=document.createElement('strong');name.textContent=recordTitle(record);
+        title.append(chip,name);
+        const sub=document.createElement('div');sub.className='m-record-sub';
+        sub.textContent=`${dateText(record.entryDate)} · ${record.staff||record.employeeName||'—'}${record.paymentMode?` · ${record.paymentMode}`:''}`;
+        main.append(title,sub);
+        const side=document.createElement('div');side.style.textAlign='right';
+        const amount=document.createElement('div');amount.className='m-record-amount'+(moduleKey==='expense'?' expense':moduleKey==='salary'?' salary':'');amount.textContent=money(record.amount);
+        const toggle=document.createElement('button');toggle.type='button';toggle.className='m-record-toggle';toggle.setAttribute('aria-label','Show record details');toggle.innerHTML='<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
+        side.append(amount,toggle);
+        summary.append(main,side);
+        const details=document.createElement('div');details.className='m-record-details';
+        for(const [label,key,format] of columns().filter(([,key])=>key!=='__actions')){
+          const row=document.createElement('div');row.className='m-detail-row';
+          const term=document.createElement('span');term.textContent=label;
+          const value=document.createElement('strong');value.textContent=displayValue(record,key,format);
+          row.append(term,value);details.append(row);
+        }
+        const actions=document.createElement('div');actions.className='m-record-actions';
+        if(record.status!=='Inactive'&&can('edit')&&session.pageAccess?.[definition.entryPage]!==false){
+          const edit=document.createElement('a');edit.className='m-record-action edit';edit.textContent='Edit';edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;actions.append(edit);
+        }
+        if(record.status!=='Inactive'&&can('delete')){
+          const remove=document.createElement('button');remove.type='button';remove.className='m-record-action delete';remove.textContent='Delete';remove.addEventListener('click',()=>softDelete(record,remove));actions.append(remove);
+        }
+        if(actions.children.length)details.append(actions);
+        const toggleOpen=()=>{card.classList.toggle('open');toggle.setAttribute('aria-label',card.classList.contains('open')?'Hide record details':'Show record details')};
+        toggle.addEventListener('click',toggleOpen);
+        if(record.status==='Inactive')card.style.opacity='.72';
+        card.append(summary,details);mobileRecords.append(card);
+      }
+      mobileLoadMore.hidden=Number(data.page||1)*Number(data.limit||10)>=Number(data.total||0);
+    }
+    function updateMobileFilterBar(){
+      const chips=[];
+      const range=dateControl?.getRange?.();
+      if(range?.from&&range?.to)chips.push(`${dateText(range.from)} – ${dateText(range.to)}`);
+      if(statusFilter.value!=='Active')chips.push(statusFilter.value==='Inactive'?'In-Active':'All statuses');
+      const employee=document.getElementById('employee');
+      if(employee.value){const option=employee.options[employee.selectedIndex];if(option)chips.push(option.textContent)}
+      mobileFilterCount.textContent=String(chips.length);
+      mobileFilterChips.replaceChildren();
+      for(const text of chips){const chip=document.createElement('span');chip.className='m-chip';chip.textContent=text;mobileFilterChips.append(chip)}
+    }
+    function closeMobileFilters(){
+      recordFilters.classList.remove('mobile-open');mobileFilterOverlay.classList.remove('open');document.documentElement.classList.remove('m-filter-locked');
+    }
+    function openMobileFilters(){
+      recordFilters.classList.add('mobile-open');mobileFilterOverlay.classList.add('open');document.documentElement.classList.add('m-filter-locked');
+    }
+    const isMobileViewport=window.matchMedia('(max-width:700px)').matches;
+    const mobileAllWork=document.getElementById('mobileAllWork');
+    const mwRecords=document.getElementById('mwRecords'),mwLoadMore=document.getElementById('mwLoadMore');
+    const mwListMeta=document.getElementById('mwListMeta'),mwStatus=document.getElementById('mwStatus');
+    const mwFilterButton=document.getElementById('mwFilterButton'),mwFilterCount=document.getElementById('mwFilterCount'),mwChips=document.getElementById('mwChips');
+    const mwFilterSheet=document.getElementById('mwFilterSheet'),mwFilterOverlay=document.getElementById('mwFilterOverlay');
+    const mwDateRange=document.getElementById('mwDateRange'),mwStatusFilter=document.getElementById('mwStatusFilter'),mwEmployee=document.getElementById('mwEmployee');
+    let mwPage=1,mwLoading=false,mwLastGroup='',mwGroupData=new Map(),mwEventsBound=false,mwDateControl=null;
+    function mwDateKey(value){const text=String(value||'');if(/^\d{4}-\d{2}-\d{2}/.test(text))return text.slice(0,10);const date=new Date(value);return Number.isNaN(date.getTime())?'':date.toISOString().slice(0,10)}
+    function mwDateLabel(value){if(!value)return'—';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+    function mwShortDate(value){if(!value)return'';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}
+    function mwChipRange(range){
+      if(!range?.from||!range?.to)return'';
+      const from=new Date(`${range.from}T00:00:00`),to=new Date(`${range.to}T00:00:00`);
+      if(Number.isNaN(from.getTime())||Number.isNaN(to.getTime()))return'';
+      if(from.getFullYear()===to.getFullYear())return`${mwShortDate(range.from)} – ${mwShortDate(range.to)}`;
+      return`${mwDateLabel(range.from)} – ${mwDateLabel(range.to)}`;
+    }
+    function mwMoney(value){return'₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+    function mwTime(value){if(!value)return'';const date=new Date(value);return Number.isNaN(date.getTime())?'':date.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true}).toUpperCase()}
+    function mwDateInput(date){const year=date.getFullYear(),month=String(date.getMonth()+1).padStart(2,'0'),day=String(date.getDate()).padStart(2,'0');return`${year}-${month}-${day}`}
+    function mwDefaultRange(){const to=new Date(),from=new Date();from.setDate(from.getDate()-29);return{from:mwDateInput(from),to:mwDateInput(to)}}
+    function mwSetStatus(message,error=false){mwStatus.textContent=message;mwStatus.className='mw-status'+(message?' show':'')+(error?' error':'')}
+    function mwServiceSummary(record){
+      if(Array.isArray(record.items)&&record.items.length)return record.items.map(item=>`${item.shortName||item.serviceType}${Number(item.quantity||1)>1?` x${item.quantity}`:''}`).join(', ');
+      return record.serviceType||'Collection';
+    }
+    function mwUpdateFilterBar(){
+      const chips=[];
+      const range=mwDateControl?.getRange?.();
+      if(range?.from&&range?.to)chips.push(mwChipRange(range));
+      chips.push(mwStatusFilter.value==='Inactive'?'In-Active':mwStatusFilter.value==='All'?'All Statuses':'Active');
+      if(mwEmployee.value){const option=mwEmployee.options[mwEmployee.selectedIndex];if(option)chips.push(option.textContent)}
+      mwFilterCount.textContent=String(chips.length);
+      const addLink=document.getElementById('mwAdd');
+      if(addLink&&!addLink.hidden)addLink.href=session?.employee?.role==='Admin'&&mwEmployee.value?`/collection-entry?employeeId=${encodeURIComponent(mwEmployee.value)}`:'/collection-entry';
+      mwChips.replaceChildren();
+      for(const text of chips){const chip=document.createElement('span');chip.className='mw-chip';chip.textContent=text;mwChips.append(chip)}
+    }
+    function mwOpenFilters(){mwFilterSheet.classList.add('open');mwFilterOverlay.classList.add('open');document.body.classList.add('mw-sheet-locked')}
+    function mwCloseFilters(){mwFilterSheet.classList.remove('open');mwFilterOverlay.classList.remove('open');document.body.classList.remove('mw-sheet-locked')}
+    function mwGroupHead(date,count,total){
+      const head=document.createElement('div');head.className='mw-group-head';
+      const left=document.createElement('strong');left.textContent=`${mwDateLabel(date)} · ${Number(count||0)} ${Number(count||0)===1?'Entry':'Entries'}`;
+      const right=document.createElement('span');right.className='mw-group-total';right.textContent=mwMoney(total);
+      head.append(left,right);return head;
+    }
+    function mwActionIcon(kind){
+      const paths={
+        view:'<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/>',
+        edit:'<path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/><path d="m14 6 3 3"/>',
+        delete:'<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/><path d="M10 11v6M14 11v6"/>'
+      };
+      const icon=document.createElement('span');icon.className='mw-action-icon';
+      icon.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[kind]}</svg>`;
+      return icon;
+    }
+    function mwActionButton(kind,label,handler){
+      const button=document.createElement('button');button.type='button';button.className='mw-action '+kind;button.title=label;button.setAttribute('aria-label',label);
+      button.append(mwActionIcon(kind));
+      const text=document.createElement('span');text.textContent=label;button.append(text);
+      button.addEventListener('click',event=>{event.stopPropagation();handler()});return button;
+    }
+    function mwRenderCard(record){
+      const card=document.createElement('article');card.className='mw-card'+(record.status==='Inactive'?' inactive':'');
+      const summary=document.createElement('div');summary.className='mw-summary';summary.tabIndex=0;summary.setAttribute('role','button');summary.setAttribute('aria-expanded','false');
+      const top=document.createElement('div');top.className='mw-topline';
+      const entry=document.createElement('span');entry.className='mw-entry';entry.textContent=`#${record.entryNo||'—'}`;
+      const service=document.createElement('div');service.className='mw-service';service.textContent=mwServiceSummary(record);
+      const pay=document.createElement('span');pay.className='mw-pay'+(record.paymentMode==='Online'?' online':'');pay.textContent=record.paymentMode||'Cash';
+      top.append(entry,service);
+      if(record.status==='Inactive'){const inactive=document.createElement('span');inactive.className='mw-inactive';inactive.textContent='In-Active';top.append(inactive)}
+      const amount=document.createElement('div');amount.className='mw-amount';amount.textContent=mwMoney(record.amount);
+      const chevron=document.createElement('span');chevron.className='mw-chevron';chevron.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      top.append(pay,amount,chevron);
+      const dateKey=mwDateKey(record.entryDate);
+      const sub=document.createElement('div');sub.className='mw-sub';sub.textContent=`By: ${record.staff||'—'}, ${mwDateLabel(dateKey)}, ${mwTime(record.createdAt||record.entryDate)||'—'}`;
+      summary.append(top,sub);
+      const details=document.createElement('div');details.className='mw-details';
+      const meta=document.createElement('div');meta.className='mw-detail-line';
+      if(Number(record.costCutting||0)>0){
+        const cutting=document.createElement('div');cutting.className='mw-cutting-pill';
+        const cuttingLabel=document.createElement('span');cuttingLabel.textContent='Cost Cutting';
+        const cuttingValue=document.createElement('strong');cuttingValue.textContent=mwMoney(record.costCutting);
+        cutting.append(cuttingLabel,cuttingValue);meta.append(cutting);
+      }
+      if(record.remark){
+        const remark=document.createElement('div');remark.className='mw-remark-row';
+        const remarkLabel=document.createElement('span');remarkLabel.textContent='Remark:';
+        const remarkValue=document.createElement('strong');remarkValue.textContent=record.remark;
+        remark.append(remarkLabel,remarkValue);meta.append(remark);
+      }
+      if(meta.childElementCount)details.append(meta);
+      const actions=document.createElement('div');actions.className='mw-actions';
+      actions.append(mwActionButton('view','View',()=>showDetails(record)));
+      if(record.status!=='Inactive'&&can('edit')&&session.pageAccess?.[definition.entryPage]!==false){
+        const edit=document.createElement('a');edit.className='mw-action edit';edit.title='Edit work entry';edit.setAttribute('aria-label','Edit work entry');edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;edit.append(mwActionIcon('edit'));const editText=document.createElement('span');editText.textContent='Edit';edit.append(editText);edit.addEventListener('click',event=>event.stopPropagation());actions.append(edit);
+      }
+      if(record.status!=='Inactive'&&can('delete'))actions.append(mwActionButton('delete','Delete',()=>mwSoftDelete(record)));
+      details.append(actions);
+      const toggle=()=>{const open=!card.classList.contains('open');for(const other of mwRecords.querySelectorAll('.mw-card.open'))other.classList.remove('open');card.classList.toggle('open',open);summary.setAttribute('aria-expanded',String(open))};
+      summary.addEventListener('click',event=>{if(event.target.closest('button,a'))return;toggle()});
+      summary.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
+      card.append(summary,details);return card;
+    }
+    function mwRender(data,append=false){
+      if(!append){mwRecords.replaceChildren();mwLastGroup=''}
+      mwGroupData=new Map((data.dateGroups||[]).map(group=>[group.date,group]));
+      const totalAmount=(data.dateGroups||[]).reduce((sum,group)=>sum+Number(group.total||0),0);
+      mwListMeta.replaceChildren();
+      const entries=document.createElement('span');entries.innerHTML=`<strong>${Number(data.total||0)}</strong> entries`;
+      const total=document.createElement('span');total.className='total';total.textContent=`${mwMoney(totalAmount)} total`;
+      mwListMeta.append(entries,total);
+      if(!data.records.length&&!append){const empty=document.createElement('div');empty.className='m-empty';empty.textContent='No work entries found for this filter.';mwRecords.append(empty)}
+      for(const record of data.records){
+        const dateKey=mwDateKey(record.entryDate);
+        if(dateKey!==mwLastGroup){
+          const group=mwGroupData.get(dateKey)||{date:dateKey,count:1,total:record.amount};
+          mwRecords.append(mwGroupHead(dateKey,group.count,group.total));mwLastGroup=dateKey;
+        }
+        mwRecords.append(mwRenderCard(record));
+      }
+      mwPage=Number(data.page||1);
+      mwLoadMore.hidden=mwPage*Number(data.limit||20)>=Number(data.total||0);
+    }
+    async function mwLoad(append=false){
+      if(mwLoading)return;
+      const range=mwDateControl?.getRange?.();
+      if(!range?.from||!range?.to||range.to<range.from){mwSetStatus('Select a valid date range.',true);return}
+      const targetPage=append?mwPage+1:1;
+      const params=new URLSearchParams({page:String(targetPage),limit:'20',from:range.from,to:range.to,status:mwStatusFilter.value});
+      if(session.employee.role==='Admin'&&mwEmployee.value)params.set('employeeId',mwEmployee.value);
+      mwLoading=true;mwSetStatus('');
+      if(append){mwLoadMore.disabled=true;mwLoadMore.textContent='Loading...'}
+      try{mwRender(await salonAuth.request('/api/my-work?'+params.toString()),append)}
+      catch(error){mwSetStatus(error.message||'Could not load your work entries.',true)}
+      finally{mwLoading=false;mwLoadMore.disabled=false;mwLoadMore.textContent='Load more'}
+    }
+    async function mwSoftDelete(record,button){
+      if(!record._id||!window.confirm('Move this work entry to In-Active It will remain available under the In-Active filter.'))return;
+      button.disabled=true;
+      try{const result=await salonAuth.request(`/api/collections/${encodeURIComponent(record._id)}`,{method:'DELETE'});if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Work entry moved to In-Active.');await mwLoad()}
+      catch(error){mwSetStatus(error.message||'Could not move the work entry to In-Active.',true);button.disabled=false}
+    }
+    function mwBindEvents(){
+      if(mwEventsBound)return;mwEventsBound=true;
+      mwFilterButton.addEventListener('click',mwOpenFilters);
+      document.getElementById('mwFilterClose').addEventListener('click',mwCloseFilters);
+      mwFilterOverlay.addEventListener('click',mwCloseFilters);
+      document.getElementById('mwApply').addEventListener('click',()=>{
+        const range=mwDateControl?.getRange?.();
+        if(!range?.from||!range?.to||range.to<range.from){mwSetStatus('Select a valid date range.',true);return}
+        mwCloseFilters();mwSetStatus('');mwUpdateFilterBar();mwLoad();
+      });
+      document.getElementById('mwClear').addEventListener('click',()=>{
+        mwDateControl?.reset(false);mwStatusFilter.value='Active';mwEmployee.value='';mwUpdateFilterBar();mwCloseFilters();mwSetStatus('');mwLoad();
+      });
+      mwLoadMore.addEventListener('click',()=>mwLoad(true));
+      document.addEventListener('keydown',event=>{if(event.key==='Escape')mwCloseFilters()});
+    }
+    async function mwInit(){
+      document.querySelector('main.wrap').hidden=true;mobileAllWork.hidden=false;document.body.classList.add('mw-mobile-page');
+      document.title='My Work - YOURS SALON';
+      mwDateControl=SalonDateRange.mount(mwDateRange,{defaultPreset:'last30',onChange:()=>mwUpdateFilterBar()});
+      mwStatusFilter.value='Active';
+      if(!can('add')||session.pageAccess?.[definition.entryPage]===false)document.getElementById('mwAdd').hidden=true;
+      if(session.employee.role==='Admin'){
+        document.getElementById('mwEmployeeField').hidden=false;
+        const staff=await salonAuth.request('/api/staff');
+        for(const employee of staff)mwEmployee.add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));
+        if(requestedEmployeeId&&staff.some(employee=>employee._id===requestedEmployeeId))mwEmployee.value=requestedEmployeeId;
+      }
+      mwBindEvents();mwUpdateFilterBar();await mwLoad();
+    }
+    function render(data,append=false){
       const currentColumns=columns(),selectable=canBulkDelete();head.replaceChildren();
       const headerRow=document.createElement('tr');selectAllCheckbox=null;
       if(selectable){
@@ -195,40 +481,41 @@
         body.append(tr);
       }
       page=data.page;table.dataset.page=String(data.page);table.dataset.pageSize=String(data.limit);table.dataset.total=String(data.total);table.dataset.dataset=moduleKey;
-      updateBulkBar();
+      renderMobile(data,append);updateBulkBar();updateMobileFilterBar();
     }
-    async function load(){
+    async function load(append=false){
       const range=dateControl.getRange();
-      const params=new URLSearchParams({module:moduleKey,page:String(page),limit:'10',from:range.from,to:range.to,status:statusFilter.value});
+      const requestedPage=append?page+1:page;
+      const params=new URLSearchParams({module:moduleKey,page:String(requestedPage),limit:'10',from:range.from,to:range.to,status:statusFilter.value});
       if(document.getElementById('employee').value)params.set('employeeId',document.getElementById('employee').value);
-      try{render(await salonAuth.request('/api/module-records?'+params.toString()))}
+      try{render(await salonAuth.request('/api/module-records?'+params.toString()),append)}
       catch(error){body.innerHTML='<tr><td class="empty">Could not load records.</td></tr>';statusBox.textContent=error.message;statusBox.className='status show'}
     }
     async function softDelete(record,button){
-      if(!record._id||!window.confirm('Move this record to In-Active? It will remain available under the In-Active filter.'))return;
+      if(!record._id||!window.confirm('Move this record to In-Active It will remain available under the In-Active filter.'))return;
       button.disabled=true;statusBox.className='status';
       try{const endpoint=moduleKey==='collection'?`/api/collections/${encodeURIComponent(record._id)}`:`/api/employee-records/${encodeURIComponent(record._id)}`;const result=await salonAuth.request(endpoint,{method:'DELETE'});if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Record moved to In-Active.');await load()}
       catch(error){statusBox.textContent=error.message||'Could not move the record to In-Active.';statusBox.className='status show';button.disabled=false}
     }
-    async function deactivateRecord(record,button){
-      if(!record._id||!window.confirm('Deactivate this record? It will move to In-Active.'))return;
-      button.disabled=true;statusBox.className='status';
-      try{const endpoint=moduleKey==='collection'?`/api/collections/${encodeURIComponent(record._id)}/deactivate`:`/api/employee-records/${encodeURIComponent(record._id)}/deactivate`;const result=await salonAuth.request(endpoint,{method:'PATCH'});if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Record deactivated.');await load()}
-      catch(error){statusBox.textContent=error.message||'Could not deactivate the record.';statusBox.className='status show';button.disabled=false}
-    }
-    dateControl=SalonDateRange.mount(document.getElementById('dateRange'),{defaultPreset:'last30',onChange:()=>{clearSelection();page=1;load()}});
-    document.getElementById('filter').addEventListener('click',()=>{clearSelection();page=1;load()});
-    statusFilter.addEventListener('change',()=>{clearSelection();page=1;load()});
-    document.getElementById('clear').addEventListener('click',()=>{clearSelection();dateControl.reset(false);statusFilter.value='Active';document.getElementById('employee').value='';page=1;load()});
+    dateControl=SalonDateRange.mount(document.getElementById('dateRange'),{defaultPreset:'last30',onChange:()=>{clearSelection();page=1;updateMobileFilterBar();load()}});
+    document.getElementById('filter').addEventListener('click',()=>{clearSelection();page=1;closeMobileFilters();load()});
+    statusFilter.addEventListener('change',()=>{clearSelection();page=1;updateMobileFilterBar();load()});
+    document.getElementById('clear').addEventListener('click',()=>{clearSelection();dateControl.reset(false);statusFilter.value='Active';document.getElementById('employee').value='';page=1;closeMobileFilters();load()});
     clearSelectionButton.addEventListener('click',clearSelection);
     bulkDeleteButton.addEventListener('click',bulkDelete);
     document.getElementById('closeDetails').addEventListener('click',()=>detailsDialog.close?.());
     table.addEventListener('table-view-page-change',event=>{page=event.detail.page;load()});
-    (async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
-      if(session.employee.role==='Admin'){document.getElementById('employeeField').hidden=false;const staff=await salonAuth.request('/api/staff');for(const employee of staff)document.getElementById('employee').add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id))}
+    mobileLoadMore.addEventListener('click',()=>load(true));
+    mobileFilterButton.addEventListener('click',openMobileFilters);
+    document.getElementById('mobileFilterClose').addEventListener('click',closeMobileFilters);
+    mobileFilterOverlay.addEventListener('click',closeMobileFilters);
+    document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMobileFilters()});
+    (async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;      if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
+      if(moduleKey==='collection'&&isMobileViewport){await mwInit();return}
+      if(session.employee.role==='Admin'){document.getElementById('employeeField').hidden=false;const staff=await salonAuth.request('/api/staff');for(const employee of staff)document.getElementById('employee').add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));if(requestedEmployeeId&&staff.some(employee=>employee._id===requestedEmployeeId))document.getElementById('employee').value=requestedEmployeeId}
       if(!can('add')||session.pageAccess?.[definition.entryPage]===false)entryLink.hidden=true;
-      updateBulkBar();
-      await load()}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}})();
+      updateBulkBar();updateMobileFilterBar();
+      await load()}catch(error){if(mobileAllWork&&!mobileAllWork.hidden){mwSetStatus(error.message||'Could not load your work entries.',true);return}statusBox.textContent=error.message;statusBox.className='status show'}})();
   </script>
 </body>
 </html>

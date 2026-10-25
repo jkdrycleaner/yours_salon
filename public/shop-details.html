@@ -71,6 +71,8 @@
     };
     const statusBox=document.getElementById('status');
     const saveButton=document.getElementById('saveButton');
+    let canEdit=false;
+    saveButton.hidden=true;
 
     function authHeaders(json=true){
       const headers={};
@@ -115,6 +117,7 @@
         input.maxLength=2000;
       }
       input.value=String(value??'');
+      input.disabled=!canEdit;
       wrapper.append(label,input);
       container.append(wrapper);
     }
@@ -140,6 +143,7 @@
     }
 
     saveButton.addEventListener('click',async()=>{
+      if(!canEdit)return;
       const settings=Object.fromEntries([...document.querySelectorAll('[data-setting]')].map(input=>[
         input.dataset.setting,input.value
       ]));
@@ -163,7 +167,12 @@
       }
     });
 
-    loadDetails().catch(error=>showStatus(error.message||'Could not load shop details.','error'));
+    (async()=>{
+      const session=await window.salonReady;
+      canEdit=session?.employee?.role==='Admin'||session?.actionAccess?.configuration?.edit===true;
+      saveButton.hidden=!canEdit;
+      await loadDetails();
+    })().catch(error=>showStatus(error.message||'Could not load shop details.','error'));
   </script>
 </body>
 </html>

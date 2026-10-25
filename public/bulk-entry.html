@@ -1,12 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Bulk Entry — YOURS SALON</title><link rel="stylesheet" href="/admin-nav.css"><style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1040px,100%);margin:auto;padding:28px 20px 40px}.heading h1{margin:0;font-size:26px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.notice{margin-top:15px;padding:11px 13px;background:#fff9e8;border:1px solid #ead9a9;border-radius:9px;color:#765b14;font-size:12px;line-height:1.5}.panel{padding:17px;margin-top:13px;background:#fff;border:1px solid #e1e7ee;border-radius:13px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.panel h2{margin:0;font-size:16px}.help{margin:7px 0 12px;color:#758397;font-size:12px;line-height:1.45}.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button,.file-label{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 11px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.actions button.secondary,.file-label.secondary{background:#eff2f5;color:#344054}.actions button.template{background:#fff4d5;color:#765b14}.file-label input{display:none}.actions button:disabled{opacity:.6;cursor:not-allowed}.status{display:none;margin-top:10px;padding:9px;border-radius:8px;font-size:12px;white-space:pre-line}.status.show{display:block;background:#eaf8f1;color:#286b53}.status.error{background:#fff0ef;color:#a13932}@media(max-width:600px){.wrap{padding:20px 12px 30px}.panel-head{align-items:flex-start;flex-direction:column}.actions>*{flex:1}.actions .file-label{flex:1}}
+*{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1100px,100%);margin:auto;padding:28px 20px 40px}.heading h1{margin:0;font-size:26px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.notice{margin-top:15px;padding:11px 13px;background:#fff9e8;border:1px solid #ead9a9;border-radius:9px;color:#765b14;font-size:12px;line-height:1.5}.panel{padding:17px;margin-top:13px;background:#fff;border:1px solid #e1e7ee;border-radius:13px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.panel h2{margin:0;font-size:16px}.help{margin:7px 0 12px;color:#758397;font-size:12px;line-height:1.45}.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button,.file-label{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 11px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.actions button.secondary,.file-label.secondary{background:#eff2f5;color:#344054}.actions button.template{background:#fff4d5;color:#765b14}.file-label input{display:none}.actions button:disabled{opacity:.6;cursor:not-allowed}.status{display:none;margin-top:10px;padding:9px;border-radius:8px;font-size:12px;white-space:pre-line}.status.show{display:block;background:#eaf8f1;color:#286b53}.status.error{background:#fff0ef;color:#a13932}.preview{margin-top:12px;border:1px solid #e1e7ee;border-radius:10px;overflow:hidden}.preview-summary{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:9px 11px;background:#f8fafc;border-bottom:1px solid #e8edf2;font-size:12px;color:#526176}.preview-summary strong{color:#344054}.preview-summary .ok{color:#286b53}.preview-summary .bad{color:#a13932}.preview-table-wrap{max-height:430px;overflow:auto}.preview-table{width:100%;border-collapse:collapse;font-size:11px;min-width:760px}.preview-table th,.preview-table td{padding:7px 8px;border-bottom:1px solid #edf0f4;text-align:left;vertical-align:top;white-space:nowrap}.preview-table th{position:sticky;top:0;z-index:1;background:#f4f7fa;color:#5b6676;font-size:10px;text-transform:uppercase;letter-spacing:.03em}.preview-table td{color:#344054;max-width:240px;overflow:hidden;text-overflow:ellipsis}.preview-table td.cell-error{background:#fff0ef;color:#a13932;font-weight:700}.preview-table td.row-errors{white-space:normal;min-width:220px;color:#a13932}.preview-table tr.row-invalid td{background:#fffafa}.preview-table .row-number{color:#8a94a3;font-weight:700;text-align:right}.empty-preview{padding:12px;color:#758397;font-size:12px}@media(max-width:600px){.wrap{padding:20px 12px 30px}.panel-head{align-items:flex-start;flex-direction:column}.actions>*{flex:1}.actions .file-label{flex:1}}
 </style></head>
-<body><main class="wrap"><section class="heading"><h1>Bulk Entry</h1><p>Download templates and import Employee, Collection, Expense, Salary and Counter records from CSV or Excel files.</p></section><div class="notice">Templates contain headings only. New fields added to entry forms are included automatically. Imports are validated before saving; keep a backup before importing.</div><div id="panels"></div></main><script src="/auth-guard.js"></script><script src="/admin-nav.js"></script><script>
+<body><main class="wrap"><section class="heading"><h1>Bulk Entry</h1><p>Download templates and import Employee, Collection, Expense, Salary and Counter records from CSV or Excel files.</p></section><div class="notice">Template mein sirf headings hoti hain. File choose karte hi preview validation chalega; koi bhi error ho to poori file reject hogi. Maximum 1000 rows per file. Import se pehle backup rakhein.</div><div id="panels"></div></main><script src="/auth-guard.js"></script><script src="/admin-nav.js"></script><script>
+const MAX_ROWS=1000;
+let canImport=false;
 const definitions=[
-  {key:'employees',title:'Employees',help:'Employee master records. Matching Employee IDs are updated.',importUrl:'/api/employees/import',exportKey:'employees'},
-  {key:'customer-entry',title:'Collection Records',help:'Customer collection entries. Rows with a matching _id can be restored or updated.',importUrl:'/api/data-port/customer-entry/import',exportKey:'customer-entry'},
+  {key:'employees',title:'Employees',help:'Employee master records. Matching Employee IDs are updated after the full file passes validation.',importUrl:'/api/employees/import',exportKey:'employees'},
+  {key:'customer-entry',title:'Collection Records',help:'Entry No, Entry Date, Staff (active Employee Master), Service Type, Amount and Payment Mode are checked. Duplicate Entry No + Date rows are rejected.',importUrl:'/api/data-port/customer-entry/import',exportKey:'customer-entry'},
   {key:'expense',title:'Expense Records',help:'Employee ID, Entry Date, Expense Type SR, Amount, Payment Mode and Remark.',importUrl:'/api/data-port/employee-records/import',exportKey:'expense',recordType:'expense'},
   {key:'salary',title:'Salary Records',help:'Employee ID, Entry Date, Salary Month, Amount, Payment Mode and Remark.',importUrl:'/api/data-port/employee-records/import',exportKey:'salary',recordType:'salary'},
   {key:'counter',title:'Counter Cash Records',help:'Employee ID, Entry Date, Amount and Remark. Counter payment mode is Cash.',importUrl:'/api/data-port/employee-records/import',exportKey:'counter',recordType:'counter'}
@@ -29,27 +31,84 @@ async function download(url,fallbackName){
 }
 function makePanel(def){
   const section=document.createElement('section');section.className='panel';section.dataset.key=def.key;
-  section.innerHTML=`<div class="panel-head"><h2>${def.title}</h2><div class="actions"><button type="button" class="template" data-template="xlsx">Template Excel</button><button type="button" class="template secondary" data-template="csv">Template CSV</button><button type="button" data-export="xlsx">Export Excel</button><button type="button" class="secondary" data-export="csv">Export CSV</button><label class="file-label secondary">Choose file<input type="file" accept=".csv,.xlsx"></label><button type="button" class="secondary" data-import disabled>Import</button></div></div><p class="help">${def.help}</p><div class="status" role="status"></div>`;
-  const box=section.querySelector('.status'),input=section.querySelector('input'),importButton=section.querySelector('[data-import]');
-  input.addEventListener('change',()=>{importButton.disabled=!input.files.length;box.className='status'});
-  for(const button of section.querySelectorAll('[data-template]')){
-    button.addEventListener('click',async()=>{
-      button.disabled=true;
-      try{await download(`/api/data-port/${def.exportKey}/template?format=${button.dataset.template}`,`yours-salon-${def.exportKey}-template.${button.dataset.template}`)}
-      catch(error){message(box,error.message||'Could not download the template.',true)}
-      finally{button.disabled=false}
-    });
+  section.innerHTML=`<div class="panel-head"><h2>${def.title}</h2><div class="actions"><button type="button" class="template" data-template="xlsx">Template Excel</button><label class="file-label secondary">Choose file<input type="file" accept=".csv,.xlsx"></label><button type="button" data-import disabled>Import</button></div></div><p class="help">${def.help} Maximum ${MAX_ROWS} rows.</p><div class="status" role="status"></div><div class="preview" hidden></div>`;
+  const box=section.querySelector('.status'),input=section.querySelector('input'),importButton=section.querySelector('[data-import]'),previewBox=section.querySelector('.preview');
+  input.disabled=true;
+  let preview=null;
+  function resetPreview(){
+    preview=null;
+    previewBox.hidden=true;
+    previewBox.replaceChildren();
+    importButton.disabled=true;
   }
-  for(const button of section.querySelectorAll('[data-export]')){
-    button.addEventListener('click',async()=>{
-      button.disabled=true;
-      try{await download(`/api/data-port/${def.exportKey}/export?format=${button.dataset.export}`,`yours-salon-${def.exportKey}-${today()}.${button.dataset.export}`)}
-      catch(error){message(box,error.message||'Could not export the data.',true)}
-      finally{button.disabled=false}
-    });
+  function renderPreview(result){
+    preview=result;
+    previewBox.replaceChildren();
+    const summary=document.createElement('div');summary.className='preview-summary';
+    const total=Number(result.summary?.total||0),valid=Number(result.summary?.valid||0),invalid=Number(result.summary?.invalid||0);
+    const totalText=document.createElement('span');totalText.innerHTML=`<strong>${total}</strong> rows`;
+    const validText=document.createElement('span');validText.className='ok';validText.innerHTML=`<strong>${valid}</strong> valid`;
+    const invalidText=document.createElement('span');invalidText.className=invalid?'bad':'ok';invalidText.innerHTML=`<strong>${invalid}</strong> invalid`;
+    const ready=document.createElement('span');ready.className=result.canImport?'ok':'bad';ready.textContent=result.canImport?'Ready to import':'Fix errors before import';
+    summary.append(totalText,validText,invalidText,ready);
+    const wrap=document.createElement('div');wrap.className='preview-table-wrap';
+    const table=document.createElement('table');table.className='preview-table';
+    const thead=document.createElement('thead');const headRow=document.createElement('tr');
+    const numberHead=document.createElement('th');numberHead.textContent='#';headRow.append(numberHead);
+    for(const column of result.columns||[]){const th=document.createElement('th');th.textContent=column;headRow.append(th)}
+    const errorHead=document.createElement('th');errorHead.textContent='Errors';headRow.append(errorHead);
+    thead.append(headRow);
+    const tbody=document.createElement('tbody');
+    if(!(result.rows||[]).length){
+      const row=document.createElement('tr');const cell=document.createElement('td');cell.colSpan=(result.columns||[]).length+2;cell.className='empty-preview';cell.textContent='No data rows found.';row.append(cell);tbody.append(row);
+    }
+    for(const rowData of result.rows||[]){
+      const row=document.createElement('tr');if(rowData.errors?.length)row.className='row-invalid';
+      const numberCell=document.createElement('td');numberCell.className='row-number';numberCell.textContent=String(rowData.rowNumber||'');row.append(numberCell);
+      const errorIndexes=new Set((rowData.errorIndexes||[]).map(Number));
+      for(let index=0;index<(result.columns||[]).length;index++){
+        const cell=document.createElement('td');
+        cell.textContent=String(rowData.cells?.[index]??'');
+        if(errorIndexes.has(index))cell.classList.add('cell-error');
+        row.append(cell);
+      }
+      const errorCell=document.createElement('td');errorCell.className='row-errors';errorCell.textContent=(rowData.errors||[]).join(' ');row.append(errorCell);
+      tbody.append(row);
+    }
+    table.append(thead,tbody);wrap.append(table);previewBox.append(summary,wrap);previewBox.hidden=false;
+    importButton.disabled=!result.canImport||!canImport;
+    if(result.canImport)message(box,`Preview ready. ${valid} valid row(s). Click Import to save.`);
+    else message(box,result.error||`${invalid} row(s) need correction. No data will be imported until every row is valid.`,true);
   }
+  async function previewFile(){
+    if(!canImport){message(box,'You do not have Bulk Entry import permission.',true);return}
+    if(!input.files.length){resetPreview();box.className='status';return}
+    importButton.disabled=true;preview=null;previewBox.hidden=true;
+    message(box,'Checking file...');
+    const data=new FormData();
+    data.append('file',input.files[0]);
+    data.append('preview','true');
+    if(def.recordType)data.append('recordType',def.recordType);
+    try{
+      const response=await fetch(def.importUrl,{method:'POST',headers:authHeaders(),body:data});
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok&&!Array.isArray(result.rows))throw new Error(result.error||'Could not validate the file.');
+      renderPreview(result);
+    }catch(error){
+      resetPreview();
+      message(box,error.message||'Could not validate the file.',true);
+    }
+  }
+  input.addEventListener('change',previewFile);
+  const templateButton=section.querySelector('[data-template]');
+  templateButton.addEventListener('click',async()=>{
+    templateButton.disabled=true;
+    try{await download(`/api/data-port/${def.exportKey}/template?format=xlsx`,`yours-salon-${def.exportKey}-template.xlsx`)}
+    catch(error){message(box,error.message||'Could not download the template.',true)}
+    finally{templateButton.disabled=false}
+  });
   importButton.addEventListener('click',async()=>{
-    if(!input.files.length)return;
+    if(!canImport||!input.files.length||!preview?.canImport)return;
     importButton.disabled=true;
     const data=new FormData();
     data.append('file',input.files[0]);
@@ -58,20 +117,28 @@ function makePanel(def){
       const response=await fetch(def.importUrl,{method:'POST',headers:authHeaders(),body:data});
       const result=await response.json().catch(()=>({}));
       if(!response.ok){
+        if(Array.isArray(result.rows))renderPreview(result);
         const details=Array.isArray(result.rowErrors)?`\n${result.rowErrors.join('\n')}`:'';
         throw new Error((result.error||'Could not import the file.')+details);
       }
       const counts=`Inserted: ${result.inserted||0}, Updated: ${result.updated||0}, Processed: ${result.processed||0}`;
       message(box,`${result.message||'Import complete.'}\n${counts}`);
       input.value='';
+      resetPreview();
       if(window.salonUi?.showSuccess)await window.salonUi.showSuccess('Import complete.');
     }catch(error){
       message(box,error.message||'Could not import the file.',true);
     }finally{
-      importButton.disabled=true;
+      importButton.disabled=!preview?.canImport;
     }
   });
   return section;
 }
 for(const def of definitions)panels.append(makePanel(def));
+(async()=>{
+  const session=await window.salonReady;
+  canImport=session?.employee?.role==='Admin'||session?.actionAccess?.configuration?.add===true;
+  panels.querySelectorAll('input[type=file]').forEach(input=>{input.disabled=!canImport});
+  if(!canImport)panels.querySelectorAll('[data-import]').forEach(button=>{button.disabled=true});
+})();
 </script></body></html>

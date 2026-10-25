@@ -2,8 +2,14 @@
   const tokenKey = 'salon_google_credential';
   const publicPaths = new Set(['/', '/login', '/login.html']);
   const adminOnlyPaths = new Set([
-    '/admin-dashboard', '/reports', '/activity-report', '/employees', '/employee-entry', '/user-access',
-    '/expense-types', '/rate-list', '/config', '/shop-details', '/bulk-entry'
+    '/admin-dashboard', '/admin-dashboard.html', '/admin', '/admin.html',
+    '/employee-view', '/employee-view.html',
+    '/user-access', '/user-access.html'
+  ]);
+  const employeeOnlyPaths = new Set([
+    '/employee-dashboard', '/employee-dashboard.html',
+    '/profile', '/profile.html', '/settings', '/settings.html',
+    '/attendance', '/attendance.html', '/customers', '/customers.html'
   ]);
 
   function token() {
@@ -31,7 +37,7 @@
         localStorage.removeItem('salon_user_email');
         location.replace('/login');
       }
-      throw new Error(result.error || 'Request failed.');
+      throw Object.assign(new Error(result.error || 'Request failed.'), { status: response.status, payload: result });
     }
     return result;
   }
@@ -77,7 +83,7 @@
         location.replace('/employee-dashboard');
         return null;
       }
-      if (pagePath === '/employee-dashboard' && isAdmin) {
+      if (employeeOnlyPaths.has(pagePath) && isAdmin) {
         location.replace('/admin-dashboard');
         return null;
       }

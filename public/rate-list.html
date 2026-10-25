@@ -1,8 +1,192 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Rate List — YOURS SALON</title><link rel="stylesheet" href="/admin-nav.css"><style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(900px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:18px;margin-bottom:14px;background:#fff;border:1px solid #e1e7ee;border-radius:14px}.heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.heading h1{margin:0;font-size:24px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.form{display:grid;grid-template-columns:1fr 180px 150px auto;align-items:end;gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;font-weight:700;color:#526176}.field input,.field select{height:39px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.form button{height:39px;padding:8px 13px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.form button.secondary{background:#eff2f5;color:#344054}.table-wrap{overflow:auto;border:1px solid #e1e7ee;border-radius:10px}table{width:100%;min-width:560px;border-collapse:collapse;font-size:12px}th,td{padding:11px;border-bottom:1px solid #edf0f4;text-align:left}th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}.row-actions button{margin-right:5px;padding:6px 9px;border:0;border-radius:7px;background:#eff2f5;color:#344054;font:700 11px Arial;cursor:pointer}.badge{display:inline-block;padding:4px 7px;border-radius:99px;background:#e9f6f1;color:#286b53;font-weight:700}.badge.inactive{background:#f0f1f3;color:#656b74}.empty{text-align:center;color:#7b8797;padding:22px}.status{display:none;margin-top:10px;padding:9px;border-radius:8px;font-size:12px}.status.show{display:block;background:#eaf8f1;color:#286b53}.status.error{background:#fff0ef;color:#a13932}@media(max-width:700px){.wrap{padding:20px 12px 30px}.form{grid-template-columns:1fr 1fr}.form button{grid-column:1/-1}.heading{align-items:flex-start;flex-direction:column}}
-</style></head>
-<body><main class="wrap"><section class="panel heading"><div><h1>Rate List</h1><p>Reference list of salon service types and rates. It is not linked to Collection Entry.</p></div></section><section class="panel"><form id="form" class="form"><div class="field"><label for="serviceType">Service Type</label><input id="serviceType" required maxlength="150"></div><div class="field"><label for="rate">Rate (INR)</label><input id="rate" type="number" min="0" step="0.01" required></div><div class="field"><label for="statusSelect">Status</label><select id="statusSelect"><option>Active</option><option>Inactive</option></select></div><button id="save" type="submit">Add Rate</button></form><div id="status" class="status" role="status"></div></section><section class="panel"><div class="table-wrap"><table><thead><tr><th>Service Type</th><th>Rate</th><th>Status</th><th>Actions</th></tr></thead><tbody id="rows"><tr><td colspan="4" class="empty">Loading rate list...</td></tr></tbody></table></div></section></main><script src="/auth-guard.js"></script><script src="/admin-nav.js"></script><script>
-const form=document.getElementById('form'),rows=document.getElementById('rows'),statusBox=document.getElementById('status'),save=document.getElementById('save');let items=[],editingId='';function show(message,error=false){statusBox.textContent=message;statusBox.className='status show'+(error?' error':'')}function reset(){form.reset();editingId='';save.textContent='Add Rate';document.getElementById('statusSelect').value='Active'}function render(){rows.replaceChildren();if(!items.length){rows.innerHTML='<tr><td colspan="4" class="empty">No rate list items found.</td></tr>';return}for(const item of items){const tr=document.createElement('tr');for(const value of [item.serviceType,'INR '+Number(item.rate||0).toLocaleString('en-IN',{maximumFractionDigits:2})]){const td=document.createElement('td');td.textContent=value;tr.append(td)}const status=document.createElement('td');const badge=document.createElement('span');badge.className='badge'+(item.status==='Active'?'':' inactive');badge.textContent=item.status;status.append(badge);tr.append(status);const actions=document.createElement('td');actions.className='row-actions';const edit=document.createElement('button');edit.textContent='Edit';edit.addEventListener('click',()=>{editingId=item._id;document.getElementById('serviceType').value=item.serviceType;document.getElementById('rate').value=item.rate;document.getElementById('statusSelect').value=item.status;save.textContent='Update Rate';document.getElementById('serviceType').focus()});actions.append(edit);tr.append(actions);rows.append(tr)}}async function load(){items=await salonAuth.request('/api/rate-list');render()}form.addEventListener('submit',async event=>{event.preventDefault();save.disabled=true;const wasEditing=Boolean(editingId);try{const data={serviceType:document.getElementById('serviceType').value,rate:document.getElementById('rate').value,status:document.getElementById('statusSelect').value};await salonAuth.request(wasEditing?`/api/rate-list/${editingId}`:'/api/rate-list',{method:wasEditing?'PUT':'POST',body:JSON.stringify(data)});reset();await load();show(wasEditing?'Rate updated.':'Rate added.')}catch(error){show(error.message,true)}finally{save.disabled=false}});(async()=>{try{await window.salonReady;await load()}catch(error){show(error.message,true)}})();
-</script></body></html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Rate List — YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1180px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:18px;margin-bottom:14px;background:#fff;border:1px solid #e1e7ee;border-radius:14px}.heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.heading h1{margin:0;font-size:24px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.form{display:grid;grid-template-columns:90px minmax(180px,1.4fr) minmax(140px,1fr) 130px 130px 130px auto;align-items:end;gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;font-weight:700;color:#526176}.field input,.field select{height:39px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.form button{height:39px;padding:8px 13px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.form button.secondary{background:#eff2f5;color:#344054}.table-wrap{overflow:auto;border:1px solid #e1e7ee;border-radius:10px}table{width:100%;min-width:1050px;border-collapse:collapse;font-size:12px}th,td{padding:11px;border-bottom:1px solid #edf0f4;text-align:left;white-space:nowrap}th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}.row-actions button{margin-right:5px;padding:6px 9px;border:0;border-radius:7px;background:#eff2f5;color:#344054;font:700 11px Arial;cursor:pointer}.badge{display:inline-block;padding:4px 7px;border-radius:99px;background:#e9f6f1;color:#286b53;font-weight:700}.badge.inactive{background:#f0f1f3;color:#656b74}.badge.other{background:#eef3ff;color:#315ca8}.empty{text-align:center;color:#7b8797;padding:22px}.status{display:none;margin-top:10px;padding:9px;border-radius:8px;font-size:12px}.status.show{display:block;background:#eaf8f1;color:#286b53}.status.error{background:#fff0ef;color:#a13932}@media(max-width:900px){.form{grid-template-columns:1fr 1fr}.form button{grid-column:1/-1}.heading{align-items:flex-start;flex-direction:column}}@media(max-width:700px){.wrap{padding:20px 12px 30px}.form{grid-template-columns:1fr}.form button{grid-column:auto}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel heading">
+      <div><h1>Rate List</h1><p>Master services used by Collection Entry and mobile Add Work. Add SR No, short name, and Main/Other category.</p></div>
+    </section>
+    <section class="panel">
+      <form id="form" class="form">
+        <div class="field"><label for="sr">SR No</label><input id="sr" type="number" min="0" step="1" value="0" required></div>
+        <div class="field"><label for="serviceType">Service Type</label><input id="serviceType" required maxlength="150"></div>
+        <div class="field"><label for="shortName">Short Name</label><input id="shortName" maxlength="60" placeholder="Shown on mobile"></div>
+        <div class="field"><label for="rate">Rate (INR)</label><input id="rate" type="number" min="0" step="0.01" required></div>
+        <div class="field"><label for="category">Category</label><select id="category"><option>Main</option><option>Other</option></select></div>
+        <div class="field"><label for="statusSelect">Status</label><select id="statusSelect"><option>Active</option><option>Inactive</option></select></div>
+        <button id="save" type="submit">Add Rate</button>
+      </form>
+      <div id="status" class="status" role="status"></div>
+    </section>
+    <section class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>SR</th><th>Short Name</th><th>Service Type</th><th>Rate</th><th>Category</th><th>Status</th><th>Created By</th><th>Created On</th><th>Actions</th></tr></thead>
+          <tbody id="rows"><tr><td colspan="9" class="empty">Loading rate list...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js"></script>
+  <script>
+    const form = document.getElementById('form');
+    const rows = document.getElementById('rows');
+    const statusBox = document.getElementById('status');
+    const save = document.getElementById('save');
+    const srInput = document.getElementById('sr');
+    const serviceTypeInput = document.getElementById('serviceType');
+    const shortNameInput = document.getElementById('shortName');
+    const rateInput = document.getElementById('rate');
+    const categoryInput = document.getElementById('category');
+    const statusInput = document.getElementById('statusSelect');
+    let items = [];
+    let editingId = '';
+    let canAdd = false;
+    let canEdit = false;
+
+    function show(message, error = false) {
+      statusBox.textContent = message;
+      statusBox.className = 'status show' + (error ? ' error' : '');
+    }
+    function money(value) {
+      return 'INR ' + Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    }
+    function dateTime(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
+      });
+    }
+    function nextSr() {
+      return items.reduce((max, item) => Math.max(max, Number(item.sr || 0)), 0) + 1;
+    }
+    function reset() {
+      form.reset();
+      editingId = '';
+      srInput.value = String(nextSr());
+      categoryInput.value = 'Main';
+      statusInput.value = 'Active';
+      save.textContent = canAdd ? 'Add Rate' : 'Select a rate to edit';
+    }
+    function render() {
+      rows.replaceChildren();
+      if (!items.length) {
+        rows.innerHTML = '<tr><td colspan="9" class="empty">No rate list items found.</td></tr>';
+        return;
+      }
+      for (const item of items) {
+        const tr = document.createElement('tr');
+        const values = [
+          Number(item.sr || 0),
+          item.shortName || item.serviceType,
+          item.serviceType,
+          money(item.rate)
+        ];
+        for (const value of values) {
+          const td = document.createElement('td');
+          td.textContent = value;
+          tr.append(td);
+        }
+        const category = document.createElement('td');
+        const categoryBadge = document.createElement('span');
+        categoryBadge.className = 'badge' + ((item.category || 'Main') === 'Other' ? ' other' : '');
+        categoryBadge.textContent = item.category || 'Main';
+        category.append(categoryBadge);
+        tr.append(category);
+
+        const status = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = 'badge' + (item.status === 'Active' ? '' : ' inactive');
+        badge.textContent = item.status;
+        status.append(badge);
+        tr.append(status);
+
+        const createdBy = document.createElement('td');
+        createdBy.textContent = item.createdBy || '—';
+        tr.append(createdBy);
+
+        const createdOn = document.createElement('td');
+        createdOn.textContent = dateTime(item.createdAt);
+        tr.append(createdOn);
+
+        const actions = document.createElement('td');
+        actions.className = 'row-actions';
+        if (canEdit) {
+          const edit = document.createElement('button');
+          edit.type = 'button';
+          edit.textContent = 'Edit';
+          edit.addEventListener('click', () => {
+            editingId = item._id;
+            srInput.value = String(item.sr || 0);
+            serviceTypeInput.value = item.serviceType;
+            shortNameInput.value = item.shortName || item.serviceType;
+            rateInput.value = item.rate;
+            categoryInput.value = item.category || 'Main';
+            statusInput.value = item.status;
+            save.textContent = 'Update Rate';
+            serviceTypeInput.focus();
+          });
+          actions.append(edit);
+        }
+        tr.append(actions);
+        rows.append(tr);
+      }
+    }
+    async function load() {
+      items = await salonAuth.request('/api/rate-list');
+      render();
+      if (!editingId) srInput.value = String(nextSr());
+    }
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (editingId ? !canEdit : !canAdd) return;
+      save.disabled = true;
+      const wasEditing = Boolean(editingId);
+      try {
+        const data = {
+          sr: srInput.value,
+          serviceType: serviceTypeInput.value,
+          shortName: shortNameInput.value,
+          rate: rateInput.value,
+          category: categoryInput.value,
+          status: statusInput.value
+        };
+        await salonAuth.request(wasEditing ? `/api/rate-list/${encodeURIComponent(editingId)}` : '/api/rate-list', {
+          method: wasEditing ? 'PUT' : 'POST',
+          body: JSON.stringify(data)
+        });
+        show(wasEditing ? 'Rate list item updated.' : 'Rate list item added.');
+        editingId = '';
+        await load();
+        reset();
+      } catch (error) {
+        show(error.message || 'Could not save the rate list item.', true);
+      } finally {
+        save.disabled = false;
+      }
+    });
+    (async () => {
+      try {
+        const session = await window.salonReady;
+        if (!session) return;
+        canAdd = session.employee?.role === 'Admin' || session.actionAccess?.configuration?.add === true;
+        canEdit = session.employee?.role === 'Admin' || session.actionAccess?.configuration?.edit === true;
+        reset();
+        await load();
+      } catch (error) {
+        show(error.message || 'Could not load the rate list.', true);
+      }
+    })();
+  </script>
+</body>
+</html>
