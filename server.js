@@ -5084,7 +5084,8 @@ app.post('/api/save-collection', requireSecureAuth, verifyEmployee, verifyCollec
 
         return res.status(201).json({
             message: 'Collection saved successfully.',
-            entryNo: newEntry.entryNo
+            entryNo: newEntry.entryNo,
+            record: newEntry
         });
     } catch (error) {
         if (error.code === 11000) {
@@ -5206,14 +5207,14 @@ app.put('/api/collections/:id', requireSecureAuth, verifyEmployee, verifyCollect
             updateFilter,
             update,
             { new: true, runValidators: true }
-        ).select('_id entryNo');
+        ).select('_id entryNo entryDate staff serviceType items amount costCutting paymentMode remark status');
 
         if (!entry) return res.status(404).json({ error: 'Customer entry not found.' });
         await recordAudit(req, {
             action: 'UPDATE', page: 'Collection Entry', module: 'Customer Entry',
             recordType: 'Collection', recordId: String(entry._id), oldValue: before, newValue: entry
         });
-        return res.json({ message: 'Customer entry updated successfully.', entryNo: entry.entryNo });
+        return res.json({ message: 'Customer entry updated successfully.', entryNo: entry.entryNo, record: entry });
     } catch (error) {
         if (error.code === 11000) {
             return res.status(409).json({ error: 'An entry with the same Entry No. already exists for that date.' });

@@ -85,7 +85,7 @@
       <label id="mwEmployeeField" class="mw-field" hidden><span>Employee</span><select id="mwEmployee"><option value="">All employees</option></select></label>
       <label class="mw-field"><span>Status</span><select id="mwStatusFilter"><option value="Active">Active</option><option value="All">All</option><option value="Inactive">In-Active</option></select></label>
     </div>
-    <div class="mw-filter-actions"><button id="mwApply" type="button">Apply filter</button><button id="mwClear" class="secondary" type="button">Clear</button></div>
+    <div class="mw-filter-actions"><button id="mwClear" class="secondary" type="button">Clear</button><button id="mwApply" type="button">Apply filter</button></div>
   </section>
   <dialog id="detailsDialog" class="details-dialog">
     <div class="details-card"><h2>Record details</h2><dl id="detailsList" class="details-list"></dl><div class="details-actions"><button id="closeDetails" type="button">Close</button></div></div>
@@ -336,7 +336,7 @@
       const button=document.createElement('button');button.type='button';button.className='mw-action '+kind;button.title=label;button.setAttribute('aria-label',label);
       button.append(mwActionIcon(kind));
       const text=document.createElement('span');text.textContent=label;button.append(text);
-      button.addEventListener('click',event=>{event.stopPropagation();handler()});return button;
+      button.addEventListener('click',event=>{event.stopPropagation();handler(button)});return button;
     }
     function mwByline(record,dateKey,className=''){
       const row=document.createElement('div');row.className=className;
@@ -380,7 +380,7 @@
       if(record.status!=='Inactive'&&can('edit')&&session.pageAccess?.[definition.entryPage]!==false){
         const edit=document.createElement('a');edit.className='mw-action edit';edit.title='Edit work entry';edit.setAttribute('aria-label','Edit work entry');edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;edit.append(mwActionIcon('edit'));const editText=document.createElement('span');editText.textContent='Edit';edit.append(editText);edit.addEventListener('click',event=>event.stopPropagation());actions.append(edit);
       }
-      if(record.status!=='Inactive'&&can('delete'))actions.append(mwActionButton('delete','Delete',()=>mwSoftDelete(record)));
+      if(record.status!=='Inactive'&&can('delete'))actions.append(mwActionButton('delete','Delete',button=>mwSoftDelete(record,button)));
       details.append(actions);
       const toggle=()=>{const open=!card.classList.contains('open');for(const other of mwRecords.querySelectorAll('.mw-card.open'))other.classList.remove('open');card.classList.toggle('open',open);summary.setAttribute('aria-expanded',String(open))};
       summary.addEventListener('click',event=>{if(event.target.closest('button,a'))return;toggle()});
@@ -422,9 +422,9 @@
     }
     async function mwSoftDelete(record,button){
       if(!record._id||!window.confirm('Move this work entry to In-Active It will remain available under the In-Active filter.'))return;
-      button.disabled=true;
+      if(button)button.disabled=true;
       try{const result=await salonAuth.request(`/api/collections/${encodeURIComponent(record._id)}`,{method:'DELETE'});if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Work entry moved to In-Active.');await mwLoad()}
-      catch(error){mwSetStatus(error.message||'Could not move the work entry to In-Active.',true);button.disabled=false}
+      catch(error){mwSetStatus(error.message||'Could not move the work entry to In-Active.',true);if(button)button.disabled=false}
     }
     function mwBindEvents(){
       if(mwEventsBound)return;mwEventsBound=true;

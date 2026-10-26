@@ -48,7 +48,7 @@
             <div class="aw-entry-control"><span>#</span><input id="awEntryNo" name="entryNo" type="number" min="1" step="1" inputmode="numeric" required></div>
           </div>
         </div>
-        <div class="aw-hint-row"><span>Tap A Service To Add &middot; Tap &ndash; To Remove</span><button id="awClearAll" type="button">Clear All</button></div>
+        <div class="aw-hint-row"><span>Tap A Service To Add &middot; Tap &ndash; To Remove</span><button id="awClearAll" class="no-btn-theme" type="button">Clear All</button></div>
         <div class="aw-service-grid">
           <div id="awMainServices" class="aw-services"></div>
           <button id="awOtherButton" class="aw-other-card" type="button">
@@ -89,6 +89,15 @@
     </div>
     <button id="awSheetDone" class="aw-sheet-done" type="button">Done</button>
   </section>
+  <div id="awSavedOverlay" class="aw-saved-overlay" aria-hidden="true">
+    <section class="aw-saved-card" role="dialog" aria-modal="true" aria-labelledby="awSavedTitle">
+      <span class="aw-saved-kicker">Saved</span>
+      <h2 id="awSavedTitle">Entry details</h2>
+      <dl id="awSavedDetails" class="aw-saved-details"></dl>
+      <div class="aw-saved-progress"><span></span></div>
+      <p class="aw-saved-refresh">Refreshing in 3 seconds...</p>
+    </section>
+  </div>
   <script src="/auth-guard.js"></script>
   <script src="/admin-nav.js"></script>
   <script src="/mobile.js"></script>
@@ -143,10 +152,36 @@
     const awStatus=document.getElementById('awStatus'),awSave=document.getElementById('awSave');
     const awSheet=document.getElementById('awServiceSheet'),awSheetOverlay=document.getElementById('awSheetOverlay');
     const awSearch=document.getElementById('awServiceSearch'),awCustomStatus=document.getElementById('awCustomStatus'),awSheetDone=document.getElementById('awSheetDone');
-    let awMeta=null,awServices=[],awQuantities=new Map(),awEditing=null,awEditDate='',awBusy=false,awEventsBound=false,awTotalManual=false;
+    const awSavedOverlay=document.getElementById('awSavedOverlay'),awSavedDetails=document.getElementById('awSavedDetails');
+    let awMeta=null,awServices=[],awQuantities=new Map(),awEditing=null,awEditDate='',awBusy=false,awEventsBound=false,awTotalManual=false,awSavedPending=false;
     function awMoney(value){return '₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
     function awDateLabel(value){if(!value)return'';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?String(value):date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
-    function awSetStatus(message,error=false){awStatus.textContent=message;awStatus.className='aw-status show'+(error?' error':'')}
+    function awSetStatus(message,error=false){awStatus.textContent=message;awStatus.className='aw-status'+(message?' show':'')+(message&&error?' error':'')}
+    function awSavedRow(label,value){
+      const row=document.createElement('div');row.className='aw-saved-row';
+      const term=document.createElement('dt');term.textContent=label;
+      const detail=document.createElement('dd');detail.textContent=value;
+      row.append(term,detail);awSavedDetails.append(row);
+    }
+    function awShowSavedDetails(record,redirectTo){
+      const date=String(record.entryDate||'').slice(0,10);
+      const items=Array.isArray(record.items)&&record.items.length
+        ? record.items.map(item=>`${item.shortName||item.serviceType}${Number(item.quantity||1)>1?` x${item.quantity}`:''}`).join(', ')
+        : record.serviceType||'';
+      awSavedDetails.replaceChildren();
+      awSavedRow('Entry No.',`#${record.entryNo||awEntryNo.value}`);
+      awSavedRow('Date',awDateLabel(date));
+      awSavedRow('Employee',record.staff||session?.employee?.employeeName||'');
+      if(items)awSavedRow('Services',items);
+      awSavedRow('Amount',awMoney(record.amount));
+      if(Number(record.costCutting||0)>0)awSavedRow('Cost Cutting',awMoney(record.costCutting));
+      awSavedRow('Payment',record.paymentMode||'Cash');
+      if(record.remark)awSavedRow('Remark',record.remark);
+      awSavedOverlay.classList.add('open');
+      awSavedOverlay.setAttribute('aria-hidden','false');
+      document.body.classList.add('aw-saved-locked');
+      window.setTimeout(()=>{if(redirectTo)location.replace(redirectTo);else location.reload()},3000);
+    }
     function awGreetingText(){const hour=new Date().getHours();return hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening'}
     function awFindService(serviceType){return awServices.find(item=>String(item.serviceType).toLowerCase()===String(serviceType).toLowerCase())}
     function awSortServices(){awServices.sort((left,right)=>{const leftSr=Number.isFinite(Number(left.sr))?Number(left.sr):Number.MAX_SAFE_INTEGER;const rightSr=Number.isFinite(Number(right.sr))?Number(right.sr):Number.MAX_SAFE_INTEGER;return leftSr-rightSr||String(left.serviceType).localeCompare(String(right.serviceType))})}
@@ -326,7 +361,7 @@
       if(awEventsBound)return;awEventsBound=true;
       document.getElementById('awForm').addEventListener('submit',async event=>{
         event.preventDefault();
-        if(awBusy)return;
+        if(awBusy||awSavedPending)return;
         const items=awSelectedItems();
         if(!items.length){awSetStatus('Add at least one service.',true);return}
         const date=awDateSelect.value;
@@ -353,23 +388,18 @@
             paymentMode,
             remark:String(document.getElementById('awRemark').value||'').trim()
           };
-          await salonAuth.request(awEditing?`/api/collections/${encodeURIComponent(awEditing._id)}`:'/api/save-collection',{
+          const result=await salonAuth.request(awEditing?`/api/collections/${encodeURIComponent(awEditing._id)}`:'/api/save-collection',{
             method:awEditing?'PUT':'POST',
             body:JSON.stringify(payload)
           });
-          if(awEditing){
-            if(window.salonUi?.showSuccess)await window.salonUi.showSuccess('Work entry updated successfully.');
-            location.replace('/collection-table');return;
-          }
-          awQuantities.clear();
-          awTotalManual=false;
-          document.getElementById('awCostCutting').value='0';
-          document.getElementById('awRemark').value='';
-          const cash=document.querySelector('input[name="paymentMode"][value="Cash"]');if(cash)cash.checked=true;
-          await awLoadMeta(date);
-          awSetStatus('Work saved successfully.');
+          const saved=result.record||{...payload,entryNo:result.entryNo||entryNo};
+          awSavedPending=true;
+          awSave.disabled=true;
+          awSave.textContent='Saved';
+          awSetStatus('');
+          awShowSavedDetails(saved,awEditing?'/collection-table':'');
         }catch(error){awSetStatus(error.message||'Could not save the work entry.',true)}
-        finally{awBusy=false;awSave.disabled=false;awSave.textContent=awEditing?'Update Work':'Save Work'}
+        finally{if(!awSavedPending){awBusy=false;awSave.disabled=false;awSave.textContent=awEditing?'Update Work':'Save Work'}}
       });
       awDateSelect.addEventListener('change',async()=>{
         if(awBusy||!awMeta)return;
