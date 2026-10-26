@@ -164,13 +164,19 @@
   (async () => {
     try {
       const session = await window.salonReady;
-      if (!session) return;
+      if (!session || session.employee?.role === 'Admin') return;
       build(session);
-      const branding = await fetch('/api/shop-branding').then(response => response.ok ? response.json() : null).catch(() => null);
-      const brand = document.querySelector('.mobile-employee .m-brand-name');
-      const logo = document.querySelector('.mobile-employee .m-logo');
-      if (branding?.name && brand) brand.textContent = branding.name;
-      if (branding?.logoUrl && logo) logo.innerHTML = `<img src="${branding.logoUrl}" alt="">`;
+      const brandingReady = fetch('/api/shop-branding').then(response => response.ok ? response.json() : null).catch(() => null).then(branding => {
+        const brand = document.querySelector('.mobile-employee .m-brand-name');
+        const logo = document.querySelector('.mobile-employee .m-logo');
+        if (branding?.name && brand) brand.textContent = branding.name;
+        if (branding?.logoUrl && logo) logo.innerHTML = `<img src="${branding.logoUrl}" alt="">`;
+      });
+      window.salonMobileShellReady = Promise.race([
+        brandingReady,
+        new Promise(resolve => setTimeout(resolve, 800))
+      ]);
+      await window.salonMobileShellReady;
     } catch {
       // The mobile shell is an enhancement; pages remain usable without it.
     }

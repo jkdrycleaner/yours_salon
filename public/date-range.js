@@ -97,6 +97,7 @@
   function mount(container, options = {}) {
     if (!container) throw new Error('Date range container is required.');
     const notify = options.onChange || (() => {});
+    const placement = options.popoverPlacement === 'center' ? 'center' : 'left';
     let range = presetRange(options.defaultPreset || 'last30');
     let selectedPreset = options.defaultPreset || 'last30';
     let open = false;
@@ -158,10 +159,15 @@
       open = false;
       popover.hidden = true;
       button.setAttribute('aria-expanded', 'false');
+      if (placement === 'center' && popover.parentElement !== container) container.appendChild(popover);
     }
 
     function openPopover() {
       open = true;
+      if (placement === 'center') {
+        popover.classList.add('centered');
+        document.body.appendChild(popover);
+      }
       popover.hidden = false;
       button.setAttribute('aria-expanded', 'true');
       calendarPanel.hidden = !customOpen;
@@ -303,6 +309,7 @@
     return {
       getRange: () => ({ ...range }),
       getPreset: () => selectedPreset,
+      close,
       setRange: (from, to, preset = 'custom', shouldNotify = true) => setRange(from, to, preset, shouldNotify),
       reset(shouldNotify = true) {
         const next = presetRange('last30');

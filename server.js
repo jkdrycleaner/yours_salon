@@ -343,6 +343,7 @@ const appConfigSchema = new mongoose.Schema({
     allowPreviousEntry: { type: Boolean, default: false },
     maxPreviousEntryDays: { type: Number, min: 0, max: 3650, default: 0 },
     employeeAllowedDates: { type: [employeeDateRuleSchema], default: [] },
+    shortfallAdjustment: { type: String, enum: ['employee', 'costCutting'], default: 'employee' },
     permissions: { type: [permissionSchema], default: [] },
     accessRules: { type: [accessRuleSchema], default: [] }
 });
@@ -524,6 +525,26 @@ function normalizeCollectionItems(value) {
         .join(', ')
         .slice(0, 1000);
     return { items, total, summary };
+}
+
+function allocateCollectionAmount(parsedItems, requestedTotal, requestedCutting, config) {
+    const gross = Math.round((Number(parsedItems.total) + Number(requestedCutting || 0)) * 100) / 100;
+    const total = requestedTotal === undefined || requestedTotal === null || requestedTotal === ''
+        ? gross
+        : Math.round(Number(requestedTotal) * 100) / 100;
+    if (!Number.isFinite(total) || total < 0) {
+        const error = new Error('Please enter a valid Total amount.');
+        error.status = 400;
+        throw error;
+    }
+    const shortfall = Math.max(0, Math.round((gross - total) * 100) / 100);
+    let costCutting = Number(requestedCutting || 0);
+    if (config?.shortfallAdjustment === 'costCutting') {
+        costCutting = Math.max(0, costCutting - shortfall);
+    }
+    costCutting = Math.round(Math.min(costCutting, total) * 100) / 100;
+    const amount = Math.round(Math.max(0, total - costCutting) * 100) / 100;
+    return { amount, costCutting };
 }
 
 const auditLogSchema = new mongoose.Schema({
@@ -3079,6 +3100,7 @@ app.get('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('
         }
         return res.json({
             allowPreviousEntry: config?.allowPreviousEntry ?? false,
+            shortfallAdjustment: config?.shortfallAdjustment || 'employee',
             todayDate: getTodayDate(),
             permissions: permissions.map(name => ({
                 name,
@@ -3093,11 +3115,14 @@ app.get('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('
 
 app.put('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'edit'), async (req, res) => {
     try {
-        const { allowPreviousEntry, permissions } = req.body;
+        const { allowPreviousEntry, permissions, shortfallAdjustment } = req.body;
         if (typeof allowPreviousEntry !== 'boolean' || !Array.isArray(permissions)) {
             return res.status(400).json({
                 error: 'Configuration must include the previous-entry setting and employee permissions.'
             });
+        }
+        if (shortfallAdjustment !== undefined && !['employee', 'costCutting'].includes(shortfallAdjustment)) {
+            return res.status(400).json({ error: 'Select a valid shortfall adjustment option.' });
         }
 
         const normalizedPermissions = [];
@@ -3159,6 +3184,7 @@ app.put('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('
             {
                 $set: {
                     allowPreviousEntry,
+                    shortfallAdjustment: shortfallAdjustment || previousConfig?.shortfallAdjustment || 'employee',
                     permissions: normalizedPermissions
                 }
             },
@@ -3170,6 +3196,7 @@ app.put('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('
         });
         return res.json({
             allowPreviousEntry: config.allowPreviousEntry,
+            shortfallAdjustment: config.shortfallAdjustment || 'employee',
             permissions: config.permissions
         });
     } catch (error) {
@@ -5033,6 +5060,9 @@ app.post('/api/save-collection', requireSecureAuth, verifyEmployee, verifyCollec
             return res.status(409).json({ error: `Entry No. ${numericEntryNo} already exists for ${entryDate}.` });
         }
 
+        const allocation = parsedItems
+            ? allocateCollectionAmount(parsedItems, req.body.total, numericCostCutting, config)
+            : null;
         const newEntry = await CollectionEntry.create({
             entryNo: numericEntryNo,
             entryDate: parsedEntryDate,
@@ -5040,8 +5070,8 @@ app.post('/api/save-collection', requireSecureAuth, verifyEmployee, verifyCollec
             staff: activeStaff.employeeName,
             serviceType: parsedItems ? parsedItems.summary : serviceType.trim(),
             ...(parsedItems ? { items: parsedItems.items } : {}),
-            amount: parsedItems ? parsedItems.total : numericAmount,
-            costCutting: numericCostCutting,
+            amount: allocation ? allocation.amount : numericAmount,
+            costCutting: allocation ? allocation.costCutting : numericCostCutting,
             paymentMode,
             remark,
             createdBy: req.employee?.employeeName || '',
@@ -5155,14 +5185,17 @@ app.put('/api/collections/:id', requireSecureAuth, verifyEmployee, verifyCollect
             before.items.length > 0 &&
             serviceType.trim() === before.serviceType &&
             numericAmount === Number(before.amount || 0);
+        const allocation = parsedItems
+            ? allocateCollectionAmount(parsedItems, req.body.total, numericCostCutting, config)
+            : null;
         const setFields = {
             entryNo: numericEntryNo,
             entryDate: parsedEntryDate,
             staffId: isAdmin(req.employee) ? activeStaff._id : req.employee._id,
             staff: activeStaff.employeeName,
             serviceType: parsedItems ? parsedItems.summary : serviceType.trim(),
-            amount: parsedItems ? parsedItems.total : numericAmount,
-            costCutting: numericCostCutting,
+            amount: allocation ? allocation.amount : numericAmount,
+            costCutting: allocation ? allocation.costCutting : numericCostCutting,
             paymentMode,
             remark
         };

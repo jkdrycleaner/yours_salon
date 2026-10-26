@@ -181,6 +181,7 @@ body.mw-mobile-page .m-mobile-nav {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  margin-left: auto;
   min-height: 44px;
   padding: 9px 16px;
   border-radius: 15px;
@@ -648,12 +649,37 @@ body.mw-mobile-page .m-mobile-nav {
   font-weight: 800;
 }
 
-.aw-total-box strong {
+.aw-total-box strong,
+.aw-total-edit {
   margin-top: 1px;
   color: #138a4b;
   font-size: 20px;
   font-weight: 800;
   line-height: 1.05;
+}
+
+.aw-total-edit {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.aw-total-edit input {
+  width: 78px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #138a4b;
+  font: 800 20px Arial, sans-serif;
+  line-height: 1.05;
+}
+
+.aw-total-edit input::-webkit-outer-spin-button,
+.aw-total-edit input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
 }
 
 .aw-save {
@@ -1118,7 +1144,39 @@ body.mw-sheet-locked {
 }
 
 .mw-card.open .mw-sub {
-  margin-top: 12px;
+  display: none;
+}
+
+.mw-sub,
+.mw-detail-byline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  gap: 10px;
+}
+
+.mw-by-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mw-by-date {
+  flex: 0 0 auto;
+  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mw-detail-byline {
+  margin-top: 10px;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .mw-side {

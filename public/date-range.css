@@ -8,6 +8,7 @@
 .salon-date-range-chevron{flex:none;color:#7b8797;font-size:10px}
 .salon-date-range-popover{position:absolute;z-index:1200;top:calc(100% + 6px);left:0;width:308px;max-width:calc(100vw - 32px);padding:8px;border:1px solid #e1e7ee;border-radius:12px;background:#fff;box-shadow:0 16px 38px #1b2a3b24}
 .salon-date-range-popover[hidden]{display:none}
+.salon-date-range-popover.centered{position:fixed;z-index:1840;top:50%;left:50%;transform:translate(-50%,-50%);width:min(340px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto}
 .salon-date-range-presets{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .salon-date-range-preset{min-height:34px;padding:7px 9px;border:0;border-radius:7px;background:#fff;color:#344054;font:600 12px Arial;text-align:left;cursor:pointer}
 .salon-date-range-preset:hover{background:#f7f9fb}

@@ -20,7 +20,8 @@
   }
 
   const buttonSelector = 'button:not([class*="salon-"]):not(.secondary):not(.danger)' +
-    ':not(.link):not(.method):not(.eye):not(.dot):not(.arrow):not(.no-btn-theme)';
+    ':not(.link):not(.method):not(.eye):not(.dot):not(.arrow):not(.no-btn-theme):not(.mw-action)';
+  const themeSelector = buttonSelector + ',[data-salon-btn-theme]';
 
   function apply(source) {
     let first = String(readValue(source, 'Button Color', 'buttonColor', '#C9A227')).trim();
@@ -38,8 +39,8 @@
     }
     element.textContent =
       `:root{--salon-btn-bg:${first};--salon-btn-bg2:${second};--salon-btn-text:${text}}` +
-      `${buttonSelector}{background-color:${first} !important;background-image:${image} !important;color:${text} !important}` +
-      `${buttonSelector}:disabled{opacity:.55}`;
+      `${themeSelector}{background-color:${first} !important;background-image:${image} !important;color:${text} !important}` +
+      `${themeSelector}:disabled{opacity:.55}`;
   }
 
   window.salonApplyButtonTheme = apply;

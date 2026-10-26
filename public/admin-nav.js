@@ -532,12 +532,16 @@
       buttonThemeScript.src = '/btn-theme.js';
       document.head.appendChild(buttonThemeScript);
     }
-    fetch('/api/shop-branding', { headers: authHeaders() }).then(response => response.ok ? response.json() : null).then(branding => {
+    const brandingReady = fetch('/api/shop-branding', { headers: authHeaders() }).then(response => response.ok ? response.json() : null).then(branding => {
       if (!branding) return;
       if (branding.name) shopName.textContent = branding.name;
       if (branding.logoUrl) { logo.src = branding.logoUrl; logo.hidden = false; }
       if (window.salonApplyButtonTheme) window.salonApplyButtonTheme(branding.login);
     }).catch(() => {});
+    window.salonShellReady = Promise.race([
+      brandingReady,
+      new Promise(resolve => setTimeout(resolve, 800))
+    ]);
   }
 
   async function initialize() {

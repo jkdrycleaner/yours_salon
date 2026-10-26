@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="/app-boot.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Entry — YOURS SALON</title>
@@ -64,8 +65,8 @@
       </div>
     </form>
     <div class="aw-bottom-bar">
-      <div class="aw-total-box"><span>TOTAL &middot; <b id="awItemCount">0</b> ITEMS</span><strong id="awTotal">₹0</strong></div>
-      <button id="awSave" class="aw-save" type="submit" form="awForm">Save Work</button>
+      <div class="aw-total-box"><span>TOTAL &middot; <b id="awItemCount">0</b> ITEMS</span><label class="aw-total-edit"><span>₹</span><input id="awTotal" type="number" min="0" step="0.01" inputmode="decimal" value="0" aria-label="Total amount"></label></div>
+      <button id="awSave" class="aw-save" data-salon-btn-theme type="submit" form="awForm">Save Work</button>
     </div>
   </section>
   <div id="awSheetOverlay" class="aw-sheet-overlay"></div>
@@ -142,7 +143,7 @@
     const awStatus=document.getElementById('awStatus'),awSave=document.getElementById('awSave');
     const awSheet=document.getElementById('awServiceSheet'),awSheetOverlay=document.getElementById('awSheetOverlay');
     const awSearch=document.getElementById('awServiceSearch'),awCustomStatus=document.getElementById('awCustomStatus'),awSheetDone=document.getElementById('awSheetDone');
-    let awMeta=null,awServices=[],awQuantities=new Map(),awEditing=null,awEditDate='',awBusy=false,awEventsBound=false;
+    let awMeta=null,awServices=[],awQuantities=new Map(),awEditing=null,awEditDate='',awBusy=false,awEventsBound=false,awTotalManual=false;
     function awMoney(value){return '₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
     function awDateLabel(value){if(!value)return'';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?String(value):date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
     function awSetStatus(message,error=false){awStatus.textContent=message;awStatus.className='aw-status show'+(error?' error':'')}
@@ -161,11 +162,15 @@
         return{serviceType:service.serviceType,shortName:service.shortName||service.serviceType,rate:Number(service.rate||0),quantity,amount:Math.round(Number(service.rate||0)*quantity*100)/100};
       });
     }
-    function awTotalValue(){return Math.round(awSelectedItems().reduce((sum,item)=>sum+item.amount,0)*100)/100}
+    function awGrossValue(){return Math.round(awSelectedItems().reduce((sum,item)=>sum+item.amount,0)*100)/100}
+    function awCuttingValue(){const value=Number(document.getElementById('awCostCutting').value||0);return Number.isFinite(value)&&value>0?Math.round(value*100)/100:0}
+    function awDefaultTotal(){return Math.round((awGrossValue()+awCuttingValue())*100)/100}
+    function awTotalValue(){if(!awTotalManual||String(awTotal.value).trim()==='')return awDefaultTotal();const value=Number(awTotal.value);return Number.isFinite(value)&&value>=0?Math.round(value*100)/100:awDefaultTotal()}
     function awChange(service,delta){
       const key=service.serviceType;
       const next=Math.max(0,Math.min(999,Number(awQuantities.get(key)||0)+delta));
       if(next>0)awQuantities.set(key,next);else awQuantities.delete(key);
+      awTotalManual=false;
       awRenderServices();
     }
     function awQtyControls(service){
@@ -242,7 +247,7 @@
       else for(const service of main)awMainServices.append(awServiceCard(service));
       const selected=awSelectedItems();
       awItemCount.textContent=String(selected.reduce((sum,item)=>sum+item.quantity,0));
-      awTotal.textContent=awMoney(awTotalValue());
+      if(!awTotalManual)awTotal.value=String(awTotalValue());
       awSave.textContent=awEditing?'Update Work':'Save Work';
       awRenderSheet();
     }
@@ -331,7 +336,8 @@
         const costCutting=Number(document.getElementById('awCostCutting').value||0);
         if(!Number.isFinite(costCutting)||costCutting<0){awSetStatus('Enter a valid Cost Cutting amount.',true);return}
         const paymentMode=document.querySelector('input[name="paymentMode"]:checked')?.value||'Cash';
-        const total=Math.round(items.reduce((sum,item)=>sum+item.amount,0)*100)/100;
+        const total=awTotalValue();
+        if(!Number.isFinite(total)||total<0){awSetStatus('Enter a valid Total amount.',true);return}
         awBusy=true;awSave.disabled=true;awSave.textContent=awEditing?'Updating...':'Saving...';awSetStatus('');
         try{
           const payload={
@@ -341,6 +347,7 @@
             staff:session.employee.employeeName,
             serviceType:items.map(item=>`${item.shortName}${item.quantity>1?` x${item.quantity}`:''}`).join(', ').slice(0,1000),
             amount:total,
+            total,
             items,
             costCutting,
             paymentMode,
@@ -355,6 +362,7 @@
             location.replace('/collection-table');return;
           }
           awQuantities.clear();
+          awTotalManual=false;
           document.getElementById('awCostCutting').value='0';
           document.getElementById('awRemark').value='';
           const cash=document.querySelector('input[name="paymentMode"][value="Cash"]');if(cash)cash.checked=true;
@@ -365,11 +373,14 @@
       });
       awDateSelect.addEventListener('change',async()=>{
         if(awBusy||!awMeta)return;
+        awTotalManual=false;
         try{await awLoadMeta(awDateSelect.value,{forceNext:!awEditing||awDateSelect.value!==awEditDate});awSetStatus('')}
         catch(error){awSetStatus(error.message||'Could not load that date.',true)}
       });
       document.getElementById('awOtherButton').addEventListener('click',awOpenSheet);
-      document.getElementById('awClearAll').addEventListener('click',()=>{awQuantities.clear();awRenderServices();awSetStatus('')});
+      document.getElementById('awCostCutting').addEventListener('input',()=>{awTotalManual=false;awTotal.value=String(awDefaultTotal())});
+      awTotal.addEventListener('input',()=>{awTotalManual=true});
+      document.getElementById('awClearAll').addEventListener('click',()=>{awQuantities.clear();awTotalManual=false;awRenderServices();awSetStatus('')});
       document.getElementById('awSheetClose').addEventListener('click',awCloseSheet);
       document.getElementById('awSheetDone').addEventListener('click',awCloseSheet);
       awSheetOverlay.addEventListener('click',awCloseSheet);
@@ -402,6 +413,8 @@
         awApplyEditingRecord(awEditing);
         awEntryNo.value=String(awEditing.entryNo);
         awRenderServices();
+        awTotalManual=true;
+        awTotal.value=String(Math.round((Number(awEditing.amount||0)+Number(awEditing.costCutting||0))*100)/100);
       }
     }
     function buildForm(){
@@ -460,7 +473,7 @@
         const successMessage=wasEditing?'Entry updated successfully.':'Entry saved successfully.';editingRecord=null;history.replaceState(null,document.title,location.pathname);if(window.salonUi?.showSuccess){await window.salonUi.showSuccess(successMessage);location.reload();return}showStatus(successMessage);form.reset();buildForm();
       }catch(error){showStatus(error.message||'Could not save the entry.',true)}finally{saveButton.disabled=false;saveButton.textContent=editingRecord?'Update Entry':'Save Entry'}
     });
-    (async()=>{
+    window.salonPageReady=(async()=>{
       try{
         session=await window.salonReady;
         if(!session)return;

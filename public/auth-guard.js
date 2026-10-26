@@ -88,7 +88,7 @@
         return null;
       }
       window.salonSession = session;
-      await trackPage(session);
+      trackPage(session).catch(() => {});
       return session;
     } catch {
       clearSession();

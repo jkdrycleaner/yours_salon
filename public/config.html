@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/app-boot.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>YOURS SALON — Configuration</title>
@@ -16,6 +17,7 @@
     .sub{margin:0 0 20px}
     .panel{padding:16px;margin:14px 0;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
     .setting{display:flex;align-items:flex-start;gap:12px;padding:14px;background:#FFF;border:1px solid #E5E7EB;border-radius:8px}
+    .setting select{min-height:38px;margin-left:auto;padding:7px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;color:#243244;font:13px Arial}
     .setting input{width:20px;height:20px;accent-color:#C49A32;flex:0 0 auto;margin:0;cursor:pointer}
     .setting-copy{min-width:0}
     .setting-copy strong{display:block;font-size:14px;line-height:1.4}
@@ -122,6 +124,19 @@
         </div>
       </div>
     </section>
+    <section class="panel">
+      <h2>Shortfall Adjustment</h2>
+      <div class="setting">
+        <div class="setting-copy">
+          <strong>Shortfall borne by</strong>
+          <span class="help">Choose who absorbs the difference when the Total is lower than services plus cost cutting.</span>
+        </div>
+        <select id="shortfallAdjustment" aria-label="Shortfall adjustment">
+          <option value="employee">Employee</option>
+          <option value="costCutting">Cost Cutting</option>
+        </select>
+      </div>
+    </section>
     <div class="actions">
       <button id="saveBottom" class="compact" type="button" disabled>Save</button>
     </div>
@@ -132,6 +147,7 @@
     const statusBox=document.getElementById('status');
     const saveButtons=[document.getElementById('saveTop'),document.getElementById('saveBottom')];
     const allowPreviousEntryInput=document.getElementById('allowPreviousEntry');
+    const shortfallAdjustmentInput=document.getElementById('shortfallAdjustment');
     const dateEmployeeList=document.getElementById('dateEmployeeList');
     const dateEmployeeCount=document.getElementById('dateEmployeeCount');
     const selectAllDateEmployeesButton=document.getElementById('selectAllDateEmployees');
@@ -410,6 +426,7 @@
       if(!employeesResponse.ok)throw new Error(employeeData.error||'Could not load employees.');
       if(!dateAccessResponse.ok)throw new Error(dateAccessData.error||'Could not load previous-date access.');
       allowPreviousEntryInput.checked=config.allowPreviousEntry===true;
+      shortfallAdjustmentInput.value=config.shortfallAdjustment||'employee';
       permissions=Array.isArray(config.permissions)?config.permissions:[];
       employees=Array.isArray(employeeData)?employeeData:[];
       dateAccessRows=Array.isArray(dateAccessData)?dateAccessData:[];
@@ -433,7 +450,7 @@
         const response=await fetch('/api/config',{
           method:'PUT',
           headers:authHeaders(),
-          body:JSON.stringify({allowPreviousEntry,permissions})
+          body:JSON.stringify({allowPreviousEntry,shortfallAdjustment:shortfallAdjustmentInput.value,permissions})
         });
         const result=await response.json();
         if(!response.ok)throw new Error(result.error||'Could not save configuration.');

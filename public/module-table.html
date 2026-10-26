@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="/app-boot.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Records - YOURS SALON</title>
@@ -63,8 +64,8 @@
   </main>
   <section id="mobileAllWork" class="mw-page" hidden>
     <div class="mw-head">
-      <h1>My Work</h1>
-      <a id="mwAdd" class="mw-add" href="/collection-entry">+ Add Work</a>
+      <h1>My All Work</h1>
+      <a id="mwAdd" class="mw-add" data-salon-btn-theme href="/collection-entry">+ Add Work</a>
     </div>
     <div class="mw-toolbar">
       <button id="mwFilterButton" class="mw-filter-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z"/></svg>Filter <span id="mwFilterCount">2</span></button>
@@ -314,7 +315,7 @@
       for(const text of chips){const chip=document.createElement('span');chip.className='mw-chip';chip.textContent=text;mwChips.append(chip)}
     }
     function mwOpenFilters(){mwFilterSheet.classList.add('open');mwFilterOverlay.classList.add('open');document.body.classList.add('mw-sheet-locked')}
-    function mwCloseFilters(){mwFilterSheet.classList.remove('open');mwFilterOverlay.classList.remove('open');document.body.classList.remove('mw-sheet-locked')}
+    function mwCloseFilters(){mwDateControl?.close?.();mwFilterSheet.classList.remove('open');mwFilterOverlay.classList.remove('open');document.body.classList.remove('mw-sheet-locked')}
     function mwGroupHead(date,count,total){
       const head=document.createElement('div');head.className='mw-group-head';
       const left=document.createElement('strong');left.textContent=`${mwDateLabel(date)} · ${Number(count||0)} ${Number(count||0)===1?'Entry':'Entries'}`;
@@ -337,6 +338,12 @@
       const text=document.createElement('span');text.textContent=label;button.append(text);
       button.addEventListener('click',event=>{event.stopPropagation();handler()});return button;
     }
+    function mwByline(record,dateKey,className=''){
+      const row=document.createElement('div');row.className=className;
+      const by=document.createElement('span');by.className='mw-by-name';by.textContent=`By: ${record.staff||'—'}`;
+      const when=document.createElement('span');when.className='mw-by-date';when.textContent=`${mwDateLabel(dateKey)}, ${mwTime(record.createdAt||record.entryDate)||'—'}`;
+      row.append(by,when);return row;
+    }
     function mwRenderCard(record){
       const card=document.createElement('article');card.className='mw-card'+(record.status==='Inactive'?' inactive':'');
       const summary=document.createElement('div');summary.className='mw-summary';summary.tabIndex=0;summary.setAttribute('role','button');summary.setAttribute('aria-expanded','false');
@@ -350,7 +357,7 @@
       const chevron=document.createElement('span');chevron.className='mw-chevron';chevron.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       top.append(pay,amount,chevron);
       const dateKey=mwDateKey(record.entryDate);
-      const sub=document.createElement('div');sub.className='mw-sub';sub.textContent=`By: ${record.staff||'—'}, ${mwDateLabel(dateKey)}, ${mwTime(record.createdAt||record.entryDate)||'—'}`;
+      const sub=mwByline(record,dateKey,'mw-sub');
       summary.append(top,sub);
       const details=document.createElement('div');details.className='mw-details';
       const meta=document.createElement('div');meta.className='mw-detail-line';
@@ -367,6 +374,7 @@
         remark.append(remarkLabel,remarkValue);meta.append(remark);
       }
       if(meta.childElementCount)details.append(meta);
+      details.append(mwByline(record,dateKey,'mw-detail-byline'));
       const actions=document.createElement('div');actions.className='mw-actions';
       actions.append(mwActionButton('view','View',()=>showDetails(record)));
       if(record.status!=='Inactive'&&can('edit')&&session.pageAccess?.[definition.entryPage]!==false){
@@ -437,7 +445,7 @@
     async function mwInit(){
       document.querySelector('main.wrap').hidden=true;mobileAllWork.hidden=false;document.body.classList.add('mw-mobile-page');
       document.title='My Work - YOURS SALON';
-      mwDateControl=SalonDateRange.mount(mwDateRange,{defaultPreset:'last30',onChange:()=>mwUpdateFilterBar()});
+      mwDateControl=SalonDateRange.mount(mwDateRange,{defaultPreset:'last30',popoverPlacement:'center',onChange:()=>mwUpdateFilterBar()});
       mwStatusFilter.value='Active';
       if(!can('add')||session.pageAccess?.[definition.entryPage]===false)document.getElementById('mwAdd').hidden=true;
       if(session.employee.role==='Admin'){
@@ -510,7 +518,7 @@
     document.getElementById('mobileFilterClose').addEventListener('click',closeMobileFilters);
     mobileFilterOverlay.addEventListener('click',closeMobileFilters);
     document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMobileFilters()});
-    (async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;      if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
+    window.salonPageReady=(async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;      if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
       if(moduleKey==='collection'&&isMobileViewport){await mwInit();return}
       if(session.employee.role==='Admin'){document.getElementById('employeeField').hidden=false;const staff=await salonAuth.request('/api/staff');for(const employee of staff)document.getElementById('employee').add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));if(requestedEmployeeId&&staff.some(employee=>employee._id===requestedEmployeeId))document.getElementById('employee').value=requestedEmployeeId}
       if(!can('add')||session.pageAccess?.[definition.entryPage]===false)entryLink.hidden=true;
