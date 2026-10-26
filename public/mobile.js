@@ -77,8 +77,13 @@
 
     const header = document.createElement('header');
     header.className = 'm-mobile-header';
+    const headerPhoto = section === 'dashboard'
+      ? ''
+      : `<span class="m-avatar">${employee.photoUrl ? `<img src="${employee.photoUrl}" alt="">` : initials(displayName)}</span>`;
     header.innerHTML = `
       <a class="m-brand" href="/employee-dashboard" aria-label="Go to dashboard">
+        ${headerPhoto}
+        <span class="m-logo">Y</span>
         <span class="m-brand-name">YOURS SALON</span>
       </a>`;
     document.body.prepend(header);
