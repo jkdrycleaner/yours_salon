@@ -18,6 +18,123 @@
     .row-actions{display:flex;gap:5px}.row-actions a,.row-actions button{min-height:30px;padding:5px 8px;border-radius:6px;background:#eff2f5;color:#344054;font-size:10px;text-decoration:none}.row-actions .delete{background:#fff0ef;color:#b42318}
     @media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.wrap{padding:11px}.heading{align-items:flex-start;flex-direction:column}.heading h1{font-size:23px}.cards{gap:8px}.card{padding:13px}.value{font-size:20px}.nav a,.nav button{min-height:34px;padding:7px;font-size:11px}.panel{padding:13px}}
   </style>
+  <style>
+    @media (max-width:700px){
+      body.mobile-employee #mobileDashboard{padding:16px 16px 24px;background:#f4f7fb}
+      .emp-greeting{display:flex;align-items:center;gap:16px;margin:6px 0 18px}
+      .emp-avatar{display:grid;place-items:center;width:82px;height:82px;flex:0 0 82px;border:2px solid #f0c96a;border-radius:24px;background:#fff8e8;color:#c99a23}
+      .emp-avatar svg{width:44px;height:44px;stroke:currentColor;fill:none;stroke-width:1.6}
+      .emp-greeting p{margin:0 0 2px;color:#667085;font-size:15px}
+      .emp-greeting h1{margin:0;color:#1d2939;font:800 29px/1.1 Arial,sans-serif;letter-spacing:-.03em}
+      .emp-greeting small{display:block;margin-top:5px;color:#667085;font-size:14px}
+      .emp-today{padding:20px 18px 0;border:1px solid #e7ebf0;border-radius:24px;background:#fff;box-shadow:0 10px 24px #1b2a3b0a}
+      .emp-today-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+      .emp-kicker{color:#9a7414;font:800 12px Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+      .emp-today-value{margin-top:6px;color:#0b7a43;font:800 48px/1 Arial,sans-serif;letter-spacing:-.04em}
+      .emp-today-label{margin-top:4px;color:#667085;font-size:14px}
+      .emp-today-side{display:flex;flex-direction:column;align-items:flex-end;min-width:126px}
+      .emp-trend-row{display:flex;align-items:center;gap:7px}
+      .emp-trend{display:inline-flex;align-items:center;gap:3px;padding:6px 9px;border-radius:10px;background:#e6f8ee;color:#0b7a43;font:800 12px Arial,sans-serif;white-space:nowrap}
+      .emp-trend.down{background:#fff0ef;color:#b42318}
+      .emp-trend-note{color:#8a96a5;font-size:11px;white-space:nowrap}
+      .emp-spark{width:122px;height:44px;margin-top:8px}
+      .emp-spark svg{width:100%;height:100%}
+      .emp-today-split{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:16px;padding:14px 0;border-top:1px solid #edf0f4}
+      .emp-today-split>div{padding:0 8px;border-left:1px solid #edf0f4}
+      .emp-today-split>div:first-child{padding-left:0;border-left:0}
+      .emp-today-split span{display:block;color:#667085;font-size:12px;white-space:nowrap}
+      .emp-today-split strong{display:block;margin-top:5px;font-size:20px;letter-spacing:-.02em}
+      .emp-orange{color:#b26a00}.emp-blue{color:#2f6fed}.emp-purple{color:#8b3fd1}.emp-green{color:#0b7a43}
+      .emp-star{display:flex;align-items:center;gap:16px;margin-top:18px;padding:18px;border:1px solid #f0d99a;border-radius:24px;background:#fff8e8}
+      .emp-star-avatar{position:relative;display:grid;place-items:center;width:76px;height:76px;flex:0 0 76px;border:2px solid #e2b33f;border-radius:50%;background:#fff;color:#c99a23}
+      .emp-star-avatar svg{width:42px;height:42px;stroke:currentColor;fill:none;stroke-width:1.6}
+      .emp-star-avatar img{position:absolute;inset:0;z-index:1;width:100%;height:100%;border-radius:50%;object-fit:cover}
+      .emp-star-crown{position:absolute;z-index:2;right:-4px;bottom:-2px;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#d8a62b;color:#fff;font-size:12px}
+      .emp-star .emp-kicker{color:#b8860b}
+      .emp-star h2{margin:4px 0 0;color:#3d3524;font-size:21px;letter-spacing:-.02em}
+      .emp-star p{margin:3px 0 0;color:#8a6a12;font-size:14px}
+      .emp-month-card{margin-top:18px;padding:18px;border:1px solid #e7ebf0;border-radius:24px;background:#fff;box-shadow:0 10px 24px #1b2a3b0a}
+      .emp-month-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:14px;border-bottom:1px solid #edf0f4}
+      .emp-month-head h2{margin:0;color:#1d2939;font-size:22px;letter-spacing:-.02em}
+      .emp-month-pill{position:relative;display:flex;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #e5e9ef;border-radius:12px;background:#fff;color:#1d2939;font:700 14px Arial,sans-serif;cursor:pointer;white-space:nowrap}
+      .emp-month-pill svg{width:18px;height:18px;stroke:#667085;fill:none;stroke-width:1.8}
+      .emp-month-pill input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+      .emp-month-grid{display:grid;grid-template-columns:1fr 1fr;margin-top:2px}
+      .emp-month-grid>div{padding:14px 0;border-bottom:1px solid #edf0f4}
+      .emp-month-grid>div:nth-child(odd){padding-right:14px;border-right:1px solid #edf0f4}
+      .emp-month-grid>div:nth-child(even){padding-left:14px}
+      .emp-month-grid span{display:block;color:#667085;font-size:13px}
+      .emp-month-grid strong{display:block;margin-top:5px;font-size:22px;letter-spacing:-.02em}
+      .emp-taken{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;color:#667085;font-size:13px}
+      .emp-taken b{color:#667085;font-weight:700}
+      .emp-progress{display:flex;height:12px;overflow:hidden;margin-top:8px;border-radius:99px;background:#dff4e8}
+      .emp-progress span{height:100%}
+      .emp-advance-bar{background:#e3a11a}.emp-salary-bar{background:#2f7cf6}.emp-extra-bar{background:#b42318}
+      .emp-balance{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:16px 18px;border-radius:16px;background:#202b38;color:#fff}
+      .emp-balance span{display:block;color:#fff;font:800 13px Arial,sans-serif;letter-spacing:.04em}
+      .emp-balance small{display:block;margin-top:3px;color:#cbd3dc;font-size:13px}
+      .emp-balance strong{color:#f4c64d;font-size:26px;letter-spacing:-.02em;white-space:nowrap}
+      .emp-balance.extra{background:#3b1f1f}
+      .emp-balance.extra span,.emp-balance.extra strong{color:#f2a7a7}
+    }
+    @media (max-width:700px) and (max-height:900px){
+      body.mobile-employee #mobileDashboard{padding:8px 12px 10px}
+      .emp-greeting{gap:12px;margin:0 0 10px}
+      .emp-avatar{width:58px;height:58px;flex-basis:58px;border-radius:18px}
+      .emp-avatar svg{width:32px;height:32px}
+      .emp-greeting p{font-size:13px}
+      .emp-greeting h1{font-size:24px}
+      .emp-greeting small{margin-top:3px;font-size:12px}
+      .emp-today{padding:12px 14px 0;border-radius:18px}
+      .emp-kicker{font-size:10px}
+      .emp-today-value{margin-top:4px;font-size:36px}
+      .emp-today-label{margin-top:2px;font-size:12px}
+      .emp-today-side{min-width:108px}
+      .emp-trend{padding:4px 7px;border-radius:8px;font-size:10px}
+      .emp-trend-note{font-size:10px}
+      .emp-spark{width:100px;height:32px;margin-top:5px}
+      .emp-today-split{margin-top:10px;padding:10px 0}
+      .emp-today-split span{font-size:11px}
+      .emp-today-split strong{margin-top:3px;font-size:17px}
+      .emp-star{gap:12px;margin-top:10px;padding:12px;border-radius:18px}
+      .emp-star-avatar{width:56px;height:56px;flex-basis:56px}
+      .emp-star-avatar svg{width:32px;height:32px}
+      .emp-star-crown{right:-3px;bottom:-1px;width:20px;height:20px;font-size:10px}
+      .emp-star h2{margin-top:2px;font-size:18px}
+      .emp-star p{margin-top:2px;font-size:12px}
+      .emp-star .emp-kicker{font-size:10px}
+      .emp-month-card{margin-top:10px;padding:12px 14px;border-radius:18px}
+      .emp-month-head{padding-bottom:8px}
+      .emp-month-head h2{font-size:19px}
+      .emp-month-pill{min-height:34px;padding:5px 9px;border-radius:10px;font-size:12px}
+      .emp-month-pill svg{width:15px;height:15px}
+      .emp-month-grid>div{padding:8px 0}
+      .emp-month-grid>div:nth-child(odd){padding-right:10px}
+      .emp-month-grid>div:nth-child(even){padding-left:10px}
+      .emp-month-grid span{font-size:11px}
+      .emp-month-grid strong{margin-top:3px;font-size:18px}
+      .emp-taken{margin-top:8px;font-size:11px}
+      .emp-progress{height:9px;margin-top:6px}
+      .emp-balance{margin-top:8px;padding:9px 12px;border-radius:12px}
+      .emp-balance span{font-size:11px}
+      .emp-balance small{margin-top:2px;font-size:11px}
+      .emp-balance strong{font-size:21px}
+    }
+    @media (max-width:700px) and (max-height:760px){
+      body.mobile-employee #mobileDashboard{padding:6px 12px 6px}
+      .emp-greeting{margin-bottom:8px}
+      .emp-today{padding:10px 12px 0}
+      .emp-today-split{margin-top:8px;padding:8px 0}
+      .emp-star{margin-top:8px;padding:10px}
+      .emp-star-avatar{width:52px;height:52px;flex-basis:52px}
+      .emp-month-card{margin-top:8px;padding:10px 12px}
+      .emp-month-head{padding-bottom:6px}
+      .emp-month-grid>div{padding:6px 0}
+      .emp-taken{margin-top:6px}
+      .emp-progress{margin-top:5px}
+      .emp-balance{margin-top:6px;padding:8px 10px}
+    }
+  </style>
 </head>
 <body>
   <main class="wrap">
@@ -96,7 +213,31 @@
 
     function greeting() {
       const hour = new Date().getHours();
-      return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+      return hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+    }
+
+    function isAdvanceRecord(record) {
+      return record.recordType === 'expense' && /advance/i.test(String(record.expenseType || ''));
+    }
+
+    function sumAmount(records) {
+      return records.reduce((sum, record) => sum + Number(record.amount || 0), 0);
+    }
+
+    function sparkline(values) {
+      const width = 122;
+      const height = 44;
+      const pad = 4;
+      const max = Math.max(...values, 1);
+      const points = values.map((value, index) => {
+        const x = pad + index * (width - pad * 2) / Math.max(values.length - 1, 1);
+        const y = height - pad - (value / max) * (height - pad * 2);
+        return [x, y];
+      });
+      const line = points.map((point, index) => `${index ? 'L' : 'M'}${point[0].toFixed(1)} ${point[1].toFixed(1)}`).join(' ');
+      const area = `${line} L${width - pad} ${height - pad} L${pad} ${height - pad} Z`;
+      const last = points[points.length - 1] || [width - pad, height - pad];
+      return `<svg viewBox="0 0 ${width} ${height}" aria-hidden="true"><path d="${area}" fill="#dff4e8"/><path d="${line}" fill="none" stroke="#0b8a4b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${last[0]}" cy="${last[1]}" r="4" fill="#0b8a4b"/></svg>`;
     }
 
     function canAdd(moduleKey) {
@@ -241,79 +382,97 @@
     function renderMobile(data, combined, employee) {
       const summary = data.summary;
       const today = dateKey(new Date());
+      const yesterdayDate = new Date();
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      const yesterday = dateKey(yesterdayDate);
       const todayCollections = data.collections.filter(entry => dateKey(entry.entryDate) === today);
       const todayRecords = data.records.filter(record => dateKey(record.entryDate) === today);
-      const todayCollection = todayCollections.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
-      const todayExpense = todayRecords.filter(record => record.recordType === 'expense').reduce((sum, record) => sum + Number(record.amount || 0), 0);
+      const todayCollection = sumAmount(todayCollections);
+      const yesterdayCollection = sumAmount(data.collections.filter(entry => dateKey(entry.entryDate) === yesterday));
+      const todayAdvance = sumAmount(todayRecords.filter(isAdvanceRecord));
+      const todaySalaryPaid = sumAmount(todayRecords.filter(record => record.recordType === 'salary'));
       const todayEarned = summary.salaryMode === 'fixed'
         ? Number(summary.fixedMonthlySalary || 0) / 30
         : todayCollection * Number(summary.salaryPercentage || 0) / 100;
-
-      const serviceTotals = new Map();
-      for (const entry of data.collections) {
-        for (const service of collectionServices(entry)) {
-          serviceTotals.set(service.name, (serviceTotals.get(service.name) || 0) + service.amount);
-        }
-      }
-      const topService = [...serviceTotals.entries()].sort((a, b) => b[1] - a[1])[0];
+      const advance = sumAmount(data.records.filter(isAdvanceRecord));
+      const salaryPaid = sumAmount(data.records.filter(record => record.recordType === 'salary'));
+      const taken = advance + salaryPaid;
+      const extra = Math.max(0, taken - Number(summary.earnedSalary || 0));
+      const balance = Math.max(0, Number(summary.earnedSalary || 0) - taken);
+      const scale = extra > 0 ? taken + extra : Math.max(Number(summary.earnedSalary || 0), taken, 1);
+      const advanceWidth = Math.min(100, advance / scale * 100);
+      const salaryWidth = Math.min(100 - advanceWidth, salaryPaid / scale * 100);
+      const extraWidth = extra > 0 ? Math.max(0, 100 - advanceWidth - salaryWidth) : 0;
+      const percent = Number(summary.earnedSalary || 0) > 0
+        ? Math.floor(taken / Number(summary.earnedSalary) * 100)
+        : taken > 0 ? 100 : 0;
+      const trend = yesterdayCollection > 0
+        ? Math.round((todayCollection - yesterdayCollection) / yesterdayCollection * 100)
+        : todayCollection > 0 ? 100 : 0;
+      const trendArrow = trend < 0 ? '▼' : '▲';
+      const trendSign = trend >= 0 ? '+' : '';
       const firstName = String(employee.employeeName || 'there').split(/\s+/)[0];
-      const quickLinks = [];
-      for (const moduleKey of ['collection', 'expense', 'salary', 'counter']) {
-        if (canAdd(moduleKey) && canOpenEntry(moduleKey)) {
-          const suffix = isAdminView ? `?employeeId=${encodeURIComponent(employee.employeeId || '')}` : '';
-          quickLinks.push(`<a class="m-quick-link" href="/${moduleKey}-entry${suffix}">+ ${moduleKey === 'collection' ? 'Add Work' : moduleKey === 'counter' ? 'Counter' : moduleKey.charAt(0).toUpperCase() + moduleKey.slice(1)}</a>`);
-        }
+      const fullName = employee.employeeName || 'Employee';
+      const monthName = monthLabel(data.month);
+      const monthOnly = new Date(`${data.month}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'long' });
+      const dateLine = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+      const sparkValues = [];
+      for (let offset = 6; offset >= 0; offset -= 1) {
+        const day = new Date();
+        day.setDate(day.getDate() - offset);
+        const key = dateKey(day);
+        sparkValues.push(sumAmount(data.collections.filter(entry => dateKey(entry.entryDate) === key)));
       }
 
       mobileDashboard.innerHTML = `
-        <div class="m-greeting">
-          <h1>${escapeHtml(greeting())}, ${escapeHtml(firstName)}</h1>
-          <p>${escapeHtml(new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }))}</p>
-        </div>
-        <section class="m-today-card">
-          <div class="m-today-label">TODAY</div>
-          <div class="m-today-title">Collection</div>
-          <div class="m-today-amount">${money(todayCollection)}</div>
-          <div class="m-today-split">
-            <div>Expense<strong>${money(todayExpense)}</strong></div>
-            <div>Salary earned<strong>${money(todayEarned)}</strong></div>
+        <section class="emp-greeting">
+          <div class="emp-avatar">${window.salonMobile?.svg ? window.salonMobile.svg('profile') : ''}</div>
+          <div><p>${escapeHtml(greeting())}</p><h1>${escapeHtml(fullName)}</h1><small>${escapeHtml(dateLine)}</small></div>
+        </section>
+        <section class="emp-today">
+          <div class="emp-today-top">
+            <div>
+              <div class="emp-kicker">MY TODAY WORK</div>
+              <div class="emp-today-value">${money(todayCollection)}</div>
+              <div class="emp-today-label">Today's earning</div>
+            </div>
+            <div class="emp-today-side">
+              <div class="emp-trend-row"><span class="emp-trend${trend < 0 ? ' down' : ''}">${trendArrow} ${trendSign}${Math.abs(trend)}%</span><span class="emp-trend-note">vs Yesterday</span></div>
+              <div class="emp-spark">${sparkline(sparkValues)}</div>
+            </div>
+          </div>
+          <div class="emp-today-split">
+            <div><span>Advance Taken</span><strong class="emp-orange">${money(todayAdvance)}</strong></div>
+            <div><span>Salary Earned</span><strong class="emp-blue">${money(todayEarned)}</strong></div>
+            <div><span>Salary Paid</span><strong class="emp-purple">${money(todaySalaryPaid)}</strong></div>
           </div>
         </section>
-        ${topService ? `<section class="m-topper">
-          <span class="m-topper-avatar">${window.salonMobile?.svg ? window.salonMobile.svg('profile') : ''}<span class="m-topper-crown">♛</span></span>
-          <div><div class="m-topper-label">Top service this month</div><strong>${escapeHtml(topService[0])}</strong><small>${money(topService[1])} collection</small></div>
-        </section>` : ''}
-        <div class="m-section-head">
-          <h2>This month</h2>
-          <input id="mobileMonth" class="m-month-input" type="month" value="${escapeHtml(data.month)}" aria-label="Dashboard month">
-        </div>
-        <section class="m-cards">
-          <article class="m-card"><div class="m-card-label">Collection</div><div class="m-card-value">${money(summary.collection)}</div><div class="m-card-note">Customer entries this month</div></article>
-          <article class="m-card"><div class="m-card-label">Expense</div><div class="m-card-value">${money(summary.expenses)}</div><div class="m-card-note">Assigned to your account</div></article>
-          <article class="m-card"><div class="m-card-label">Salary earned</div><div class="m-card-value">${money(summary.earnedSalary)}</div><div class="m-card-note">${summary.salaryMode === 'fixed' ? 'Fixed monthly salary' : `${summary.salaryPercentage}% of collection`}</div></article>
-          <article class="m-card dark"><div class="m-card-label">Net payable</div><div class="m-card-value">${money(summary.payable)}</div><div class="m-card-note">After expenses and salary paid</div></article>
+        <section class="emp-star">
+          <div class="emp-star-avatar">${window.salonMobile?.svg ? window.salonMobile.svg('profile') : ''}${employee.photoUrl ? `<img src="${escapeHtml(employee.photoUrl)}" alt="${escapeHtml(fullName)}" onerror="this.remove()">` : ''}<span class="emp-star-crown">♛</span></div>
+          <div><div class="emp-kicker">STAR OF THE MONTH</div><h2>${escapeHtml(fullName)}</h2><p>${money(summary.collection)} Work Done In ${escapeHtml(monthOnly)}</p></div>
         </section>
-        <section class="m-panel">
-          <div class="m-panel-head"><div><h2>Salary breakdown</h2><p class="m-panel-sub">How this month's payable is calculated.</p></div></div>
-          <div class="m-breakdown">
-            <div class="m-breakdown-row"><span>Earned salary</span><strong>${money(summary.earnedSalary)}</strong></div>
-            <div class="m-breakdown-row"><span>Less: expenses</span><strong>− ${money(summary.expenses)}</strong></div>
-            <div class="m-breakdown-row"><span>Less: salary paid</span><strong>− ${money(summary.salaryPaid)}</strong></div>
-            <div class="m-breakdown-row"><span>Net payable</span><strong>${money(summary.payable)}</strong></div>
+        <section class="emp-month-card">
+          <div class="emp-month-head">
+            <h2>Month</h2>
+            <label class="emp-month-pill">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>
+              <span>${escapeHtml(monthName)}</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              <input id="mobileMonth" type="month" value="${escapeHtml(data.month)}" aria-label="Dashboard month">
+            </label>
           </div>
-        </section>
-        <section class="m-panel">
-          <div class="m-panel-head"><div><h2>Collection summary</h2><p class="m-panel-sub">Daily and service-wise totals.</p></div></div>
-          <div class="m-tabs"><button type="button" class="m-tab active" data-tab="daily">Daily</button><button type="button" class="m-tab" data-tab="service">Service</button></div>
-          <div class="m-bars" id="mobileBars"></div>
-        </section>
-        <section class="m-panel">
-          <div class="m-panel-head"><div><h2>Recent activity</h2><p class="m-panel-sub">Your latest entries this month.</p></div><a class="m-quick-link" href="/collection-table">View all</a></div>
-          <div class="m-activity-list">
-            ${combined.length ? combined.slice(0, 6).map(item => `<div class="m-activity"><span class="m-activity-icon">${window.salonMobile?.svg ? window.salonMobile.svg(item.kind === 'collection' ? 'collection' : item.kind === 'expense' ? 'expense' : item.kind === 'salary' ? 'salary' : 'counter') : ''}</span><div><strong>${escapeHtml(item.type)}</strong><small>${escapeHtml(dateText(item.date))} · ${escapeHtml(item.detail || '—')}</small></div><span class="m-activity-amount ${item.kind === 'expense' ? 'expense' : item.kind === 'salary' ? 'salary' : ''}">${money(item.amount)}</span></div>`).join('') : '<div class="m-empty">No records for this month.</div>'}
+          <div class="emp-month-grid">
+            <div><span>My Work</span><strong class="emp-green">${money(summary.collection)}</strong></div>
+            <div><span>Earned Salary</span><strong class="emp-green">${money(summary.earnedSalary)}</strong></div>
+            <div><span>Advance Taken</span><strong class="emp-orange">${money(advance)}</strong></div>
+            <div><span>Salary Paid</span><strong class="emp-blue">${money(salaryPaid)}</strong></div>
           </div>
+          <div class="emp-taken"><span>Taken ${money(taken)} Of ${money(summary.earnedSalary)}</span><b>${percent}%</b></div>
+          <div class="emp-progress" aria-hidden="true"><span class="emp-advance-bar" style="width:${advanceWidth}%"></span><span class="emp-salary-bar" style="width:${salaryWidth}%"></span>${extraWidth > 0 ? `<span class="emp-extra-bar" style="width:${extraWidth}%"></span>` : ''}</div>
+          ${extra > 0
+            ? `<div class="emp-balance extra"><div><span>EXTRA PAID</span><small>More Than Earned Salary</small></div><strong>${money(extra)}</strong></div>`
+            : `<div class="emp-balance"><div><span>BALANCE TO GET</span><small>Earned Less Taken</small></div><strong>${money(balance)}</strong></div>`}
         </section>
-        ${quickLinks.length ? `<section class="m-panel"><div class="m-panel-head"><div><h2>Quick actions</h2><p class="m-panel-sub">Create a new entry.</p></div></div><div class="m-quick-links">${quickLinks.join('')}</div></section>` : ''}
       `;
 
       const mobileMonth = document.getElementById('mobileMonth');
@@ -321,32 +480,6 @@
         if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mobileMonth.value)) return;
         monthInput.value = mobileMonth.value;
         load();
-      });
-
-      const daily = new Map();
-      for (const entry of data.collections) {
-        const key = dateKey(entry.entryDate);
-        daily.set(key, (daily.get(key) || 0) + Number(entry.amount || 0));
-      }
-      const dailyRows = [...daily.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-7);
-      const serviceRows = [...serviceTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
-      const drawBars = mode => {
-        const source = mode === 'service' ? serviceRows : dailyRows;
-        const max = Math.max(...source.map(row => row[1]), 1);
-        const bars = document.getElementById('mobileBars');
-        if (!bars) return;
-        bars.innerHTML = source.length ? source.map(([label, value]) => {
-          const width = Math.max(4, Math.round(value / max * 100));
-          const text = mode === 'service' ? label : new Date(`${label}T00:00:00`).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-          return `<div class="m-bar-row"><span title="${escapeHtml(text)}">${escapeHtml(text)}</span><span class="m-bar-track"><span class="m-bar-fill" style="width:${width}%"></span></span><strong>${money(value)}</strong></div>`;
-        }).join('') : '<div class="m-empty">No collection data for this month.</div>';
-      };
-      drawBars('daily');
-      mobileDashboard.querySelectorAll('.m-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          mobileDashboard.querySelectorAll('.m-tab').forEach(item => item.classList.toggle('active', item === tab));
-          drawBars(tab.dataset.tab);
-        });
       });
     }
 

@@ -79,10 +79,8 @@
     header.className = 'm-mobile-header';
     header.innerHTML = `
       <a class="m-brand" href="/employee-dashboard" aria-label="Go to dashboard">
-        <span class="m-logo">Y</span>
         <span class="m-brand-name">YOURS SALON</span>
-      </a>
-      <a class="m-avatar" href="/profile" aria-label="Open profile">${employee.photoUrl ? `<img src="${employee.photoUrl}" alt="">` : initials(displayName)}</a>`;
+      </a>`;
     document.body.prepend(header);
 
     const nav = document.createElement('nav');
@@ -91,7 +89,6 @@
     const navItems = [
       { key: 'dashboard', href: '/employee-dashboard', label: 'Dashboard', icon: 'dashboard' },
       { key: 'collection-records', href: '/collection-table', label: 'My Work', icon: 'collection' },
-      { key: 'expense-records', href: '/expense-table', label: 'Expense', icon: 'expense' },
       { key: 'salary-records', href: '/salary-table', label: 'Salary', icon: 'salary' },
       { key: 'counter-records', href: '/counter-table', label: 'Counter Cash', icon: 'counter' }
     ];
@@ -102,7 +99,7 @@
     }
     const moreButton = document.createElement('button');
     moreButton.type = 'button';
-    moreButton.className = `m-nav-item${section === '' ? ' active' : ''}`;
+    moreButton.className = `m-nav-item no-btn-theme${section === '' ? ' active' : ''}`;
     moreButton.setAttribute('aria-haspopup', 'dialog');
     moreButton.setAttribute('aria-expanded', 'false');
     moreButton.innerHTML = `${svg('more')}<span>More</span>`;
@@ -118,6 +115,7 @@
     sheet.innerHTML = '<div class="m-sheet-handle"></div><h2>More</h2>';
     const grid = document.createElement('div');
     grid.className = 'm-more-grid';
+    if (hasPage(session, 'expense-records')) grid.append(makeMoreTile('/expense-table', 'Expense', 'expense', 'blue'));
     grid.append(
       makeMoreTile('/attendance', 'Attendance', 'attendance', 'green', true),
       makeMoreTile('/customers', 'Customers', 'customers', 'blue', true)

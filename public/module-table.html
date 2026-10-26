@@ -24,6 +24,55 @@
     .select-column input{width:16px;height:16px;margin:0;accent-color:#c99a23;cursor:pointer}
     .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   </style>
+  <style>
+    .sal-page{display:none;width:100%;max-width:760px;margin:0 auto;padding:16px 16px 24px;background:#f4f7fb;color:#1d2939;font-family:Arial,sans-serif}
+    body.mobile-employee.salary-mobile .sal-page{display:block}
+    body.mobile-employee.salary-mobile .m-page,body.mobile-employee.salary-mobile .m-filter-bar,body.mobile-employee.salary-mobile .m-mobile-records,body.mobile-employee.salary-mobile .m-list-meta,body.mobile-employee.salary-mobile .m-mobile-load-more{display:none!important}
+    .sal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 16px}
+    .sal-head h1{margin:0;color:#1d2939;font:800 30px/1.1 Arial,sans-serif;letter-spacing:-.03em}
+    .sal-month-pill{position:relative;display:flex;align-items:center;gap:7px;min-height:42px;padding:8px 13px;border:1px solid #f0dfb0;border-radius:14px;background:#fff5dc;color:#8a6a12;font:700 14px Arial,sans-serif;cursor:pointer;white-space:nowrap}
+    .sal-month-pill svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8}
+    .sal-month-pill input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+    .sal-summary{padding:18px;border:1px solid #e7ebf0;border-radius:24px;background:#fff;box-shadow:0 10px 24px #1b2a3b0a}
+    .sal-line{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #edf0f4}
+    .sal-line:first-child{padding-top:0}
+    .sal-line:last-of-type{border-bottom:0;padding-bottom:0}
+    .sal-icon{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:#f4f6f9;color:#667085;font:800 22px/1 Arial,sans-serif}
+    .sal-copy{min-width:0;flex:1}
+    .sal-copy strong{display:block;color:#1d2939;font-size:17px;letter-spacing:-.01em}
+    .sal-copy small{display:block;overflow:hidden;margin-top:3px;color:#8a96a5;font-size:10.5px;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}
+    .sal-line>b{font-size:20px;letter-spacing:-.02em;white-space:nowrap}
+    .sal-green{color:#0b7a43}.sal-orange{color:#b26a00}.sal-blue{color:#2f6fed}
+    .sal-taken{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;color:#667085;font-size:13px}
+    .sal-taken b{color:#667085;font-weight:700}
+    .sal-progress{display:flex;height:12px;overflow:hidden;margin-top:8px;border-radius:99px;background:#dff4e8}
+    .sal-progress span{height:100%}
+    .sal-advance-bar{background:#e3a11a}.sal-salary-bar{background:#2f7cf6}.sal-extra-bar{background:#b42318}
+    .sal-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;color:#667085;font-size:11px}
+    .sal-legend span{display:inline-flex;align-items:center;gap:5px}
+    .sal-legend i{width:8px;height:8px;border-radius:50%}
+    .sal-legend .advance i{background:#e3a11a}.sal-legend .salary i{background:#2f7cf6}.sal-legend .extra i{background:#b42318}
+    .sal-balance{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:16px 18px;border-radius:16px;background:#202b38;color:#fff}
+    .sal-balance span{display:block;font:800 13px Arial,sans-serif;letter-spacing:.04em}
+    .sal-balance small{display:block;margin-top:3px;color:#cbd3dc;font-size:13px}
+    .sal-balance strong{color:#f4c64d;font-size:26px;letter-spacing:-.02em;white-space:nowrap}
+    .sal-balance.extra{background:#3b1f1f}
+    .sal-balance.extra span,.sal-balance.extra strong{color:#f2a7a7}
+    .sal-money-head h2{margin:22px 0 12px;color:#1d2939;font-size:22px;letter-spacing:-.02em}
+    .sal-filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+    .sal-filter{min-height:40px;padding:9px 16px;border:1px solid #e5e9ef;border-radius:99px;background:#fff;color:#344054;font:700 14px Arial,sans-serif;white-space:nowrap;cursor:pointer}
+    .sal-filter.active{border-color:#f0dfb0;background:#fff5dc;color:#8a6a12}
+    .sal-list{display:grid;gap:10px;margin-top:14px}
+    .sal-row{display:flex;align-items:center;gap:10px;padding:16px;border:1px solid #e7ebf0;border-radius:16px;background:#fff;box-shadow:0 6px 16px #1b2a3b06}
+    .sal-date{min-width:58px;color:#1d2939;font-size:16px;font-weight:800;white-space:nowrap}
+    .sal-chip{padding:5px 10px;border-radius:99px;font-size:12px;font-weight:700;white-space:nowrap}
+    .sal-chip.advance{background:#fff5dc;color:#b26a00}.sal-chip.salary{background:#eaf2ff;color:#2f6fed}
+    .sal-amount{margin-left:auto;font-size:18px;font-weight:800;white-space:nowrap}
+    .sal-amount.advance{color:#b26a00}.sal-amount.salary{color:#2f6fed}
+    .sal-empty{padding:24px 12px;border:1px dashed #dce3eb;border-radius:14px;color:#8a96a5;font-size:13px;text-align:center;background:#fff}
+    .sal-status{display:none;margin-top:12px;padding:11px;border-radius:10px;background:#fff0ef;color:#a13832;font-size:13px}
+    .sal-status.show{display:block}
+  </style>
 </head>
 <body>
   <main class="wrap m-page">
@@ -62,6 +111,20 @@
       </div>
     </section>
   </main>
+  <section id="salaryMobile" class="sal-page" hidden>
+    <div class="sal-head">
+      <h1>My Salary</h1>
+      <label class="sal-month-pill">
+        <span id="salMonthLabel">October 2026</span>
+        <input id="salMonth" type="month" aria-label="Salary month">
+      </label>
+    </div>
+    <div id="salSummary" class="sal-summary"></div>
+    <div class="sal-money-head"><h2>Money Taken</h2></div>
+    <div id="salFilters" class="sal-filters"></div>
+    <div id="salList" class="sal-list"></div>
+    <div id="salStatus" class="sal-status" role="status"></div>
+  </section>
   <section id="mobileAllWork" class="mw-page" hidden>
     <div class="mw-head">
       <h1>My All Work</h1>
@@ -276,6 +339,72 @@
       recordFilters.classList.add('mobile-open');mobileFilterOverlay.classList.add('open');document.documentElement.classList.add('m-filter-locked');
     }
     const isMobileViewport=window.matchMedia('(max-width:700px)').matches;
+    const salaryMobile=document.getElementById('salaryMobile');
+    const salSummary=document.getElementById('salSummary');
+    const salFilters=document.getElementById('salFilters');
+    const salList=document.getElementById('salList');
+    const salStatus=document.getElementById('salStatus');
+    const salMonth=document.getElementById('salMonth');
+    const salMonthLabel=document.getElementById('salMonthLabel');
+    let salData=null,salFilter='all';
+    function salMoney(value){return'₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+    function salMonthText(value){const date=new Date(`${value}-01T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-IN',{month:'long',year:'numeric'})}
+    function salDateText(value){const date=new Date(value);return Number.isNaN(date.getTime())?'—':date.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}
+    function salAdvanceRecords(){return (salData?.records||[]).filter(record=>record.recordType==='expense'&&/advance/i.test(String(record.expenseType||'')))}
+    function salSalaryRecords(){return (salData?.records||[]).filter(record=>record.recordType==='salary')}
+    function salRenderList(){
+      const rows=[
+        ...salAdvanceRecords().map(record=>({record,type:'advance'})),
+        ...salSalaryRecords().map(record=>({record,type:'salary'}))
+      ].filter(row=>salFilter==='all'||row.type===salFilter)
+        .sort((left,right)=>new Date(right.record.entryDate)-new Date(left.record.entryDate)||new Date(right.record.createdAt||0)-new Date(left.record.createdAt||0));
+      salList.innerHTML=rows.length?rows.map(({record,type})=>`<article class="sal-row"><span class="sal-date">${escapeHtml(salDateText(record.entryDate))}</span><span class="sal-chip ${type}">${type==='advance'?'Advance':'Salary Paid'}</span><strong class="sal-amount ${type}">− ${salMoney(record.amount)}</strong></article>`).join(''):'<div class="sal-empty">No money taken this month.</div>';
+    }
+    function salRender(){
+      if(!salData)return;
+      const summary=salData.summary||{};
+      const advance=salAdvanceRecords().reduce((sum,record)=>sum+Number(record.amount||0),0);
+      const salaryPaid=salSalaryRecords().reduce((sum,record)=>sum+Number(record.amount||0),0);
+      const earned=Number(summary.earnedSalary||0);
+      const taken=advance+salaryPaid;
+      const extra=Math.max(0,taken-earned);
+      const balance=Math.max(0,earned-taken);
+      const percent=earned>0?Math.floor(taken/earned*100):taken>0?100:0;
+      const scale=extra>0?taken+extra:Math.max(earned,taken,1);
+      const advanceWidth=Math.min(100,advance/scale*100);
+      const salaryWidth=Math.min(100-advanceWidth,salaryPaid/scale*100);
+      const extraWidth=extra>0?Math.max(0,100-advanceWidth-salaryWidth):0;
+      const salaryRule=summary.salaryMode==='fixed'?'Fixed monthly salary':`My Work ${salMoney(summary.collection)} × ${Number(summary.salaryPercentage||0)}%`;
+      salMonthLabel.textContent=salMonthText(salMonth.value);
+      salSummary.innerHTML=`
+        <div class="sal-line"><span class="sal-icon">+</span><div class="sal-copy"><strong>Earned Salary</strong><small>${escapeHtml(salaryRule)}</small></div><b class="sal-green">${salMoney(earned)}</b></div>
+        <div class="sal-line"><span class="sal-icon">−</span><div class="sal-copy"><strong>Advance Taken</strong><small>Taken In Between, Daily Or Alternate Days</small></div><b class="sal-orange">${salMoney(advance)}</b></div>
+        <div class="sal-line"><span class="sal-icon">−</span><div class="sal-copy"><strong>Salary Paid</strong><small>Salary Given To You In Parts</small></div><b class="sal-blue">${salMoney(salaryPaid)}</b></div>
+        <div class="sal-taken"><span>Taken ${salMoney(taken)} Of ${salMoney(earned)}</span><b>${percent}%</b></div>
+        <div class="sal-progress" aria-hidden="true"><span class="sal-advance-bar" style="width:${advanceWidth}%"></span><span class="sal-salary-bar" style="width:${salaryWidth}%"></span>${extraWidth>0?`<span class="sal-extra-bar" style="width:${extraWidth}%"></span>`:''}</div>
+        <div class="sal-legend"><span class="advance"><i></i>Advance Taken</span><span class="salary"><i></i>Salary Paid</span>${extra>0?'<span class="extra"><i></i>Extra Paid</span>':''}</div>
+        ${extra>0?`<div class="sal-balance extra"><div><span>EXTRA PAID</span><small>More Than Earned Salary</small></div><strong>${salMoney(extra)}</strong></div>`:`<div class="sal-balance"><div><span>BALANCE TO GET</span><small>Earned Less Taken</small></div><strong>${salMoney(balance)}</strong></div>`}
+      `;
+      salFilters.innerHTML=[['all','All'],['advance','Advance'],['salary','Salary Paid']].map(([key,label])=>`<button type="button" class="sal-filter no-btn-theme${salFilter===key?' active':''}" data-filter="${key}">${label}</button>`).join('');
+      salRenderList();
+    }
+    async function salLoad(){
+      if(!salMonth.value)salMonth.value=new Date().toISOString().slice(0,7);
+      salStatus.className='sal-status';
+      salSummary.innerHTML='<div class="sal-empty">Loading your salary...</div>';
+      salList.replaceChildren();
+      try{salData=await salonAuth.request(`/api/my-data?month=${encodeURIComponent(salMonth.value)}`);salRender()}
+      catch(error){salData=null;salSummary.innerHTML='';salStatus.textContent=error.message||'Could not load your salary.';salStatus.className='sal-status show'}
+    }
+    async function salInit(){
+      document.body.classList.add('salary-mobile');
+      document.querySelector('main.wrap').hidden=true;
+      salaryMobile.hidden=false;
+      salMonth.value=new Date().toISOString().slice(0,7);
+      salMonth.addEventListener('change',()=>{if(/^\d{4}-(0[1-9]|1[0-2])$/.test(salMonth.value))salLoad()});
+      salFilters.addEventListener('click',event=>{const button=event.target.closest('[data-filter]');if(!button)return;salFilter=button.dataset.filter;salRender()});
+      await salLoad();
+    }
     const mobileAllWork=document.getElementById('mobileAllWork');
     const mwRecords=document.getElementById('mwRecords'),mwLoadMore=document.getElementById('mwLoadMore');
     const mwListMeta=document.getElementById('mwListMeta'),mwStatus=document.getElementById('mwStatus');
@@ -519,6 +648,7 @@
     mobileFilterOverlay.addEventListener('click',closeMobileFilters);
     document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMobileFilters()});
     window.salonPageReady=(async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;      if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
+      if(moduleKey==='salary'&&isMobileViewport&&session.employee.role!=='Admin'){await salInit();return}
       if(moduleKey==='collection'&&isMobileViewport){await mwInit();return}
       if(session.employee.role==='Admin'){document.getElementById('employeeField').hidden=false;const staff=await salonAuth.request('/api/staff');for(const employee of staff)document.getElementById('employee').add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));if(requestedEmployeeId&&staff.some(employee=>employee._id===requestedEmployeeId))document.getElementById('employee').value=requestedEmployeeId}
       if(!can('add')||session.pageAccess?.[definition.entryPage]===false)entryLink.hidden=true;
