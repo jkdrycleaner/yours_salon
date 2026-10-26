@@ -82,10 +82,9 @@
       : `<span class="m-avatar">${employee.photoUrl ? `<img src="${employee.photoUrl}" alt="">` : initials(displayName)}</span>`;
     header.innerHTML = `
       <a class="m-brand" href="/employee-dashboard" aria-label="Go to dashboard">
-        ${headerPhoto}
         <span class="m-logo">Y</span>
         <span class="m-brand-name">YOURS SALON</span>
-      </a>`;
+      </a>${headerPhoto}`;
     document.body.prepend(header);
 
     const nav = document.createElement('nav');
@@ -104,7 +103,8 @@
     }
     const moreButton = document.createElement('button');
     moreButton.type = 'button';
-    moreButton.className = `m-nav-item no-btn-theme${section === '' ? ' active' : ''}`;
+    const moreActive = !['dashboard', 'collection', 'salary', 'counter'].includes(section);
+    moreButton.className = 'm-nav-item no-btn-theme' + (moreActive ? ' active' : '');
     moreButton.setAttribute('aria-haspopup', 'dialog');
     moreButton.setAttribute('aria-expanded', 'false');
     moreButton.innerHTML = `${svg('more')}<span>More</span>`;
