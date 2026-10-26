@@ -12,7 +12,8 @@
     #appBootOverlay{position:fixed;z-index:3000;inset:0;display:grid;place-items:center;padding:24px;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif;opacity:1;transition:opacity .18s ease}
     #appBootOverlay.closing{opacity:0;pointer-events:none}
     .app-boot-card{width:min(300px,100%);padding:26px 22px;border:1px solid #e1e7ee;border-radius:18px;background:#fff;box-shadow:0 18px 55px #1723321f;text-align:center}
-    .app-boot-logo{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 15px;border-radius:18px;background:#fff4d5;color:#9a7414;font:800 26px Arial}
+    .app-boot-logo{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 15px;padding:5px;border-radius:18px;background:#fff;color:#9a7414;font:800 26px Arial;overflow:hidden}
+    .app-boot-logo img{display:block;width:100%;height:100%;object-fit:contain}
     .app-boot-spinner{width:28px;height:28px;margin:0 auto 14px;border:3px solid #ead9a9;border-top-color:#c99a23;border-radius:50%;animation:appBootSpin .8s linear infinite}
     .app-boot-card strong{display:block;font:700 16px Arial}
     .app-boot-card span{display:block;margin-top:6px;color:#758397;font:12px Arial}
@@ -30,6 +31,9 @@
   let idleResolve = null;
   const nativeFetch = window.fetch.bind(window);
   const ignored = ['/api/activity/page-open', '/api/shop-branding'];
+  const brandingReady = nativeFetch('/api/shop-branding')
+    .then(response => response.ok ? response.json() : null)
+    .catch(() => null);
 
   window.fetch = (...args) => {
     const url = String(args[0]?.url || args[0] || '');
@@ -67,11 +71,36 @@
     overlay.id = 'appBootOverlay';
     overlay.setAttribute('role', 'status');
     overlay.setAttribute('aria-live', 'polite');
-    overlay.innerHTML = '<div class="app-boot-card"><div class="app-boot-logo">Y</div><div class="app-boot-spinner" aria-hidden="true"></div><strong>Loading...</strong><span>Please wait</span><button class="app-boot-reload" type="button">Reload</button></div>';
+    overlay.innerHTML = '<div class="app-boot-card"><div class="app-boot-logo" aria-hidden="true"></div><div class="app-boot-spinner" aria-hidden="true"></div><strong>Loading...</strong><span>Please wait</span><button class="app-boot-reload" type="button">Reload</button></div>';
     overlay.querySelector('.app-boot-reload').addEventListener('click', () => location.reload());
     document.body.appendChild(overlay);
     document.documentElement.setAttribute('aria-busy', 'true');
+    brandingReady.then(applyBranding);
+    setTimeout(() => {
+      const logo = overlay.querySelector('.app-boot-logo');
+      if (logo && !logo.childElementCount && !logo.textContent) logo.textContent = 'Y';
+    }, 1200);
     return overlay;
+  }
+
+  function applyBranding(branding) {
+    const logo = document.querySelector('#appBootOverlay .app-boot-logo');
+    if (!logo) return;
+    const fallback = String(branding?.name || 'Y').trim().charAt(0) || 'Y';
+    const url = branding?.logoUrl || branding?.faviconUrl || branding?.login?.logoUrl;
+    if (!url) {
+      logo.textContent = fallback;
+      return;
+    }
+    const image = document.createElement('img');
+    image.alt = '';
+    image.src = url;
+    image.addEventListener('error', () => { logo.textContent = fallback; });
+    logo.replaceChildren(image);
+  }
+
+  function showOverlay() {
+    ensureOverlay();
   }
 
   function finish() {
@@ -99,9 +128,9 @@
   const timeoutId = setTimeout(showSlow, 15000);
   window.addEventListener('pageshow', event => { if (event.persisted) finish(); });
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', ensureOverlay, { once: true });
+    document.addEventListener('DOMContentLoaded', showOverlay, { once: true });
   } else {
-    ensureOverlay();
+    showOverlay();
   }
 
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
