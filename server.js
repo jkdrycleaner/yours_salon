@@ -465,6 +465,7 @@ const rateListSchema = new mongoose.Schema({
     sr: { type: Number, default: 0, min: 0 },
     serviceType: { type: String, required: true, unique: true, trim: true, maxlength: 150 },
     shortName: { type: String, trim: true, default: '', maxlength: 60 },
+    serviceCategory: { type: String, trim: true, default: '', maxlength: 100 },
     rate: { type: Number, required: true, min: 0, max: 100000000 },
     category: { type: String, enum: ['Main', 'Other'], default: 'Main' },
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
@@ -3019,6 +3020,7 @@ app.post('/api/rate-list', requireSecureAuth, verifyEmployee, requireAnyPageAcce
     try {
         const serviceType = String(req.body.serviceType || '').trim();
         const shortName = String(req.body.shortName || '').trim().slice(0, 60) || serviceType.slice(0, 60);
+        const serviceCategory = String(req.body.serviceCategory || '').trim().slice(0, 100);
         const rate = Number(req.body.rate);
         const category = String(req.body.category || 'Main').trim();
         const status = String(req.body.status || 'Active').trim();
@@ -3029,7 +3031,7 @@ app.post('/api/rate-list', requireSecureAuth, verifyEmployee, requireAnyPageAcce
             return res.status(400).json({ error: 'Enter a valid SR No, service type, short name, rate, category, and status.' });
         }
         const item = await RateList.create({
-            sr, serviceType, shortName, rate, category, status,
+            sr, serviceType, shortName, serviceCategory, rate, category, status,
             createdBy: req.employee?.employeeName || ''
         });
         await recordAudit(req, {
@@ -3052,6 +3054,7 @@ app.put('/api/rate-list/:id', requireSecureAuth, verifyEmployee, requireAnyPageA
         if (!before) return res.status(404).json({ error: 'Rate list item not found.' });
         const serviceType = String(req.body.serviceType || '').trim();
         const shortName = String(req.body.shortName || '').trim().slice(0, 60) || serviceType.slice(0, 60);
+        const serviceCategory = String(req.body.serviceCategory !== undefined ? req.body.serviceCategory : (before.serviceCategory || '')).trim().slice(0, 100);
         const rate = Number(req.body.rate);
         const category = String(req.body.category || before.category || 'Main').trim();
         const status = String(req.body.status || '').trim();
@@ -3063,7 +3066,7 @@ app.put('/api/rate-list/:id', requireSecureAuth, verifyEmployee, requireAnyPageA
         }
         const item = await RateList.findByIdAndUpdate(
             req.params.id,
-            { $set: { sr, serviceType, shortName, rate, category, status } },
+            { $set: { sr, serviceType, shortName, serviceCategory, rate, category, status } },
             { returnDocument: 'after', runValidators: true }
         ).lean();
         await recordAudit(req, {
@@ -3107,6 +3110,7 @@ app.post('/api/collection-custom-services', requireSecureAuth, verifyEmployee, v
             sr,
             serviceType,
             shortName: serviceType.slice(0, 60),
+            serviceCategory: String(req.body.serviceCategory || '').trim().slice(0, 100),
             rate,
             category: 'Other',
             status: 'Active',
@@ -3171,6 +3175,7 @@ app.get('/api/collection-entry-meta', requireSecureAuth, verifyEmployee, verifyC
                 sr: Number(item.sr || 0),
                 serviceType: item.serviceType,
                 shortName: item.shortName || item.serviceType,
+                serviceCategory: item.serviceCategory || '',
                 rate: Number(item.rate || 0),
                 category: item.category || 'Main',
                 status: item.status || 'Active'

@@ -22,16 +22,32 @@
     </section>
   </main>
   <section id="mobileAddWork" class="aw-page" hidden>
-    <div class="aw-greeting">
+    <div class="aw-greeting" hidden style="display:none !important">
       <div>
-        <p id="awGreeting">Good Morning</p>
-        <h1 id="awEmployeeName">Employee</h1>
+        <p id="awGreeting"></p>
+        <h1 id="awEmployeeName"></h1>
       </div>
       <div class="aw-date"><span id="awDay"></span><strong id="awDate"></strong></div>
     </div>
-    <div class="aw-toprow">
-      <div class="aw-today-pill"><span>TODAY</span><strong id="awTodayTotal">₹0</strong><small id="awTodayCount" hidden></small></div>
-      <a class="aw-all-link" href="/collection-table">All Work <span class="aw-all-chevron">›</span></a>
+    <div class="aw-segmented-tabs">
+      <div class="aw-tab active">
+        <span class="aw-tab-icon">+</span>
+        <span>Add Work</span>
+      </div>
+      <a class="aw-tab" href="/collection-table">
+        <span>All Work</span>
+        <span class="aw-chevron">›</span>
+      </a>
+    </div>
+    <div class="aw-status-strip">
+      <div class="aw-today-box">
+        <span class="aw-status-lbl">Today:</span>
+        <strong id="awTodayTotal">₹0</strong>
+        <small id="awTodayCount" hidden></small>
+      </div>
+      <div class="aw-count-box">
+        Customer Count: <strong id="awCustomerCount">#1</strong>
+      </div>
     </div>
     <form id="awForm" class="aw-form" novalidate>
       <div class="aw-main-card">
@@ -51,9 +67,15 @@
         <div class="aw-hint-row"><span>Tap A Service To Add &middot; Tap &ndash; To Remove</span><button id="awClearAll" class="no-btn-theme" type="button">Clear All</button></div>
         <div class="aw-service-grid">
           <div id="awMainServices" class="aw-services"></div>
-          <button id="awOtherButton" class="aw-other-card" type="button">
-            <span class="aw-other-copy"><strong>Other</strong><small>All Services</small></span>
-            <span class="aw-other-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg></span>
+          <button id="awOtherButton" class="aw-other-card no-btn-theme" type="button">
+            <span class="aw-other-copy">
+              <strong>
+                <svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                <span>Other</span>
+              </strong>
+              <small>All Services</small>
+            </span>
+            <span class="aw-other-icon">&rsaquo;</span>
           </button>
         </div>
         <div class="aw-lower-row">
@@ -146,6 +168,7 @@
     const isMobileViewport=window.matchMedia('(max-width:700px)').matches;
     const mobileAddWork=document.getElementById('mobileAddWork');
     const awDateSelect=document.getElementById('awDateSelect'),awEntryNo=document.getElementById('awEntryNo');
+    awEntryNo.addEventListener('input',()=>{const c=document.getElementById('awCustomerCount');if(c)c.textContent='#'+(awEntryNo.value||'1');});
     const awMainServices=document.getElementById('awMainServices'),awAllServices=document.getElementById('awAllServices');
     const awTotal=document.getElementById('awTotal'),awItemCount=document.getElementById('awItemCount');
     const awTodayTotal=document.getElementById('awTodayTotal'),awTodayCount=document.getElementById('awTodayCount');
@@ -217,22 +240,55 @@
       plus.addEventListener('click',event=>{event.stopPropagation();awChange(service,1)});
       wrap.append(minus,qty,plus);return wrap;
     }
+        const awIcons={
+      haircut:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>',
+      shaving:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m14 14-9 9"/><path d="M5 14l9 9"/><path d="M18 4l2 2-8 8-2-2 8-8z"/><path d="M16 2l6 6"/></svg>',
+      beard:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8h16"/><path d="M4 12h16"/><path d="M4 16c2 4 6 5 8 5s6-1 8-5"/></svg>',
+      moustache:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 14c-2-3-6-3-9 0 3 4 8 2 9 0z"/><path d="M12 14c2-3 6-3 9 0-3 4-8 2-9 0z"/></svg>',
+      massage:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M12 3v1"/><path d="M8 4l1 1"/><path d="M16 4l-1 1"/></svg>',
+      spa:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2a9 9 0 0 1 9 9c0 5-4 9-9 9s-9-4-9-9a9 9 0 0 1 9-9z"/><path d="M12 6c-3 3-3 6 0 9 3-3 3-6 0-9z"/></svg>',
+      wash:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+      facial:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+      color:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m19 11-8-8-8.5 8.5a5 5 0 0 0 7 7L18 10z"/><path d="m5 2 5 5"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>',
+      nail:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8a7 7 0 0 0 14 0v-3"/></svg>',
+      wax:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 3h6v4H9z"/><path d="M10 7v14"/><path d="M14 7v14"/></svg>',
+      dryer:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="9" r="5"/><path d="M13 9h7l1 3h-8"/><path d="M8 14v7"/></svg>',
+      sparkle:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m12 3 1.9 5.8L20 10.7l-4.5 4.3 1.1 6.2L12 18.2l-4.6 3 1.1-6.2-4.5-4.3 6.1-1.9z"/></svg>',
+      default:'<svg class="aw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>'
+    };
+    function awGetIcon(name){
+      const s=String(name||'').toLowerCase();
+      if(s.includes('shav'))return awIcons.shaving;
+      if(s.includes('moustache'))return awIcons.moustache;
+      if(s.includes('beard'))return awIcons.beard;
+      if(s.includes('cut')||s.includes('trim'))return awIcons.haircut;
+      if(s.includes('head mass')||s.includes('foot mass')||s.includes('back mass'))return awIcons.massage;
+      if(s.includes('body')||s.includes('aromatherapy')||s.includes('scrub')||s.includes('polishing')||s.includes('spa'))return awIcons.spa;
+      if(s.includes('nail')||s.includes('manicure')||s.includes('pedicure')||s.includes('hand & foot'))return awIcons.nail;
+      if(s.includes('wax'))return awIcons.wax;
+      if(s.includes('wash')||s.includes('shampoo'))return awIcons.wash;
+      if(s.includes('blow dry'))return awIcons.dryer;
+      if(s.includes('facial')||s.includes('cleanup')||s.includes('mask')||s.includes('bleach')||s.includes('tan')||s.includes('acne')||s.includes('aging'))return awIcons.facial;
+      if(s.includes('color')||s.includes('dye')||s.includes('touch-up')||s.includes('highlight'))return awIcons.color;
+      if(s.includes('keratin')||s.includes('rebond')||s.includes('straight')||s.includes('smooth')||s.includes('treat')||s.includes('dandruff')||s.includes('scalp')||s.includes('oil'))return awIcons.sparkle;
+      return awIcons.default;
+    }
     function awServiceCard(service){
       const qty=Number(awQuantities.get(service.serviceType)||0);
       const card=document.createElement('div');card.className='aw-service'+(qty?' selected':'');card.tabIndex=0;card.setAttribute('role','button');
       card.setAttribute('aria-label',`${service.shortName||service.serviceType}, ${awMoney(service.rate)}`);
       if(qty){const badge=document.createElement('span');badge.className='aw-qty-badge';badge.textContent=String(qty);card.append(badge)}
       const copy=document.createElement('span');copy.className='aw-service-copy';
-      const name=document.createElement('strong');name.className='aw-service-name';name.textContent=service.shortName||service.serviceType;
+      const label=service.shortName||service.serviceType;const name=document.createElement('strong');name.className='aw-service-name';name.innerHTML=awGetIcon(label);const labelText=document.createElement('span');labelText.textContent=label;name.append(labelText);
       const rate=document.createElement('small');rate.className='aw-service-rate';rate.textContent=awMoney(service.rate);
       copy.append(name,rate);
       const action=document.createElement('span');action.className='aw-service-action';
       if(qty){
-        const minus=document.createElement('button');minus.type='button';minus.className='aw-minus';minus.setAttribute('aria-label',`Remove one ${service.serviceType}`);minus.textContent='−';
+        const minus=document.createElement('button');minus.type='button';minus.className='aw-minus no-btn-theme';minus.setAttribute('aria-label',`Remove one ${service.serviceType}`);minus.textContent='−';
         minus.addEventListener('click',event=>{event.stopPropagation();awChange(service,-1)});
         action.append(minus);
       }else{
-        const plus=document.createElement('span');plus.className='aw-plus';plus.textContent='+';plus.setAttribute('aria-hidden','true');
+        const plus=document.createElement('span');plus.className='aw-plus no-btn-theme';plus.textContent='+';plus.setAttribute('aria-hidden','true');
         action.append(plus);
       }
       card.append(copy,action);
@@ -243,10 +299,15 @@
     function awSheetRow(service){
       const qty=Number(awQuantities.get(service.serviceType)||0);
       const row=document.createElement('div');row.className='aw-sheet-row'+(qty?' selected':'');
+      const left=document.createElement('div');left.className='aw-sheet-row-left';
+      const iconWrap=document.createElement('div');iconWrap.className='aw-sheet-row-icon';
+      iconWrap.innerHTML=awGetIcon(service.serviceType);
       const info=document.createElement('div');info.className='aw-sheet-row-name';
       const name=document.createElement('strong');name.textContent=service.shortName||service.serviceType;
-      const rate=document.createElement('small');rate.textContent=`${awMoney(service.rate)} Each`;
-      info.append(name,rate);
+      const sub=document.createElement('small');
+      sub.textContent=`${awMoney(service.rate)}${service.serviceCategory ? ' · ' + service.serviceCategory : ''}`;
+      info.append(name,sub);
+      left.append(iconWrap,info);
       const controls=document.createElement('span');controls.className='aw-sheet-controls';
       if(qty){
         const minus=document.createElement('button');minus.type='button';minus.className='aw-minus';minus.setAttribute('aria-label',`Remove one ${service.serviceType}`);minus.textContent='−';
@@ -256,20 +317,45 @@
         plus.addEventListener('click',event=>{event.stopPropagation();awChange(service,1)});
         controls.append(minus,count,plus);
       }else{
-        const add=document.createElement('button');add.type='button';add.className='aw-plus';add.textContent='+';add.setAttribute('aria-label',`Add ${service.serviceType}`);
+        const add=document.createElement('button');add.type='button';add.className='aw-plus no-btn-theme';add.textContent='+';add.setAttribute('aria-label',`Add ${service.serviceType}`);
         add.addEventListener('click',event=>{event.stopPropagation();awChange(service,1)});
         controls.append(add);
       }
-      row.append(info,controls);
+      row.append(left,controls);
       row.addEventListener('click',event=>{if(event.target.closest('button'))return;awChange(service,1)});
       return row;
     }
     function awRenderSheet(){
       const search=String(awSearch.value||'').trim().toLowerCase();
-      const list=awServices.filter(service=>!search||`${service.serviceType} ${service.shortName||''}`.toLowerCase().includes(search));
       awAllServices.replaceChildren();
-      if(!list.length){const empty=document.createElement('div');empty.className='m-empty';empty.textContent=search?'No matching service.':'No active services in the Rate List.';awAllServices.append(empty)}
-      else for(const service of list)awAllServices.append(awSheetRow(service));
+      const list=awServices.filter(service=>{
+        if(!search)return true;
+        const text=`${service.serviceType} ${service.shortName||''} ${service.serviceCategory||''}`.toLowerCase();
+        return text.includes(search);
+      });
+      if(!list.length){
+        const empty=document.createElement('div');empty.className='m-empty';
+        empty.textContent=search?'No matching service.':'No active services in the Rate List.';
+        awAllServices.append(empty);
+      }else if(search){
+        for(const service of list)awAllServices.append(awSheetRow(service));
+      }else{
+        const groups={};
+        for(const service of list){
+          const cat=service.serviceCategory||'Other Services';
+          if(!groups[cat])groups[cat]=[];
+          groups[cat].push(service);
+        }
+        for(const [catName,catServices] of Object.entries(groups)){
+          const heading=document.createElement('div');
+          heading.className='aw-sheet-cat-heading';
+          heading.textContent=catName;
+          awAllServices.append(heading);
+          for(const service of catServices){
+            awAllServices.append(awSheetRow(service));
+          }
+        }
+      }
       const selected=awSelectedItems();
       const count=selected.reduce((sum,item)=>sum+item.quantity,0);
       awSheetDone.textContent=`Done${count?` · ${count} ${count===1?'Item':'Items'} · ${awMoney(awTotalValue())}`:''}`;
@@ -280,6 +366,22 @@
       awMainServices.replaceChildren();
       if(!main.length){const empty=document.createElement('div');empty.className='m-empty';empty.textContent='No Main services in the Rate List.';awMainServices.append(empty)}
       else for(const service of main)awMainServices.append(awServiceCard(service));
+      const otherQty=awServices.filter(service=>(service.category||'Main')==='Other').reduce((sum,service)=>sum+Number(awQuantities.get(service.serviceType)||0),0);
+      const otherBtn=document.getElementById('awOtherButton');
+      if(otherBtn){
+        otherBtn.classList.toggle('selected',otherQty>0);
+        let badge=otherBtn.querySelector('.aw-qty-badge');
+        if(otherQty>0){
+          if(!badge){
+            badge=document.createElement('span');
+            badge.className='aw-qty-badge';
+            otherBtn.append(badge);
+          }
+          badge.textContent=String(otherQty);
+        }else if(badge){
+          badge.remove();
+        }
+      }
       const selected=awSelectedItems();
       awItemCount.textContent=String(selected.reduce((sum,item)=>sum+item.quantity,0));
       if(!awTotalManual)awTotal.value=String(awTotalValue());
@@ -299,7 +401,7 @@
       const meta=await salonAuth.request('/api/collection-entry-meta'+query);
       const previous=awServices;
       awMeta=meta;
-      awServices=meta.services.map(item=>({_id:String(item._id),sr:Number(item.sr||0),serviceType:item.serviceType,shortName:item.shortName||item.serviceType,rate:Number(item.rate||0),category:item.category||'Main',status:item.status||'Active'}));
+      awServices=meta.services.map(item=>({_id:String(item._id),sr:Number(item.sr||0),serviceType:item.serviceType,shortName:item.shortName||item.serviceType,rate:Number(item.rate||0),category:item.category||'Main',serviceCategory:item.serviceCategory||'',status:item.status||'Active'}));
       for(const [key,qty] of awQuantities){
         if(qty>0&&!awFindService(key)){
           const old=previous.find(service=>service.serviceType===key);
@@ -312,6 +414,7 @@
       awTodayCount.textContent=`${Number(meta.todayCount||0)} ${Number(meta.todayCount||0)===1?'entry':'entries'}`;
       if(awEditing&&awDateSelect.value===awEditDate&&!options.forceNext)awEntryNo.value=String(awEditing.entryNo);
       else awEntryNo.value=String(meta.nextEntryNo);
+      const custCount=document.getElementById('awCustomerCount');if(custCount)custCount.textContent='#'+(awEntryNo.value||'1');
       awRenderServices();
     }
     function awApplyEditingRecord(record){

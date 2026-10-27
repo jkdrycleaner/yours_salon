@@ -20,7 +20,8 @@
   }
 
   const buttonSelector = 'button:not([class*="salon-"]):not(.secondary):not(.danger)' +
-    ':not(.link):not(.method):not(.eye):not(.dot):not(.arrow):not(.no-btn-theme):not(.mw-action)';
+    ':not(.link):not(.method):not(.eye):not(.dot):not(.arrow):not(.no-btn-theme):not(.mw-action)' +
+    ':not(.aw-other-card):not(.aw-service):not(.aw-minus):not(.aw-plus):not(.aw-tab)';
   const themeSelector = buttonSelector + ',[data-salon-btn-theme]';
 
   function apply(source) {
@@ -31,6 +32,11 @@
     const mix = String(readValue(source, 'Button Style', 'buttonStyle', 'Solid')).trim().toLowerCase() === 'mix';
     const image = mix ? `linear-gradient(135deg, ${first}, ${second})` : 'none';
     const text = readableText(first);
+    const rgb = hexToRgb(first);
+    const borderLight = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.35)`;
+    const borderHover = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.65)`;
+    const borderDark = first;
+
     let element = document.getElementById('salonButtonTheme');
     if (!element) {
       element = document.createElement('style');
@@ -38,7 +44,14 @@
       document.head.appendChild(element);
     }
     element.textContent =
-      `:root{--salon-btn-bg:${first};--salon-btn-bg2:${second};--salon-btn-text:${text}}` +
+      `:root{` +
+      `--salon-btn-bg:${first};` +
+      `--salon-btn-bg2:${second};` +
+      `--salon-btn-text:${text};` +
+      `--salon-border-light:${borderLight};` +
+      `--salon-border-hover:${borderHover};` +
+      `--salon-border-dark:${borderDark};` +
+      `}` +
       `${themeSelector}{background-color:${first} !important;background-image:${image} !important;color:${text} !important}` +
       `${themeSelector}:disabled{opacity:.55}`;
   }
