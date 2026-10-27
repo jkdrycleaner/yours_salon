@@ -283,6 +283,7 @@ const collectionSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 collectionSchema.index({ entryDate: 1, entryNo: 1 }, { unique: true });
+collectionSchema.index({ entryDate: 1, staffId: 1, status: 1, amount: 1 });
 const CollectionEntry = mongoose.models.Collection ||
     mongoose.model('Collection', collectionSchema);
 
@@ -2186,9 +2187,18 @@ async function employeeDashboardData(employee, month) {
     }
     const start = new Date(`${month}-01T00:00:00.000Z`);
     const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
+    const todayKey = getTodayDate();
+    const todayStart = new Date(`${todayKey}T00:00:00.000Z`);
+    const tomorrowStart = new Date(todayStart);
+    tomorrowStart.setUTCDate(tomorrowStart.getUTCDate() + 1);
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setUTCDate(yesterdayStart.getUTCDate() - 1);
+    const sparklineStart = new Date(todayStart);
+    sparklineStart.setUTCDate(sparklineStart.getUTCDate() - 6);
     const collectionFilter = await employeeCollectionFilter(employee);
     applyStatusFilter(collectionFilter, 'Active');
-    const [collections, records] = await Promise.all([
+
+    const [collections, records, recentCollections, todayRecords, activeEmployees] = await Promise.all([
         CollectionEntry.find({
             ...collectionFilter,
             entryDate: { $gte: start, $lt: end }
@@ -2200,31 +2210,126 @@ async function employeeDashboardData(employee, month) {
                 { recordType: { $in: ['expense', 'counter'] }, entryDate: { $gte: start, $lt: end } },
                 { recordType: 'salary', salaryMonth: month }
             ]
-        }).sort({ entryDate: -1, createdAt: -1 }).lean()
+        }).sort({ entryDate: -1, createdAt: -1 }).lean(),
+        CollectionEntry.find({
+            ...collectionFilter,
+            entryDate: { $gte: sparklineStart, $lt: tomorrowStart }
+        }).select('entryDate amount').lean(),
+        EmployeeRecord.find({
+            employeeId: employee._id,
+            status: { $ne: 'Inactive' },
+            entryDate: { $gte: todayStart, $lt: tomorrowStart }
+        }).select('recordType expenseType amount').lean(),
+        Employee.find({ status: 'Active' })
+            .select('_id employeeName photoUrl role')
+            .lean()
     ]);
-    const collectionTotal = collections.reduce((sum, entry) => sum + entry.amount, 0);
-    const earnedSalary = employee.salaryMode === 'fixed'
-        ? Number(employee.fixedMonthlySalary || 0)
-        : collectionTotal * Number(employee.salaryPercentage ?? 50) / 100;
+
+    const salaryMode = employee.salaryMode || 'percentage';
+    const salaryPercentage = Number(employee.salaryPercentage ?? 50);
+    const fixedMonthlySalary = Number(employee.fixedMonthlySalary || 0);
+    const dailyEarning = amount => salaryMode === 'fixed'
+        ? fixedMonthlySalary / 30
+        : Number(amount || 0) * salaryPercentage / 100;
+    const collectionsByDay = new Map();
+    for (const entry of recentCollections) {
+        const key = new Date(entry.entryDate).toISOString().slice(0, 10);
+        collectionsByDay.set(key, (collectionsByDay.get(key) || 0) + Number(entry.amount || 0));
+    }
+    const sparkline = [];
+    for (let offset = 0; offset < 7; offset += 1) {
+        const date = new Date(sparklineStart);
+        date.setUTCDate(date.getUTCDate() + offset);
+        sparkline.push(dailyEarning(collectionsByDay.get(date.toISOString().slice(0, 10)) || 0));
+    }
+    const todayCollection = collectionsByDay.get(todayKey) || 0;
+    const yesterdayCollection = collectionsByDay.get(yesterdayStart.toISOString().slice(0, 10)) || 0;
+    const todayAdvance = todayRecords
+        .filter(record => record.recordType === 'expense' && /advance/i.test(String(record.expenseType || '')))
+        .reduce((sum, record) => sum + Number(record.amount || 0), 0);
+    const todaySalaryPaid = todayRecords
+        .filter(record => record.recordType === 'salary')
+        .reduce((sum, record) => sum + Number(record.amount || 0), 0);
+    const todaySummary = {
+        date: todayKey,
+        todayCollection,
+        yesterdayCollection,
+        todayAdvance,
+        todaySalaryPaid,
+        todayEarned: dailyEarning(todayCollection),
+        sparkline
+    };
+
+    const collectionTotal = collections.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+    const earnedSalary = salaryMode === 'fixed'
+        ? fixedMonthlySalary
+        : collectionTotal * salaryPercentage / 100;
     const expenses = records.filter(record => record.recordType === 'expense')
-        .reduce((sum, record) => sum + record.amount, 0);
+        .reduce((sum, record) => sum + Number(record.amount || 0), 0);
+    const advanceTaken = records
+        .filter(record => record.recordType === 'expense' && /advance/i.test(String(record.expenseType || '')))
+        .reduce((sum, record) => sum + Number(record.amount || 0), 0);
     const salaryPaid = records.filter(record => record.recordType === 'salary')
-        .reduce((sum, record) => sum + record.amount, 0);
+        .reduce((sum, record) => sum + Number(record.amount || 0), 0);
+    const taken = advanceTaken + salaryPaid;
+    const monthSummary = {
+        collection: collectionTotal,
+        earnedSalary,
+        expenses,
+        advanceTaken,
+        salaryPaid,
+        taken,
+        payable: Math.max(0, earnedSalary - expenses - salaryPaid),
+        balance: Math.max(0, earnedSalary - taken),
+        extra: Math.max(0, taken - earnedSalary),
+        percent: earnedSalary > 0 ? Math.floor(taken / earnedSalary * 100) : taken > 0 ? 100 : 0,
+        salaryMode,
+        salaryPercentage,
+        fixedMonthlySalary
+    };
+
+    const activeStarEmployees = activeEmployees.filter(item => !isAdmin(item));
+    const activeStarIds = activeStarEmployees.map(item => item._id);
+    let starOfTheMonth = null;
+    if (activeStarIds.length) {
+        const [topCollection] = await CollectionEntry.aggregate([
+            {
+                $match: {
+                    status: { $ne: 'Inactive' },
+                    entryDate: { $gte: start, $lt: end },
+                    staffId: { $in: activeStarIds },
+                    amount: { $gt: 0 }
+                }
+            },
+            { $group: { _id: '$staffId', totalWork: { $sum: '$amount' } } },
+            { $sort: { totalWork: -1, _id: 1 } },
+            { $limit: 1 }
+        ]);
+        if (topCollection) {
+            const topEmployee = activeStarEmployees.find(
+                item => String(item._id) === String(topCollection._id)
+            );
+            if (topEmployee) {
+                starOfTheMonth = {
+                    employeeId: String(topEmployee._id),
+                    employeeName: topEmployee.employeeName || 'Employee',
+                    photoUrl: topEmployee.photoUrl || '',
+                    collection: Number(topCollection.totalWork || 0),
+                    isCurrentUser: String(topEmployee._id) === String(employee._id)
+                };
+            }
+        }
+    }
+
     return {
         month,
         employee: employeeProfileDetails(employee),
         collections,
         records,
-        summary: {
-            collection: collectionTotal,
-            earnedSalary,
-            expenses,
-            salaryPaid,
-            payable: Math.max(0, earnedSalary - expenses - salaryPaid),
-            salaryMode: employee.salaryMode || 'percentage',
-            salaryPercentage: employee.salaryPercentage ?? 50,
-            fixedMonthlySalary: employee.fixedMonthlySalary ?? 0
-        }
+        todaySummary,
+        monthSummary,
+        starOfTheMonth,
+        summary: monthSummary
     };
 }
 
