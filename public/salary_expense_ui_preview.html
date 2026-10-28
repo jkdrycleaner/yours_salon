@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOURS SALON - Advance & Salary Portal Preview</title>
+  <link rel="stylesheet" href="./my-work.css">
+  <style>
+    :root {
+      --salon-btn-bg: #c9a227;
+      --salon-btn-text: #ffffff;
+      --salon-border-light: color-mix(in srgb, var(--salon-btn-bg, #0f172a) 35%, #e2e8f0);
+      --salon-border-hover: color-mix(in srgb, var(--salon-btn-bg, #0f172a) 60%, #94a3b8);
+      --salon-border-dark: var(--salon-btn-bg, #0f172a);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    body {
+      background: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 12px;
+      color: #1e293b;
+    }
+    .preview-header {
+      color: #f8fafc;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .preview-header h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #f1f5f9;
+    }
+    .preview-header p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+    .theme-selector-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      justify-content: center;
+    }
+    .theme-chip {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #ffffff;
+      background: rgba(255,255,255,0.1);
+      transition: all 0.15s ease;
+    }
+    .theme-chip:hover, .theme-chip.active {
+      border-color: #ffffff;
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Mobile Device Frame Mockup */
+    .phone-frame {
+      width: 390px;
+      max-width: 100%;
+      height: 844px;
+      background: #f8fafc;
+      border-radius: 40px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 0 10px #1e293b, 0 0 0 12px #334155;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-notch {
+      width: 140px;
+      height: 24px;
+      background: #1e293b;
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+    .phone-notch-dot {
+      width: 10px;
+      height: 10px;
+      background: #0f172a;
+      border-radius: 50%;
+    }
+    .phone-notch-bar {
+      width: 44px;
+      height: 4px;
+      background: #334155;
+      border-radius: 2px;
+    }
+
+    /* Mobile Top App Header */
+    .app-top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px 8px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--salon-border-light);
+      flex-shrink: 0;
+    }
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .app-brand-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #0f172a;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .app-brand-name {
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      color: var(--salon-btn-bg, #0f172a);
+    }
+    .app-user-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      background: #f1f5f9;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    /* Scrollable App Body Container */
+    .app-scroll-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px 24px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Demo alert toast */
+    .demo-toast {
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      display: none;
+    }
+    .demo-toast.success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="preview-header">
+    <h1>YOURS SALON - Advance & Salary Portal</h1>
+    <p>11-Point Refinement Local Test Preview (Interactive)</p>
+    <div class="theme-selector-bar">
+      <span style="font-size:11px; color:#cbd5e1; font-weight:600;">Theme:</span>
+      <button type="button" class="theme-chip active" onclick="setPreviewTheme('#c9a227')">Gold (Default)</button>
+      <button type="button" class="theme-chip" onclick="setPreviewTheme('#2563eb')">Classic Blue</button>
+      <button type="button" class="theme-chip" onclick="setPreviewTheme('#0f172a')">Dark Slate</button>
+      <button type="button" class="theme-chip" onclick="setPreviewTheme('#059669')">Emerald Green</button>
+    </div>
+  </div>
+
+  <!-- Mobile Screen Frame Mockup -->
+  <div class="phone-frame">
+    <div class="phone-notch">
+      <div class="phone-notch-dot"></div>
+      <div class="phone-notch-bar"></div>
+    </div>
+
+    <!-- Top App Header -->
+    <header class="app-top-header">
+      <div class="app-brand">
+        <div class="app-brand-logo">Y</div>
+        <div class="app-brand-name">YOURS SALON</div>
+      </div>
+      <div class="app-user-pill">
+        <span>👤 Javed (Senior Stylist)</span>
+      </div>
+    </header>
+
+    <!-- Scrollable Main View -->
+    <div class="app-scroll-body">
+
+      <!-- ================= TOP CAPSULE SEGMENTED TABS (Point 1 - bede0c76.png) ================= -->
+      <div class="sal-portal-tabs">
+        <button class="aw-tab no-btn-theme active" id="tabAddAdv" type="button" onclick="previewSwitchTab('add')">
+          <span class="aw-tab-icon">+</span>
+          <span>Add Advance</span>
+        </button>
+        <div class="sal-tab-sep" id="salSep1" style="display:none;"></div>
+        <button class="aw-tab no-btn-theme" id="tabAllAdv" type="button" onclick="previewSwitchTab('all')">
+          <span class="aw-tab-icon">📄</span>
+          <span>All Advance</span>
+        </button>
+        <div class="sal-tab-sep" id="salSep2"></div>
+        <button class="aw-tab no-btn-theme" id="tabSalary" type="button" onclick="previewSwitchTab('salary')">
+          <span class="aw-tab-icon">💰</span>
+          <span>My Salary</span>
+        </button>
+      </div>
+
+      <div id="demoToast" class="demo-toast"></div>
+
+      <!-- ================= SCREEN 1: ADD ADVANCE (FIRST & DEFAULT) ================= -->
+      <section id="viewAddAdv">
+        <!-- Available Salary Balance Strip -->
+        <div class="sal-avail-strip">
+          <div>
+            <span class="sal-avail-lbl">Available Balance:</span>
+            <strong class="sal-avail-val" id="dispAvailableBal">₹7,250</strong>
+          </div>
+          <div class="sal-avail-badge" id="advCurMonthBadge">
+            ● October 2026
+          </div>
+        </div>
+
+        <!-- Add Form Card (Points 2, 3, 4, 5, 6, 7, 8, 9, 10, 11) -->
+        <form class="sal-main-card" id="formAddAdvance" onsubmit="event.preventDefault(); submitAdvanceDemo();">
+          <!-- Advance Amount with Quick Tap Bubbles (Point 4: Amber text color) -->
+          <div class="sal-field">
+            <label for="inpAdvAmount">Advance Amount</label>
+            <div class="sal-amount-wrap">
+              <span class="currency-sym">₹</span>
+              <input type="number" id="inpAdvAmount" class="sal-amount-input" value="1000" oninput="updateLiveDeduct()" placeholder="0" min="1" required>
+            </div>
+            <!-- Quick Tap Amount Bubbles (Untouched per Point 2 & 4) -->
+            <div class="sal-quick-grid">
+              <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(50)">+₹50</button>
+              <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(100)">+₹100</button>
+              <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(200)">+₹200</button>
+              <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(500)">+₹500</button>
+              <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(1000)">+₹1,000</button>
+              <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(2000)">+₹2,000</button>
+              <button type="button" class="sal-chip-btn no-btn-theme" onclick="setExactAdvAmount(5000)">₹5,000</button>
+              <button type="button" class="sal-chip-btn no-btn-theme clear" onclick="setExactAdvAmount(0)">✕ Clear</button>
+            </div>
+          </div>
+
+          <!-- Advance Taken Date Picker & Quick Day Pills (Points 3, 5, 6) -->
+          <div class="sal-field">
+            <label for="inpAdvDate">Advance Taken Date</label>
+            <div class="sal-date-card-wrap">
+              <!-- Top Row: Full Card Date Selector + 3 Side Pills -->
+              <div class="sal-date-top-row">
+                <div class="sal-date-picker-card" id="salDateCard" onclick="openAdvDatePicker()" title="Click anywhere to open calendar">
+                  <input type="date" id="inpAdvDate" class="sal-date-native-input" onchange="onAdvDateChanged()" required>
+                  <div class="sal-date-card-content">
+                    <svg class="sal-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span class="sal-date-card-text" id="dispAdvDateFormatted">—</span>
+                    <svg class="sal-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="sal-date-vsep"></div>
+
+                <div class="sal-side-pills" id="salSideDatePills">
+                  <!-- 3 side pills (d-1, d-2, d-3) rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Bottom Row: 5 Quick Pills Grid (d-4 to d-8) -->
+              <div class="sal-bottom-pills" id="salBottomDatePills">
+                <!-- 5 bottom pills rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Mode (Points 7, 8, 9) -->
+          <div class="sal-field">
+            <label>Payment Mode</label>
+            <div class="sal-pay-row">
+              <div class="sal-pay-opt active" id="payCash" onclick="setAdvPayMode('Cash')">
+                <span>💵 Cash</span>
+              </div>
+              <div class="sal-pay-opt" id="payOnline" onclick="setAdvPayMode('Online')">
+                <span>💳 Online</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Remark -->
+          <div class="sal-field">
+            <label for="inpAdvRemark">Remark (Optional)</label>
+            <input type="text" id="inpAdvRemark" class="sal-input" placeholder="e.g. Festival advance, Personal need">
+          </div>
+
+          <!-- Live Balance Preview Strip (Point 11: Green for >= 0, Red for < 0) -->
+          <div class="sal-deduct-box">
+            <span>Remaining after advance:</span>
+            <span class="sal-rem-val green" id="dispRemaining">₹6,250</span>
+          </div>
+
+          <!-- Save Advance Button (Point 10: Theme colored) -->
+          <button class="sal-save-btn no-btn-theme" id="btnSaveAdvance" data-salon-btn-theme type="submit">
+            <svg class="sal-btn-icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span>Save Advance</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- ================= SCREEN 2: ALL ADVANCE ================= -->
+      <section id="viewAllAdv" hidden>
+        <!-- Single-Line Filter Bar -->
+        <div class="mw-single-filter-card" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; margin-bottom:10px; background:#fff; border-radius:12px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="sal-chip-btn no-btn-theme" type="button" style="height:28px; padding:0 8px;">Filter</button>
+            <button class="sal-chip-btn no-btn-theme active" type="button" style="height:28px; padding:0 8px; border-color:var(--salon-border-dark);">This Month</button>
+            <button class="sal-chip-btn no-btn-theme" type="button" style="height:28px; padding:0 8px;">7 Days</button>
+          </div>
+          <span style="font-size:11.5px; font-weight:700; color:#475569;">Total: <strong style="color:#b45309;">₹1,000</strong></span>
+        </div>
+
+        <!-- Advance Records List -->
+        <div id="allAdvList">
+          <div class="sal-adv-card open">
+            <div class="sal-adv-summary" onclick="this.parentElement.classList.toggle('open')">
+              <div class="sal-adv-topline">
+                <span class="sal-adv-no">#1</span>
+                <strong class="sal-adv-title">Advance Taken</strong>
+                <span class="sal-adv-mode-chip cash">💵 Cash</span>
+              </div>
+              <div class="sal-adv-right">
+                <strong class="sal-adv-amount" style="color:#b45309;">₹1,000</strong>
+                <svg class="sal-adv-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="sal-adv-body">
+              <div class="sal-adv-remark">“Personal need advance”</div>
+              <div class="sal-adv-meta">📅 25-Oct-2026 &middot; Created by Javed</div>
+              <div class="sal-adv-actions">
+                <button class="sal-adv-action-btn view no-btn-theme" type="button">👁️ View</button>
+                <button class="sal-adv-action-btn edit no-btn-theme" type="button">✏️ Edit</button>
+                <button class="sal-adv-action-btn delete no-btn-theme" type="button">🗑️ Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 3: MY SALARY ================= -->
+      <section id="viewSalary" hidden>
+        <!-- Month Navigator -->
+        <div class="sal-month-row">
+          <h2 class="sal-month-title">Salary Breakdown</h2>
+          <div class="sal-month-picker-wrap">
+            <button class="sal-nav-arrow no-btn-theme" type="button" onclick="previewStepMonth(-1)">‹</button>
+            <label class="sal-month-pill" id="salMonthPill">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="dispCurMonth">October 2026</span>
+            </label>
+            <button class="sal-nav-arrow no-btn-theme" type="button" onclick="previewStepMonth(1)">›</button>
+          </div>
+        </div>
+
+        <!-- Salary Breakdown Accordions -->
+        <div class="sal-card-group">
+          <!-- Card 1: Earned Salary -->
+          <div class="sal-box clickable is-expanded" onclick="toggleSalBox(this)">
+            <div class="sal-box-head">
+              <div class="sal-box-left">
+                <div class="sal-icon-badge green">+</div>
+                <div class="sal-box-info">
+                  <strong>Earned Salary</strong>
+                  <span id="dispEarnedSub">My Work ₹28,500 × 50%</span>
+                </div>
+              </div>
+              <div class="sal-box-right">
+                <strong class="sal-box-amount green" id="dispEarnedAmt">₹14,250</strong>
+                <svg class="sal-box-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="sal-box-detail">
+              <div class="sal-sub-row">
+                <div>
+                  <span class="sal-sub-date">Base Work Collection</span>
+                  <span class="sal-sub-remark">48 Completed Client Services</span>
+                </div>
+                <strong class="sal-sub-amt" style="color:#15803d;">₹28,500</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Advance Taken (Amber Color per Point 4) -->
+          <div class="sal-box clickable is-expanded" onclick="toggleSalBox(this)">
+            <div class="sal-box-head">
+              <div class="sal-box-left">
+                <div class="sal-icon-badge amber">−</div>
+                <div class="sal-box-info">
+                  <strong>Advance Taken</strong>
+                  <span>1 Entry &middot; Tap to view entries</span>
+                </div>
+              </div>
+              <div class="sal-box-right">
+                <strong class="sal-box-amount amber" id="dispAdvAmt">− ₹1,000</strong>
+                <svg class="sal-box-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="sal-box-detail">
+              <div class="sal-sub-row">
+                <div>
+                  <span class="sal-sub-date">25-Oct-2026 &middot; 💵 Cash</span>
+                  <span class="sal-sub-remark">Personal need advance</span>
+                </div>
+                <strong class="sal-sub-amt" style="color:#b45309;">− ₹1,000</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Salary Paid -->
+          <div class="sal-box clickable" onclick="toggleSalBox(this)">
+            <div class="sal-box-head">
+              <div class="sal-box-left">
+                <div class="sal-icon-badge blue">−</div>
+                <div class="sal-box-info">
+                  <strong>Salary Paid</strong>
+                  <span>1 Payment &middot; Tap to view entries</span>
+                </div>
+              </div>
+              <div class="sal-box-right">
+                <strong class="sal-box-amount blue" id="dispPaidAmt">− ₹6,000</strong>
+                <svg class="sal-box-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="sal-box-detail">
+              <div class="sal-sub-row">
+                <div>
+                  <span class="sal-sub-date">10-Oct-2026 &middot; 💳 Bank Transfer</span>
+                  <span class="sal-sub-remark">Mid-month payout</span>
+                </div>
+                <strong class="sal-sub-amt" style="color:#1d4ed8;">− ₹6,000</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Net Balance Card -->
+        <div class="sal-balance-card" id="dispBalanceCard">
+          <div>
+            <span class="sal-net-title">Current Net Balance</span>
+            <span class="sal-net-sub" id="dispNetSub">Remaining to receive</span>
+          </div>
+          <strong class="sal-net-amount" id="dispNetAmt">₹7,250</strong>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    let currentAdvBalance = 7250;
+    let currentAdvPayMode = 'Cash';
+
+    function previewSwitchTab(tab) {
+      const isAdd = (tab === 'add');
+      const isAll = (tab === 'all');
+      const isSal = (tab === 'salary');
+
+      document.getElementById('viewAddAdv').hidden = !isAdd;
+      document.getElementById('viewAllAdv').hidden = !isAll;
+      document.getElementById('viewSalary').hidden = !isSal;
+
+      document.getElementById('tabAddAdv').classList.toggle('active', isAdd);
+      document.getElementById('tabAllAdv').classList.toggle('active', isAll);
+      document.getElementById('tabSalary').classList.toggle('active', isSal);
+
+      // Separators management per Point 1
+      const sep1 = document.getElementById('salSep1');
+      const sep2 = document.getElementById('salSep2');
+      if (sep1) sep1.style.display = isAdd ? 'none' : (isAll ? 'none' : 'block');
+      if (sep2) sep2.style.display = isSal ? 'none' : (isAll ? 'none' : 'block');
+
+      if (isAdd) updateLiveDeduct();
+    }
+
+    function toggleSalBox(box) {
+      box.classList.toggle('is-expanded');
+    }
+
+    // Quick Amounts (+50 to +5000, Clear)
+    function addAdvAmount(delta) {
+      const inp = document.getElementById('inpAdvAmount');
+      const val = Math.max(0, (Number(inp.value) || 0) + delta);
+      inp.value = val;
+      updateLiveDeduct();
+    }
+    function setExactAdvAmount(val) {
+      const inp = document.getElementById('inpAdvAmount');
+      inp.value = val;
+      updateLiveDeduct();
+    }
+
+    // Live Balance Preview Strip (Point 11: Green for >= 0, Red for < 0)
+    function updateLiveDeduct() {
+      const inp = document.getElementById('inpAdvAmount');
+      const val = Number(inp.value) || 0;
+      const rem = currentAdvBalance - val;
+      const disp = document.getElementById('dispRemaining');
+      if (!disp) return;
+      if (rem >= 0) {
+        disp.textContent = '₹' + rem.toLocaleString('en-IN');
+        disp.className = 'sal-rem-val green';
+      } else {
+        disp.textContent = 'Extra ₹' + Math.abs(rem).toLocaleString('en-IN');
+        disp.className = 'sal-rem-val red';
+      }
+    }
+
+    // Date formatting helper: 'YYYY-MM-DD' -> 'DD-Mon-YYYY'
+    function formatAdvDateDisplay(isoString) {
+      if (!isoString) return '—';
+      const parts = isoString.split('-');
+      if (parts.length !== 3) return isoString;
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const day = String(d.getDate()).padStart(2, '0');
+      const mon = monthNames[d.getMonth()];
+      const yr = d.getFullYear();
+      return `${day}-${mon}-${yr}`;
+    }
+
+    // Click anywhere on date card to open calendar (Point 6)
+    function openAdvDatePicker() {
+      const inp = document.getElementById('inpAdvDate');
+      if (!inp) return;
+      try {
+        if (typeof inp.showPicker === 'function') {
+          inp.showPicker();
+          return;
+        }
+      } catch (e) {}
+      inp.focus();
+    }
+
+    function onAdvDateChanged() {
+      const inp = document.getElementById('inpAdvDate');
+      if (!inp) return;
+      const val = inp.value;
+      const disp = document.getElementById('dispAdvDateFormatted');
+      if (disp) disp.textContent = formatAdvDateDisplay(val);
+
+      // Highlight matching quick pill if date matches, else unhighlight all
+      document.querySelectorAll('.sal-qdate-pill').forEach(pill => {
+        if (pill.getAttribute('data-iso') === val) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+    }
+
+    // Pick quick date from side 3 or bottom 5 pills (Point 5)
+    function pickQuickDate(iso, btn) {
+      const inp = document.getElementById('inpAdvDate');
+      if (inp) {
+        inp.value = iso;
+        onAdvDateChanged();
+      }
+    }
+
+    // Render side 3 dates and bottom 5 dates dynamically (Point 5)
+    function renderQuickDatePills() {
+      const sideContainer = document.getElementById('salSideDatePills');
+      const bottomContainer = document.getElementById('salBottomDatePills');
+      if (!sideContainer || !bottomContainer) return;
+
+      const today = new Date();
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      function toLocalIso(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      // Side 3 dates: d-1, d-2, d-3
+      let sideHtml = '';
+      for (let i = 1; i <= 3; i++) {
+        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+        const iso = toLocalIso(d);
+        const dateNum = d.getDate();
+        const dayName = dayNames[d.getDay()];
+        sideHtml += `
+          <button type="button" class="sal-qdate-pill no-btn-theme" data-iso="${iso}" onclick="pickQuickDate('${iso}', this)" title="${iso}">
+            <svg class="sal-qdate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span class="sal-qdate-text">
+              <strong class="sal-qdate-num">${dateNum}</strong>
+              <small class="sal-qdate-day">${dayName}</small>
+            </span>
+          </button>
+        `;
+      }
+      sideContainer.innerHTML = sideHtml;
+
+      // Bottom 5 dates: d-4 to d-8
+      let bottomHtml = '';
+      for (let i = 4; i <= 8; i++) {
+        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+        const iso = toLocalIso(d);
+        const dateNum = d.getDate();
+        const dayName = dayNames[d.getDay()];
+        bottomHtml += `
+          <button type="button" class="sal-qdate-pill no-btn-theme" data-iso="${iso}" onclick="pickQuickDate('${iso}', this)" title="${iso}">
+            <svg class="sal-qdate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span class="sal-qdate-text">
+              <strong class="sal-qdate-num">${dateNum}</strong>
+              <small class="sal-qdate-day">${dayName}</small>
+            </span>
+          </button>
+        `;
+      }
+      bottomContainer.innerHTML = bottomHtml;
+    }
+
+    // Payment Mode Toggle (Points 7, 8, 9)
+    function setAdvPayMode(mode) {
+      currentAdvPayMode = mode;
+      document.getElementById('payCash').classList.toggle('active', mode === 'Cash');
+      document.getElementById('payOnline').classList.toggle('active', mode === 'Online');
+    }
+
+    // Save Advance Demo handler
+    function submitAdvanceDemo() {
+      const amt = Number(document.getElementById('inpAdvAmount').value) || 0;
+      const date = document.getElementById('inpAdvDate').value;
+      const toast = document.getElementById('demoToast');
+      toast.textContent = `✓ Advance of ₹${amt.toLocaleString('en-IN')} recorded successfully for ${formatAdvDateDisplay(date)} (${currentAdvPayMode})!`;
+      toast.className = 'demo-toast success';
+      toast.style.display = 'block';
+
+      currentAdvBalance -= amt;
+      document.getElementById('dispAvailableBal').textContent = '₹' + currentAdvBalance.toLocaleString('en-IN');
+      document.getElementById('dispNetAmt').textContent = '₹' + currentAdvBalance.toLocaleString('en-IN');
+      updateLiveDeduct();
+
+      setTimeout(() => {
+        toast.style.display = 'none';
+        previewSwitchTab('all');
+      }, 1500);
+    }
+
+    // Month navigation mock
+    const MONTHS = ['September 2026', 'October 2026', 'November 2026'];
+    let mIdx = 1;
+    function previewStepMonth(delta) {
+      mIdx = Math.max(0, Math.min(MONTHS.length - 1, mIdx + delta));
+      document.getElementById('dispCurMonth').textContent = MONTHS[mIdx];
+    }
+
+    // Theme selector for testing different salon color palettes
+    function setPreviewTheme(color) {
+      document.documentElement.style.setProperty('--salon-btn-bg', color);
+      document.documentElement.style.setProperty('--salon-border-dark', color);
+      document.documentElement.style.setProperty('--salon-border-light', `color-mix(in srgb, ${color} 35%, #e2e8f0)`);
+      document.documentElement.style.setProperty('--salon-border-hover', `color-mix(in srgb, ${color} 60%, #94a3b8)`);
+      document.querySelectorAll('.theme-chip').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    // Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const todayIso = `${y}-${m}-${d}`;
+      const inp = document.getElementById('inpAdvDate');
+      if (inp) inp.value = todayIso;
+
+      renderQuickDatePills();
+      onAdvDateChanged();
+      updateLiveDeduct();
+    });
+  </script>
+</body>
+</html>

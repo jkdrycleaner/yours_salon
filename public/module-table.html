@@ -111,18 +111,464 @@
       </div>
     </section>
   </main>
-  <section id="salaryMobile" class="sal-page" hidden>
-    <div class="sal-head">
-      <h1>My Salary</h1>
-      <label class="sal-month-pill">
-        <span id="salMonthLabel">October 2026</span>
-        <input id="salMonth" type="month" aria-label="Salary month">
-      </label>
+      <section id="salaryMobile" class="sal-page" hidden>
+    <!-- Top Segmented Capsule Tabs (Exact bede0c76.png style) -->
+    <div class="sal-portal-tabs">
+      <button class="aw-tab no-btn-theme active" id="tabAddAdv" type="button" onclick="salSwitchTab('add')">
+        <span class="aw-tab-icon">+</span>
+        <span>Add Advance</span>
+      </button>
+      <div class="sal-tab-sep" id="salSep1" style="display:none;"></div>
+      <button class="aw-tab no-btn-theme" id="tabAllAdv" type="button" onclick="salSwitchTab('all')">
+        <span class="aw-tab-icon">📄</span>
+        <span>All Advance</span>
+      </button>
+      <div class="sal-tab-sep" id="salSep2"></div>
+      <button class="aw-tab no-btn-theme" id="tabSalary" type="button" onclick="salSwitchTab('salary')">
+        <span class="aw-tab-icon">💰</span>
+        <span>My Salary</span>
+      </button>
     </div>
-    <div id="salSummary" class="sal-summary"></div>
-    <div class="sal-money-head"><h2>Money Taken</h2></div>
-    <div id="salFilters" class="sal-filters"></div>
-    <div id="salList" class="sal-list"></div>
+
+    <!-- ================= SCREEN 1: ADD ADVANCE (FIRST & DEFAULT) ================= -->
+    <section id="viewAddAdv">
+      <!-- Available Salary Balance Strip (Exact My Work style) -->
+      <div class="sal-avail-strip">
+        <div>
+          <span class="sal-avail-lbl">Available Balance:</span>
+          <strong class="sal-avail-val" id="dispAvailableBal">₹0</strong>
+        </div>
+        <div class="sal-avail-badge" id="advCurMonthBadge">
+          ● This Month
+        </div>
+      </div>
+
+      <!-- Add Form Card (Exact My Work .aw-main-card style) -->
+      <form class="sal-main-card" id="formAddAdvance" onsubmit="event.preventDefault(); submitAdvanceEntry();">
+        <!-- Advance Amount with Quick Tap Bubbles -->
+        <div class="sal-field">
+          <label for="inpAdvAmount">Advance Amount</label>
+          <div class="sal-amount-wrap">
+            <span class="currency-sym">₹</span>
+            <input type="number" id="inpAdvAmount" class="sal-amount-input" value="1000" oninput="updateLiveDeduct()" placeholder="0" min="1" required>
+          </div>
+          <!-- Quick Tap Amount Bubbles (Untouched per Point 2 & 4) -->
+          <div class="sal-quick-grid">
+            <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(50)">+₹50</button>
+            <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(100)">+₹100</button>
+            <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(200)">+₹200</button>
+            <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(500)">+₹500</button>
+            <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(1000)">+₹1,000</button>
+            <button type="button" class="sal-chip-btn no-btn-theme" onclick="addAdvAmount(2000)">+₹2,000</button>
+            <button type="button" class="sal-chip-btn no-btn-theme" onclick="setExactAdvAmount(5000)">₹5,000</button>
+            <button type="button" class="sal-chip-btn no-btn-theme clear" onclick="setExactAdvAmount(0)">✕ Clear</button>
+          </div>
+        </div>
+
+        <!-- Advance Taken Date Picker & Quick Day Pills (Points 3, 5, 6) -->
+        <div class="sal-field">
+          <label for="inpAdvDate">Advance Taken Date</label>
+          <div class="sal-date-card-wrap">
+            <!-- Top Row: Full Card Date Selector + 3 Side Pills -->
+            <div class="sal-date-top-row">
+              <div class="sal-date-picker-card" id="salDateCard" onclick="openAdvDatePicker()" title="Click anywhere to change date">
+                <input type="date" id="inpAdvDate" class="sal-date-native-input" onchange="onAdvDateChanged()" required>
+                <div class="sal-date-card-content">
+                  <svg class="sal-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <span class="sal-date-card-text" id="dispAdvDateFormatted">—</span>
+                  <svg class="sal-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="sal-date-vsep"></div>
+
+              <div class="sal-side-pills" id="salSideDatePills">
+                <!-- 3 side pills (d-1, d-2, d-3) rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Bottom Row: 5 Quick Pills Grid (d-4 to d-8) -->
+            <div class="sal-bottom-pills" id="salBottomDatePills">
+              <!-- 5 bottom pills rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Mode (Points 7, 8, 9) -->
+        <div class="sal-field">
+          <label>Payment Mode</label>
+          <div class="sal-pay-row">
+            <div class="sal-pay-opt active" id="payCash" onclick="setAdvPayMode('Cash')">
+              <span>💵 Cash</span>
+            </div>
+            <div class="sal-pay-opt" id="payOnline" onclick="setAdvPayMode('Online')">
+              <span>💳 Online</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remark -->
+        <div class="sal-field">
+          <label for="inpAdvRemark">Remark (Optional)</label>
+          <input type="text" id="inpAdvRemark" class="sal-input" placeholder="e.g. Festival advance, Personal need">
+        </div>
+
+        <!-- Live Balance Preview Strip (Point 11) -->
+        <div class="sal-deduct-box">
+          <span>Remaining after advance:</span>
+          <span class="sal-rem-val" id="dispRemaining">₹0</span>
+        </div>
+
+        <!-- Feedback message -->
+        <div id="advFormFeedback" class="sal-feedback" style="display:none;"></div>
+
+        <!-- Save Advance Button (Matching My Work .aw-save / theme) -->
+        <button class="sal-save-btn no-btn-theme" id="btnSaveAdvance" data-salon-btn-theme type="submit">
+          <svg class="sal-btn-icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span>Save Advance</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- ================= SCREEN 2: ALL ADVANCE (WORK-LIKE VIEW) ================= -->
+    <section id="viewAllAdv" hidden>
+      <!-- Single-Line Filter Bar (Exact My Work style) -->
+      <div class="mw-single-filter-card">
+        <div class="mw-filter-group">
+          <button class="mw-filter-icon-btn no-btn-theme" type="button" title="Filter Records">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z"/></svg>
+          </button>
+          <button class="mw-pill-btn no-btn-theme" id="advPreset7" type="button" onclick="setAdvFilter('7days', this)">7 Days</button>
+          <button class="mw-pill-btn no-btn-theme active" id="advPresetMonth" type="button" onclick="setAdvFilter('month', this)">This Month</button>
+          <button class="mw-pill-btn no-btn-theme" id="advPresetCustom" type="button" onclick="toggleAdvCustomPicker(this)">
+            <span>Custom</span>
+            <svg class="mw-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="mw-stats-pill">
+          <span class="mw-stat-count" id="advDaysBadge">30 Days</span>
+          <span class="mw-stat-sep">·</span>
+          <strong class="mw-stat-amount" id="advTotalBadge">₹0</strong>
+        </div>
+      </div>
+
+      <!-- Custom Date Picker Dropdown Popover -->
+      <div class="adv-custom-popover" id="advCustomPopover" style="display:none;">
+        <div class="popover-row">
+          <div>
+            <label>From</label>
+            <input type="date" id="advFilterFrom">
+          </div>
+          <div>
+            <label>To</label>
+            <input type="date" id="advFilterTo">
+          </div>
+        </div>
+        <div class="popover-actions">
+          <button type="button" class="mw-apply-btn no-btn-theme" onclick="applyAdvCustomFilter()">Apply Filter</button>
+        </div>
+      </div>
+
+      <!-- Active Filter Banner (Exact My Work style) -->
+      <div class="mw-active-filter-banner" id="advActiveStrip" hidden>
+        <div class="mw-active-filter-copy">
+          <span class="mw-active-filter-lbl">Filter:</span>
+          <strong class="mw-active-filter-val" id="advActiveText">This Month</strong>
+        </div>
+        <button class="mw-active-filter-reset no-btn-theme" type="button" onclick="resetAdvFilter()">✕ Reset</button>
+      </div>
+
+      <!-- Grouped Records Container (Exact My Work style) -->
+      <div id="advRecordsList">
+        <div class="sal-empty">Loading advance history...</div>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN 3: MY SALARY (INTERACTIVE ACCORDIONS) ================= -->
+    <section id="viewSalary" hidden>
+      <!-- Month Selector Row -->
+      <div class="sal-month-row">
+        <h2 class="sal-month-title">Salary Breakdown</h2>
+        <div class="sal-month-picker-wrap">
+          <button type="button" class="sal-nav-arrow no-btn-theme" onclick="salStepMonth(-1)" title="Previous Month">‹</button>
+          <label class="sal-month-pill" title="Tap to choose month">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span id="salMonthLabel">October 2026</span>
+            <svg viewBox="0 0 24 24" style="width:10px;height:10px;"><path d="m6 9 6 6 6-6"/></svg>
+            <input id="salMonth" type="month" aria-label="Salary month">
+          </label>
+          <button type="button" class="sal-nav-arrow no-btn-theme" onclick="salStepMonth(1)" title="Next Month">›</button>
+        </div>
+      </div>
+
+      <!-- Interactive Salary Accordion Cards -->
+      <div class="sal-card-group" id="salCardsContainer">
+        <!-- Card 1: Earned Salary (Fixed Summary) -->
+        <div class="sal-box">
+          <div class="sal-box-head">
+            <div class="sal-box-left">
+              <div class="sal-icon-badge green">+</div>
+              <div class="sal-box-info">
+                <strong>Earned Salary</strong>
+                <span id="salEarnedSub">Collection ₹0</span>
+              </div>
+            </div>
+            <strong class="sal-box-amount green" id="salEarnedAmt">₹0</strong>
+          </div>
+        </div>
+
+        <!-- Card 2: Advance Taken (CLICK TO EXPAND DETAILS!) -->
+        <div class="sal-box clickable is-expanded" id="boxAdvance" onclick="toggleSalBox(this)">
+          <div class="sal-box-head">
+            <div class="sal-box-left">
+              <div class="sal-icon-badge amber">−</div>
+              <div class="sal-box-info">
+                <strong>Advance Taken</strong>
+                <span>
+                  <span class="sal-entry-pill" id="salAdvCount">0 Entries</span>
+                  <span>Tap to view entries</span>
+                </span>
+              </div>
+            </div>
+            <div class="sal-box-right">
+              <strong class="sal-box-amount amber" id="salAdvAmt">− ₹0</strong>
+              <svg class="sal-box-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <!-- Expanded Itemized Breakdown for Advance -->
+          <div class="sal-box-detail" id="salAdvDetailList">
+            <div class="p-3 text-center text-xs text-slate-400">No advance entries for this month.</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Salary Paid (CLICK TO EXPAND DETAILS!) -->
+        <div class="sal-box clickable" id="boxSalaryPaid" onclick="toggleSalBox(this)">
+          <div class="sal-box-head">
+            <div class="sal-box-left">
+              <div class="sal-icon-badge blue">−</div>
+              <div class="sal-box-info">
+                <strong>Salary Paid</strong>
+                <span>
+                  <span class="sal-entry-pill" id="salPaidCount">0 Payments</span>
+                  <span>Tap to view entries</span>
+                </span>
+              </div>
+            </div>
+            <div class="sal-box-right">
+              <strong class="sal-box-amount blue" id="salPaidAmt">− ₹0</strong>
+              <svg class="sal-box-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <!-- Expanded Itemized Breakdown for Salary Paid -->
+          <div class="sal-box-detail" id="salPaidDetailList">
+            <div class="p-3 text-center text-xs text-slate-400">No salary payment entries for this month.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ratio Visual Progress Bar -->
+      <div class="sal-ratio-card">
+        <div class="sal-ratio-head">
+          <span id="salRatioTaken">Taken ₹0 of ₹0</span>
+          <strong id="salRatioPercent">0%</strong>
+        </div>
+        <div class="sal-track">
+          <div class="sal-seg amber" id="salSegAmber" style="width: 0%;"></div>
+          <div class="sal-seg blue" id="salSegBlue" style="width: 0%;"></div>
+        </div>
+        <div class="sal-legend-row">
+          <span class="sal-legend-item"><span class="sal-dot amber"></span>Advance Taken (<span id="salLegAdv">₹0</span>)</span>
+          <span class="sal-legend-item"><span class="sal-dot blue"></span>Salary Paid (<span id="salLegPaid">₹0</span>)</span>
+        </div>
+      </div>
+
+      <!-- Net Balance to Get KPI Card -->
+      <div class="sal-balance-card" id="salNetCard">
+        <div>
+          <span class="sal-net-title">BALANCE TO GET</span>
+          <small class="sal-net-sub" id="dispSalNetSub">Pending to receive from salon</small>
+        </div>
+        <div class="sal-net-amount" id="dispSalNet">₹0</div>
+      </div>
+    </section>
+
+    <!-- Hidden compatibility elements so legacy calls do not throw -->
+    <div id="salFilters" style="display:none;"></div>
+    <div id="salList" style="display:none;"></div>
+    <div id="salSummary" style="display:none;"></div>
+    <div id="salStatus" class="sal-status" role="status"></div>
+  </section>
+
+    <!-- ================= SCREEN 2: ALL ADVANCE (WORK-LIKE VIEW) ================= -->
+    <section id="viewAllAdv" hidden>
+      <!-- Single-Line Filter Bar -->
+      <div class="single-line-filter-card">
+        <div class="filter-group">
+          <div class="filter-icon-btn" title="Date Presets">
+            <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          </div>
+          <button class="pill-btn" type="button" onclick="setAdvFilter('7days', this)">7 Days</button>
+          <button class="pill-btn active" type="button" onclick="setAdvFilter('month', this)">This Month</button>
+          <button class="pill-btn custom-date-btn" type="button" onclick="toggleAdvCustomPicker(this)">
+            <span>Custom</span>
+            <span class="chevron">▾</span>
+          </button>
+        </div>
+        <div class="meta-strip">
+          <div class="stat-badge" id="advDaysBadge">30 Days</div>
+          <div class="stat-badge total" id="advTotalBadge">₹0</div>
+        </div>
+      </div>
+
+      <!-- Custom Date Picker Dropdown Popover -->
+      <div class="adv-custom-popover" id="advCustomPopover" style="display:none;">
+        <div class="popover-row">
+          <div>
+            <label>From</label>
+            <input type="date" id="advFilterFrom">
+          </div>
+          <div>
+            <label>To</label>
+            <input type="date" id="advFilterTo">
+          </div>
+        </div>
+        <div class="popover-actions">
+          <button type="button" class="popover-apply-btn" onclick="applyAdvCustomFilter()">Apply Filter</button>
+        </div>
+      </div>
+
+      <!-- Active Filter Strip -->
+      <div class="active-filter-strip" id="advActiveStrip" hidden>
+        <span class="strip-label">Filter:</span>
+        <span class="strip-value" id="advActiveText">This Month</span>
+        <button class="strip-reset-btn" type="button" onclick="resetAdvFilter()">✕ Reset</button>
+      </div>
+
+      <!-- Grouped Records Container -->
+      <div id="advRecordsList" class="adv-list-wrap">
+        <div class="sal-empty">Loading advance history...</div>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN 3: MY SALARY (INTERACTIVE ACCORDIONS) ================= -->
+    <section id="viewSalary" hidden>
+      <!-- Month Selector Row -->
+      <div class="sal-month-row">
+        <h2 class="sal-title">Salary Breakdown</h2>
+        <div class="sal-month-picker-wrap">
+          <button type="button" class="sal-nav-arrow" onclick="salStepMonth(-1)" title="Previous Month">‹</button>
+          <label class="sal-month-pill" title="Tap to choose month">
+            <svg class="w-3.5 h-3.5 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span id="salMonthLabel">October 2026</span>
+            <svg class="w-2.5 h-2.5 stroke-current fill-none stroke-2 ml-0.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+            <input id="salMonth" type="month" aria-label="Salary month">
+          </label>
+          <button type="button" class="sal-nav-arrow" onclick="salStepMonth(1)" title="Next Month">›</button>
+        </div>
+      </div>
+
+      <!-- Interactive Salary Accordion Cards -->
+      <div class="sal-card-group" id="salCardsContainer">
+        <!-- Card 1: Earned Salary (Fixed Summary) -->
+        <div class="sal-box">
+          <div class="sal-box-head">
+            <div class="sal-box-left">
+              <div class="sal-icon-badge green">+</div>
+              <div class="sal-box-info">
+                <strong>Earned Salary</strong>
+                <span id="salEarnedSub">Collection ₹0</span>
+              </div>
+            </div>
+            <strong class="sal-box-amount green" id="salEarnedAmt">₹0</strong>
+          </div>
+        </div>
+
+        <!-- Card 2: Advance Taken (CLICK TO EXPAND DETAILS!) -->
+        <div class="sal-box clickable is-expanded" id="boxAdvance" onclick="toggleSalBox(this)">
+          <div class="sal-box-head">
+            <div class="sal-box-left">
+              <div class="sal-icon-badge amber">−</div>
+              <div class="sal-box-info">
+                <strong>Advance Taken</strong>
+                <span>
+                  <span class="sal-entry-pill" id="salAdvCount">0 Entries</span>
+                  <span>Tap to view entries</span>
+                </span>
+              </div>
+            </div>
+            <div class="sal-box-right">
+              <strong class="sal-box-amount amber" id="salAdvAmt">− ₹0</strong>
+              <svg class="sal-box-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <!-- Expanded Itemized Breakdown for Advance -->
+          <div class="sal-box-detail" id="salAdvDetailList">
+            <div class="p-3 text-center text-xs text-slate-400">No advance entries for this month.</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Salary Paid (CLICK TO EXPAND DETAILS!) -->
+        <div class="sal-box clickable" id="boxSalaryPaid" onclick="toggleSalBox(this)">
+          <div class="sal-box-head">
+            <div class="sal-box-left">
+              <div class="sal-icon-badge blue">−</div>
+              <div class="sal-box-info">
+                <strong>Salary Paid</strong>
+                <span>
+                  <span class="sal-entry-pill" id="salPaidCount">0 Payments</span>
+                  <span>Tap to view entries</span>
+                </span>
+              </div>
+            </div>
+            <div class="sal-box-right">
+              <strong class="sal-box-amount blue" id="salPaidAmt">− ₹0</strong>
+              <svg class="sal-box-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <!-- Expanded Itemized Breakdown for Salary Paid -->
+          <div class="sal-box-detail" id="salPaidDetailList">
+            <div class="p-3 text-center text-xs text-slate-400">No salary payment entries for this month.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ratio Visual Progress Bar -->
+      <div class="sal-ratio-card">
+        <div class="sal-ratio-head">
+          <span id="salRatioTaken">Taken ₹0 of ₹0</span>
+          <strong id="salRatioPercent">0%</strong>
+        </div>
+        <div class="sal-track">
+          <div class="sal-seg amber" id="salSegAmber" style="width: 0%;"></div>
+          <div class="sal-seg blue" id="salSegBlue" style="width: 0%;"></div>
+        </div>
+        <div class="sal-legend-row">
+          <span class="sal-legend-item"><span class="sal-dot bg-amber-500"></span>Advance Taken (<span id="salLegAdv">₹0</span>)</span>
+          <span class="sal-legend-item"><span class="sal-dot bg-blue-500"></span>Salary Paid (<span id="salLegPaid">₹0</span>)</span>
+        </div>
+      </div>
+
+      <!-- Net Balance to Get KPI Card -->
+      <div class="sal-balance-card" id="salNetCard">
+        <div>
+          <span class="sal-net-title">BALANCE TO GET</span>
+          <small class="sal-net-sub" id="dispSalNetSub">Pending to receive from salon</small>
+        </div>
+        <div class="sal-net-amount" id="dispSalNet">₹0</div>
+      </div>
+    </section>
+
+    <!-- Hidden compatibility elements so legacy calls do not throw -->
+    <div id="salFilters" style="display:none;"></div>
+    <div id="salList" style="display:none;"></div>
+    <div id="salSummary" style="display:none;"></div>
     <div id="salStatus" class="sal-status" role="status"></div>
   </section>
   <section id="mobileAllWork" class="mw-page" hidden>
@@ -454,69 +900,677 @@
     const salaryMobile=document.getElementById('salaryMobile');
     const salSummary=document.getElementById('salSummary');
     const salFilters=document.getElementById('salFilters');
-    const salList=document.getElementById('salList');
-    const salStatus=document.getElementById('salStatus');
-    const salMonth=document.getElementById('salMonth');
-    const salMonthLabel=document.getElementById('salMonthLabel');
-    let salData=null,salFilter='all';
-    function salMoney(value){return'₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
-    function salMonthText(value){const date=new Date(`${value}-01T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-IN',{month:'long',year:'numeric'})}
-    function salDateText(value){const date=new Date(value);return Number.isNaN(date.getTime())?'—':date.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}
-    function salAdvanceRecords(){return (salData?.records||[]).filter(record=>record.recordType==='expense'&&/advance/i.test(String(record.expenseType||'')))}
-    function salSalaryRecords(){return (salData?.records||[]).filter(record=>record.recordType==='salary')}
-    function salRenderList(){
-      const rows=[
-        ...salAdvanceRecords().map(record=>({record,type:'advance'})),
-        ...salSalaryRecords().map(record=>({record,type:'salary'}))
-      ].filter(row=>salFilter==='all'||row.type===salFilter)
-        .sort((left,right)=>new Date(right.record.entryDate)-new Date(left.record.entryDate)||new Date(right.record.createdAt||0)-new Date(left.record.createdAt||0));
-      salList.innerHTML=rows.length?rows.map(({record,type})=>`<article class="sal-row"><span class="sal-date">${escapeHtml(salDateText(record.entryDate))}</span><span class="sal-chip ${type}">${type==='advance'?'Advance':'Salary Paid'}</span><strong class="sal-amount ${type}">− ${salMoney(record.amount)}</strong></article>`).join(''):'<div class="sal-empty">No money taken this month.</div>';
+    
+    /* ================= UNIFIED ADVANCE & SALARY PORTAL SCRIPT ================= */
+    const salStatus = document.getElementById('salStatus');
+    const salMonth = document.getElementById('salMonth');
+    const salMonthLabel = document.getElementById('salMonthLabel');
+    const salList = document.getElementById('salList');
+
+    let salData = null;
+    let currentAdvBalance = 0;
+    let currentAdvPayMode = 'Cash';
+    let currentAdvFilterPreset = 'month';
+    let advHistoryRecords = [];
+
+    function salMoney(value) {
+      return '₹' + Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
     }
-    function salRender(){
-      if(!salData)return;
-      const summary=salData.summary||{};
-      const advance=salAdvanceRecords().reduce((sum,record)=>sum+Number(record.amount||0),0);
-      const salaryPaid=salSalaryRecords().reduce((sum,record)=>sum+Number(record.amount||0),0);
-      const earned=Number(summary.earnedSalary||0);
-      const taken=advance+salaryPaid;
-      const extra=Math.max(0,taken-earned);
-      const balance=Math.max(0,earned-taken);
-      const percent=earned>0?Math.floor(taken/earned*100):taken>0?100:0;
-      const scale=extra>0?taken+extra:Math.max(earned,taken,1);
-      const advanceWidth=Math.min(100,advance/scale*100);
-      const salaryWidth=Math.min(100-advanceWidth,salaryPaid/scale*100);
-      const extraWidth=extra>0?Math.max(0,100-advanceWidth-salaryWidth):0;
-      const salaryRule=summary.salaryMode==='fixed'?'Fixed monthly salary':`My Work ${salMoney(summary.collection)} × ${Number(summary.salaryPercentage||0)}%`;
-      salMonthLabel.textContent=salMonthText(salMonth.value);
-      salSummary.innerHTML=`
-        <div class="sal-line"><span class="sal-icon">+</span><div class="sal-copy"><strong>Earned Salary</strong><small>${escapeHtml(salaryRule)}</small></div><b class="sal-green">${salMoney(earned)}</b></div>
-        <div class="sal-line"><span class="sal-icon">−</span><div class="sal-copy"><strong>Advance Taken</strong><small>Taken In Between, Daily Or Alternate Days</small></div><b class="sal-orange">${salMoney(advance)}</b></div>
-        <div class="sal-line"><span class="sal-icon">−</span><div class="sal-copy"><strong>Salary Paid</strong><small>Salary Given To You In Parts</small></div><b class="sal-blue">${salMoney(salaryPaid)}</b></div>
-        <div class="sal-taken"><span>Taken ${salMoney(taken)} Of ${salMoney(earned)}</span><b>${percent}%</b></div>
-        <div class="sal-progress" aria-hidden="true"><span class="sal-advance-bar" style="width:${advanceWidth}%"></span><span class="sal-salary-bar" style="width:${salaryWidth}%"></span>${extraWidth>0?`<span class="sal-extra-bar" style="width:${extraWidth}%"></span>`:''}</div>
-        <div class="sal-legend"><span class="advance"><i></i>Advance Taken</span><span class="salary"><i></i>Salary Paid</span>${extra>0?'<span class="extra"><i></i>Extra Paid</span>':''}</div>
-        ${extra>0?`<div class="sal-balance extra"><div><span>EXTRA PAID</span><small>More Than Earned Salary</small></div><strong>${salMoney(extra)}</strong></div>`:`<div class="sal-balance"><div><span>BALANCE TO GET</span><small>Earned Less Taken</small></div><strong>${salMoney(balance)}</strong></div>`}
-      `;
-      salFilters.innerHTML=[['all','All'],['advance','Advance'],['salary','Salary Paid']].map(([key,label])=>`<button type="button" class="sal-filter no-btn-theme${salFilter===key?' active':''}" data-filter="${key}">${label}</button>`).join('');
-      salRenderList();
+    function salMonthText(value) {
+      const date = new Date(value + '-01T00:00:00');
+      return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
     }
-    async function salLoad(){
-      if(!salMonth.value)salMonth.value=new Date().toISOString().slice(0,7);
-      salStatus.className='sal-status';
-      salSummary.innerHTML='<div class="sal-empty">Loading your salary...</div>';
-      salList.replaceChildren();
-      try{salData=await salonAuth.request(`/api/my-data?month=${encodeURIComponent(salMonth.value)}`);salRender()}
-      catch(error){salData=null;salSummary.innerHTML='';salStatus.textContent=error.message||'Could not load your salary.';salStatus.className='sal-status show'}
+    function salDateText(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     }
-    async function salInit(){
+    function salTimeText(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? '' : date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function salAdvanceRecords() {
+      return (salData?.records || []).filter(record => record.recordType === 'expense' && /advance/i.test(String(record.expenseType || '')));
+    }
+    function salSalaryRecords() {
+      return (salData?.records || []).filter(record => record.recordType === 'salary');
+    }
+
+    // Tab Navigation
+    function salSwitchTab(tab) {
+      const isAdd = (tab === 'add');
+      const isAll = (tab === 'all');
+      const isSal = (tab === 'salary');
+
+      document.getElementById('viewAddAdv').hidden = !isAdd;
+      document.getElementById('viewAllAdv').hidden = !isAll;
+      document.getElementById('viewSalary').hidden = !isSal;
+
+      document.getElementById('tabAddAdv').classList.toggle('active', isAdd);
+      document.getElementById('tabAllAdv').classList.toggle('active', isAll);
+      document.getElementById('tabSalary').classList.toggle('active', isSal);
+
+      // Separators between unselected tabs
+      const sep1 = document.getElementById('salSep1');
+      const sep2 = document.getElementById('salSep2');
+      if (sep1) sep1.style.display = isAdd ? 'none' : (isAll ? 'none' : 'block');
+      if (sep2) sep2.style.display = isSal ? 'none' : (isAll ? 'none' : 'block');
+
+      if (isAll) {
+        loadAdvHistory();
+      } else if (isSal) {
+        if (!salData) salLoad();
+      } else if (isAdd) {
+        updateLiveDeduct();
+      }
+    }
+
+    // Toggle Salary Card Accordion Details
+    function toggleSalBox(box) {
+      box.classList.toggle('is-expanded');
+    }
+
+    // Add Advance Amount Helpers
+    function addAdvAmount(delta) {
+      const inp = document.getElementById('inpAdvAmount');
+      const val = Math.max(0, (Number(inp.value) || 0) + delta);
+      inp.value = val;
+      updateLiveDeduct();
+    }
+    function setExactAdvAmount(val) {
+      const inp = document.getElementById('inpAdvAmount');
+      inp.value = val;
+      updateLiveDeduct();
+    }
+    function updateLiveDeduct() {
+      const inp = document.getElementById('inpAdvAmount');
+      const val = Number(inp.value) || 0;
+      const rem = currentAdvBalance - val;
+      const disp = document.getElementById('dispRemaining');
+      if (!disp) return;
+      if (rem >= 0) {
+        disp.textContent = '₹' + rem.toLocaleString('en-IN');
+        disp.className = 'sal-rem-val green';
+      } else {
+        disp.textContent = 'Extra ₹' + Math.abs(rem).toLocaleString('en-IN');
+        disp.className = 'sal-rem-val red';
+      }
+    }
+
+    // Date formatting helper: 'YYYY-MM-DD' -> 'DD-Mon-YYYY'
+    function formatAdvDateDisplay(isoString) {
+      if (!isoString) return '—';
+      const parts = isoString.split('-');
+      if (parts.length !== 3) return isoString;
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const day = String(d.getDate()).padStart(2, '0');
+      const mon = monthNames[d.getMonth()];
+      const yr = d.getFullYear();
+      return `${day}-${mon}-${yr}`;
+    }
+
+    // Click anywhere on date card to open native calendar picker (Point 6)
+    function openAdvDatePicker() {
+      const inp = document.getElementById('inpAdvDate');
+      if (!inp) return;
+      try {
+        if (typeof inp.showPicker === 'function') {
+          inp.showPicker();
+          return;
+        }
+      } catch (e) {}
+      inp.focus();
+    }
+
+    // Handle Date input change (from calendar or quick pills)
+    function onAdvDateChanged() {
+      const inp = document.getElementById('inpAdvDate');
+      if (!inp) return;
+      const val = inp.value;
+      const disp = document.getElementById('dispAdvDateFormatted');
+      if (disp) disp.textContent = formatAdvDateDisplay(val);
+
+      // Highlight matching quick pill if date matches, else unhighlight all
+      document.querySelectorAll('.sal-qdate-pill').forEach(pill => {
+        if (pill.getAttribute('data-iso') === val) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+    }
+
+    // Pick quick date from side 3 or bottom 5 pills (Point 5)
+    function pickQuickDate(iso, btn) {
+      const inp = document.getElementById('inpAdvDate');
+      if (inp) {
+        inp.value = iso;
+        onAdvDateChanged();
+      }
+    }
+
+    // Render side 3 dates and bottom 5 dates dynamically (Point 5)
+    function renderQuickDatePills() {
+      const sideContainer = document.getElementById('salSideDatePills');
+      const bottomContainer = document.getElementById('salBottomDatePills');
+      if (!sideContainer || !bottomContainer) return;
+
+      const today = new Date();
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      function toLocalIso(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      // Side 3 dates: d-1, d-2, d-3
+      let sideHtml = '';
+      for (let i = 1; i <= 3; i++) {
+        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+        const iso = toLocalIso(d);
+        const dateNum = d.getDate();
+        const dayName = dayNames[d.getDay()];
+        sideHtml += `
+          <button type="button" class="sal-qdate-pill no-btn-theme" data-iso="${iso}" onclick="pickQuickDate('${iso}', this)" title="${iso}">
+            <svg class="sal-qdate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span class="sal-qdate-text">
+              <strong class="sal-qdate-num">${dateNum}</strong>
+              <small class="sal-qdate-day">${dayName}</small>
+            </span>
+          </button>
+        `;
+      }
+      sideContainer.innerHTML = sideHtml;
+
+      // Bottom 5 dates: d-4 to d-8
+      let bottomHtml = '';
+      for (let i = 4; i <= 8; i++) {
+        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+        const iso = toLocalIso(d);
+        const dateNum = d.getDate();
+        const dayName = dayNames[d.getDay()];
+        bottomHtml += `
+          <button type="button" class="sal-qdate-pill no-btn-theme" data-iso="${iso}" onclick="pickQuickDate('${iso}', this)" title="${iso}">
+            <svg class="sal-qdate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span class="sal-qdate-text">
+              <strong class="sal-qdate-num">${dateNum}</strong>
+              <small class="sal-qdate-day">${dayName}</small>
+            </span>
+          </button>
+        `;
+      }
+      bottomContainer.innerHTML = bottomHtml;
+    }
+
+    function setAdvPayMode(mode) {
+      currentAdvPayMode = mode;
+      document.getElementById('payCash').classList.toggle('active', mode === 'Cash');
+      document.getElementById('payOnline').classList.toggle('active', mode === 'Online');
+    }
+
+    async function submitAdvanceEntry() {
+      const inpAmt = document.getElementById('inpAdvAmount');
+      const inpDate = document.getElementById('inpAdvDate');
+      const inpRemark = document.getElementById('inpAdvRemark');
+      const fb = document.getElementById('advFormFeedback');
+      const btn = document.getElementById('btnSaveAdvance');
+
+      const amount = Number(inpAmt.value);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        showAdvFeedback('Please enter a valid advance amount greater than 0.', 'error');
+        inpAmt.focus();
+        return;
+      }
+
+      const entryDate = inpDate.value;
+      if (!/^d{4}-d{2}-d{2}$/.test(entryDate)) {
+        showAdvFeedback('Please select a valid date.', 'error');
+        inpDate.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Saving Advance...</span>';
+      fb.style.display = 'none';
+
+      try {
+        const payload = {
+          recordType: 'expense',
+          expenseTypeSr: 1, // Advance Amount
+          amount: amount,
+          entryDate: entryDate,
+          paymentMode: currentAdvPayMode,
+          remark: inpRemark.value.trim()
+        };
+
+        const res = await salonAuth.request('/api/employee-records', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        showAdvFeedback('✓ Advance of ' + salMoney(amount) + ' recorded successfully for ' + salDateText(entryDate) + '!', 'success');
+        inpRemark.value = '';
+
+        // Refresh salary data
+        await salLoad();
+
+        setTimeout(() => {
+          fb.style.display = 'none';
+          salSwitchTab('all');
+        }, 1200);
+
+      } catch (err) {
+        showAdvFeedback(err.message || 'Could not record advance. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg class="sal-btn-icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>Save Advance</span>';
+      }
+    }
+
+    function showAdvFeedback(msg, type) {
+      const fb = document.getElementById('advFormFeedback');
+      fb.textContent = msg;
+      fb.className = 'sal-feedback ' + type;
+      fb.style.display = 'block';
+    }
+
+    // Step Month in Salary Screen
+    function salStepMonth(delta) {
+      const current = salMonth.value || new Date().toISOString().slice(0, 7);
+      const parts = current.split('-');
+      let y = parseInt(parts[0], 10);
+      let m = parseInt(parts[1], 10);
+      m += delta;
+      if (m > 12) { m = 1; y += 1; }
+      else if (m < 1) { m = 12; y -= 1; }
+      salMonth.value = y + '-' + String(m).padStart(2, '0');
+      salLoad();
+    }
+
+    // Tab 2 (All Advance) Filters & Card Rendering
+    function setAdvFilter(preset, btn) {
+      currentAdvFilterPreset = preset;
+      document.querySelectorAll('.single-line-filter-card .pill-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('advCustomPopover').style.display = 'none';
+      loadAdvHistory();
+    }
+
+    function toggleAdvCustomPicker(btn) {
+      const popover = document.getElementById('advCustomPopover');
+      const isVisible = (popover.style.display === 'block');
+      popover.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible) {
+        const now = new Date();
+        document.getElementById('advFilterTo').value = now.toISOString().slice(0, 10);
+        const past = new Date(now.getTime() - 29 * 86400000);
+        document.getElementById('advFilterFrom').value = past.toISOString().slice(0, 10);
+      }
+    }
+
+    function applyAdvCustomFilter() {
+      const from = document.getElementById('advFilterFrom').value;
+      const to = document.getElementById('advFilterTo').value;
+      if (!from || !to) return;
+      document.querySelectorAll('.single-line-filter-card .pill-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.custom-date-btn').classList.add('active');
+      document.getElementById('advCustomPopover').style.display = 'none';
+
+      currentAdvFilterPreset = 'custom';
+      loadAdvHistory(from, to);
+    }
+
+    function resetAdvFilter() {
+      const monthBtn = document.querySelectorAll('.single-line-filter-card .pill-btn')[1];
+      setAdvFilter('month', monthBtn);
+    }
+
+    async function loadAdvHistory(customFrom, customTo) {
+      const listWrap = document.getElementById('advRecordsList');
+      listWrap.innerHTML = '<div class="sal-empty">Loading advance history...</div>';
+
+      let from = '';
+      let to = '';
+      const now = new Date();
+      const todayIso = now.toISOString().slice(0, 10);
+
+      if (currentAdvFilterPreset === '7days') {
+        to = todayIso;
+        const past = new Date(now.getTime() - 6 * 86400000);
+        from = past.toISOString().slice(0, 10);
+      } else if (currentAdvFilterPreset === 'month') {
+        const ym = salMonth.value || todayIso.slice(0, 7);
+        from = ym + '-01';
+        const nextMonth = new Date(parseInt(ym.slice(0,4),10), parseInt(ym.slice(5,7),10), 0);
+        to = ym + '-' + String(nextMonth.getDate()).padStart(2, '0');
+      } else if (currentAdvFilterPreset === 'custom' && customFrom && customTo) {
+        from = customFrom;
+        to = customTo;
+      }
+
+      // Update Active Strip
+      const strip = document.getElementById('advActiveStrip');
+      const activeText = document.getElementById('advActiveText');
+      if (currentAdvFilterPreset === 'custom' && from && to) {
+        strip.hidden = false;
+        activeText.textContent = salDateText(from) + ' – ' + salDateText(to);
+      } else if (currentAdvFilterPreset === '7days') {
+        strip.hidden = false;
+        activeText.textContent = 'Last 7 Days (' + salDateText(from) + ' – ' + salDateText(to) + ')';
+      } else {
+        strip.hidden = true;
+      }
+
+      try {
+        let url = '/api/module-records?module=expense&limit=100';
+        if (from) url += '&from=' + encodeURIComponent(from);
+        if (to) url += '&to=' + encodeURIComponent(to);
+
+        const data = await salonAuth.request(url);
+        advHistoryRecords = (data.records || []).filter(r => /advance/i.test(String(r.expenseType || '')));
+
+        // Calculate days and total
+        let daysCount = 1;
+        if (from && to) {
+          const d1 = new Date(from);
+          const d2 = new Date(to);
+          daysCount = Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
+        }
+        const totalSum = advHistoryRecords.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+
+        document.getElementById('advDaysBadge').textContent = daysCount + ' Days';
+        document.getElementById('advTotalBadge').textContent = salMoney(totalSum);
+
+        renderAdvHistoryCards(advHistoryRecords);
+
+      } catch (err) {
+        listWrap.innerHTML = '<div class="sal-empty text-red-600">Could not load advance history: ' + (err.message || 'Error') + '</div>';
+      }
+    }
+
+    function renderAdvHistoryCards(records) {
+      const listWrap = document.getElementById('advRecordsList');
+      if (!records.length) {
+        listWrap.innerHTML = '<div class="sal-empty">No advance records found for this period.</div>';
+        return;
+      }
+
+      // Group records by entryDate
+      const groups = {};
+      records.forEach((r, idx) => {
+        const d = String(r.entryDate || '').slice(0, 10);
+        if (!groups[d]) groups[d] = [];
+        groups[d].push({ record: r, index: idx + 1 });
+      });
+
+      const sortedDates = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+
+      let html = '';
+      sortedDates.forEach(dateStr => {
+        const items = groups[dateStr];
+        const daySum = items.reduce((sum, item) => sum + (Number(item.record.amount) || 0), 0);
+
+        html += '<div class="mw-date-group">';
+        html += '  <div class="mw-date-header">';
+        html += '    <span class="mw-date-title">' + salDateText(dateStr) + ' · ' + items.length + ' Advance' + (items.length > 1 ? 's' : '') + '</span>';
+        html += '    <span class="mw-date-sum">' + salMoney(daySum) + '</span>';
+        html += '  </div>';
+
+        items.forEach(({ record, index }) => {
+          const mode = record.paymentMode || 'Cash';
+          const isCash = (mode === 'Cash');
+          const amt = salMoney(record.amount);
+          const remark = record.remark ? escapeHtml(record.remark) : 'No remark';
+          const createdAt = salDateText(record.createdAt || record.entryDate) + (record.createdAt ? ' ' + salTimeText(record.createdAt) : '');
+
+          html += '<div class="sal-adv-card" onclick="toggleAdvCard(this, event)">';
+          html += '  <div class="sal-adv-summary">';
+          html += '    <div class="sal-adv-topline">';
+          html += '      <span class="sal-adv-no">#' + index + '</span>';
+          html += '      <strong class="sal-adv-title">Advance Taken</strong>';
+          html += '      <span class="sal-adv-mode-chip ' + (isCash ? 'cash' : 'online') + '">' + mode + '</span>';
+          html += '    </div>';
+          html += '    <div class="sal-adv-right">';
+          html += '      <strong class="sal-adv-amount">' + amt + '</strong>';
+          html += '      <svg class="sal-adv-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
+          html += '    </div>';
+          html += '  </div>';
+
+          html += '  <div class="sal-adv-body">';
+          html += '    <div class="sal-adv-remark"><strong>Remark:</strong> ' + remark + '</div>';
+          html += '    <div class="sal-adv-meta">Recorded: ' + createdAt + ' · Status: ' + (record.status || 'Active') + '</div>';
+          html += '    <div class="sal-adv-actions">';
+          html += '      <button type="button" class="sal-adv-action-btn no-btn-theme view" onclick="event.stopPropagation(); viewAdvDetail(\'' + record._id + '\')">👁 View</button>';
+          html += '      <button type="button" class="sal-adv-action-btn no-btn-theme edit" onclick="event.stopPropagation(); editAdvRecord(\'' + record._id + '\')">✏ Edit</button>';
+          html += '      <button type="button" class="sal-adv-action-btn no-btn-theme delete" onclick="event.stopPropagation(); deleteAdvRecord(\'' + record._id + '\')">🗑 Delete</button>';
+          html += '    </div>';
+          html += '  </div>';
+          html += '</div>';
+        });
+
+        html += '</div>';
+      });
+
+      listWrap.innerHTML = html;
+    }
+    function toggleAdvCard(card, event) {
+      if (event.target.closest('button')) return;
+      card.classList.toggle('open');
+    }
+
+    function viewAdvDetail(id) {
+      const rec = advHistoryRecords.find(r => r._id === id);
+      if (!rec) return;
+      alert('Advance Details:\nAmount: ' + salMoney(rec.amount) + '\nDate: ' + salDateText(rec.entryDate) + '\nPayment Mode: ' + (rec.paymentMode || 'Cash') + '\nRemark: ' + (rec.remark || '—') + '\nStatus: ' + (rec.status || 'Active'));
+    }
+
+    async function editAdvRecord(id) {
+      const rec = advHistoryRecords.find(r => r._id === id);
+      if (!rec) return;
+      const newAmtStr = prompt('Edit Advance Amount (₹):', rec.amount);
+      if (newAmtStr === null) return;
+      const newAmt = Number(newAmtStr);
+      if (!Number.isFinite(newAmt) || newAmt <= 0) {
+        alert('Invalid amount.');
+        return;
+      }
+      const newRemark = prompt('Edit Remark:', rec.remark || '');
+      if (newRemark === null) return;
+
+      try {
+        await salonAuth.request('/api/employee-records/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recordType: 'expense',
+            amount: newAmt,
+            remark: newRemark.trim(),
+            entryDate: String(rec.entryDate || '').slice(0, 10),
+            paymentMode: rec.paymentMode || 'Cash',
+            expenseTypeSr: 1
+          })
+        });
+        alert('✓ Advance updated successfully!');
+        loadAdvHistory();
+        salLoad();
+      } catch (err) {
+        alert('Could not update advance: ' + (err.message || 'Error'));
+      }
+    }
+
+    async function deleteAdvRecord(id) {
+      const rec = advHistoryRecords.find(r => r._id === id);
+      if (!rec) return;
+      if (!confirm('Are you sure you want to delete this advance entry of ' + salMoney(rec.amount) + '?')) {
+        return;
+      }
+      try {
+        await salonAuth.request('/api/employee-records/' + id, { method: 'DELETE' });
+        alert('✓ Advance deleted successfully.');
+        loadAdvHistory();
+        salLoad();
+      } catch (err) {
+        alert('Could not delete advance: ' + (err.message || 'Error'));
+      }
+    }
+
+    // Tab 3 (My Salary) Render
+    function salRender() {
+      if (!salData) return;
+      const summary = salData.summary || {};
+      const advanceList = salAdvanceRecords();
+      const salaryList = salSalaryRecords();
+
+      const advance = advanceList.reduce((sum, record) => sum + Number(record.amount || 0), 0);
+      const salaryPaid = salaryList.reduce((sum, record) => sum + Number(record.amount || 0), 0);
+      const earned = Number(summary.earnedSalary || 0);
+      const taken = advance + salaryPaid;
+      const extra = Math.max(0, taken - earned);
+      const balance = Math.max(0, earned - taken);
+      const percent = earned > 0 ? Math.floor(taken / earned * 100) : taken > 0 ? 100 : 0;
+      const scale = extra > 0 ? taken + extra : Math.max(earned, taken, 1);
+      const advanceWidth = Math.min(100, advance / scale * 100);
+      const salaryWidth = Math.min(100 - advanceWidth, salaryPaid / scale * 100);
+
+      currentAdvBalance = balance;
+
+      // Update Add Advance Available Balance Card
+      const dispBal = document.getElementById('dispAvailableBal');
+      if (dispBal) dispBal.textContent = salMoney(balance);
+      const badge = document.getElementById('advCurMonthBadge');
+      if (badge) badge.textContent = '● ' + salMonthText(salMonth.value);
+      updateLiveDeduct();
+
+      // Update Salary Screen Header & KPIs
+      salMonthLabel.textContent = salMonthText(salMonth.value);
+
+      const salaryRule = summary.salaryMode === 'fixed'
+        ? 'Fixed monthly salary'
+        : 'My Work ' + salMoney(summary.collection) + ' × ' + Number(summary.salaryPercentage || 0) + '%';
+      document.getElementById('salEarnedSub').textContent = salaryRule;
+      document.getElementById('salEarnedAmt').textContent = salMoney(earned);
+
+      document.getElementById('salAdvCount').textContent = advanceList.length + ' Entr' + (advanceList.length === 1 ? 'y' : 'ies');
+      document.getElementById('salAdvAmt').textContent = '− ' + salMoney(advance);
+
+      document.getElementById('salPaidCount').textContent = salaryList.length + ' Payment' + (salaryList.length === 1 ? '' : 's');
+      document.getElementById('salPaidAmt').textContent = '− ' + salMoney(salaryPaid);
+
+      document.getElementById('salRatioTaken').textContent = 'Taken ' + salMoney(taken) + ' of ' + salMoney(earned);
+      document.getElementById('salRatioPercent').textContent = percent + '%';
+      document.getElementById('salSegAmber').style.width = advanceWidth + '%';
+      document.getElementById('salSegBlue').style.width = salaryWidth + '%';
+      document.getElementById('salLegAdv').textContent = salMoney(advance);
+      document.getElementById('salLegPaid').textContent = salMoney(salaryPaid);
+
+      // Net Balance Card
+      const dispNet = document.getElementById('dispSalNet');
+      const dispNetSub = document.getElementById('dispSalNetSub');
+      const netCard = document.getElementById('salNetCard');
+
+      if (extra > 0) {
+        dispNet.textContent = salMoney(extra);
+        dispNetSub.textContent = 'Extra Paid (More Than Earned Salary)';
+        netCard.className = 'sal-balance-card extra';
+      } else {
+        dispNet.textContent = salMoney(balance);
+        dispNetSub.textContent = 'Pending to receive from salon';
+        netCard.className = 'sal-balance-card';
+      }
+
+      // Populate Advance Accordion Itemized List
+      const advBoxList = document.getElementById('salAdvDetailList');
+      if (!advanceList.length) {
+        advBoxList.innerHTML = '<div class="p-3 text-center text-xs text-slate-400">No advance entries for this month.</div>';
+      } else {
+        advBoxList.innerHTML = advanceList.map(rec => `
+          <div class="sal-sub-row">
+            <div>
+              <span class="sal-sub-date">${escapeHtml(salDateText(rec.entryDate))}${rec.createdAt ? ' · ' + escapeHtml(salTimeText(rec.createdAt)) : ''} · ${escapeHtml(rec.paymentMode || 'Cash')}</span>
+              <span class="sal-sub-remark">${escapeHtml(rec.remark || 'Advance taken')}</span>
+            </div>
+            <strong class="sal-sub-amt text-amber-600">− ${salMoney(rec.amount)}</strong>
+          </div>
+        `).join('');
+      }
+
+      // Populate Salary Paid Accordion Itemized List
+      const paidBoxList = document.getElementById('salPaidDetailList');
+      if (!salaryList.length) {
+        paidBoxList.innerHTML = '<div class="p-3 text-center text-xs text-slate-400">No salary payment entries for this month.</div>';
+      } else {
+        paidBoxList.innerHTML = salaryList.map(rec => `
+          <div class="sal-sub-row">
+            <div>
+              <span class="sal-sub-date">${escapeHtml(salDateText(rec.entryDate))}${rec.createdAt ? ' · ' + escapeHtml(salTimeText(rec.createdAt)) : ''} · ${escapeHtml(rec.paymentMode || 'Online')}</span>
+              <span class="sal-sub-remark">${escapeHtml(rec.remark || 'Salary installment')}</span>
+            </div>
+            <strong class="sal-sub-amt text-blue-600">− ${salMoney(rec.amount)}</strong>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function salLoad() {
+      if (!salMonth.value) salMonth.value = new Date().toISOString().slice(0, 7);
+      salStatus.className = 'sal-status';
+      try {
+        salData = await salonAuth.request('/api/my-data?month=' + encodeURIComponent(salMonth.value));
+        salRender();
+      } catch (error) {
+        salData = null;
+        salStatus.textContent = error.message || 'Could not load your salary.';
+        salStatus.className = 'sal-status show';
+      }
+    }
+
+    async function salInit() {
       document.body.classList.add('salary-mobile');
-      document.querySelector('main.wrap').hidden=true;
-      salaryMobile.hidden=false;
-      salMonth.value=new Date().toISOString().slice(0,7);
-      salMonth.addEventListener('change',()=>{if(/^\d{4}-(0[1-9]|1[0-2])$/.test(salMonth.value))salLoad()});
-      salFilters.addEventListener('click',event=>{const button=event.target.closest('[data-filter]');if(!button)return;salFilter=button.dataset.filter;salRender()});
+      document.querySelector('main.wrap').hidden = true;
+      salaryMobile.hidden = false;
+
+      // Default date to today
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const todayIso = `${y}-${m}-${d}`;
+      const inpAdvDate = document.getElementById('inpAdvDate');
+      if (inpAdvDate) {
+        inpAdvDate.value = todayIso;
+      }
+
+      // Render side 3 and bottom 5 quick date pills (Point 5)
+      renderQuickDatePills();
+      onAdvDateChanged();
+
+      salMonth.value = todayIso.slice(0, 7);
+      salMonth.addEventListener('change', () => {
+        if (/^\d{4}-(0[1-9]|1[0-2])$/.test(salMonth.value)) salLoad();
+      });
+
+      // Start on Tab 1 (Add Advance) as requested
+      salSwitchTab('add');
+
+      // Load initial salary balance and data
       await salLoad();
     }
+
     const mobileAllWork=document.getElementById('mobileAllWork');
     const mwRecords=document.getElementById('mwRecords'),mwLoadMore=document.getElementById('mwLoadMore');
     const mwListMeta=document.getElementById('mwListMeta'),mwStatus=document.getElementById('mwStatus');
@@ -972,7 +2026,7 @@
     mobileFilterOverlay.addEventListener('click',closeMobileFilters);
     document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMobileFilters()});
     window.salonPageReady=(async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;      if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
-      if(moduleKey==='salary'&&isMobileViewport&&session.employee.role!=='Admin'){await salInit();return}
+      if((moduleKey==='salary'||moduleKey==='expense')&&isMobileViewport&&session.employee.role!=='Admin'){await salInit();return}
       if(moduleKey==='collection'&&isMobileViewport){await mwInit();return}
       if(session.employee.role==='Admin'){document.getElementById('employeeField').hidden=false;const staff=await salonAuth.request('/api/staff');for(const employee of staff)document.getElementById('employee').add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));if(requestedEmployeeId&&staff.some(employee=>employee._id===requestedEmployeeId))document.getElementById('employee').value=requestedEmployeeId}
       if(!can('add')||session.pageAccess?.[definition.entryPage]===false)entryLink.hidden=true;

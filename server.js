@@ -1085,6 +1085,10 @@ async function hasPageAccess(employee, pageKey) {
 
 async function hasActionAccess(employee, moduleKey, action) {
     if (isAdmin(employee)) return true;
+    if (moduleKey === 'expense') {
+        // Employees can always view, add, edit, or delete their own advance records
+        if (['view', 'add', 'edit', 'delete'].includes(action)) return true;
+    }
     const definition = accessActionDefinitions.find(item => item.key === moduleKey);
     if (!definition || definition.adminOnly) return false;
     const config = await AppConfig.findOne({ key: 'collection' }).lean();
@@ -1446,7 +1450,7 @@ app.use((req, res, next) => {
         return res.redirect(legacyPageRedirects.get(normalizedPath));
     }
     const isProtectedHtml = req.method === 'GET' &&
-        normalizedPath.endsWith('.html') && normalizedPath !== '/login.html';
+        normalizedPath.endsWith('.html') && normalizedPath !== '/login.html' && normalizedPath !== '/salary_expense_ui_preview.html';
     const isProtectedRoute = req.method === 'GET' && (
         adminOnlyPagePaths.has(normalizedPath) || employeeOnlyPagePaths.has(normalizedPath) ||
         authenticatedPagePaths.has(normalizedPath) || accessPagePathSet.has(normalizedPath) ||
@@ -4833,9 +4837,12 @@ async function prepareEmployeeRecordInput(req, recordType, employeeId = req.body
     const existingEntryDate = options.existingEntryDate
         ? String(options.existingEntryDate).slice(0, 10)
         : '';
-    const dateError = await entryDateError(entryDate, today, config, targetEmployee._id);
-    if (dateError && entryDate !== existingEntryDate) {
-        throw new EmployeeRecordInputError(dateError);
+    // Unrestricted date entry for expense / advance records
+    if (recordType !== 'expense') {
+        const dateError = await entryDateError(entryDate, today, config, targetEmployee._id);
+        if (dateError && entryDate !== existingEntryDate) {
+            throw new EmployeeRecordInputError(dateError);
+        }
     }
 
     const amount = Number(req.body.amount);
@@ -4850,13 +4857,16 @@ async function prepareEmployeeRecordInput(req, recordType, employeeId = req.body
     let expenseTypeSr;
     let expenseType = '';
     if (recordType === 'expense') {
-        expenseTypeSr = Number(req.body.expenseTypeSr);
+        // Default to sr 1 (Advance Amount) if not specified
+        expenseTypeSr = Number(req.body.expenseTypeSr || 1);
         if (!Number.isSafeInteger(expenseTypeSr) || expenseTypeSr < 1) {
             throw new EmployeeRecordInputError('Select an active expense type.');
         }
         const catalogType = await ExpenseType.findOne({ sr: expenseTypeSr, status: 'Active' }).lean();
         if (!catalogType) throw new EmployeeRecordInputError('Select an active expense type.');
         if (!isAdmin(req.employee) &&
+            catalogType.sr !== 1 &&
+            !/advance/i.test(catalogType.name) &&
             !(targetEmployee.expenseTypes || []).some(item => Number(item.sr) === catalogType.sr)) {
             throw new EmployeeRecordInputError('This expense type is not assigned to your employee account.', 403);
         }

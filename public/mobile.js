@@ -92,7 +92,7 @@
     nav.setAttribute('aria-label', 'Employee navigation');
     const navItems = [
       { key: 'dashboard', href: '/employee-dashboard', label: 'Dashboard', icon: 'dashboard' },
-      { key: 'collection-records', href: '/collection-table', label: 'My Work', icon: 'collection' },
+      { key: 'collection-records', href: session?.pageAccess?.['collection-entry'] !== false ? '/collection-entry' : '/collection-table', label: 'My Work', icon: 'collection' },
       { key: 'salary-records', href: '/salary-table', label: 'Salary', icon: 'salary' },
       { key: 'counter-records', href: '/counter-table', label: 'Counter Cash', icon: 'counter' }
     ];
