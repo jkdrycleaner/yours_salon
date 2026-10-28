@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/table-view.css">
   <link rel="stylesheet" href="/date-range.css">
   <link rel="stylesheet" href="/mobile.css">
-  <link rel="stylesheet" href="/my-work.css">
+  <link rel="stylesheet" href="/my-work.css?v=3">
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1250px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.links{display:flex;flex-wrap:wrap;gap:8px}.links a,.action{min-height:35px;padding:8px 11px;border:0;border-radius:8px;background:#eff2f5;color:#344054;text-decoration:none;font:700 12px Arial;cursor:pointer}.links a.add{background:#c99a23;color:#fff}.action.delete{background:#fff0ef;color:#9a352f}.action.deactivate{background:#fff9e8;color:#765b14}.filters{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-top:18px;padding:13px;background:#fafbfc;border:1px solid #e6ebf0;border-radius:11px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:#526176;font-weight:700}.field select{height:38px;min-width:150px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.filters button{height:38px;padding:8px 14px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.filters button.secondary{background:#eff2f5;color:#344054}.table-wrap{margin-top:16px;overflow:auto;border:1px solid #e1e7ee;border-radius:11px}table{width:100%;min-width:1080px;border-collapse:collapse;font-size:12px}th,td{padding:11px 12px;text-align:left;border-bottom:1px solid #edf0f4;white-space:nowrap}th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}tbody tr:last-child td{border-bottom:0}.empty{text-align:center;color:#7b8797;padding:25px}.status{display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px}.status.show{display:block;background:#fff0ef;color:#a13932}.row-actions{display:flex;gap:6px}.row-actions .action{min-height:30px;padding:6px 9px;font-size:11px}.row-inactive td{color:#a13932}.row-inactive td.sticky-action{background:#fff7f6}.badge{display:inline-block;padding:4px 7px;border-radius:99px;background:#e9f6f1;color:#286b53;font-size:10px;font-weight:700}.badge.inactive{background:#fff0ef;color:#a13932}.details-dialog{width:min(520px,92vw);padding:0;border:0;border-radius:14px;box-shadow:0 22px 60px #17233245}.details-dialog::backdrop{background:#17233266}.details-card{padding:20px}.details-card h2{margin:0 0 14px;font-size:18px}.details-list{display:grid;grid-template-columns:150px 1fr;gap:9px;margin:0}.details-list dt{color:#758397;font-size:12px;font-weight:700}.details-list dd{margin:0;color:#243244;font-size:12px;overflow-wrap:anywhere}.details-actions{display:flex;justify-content:flex-end;margin-top:17px}.details-actions button{min-height:36px;padding:8px 14px;border:0;border-radius:8px;background:#eff2f5;color:#344054;font:700 12px Arial;cursor:pointer}@media(max-width:620px){.wrap{padding:20px 12px 30px}.filters{align-items:stretch;flex-direction:column}.field select{width:100%}.filters button{width:100%}.links{width:100%}.links a{flex:1;text-align:center}.details-list{grid-template-columns:1fr}.details-list dt{margin-top:7px}}
   </style>
@@ -126,29 +126,141 @@
     <div id="salStatus" class="sal-status" role="status"></div>
   </section>
   <section id="mobileAllWork" class="mw-page" hidden>
-    <div class="mw-head">
-      <h1>My All Work</h1>
-      <a id="mwAdd" class="mw-add" data-salon-btn-theme href="/collection-entry">+ Add Work</a>
+    <!-- Segmented Tabs (Add Work vs All Work) -->
+    <div class="aw-segmented-tabs">
+      <a class="aw-tab no-btn-theme" href="/collection-entry">
+        <span class="aw-tab-icon">+</span>
+        <span>Add Work</span>
+      </a>
+      <div class="aw-tab active">
+        <span>All Work</span>
+        <span class="aw-chevron">›</span>
+      </div>
     </div>
-    <div class="mw-toolbar">
-      <button id="mwFilterButton" class="mw-filter-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z"/></svg>Filter <span id="mwFilterCount">2</span></button>
-      <div id="mwChips" class="mw-chips"></div>
+
+    <!-- Unified Single-Line Filter & Stats Bar -->
+    <div class="mw-single-filter-card">
+      <div class="mw-filter-group">
+        <button class="mw-filter-icon-btn no-btn-theme" id="mwFilterButton" type="button" title="Filter Records" aria-label="Filter Records">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z"/></svg>
+        </button>
+        <button class="mw-pill-btn no-btn-theme" id="mwPreset7" type="button">7 Days</button>
+        <button class="mw-pill-btn no-btn-theme active" id="mwPresetMonth" type="button">This Month</button>
+        <button class="mw-pill-btn no-btn-theme" id="mwPresetCustom" type="button">
+          <span>Custom</span>
+          <svg class="mw-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="mw-filter-v-divider"></div>
+
+      <div class="mw-filter-right-stats" id="mwStatsBox" title="Filter Date Range">
+        <span class="mw-days-badge" id="mwDaysBadge">-- Days</span>
+        <strong class="mw-total-badge" id="mwTotalBadge">₹0</strong>
+      </div>
     </div>
+
+    <!-- Active Filter Summary Strip (Visible when custom or specific filter is active) -->
+    <div id="mwActiveFilterStrip" class="mw-active-filter-strip" hidden>
+      <div class="mw-active-filter-left" id="mwActiveFilterTrigger" title="Tap to change custom dates">
+        <span class="mw-active-filter-dot"></span>
+        <span>Filter: <strong id="mwActiveFilterText">Custom Range</strong></span>
+      </div>
+      <button id="mwActiveFilterReset" class="mw-active-filter-reset no-btn-theme" type="button" title="Reset filter">✕ Reset</button>
+    </div>
+
+    <!-- Custom Date Range Picker Box (collapsible inline) -->
+    <div id="mwCustomPickerBox" class="mw-custom-picker-box" hidden>
+      <div class="mw-custom-date-row">
+        <div class="mw-custom-field">
+          <label for="mwCustomFrom">From Date</label>
+          <input type="date" id="mwCustomFrom">
+        </div>
+        <div class="mw-custom-field">
+          <label for="mwCustomTo">To Date</label>
+          <input type="date" id="mwCustomTo">
+        </div>
+      </div>
+      <button id="mwCustomApply" class="mw-custom-apply-btn no-btn-theme" type="button">Apply Range</button>
+    </div>
+
     <div id="mwListMeta" class="mw-list-meta" hidden></div>
     <div id="mwRecords"></div>
-    <button id="mwLoadMore" class="mw-load-more" type="button" hidden>Load more</button>
+    <button id="mwLoadMore" class="mw-load-more no-btn-theme" type="button" hidden>Load more</button>
     <div id="mwStatus" class="mw-status" role="status" aria-live="polite"></div>
   </section>
+
+  <!-- Filter Bottom Sheet Popup -->
   <div id="mwFilterOverlay" class="mw-filter-overlay"></div>
-  <section id="mwFilterSheet" class="mw-filter-sheet" role="dialog" aria-label="Filter My Work">
+  <section id="mwFilterSheet" class="mw-filter-sheet" role="dialog" aria-label="Filter Records">
     <div class="mw-sheet-handle"></div>
-    <div class="mw-sheet-head"><h2>Filter</h2><button id="mwFilterClose" type="button" hidden>Close</button></div>
-    <div class="mw-filter-fields">
-      <label class="mw-field"><span>Date range</span><div id="mwDateRange" class="mw-date-range"></div></label>
-      <label id="mwEmployeeField" class="mw-field" hidden><span>Employee</span><select id="mwEmployee"><option value="">All employees</option></select></label>
-      <label class="mw-field"><span>Status</span><select id="mwStatusFilter"><option value="Active">Active</option><option value="All">All</option><option value="Inactive">In-Active</option></select></label>
+    <div class="mw-sheet-head">
+      <div class="mw-sheet-title-row">
+        <div class="mw-filter-head-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z"/></svg>
+        </div>
+        <h2>Filter Records</h2>
+      </div>
+      <button id="mwFilterClose" class="mw-sheet-close-btn no-btn-theme" type="button" aria-label="Close">✕</button>
     </div>
-    <div class="mw-filter-actions"><button id="mwClear" class="secondary" type="button">Clear</button><button id="mwApply" type="button">Apply filter</button></div>
+
+    <div class="mw-filter-fields">
+      <!-- Date Presets Grid -->
+      <div class="mw-field">
+        <span>Date Range Presets</span>
+        <div class="mw-sheet-presets-grid">
+          <button type="button" class="mw-sheet-preset-btn no-btn-theme" id="mwSheetPreset7">Last 7 Days</button>
+          <button type="button" class="mw-sheet-preset-btn no-btn-theme active" id="mwSheetPresetMonth">This Month</button>
+          <button type="button" class="mw-sheet-preset-btn no-btn-theme" id="mwSheetPresetLastMonth">Last Month</button>
+          <button type="button" class="mw-sheet-preset-btn no-btn-theme" id="mwSheetPresetCustom">Custom Range</button>
+        </div>
+      </div>
+
+      <!-- Sheet Custom Range Date Pickers -->
+      <div id="mwSheetCustomRangeBox" class="mw-sheet-custom-box" hidden>
+        <div class="mw-sheet-date-inputs">
+          <label class="mw-date-input-wrap"><span>From</span><input type="date" id="mwSheetFromInput"></label>
+          <label class="mw-date-input-wrap"><span>To</span><input type="date" id="mwSheetToInput"></label>
+        </div>
+      </div>
+
+      <!-- Hidden standard Date Range for table compatibility -->
+      <div class="mw-field" id="mwDateRangeWrap" style="display:none;"><div id="mwDateRange"></div></div>
+
+      <!-- Staff / Employee Selector (Admin Only) -->
+      <label id="mwEmployeeField" class="mw-field" hidden>
+        <span>Employee / Staff Filter</span>
+        <div class="mw-select-wrap">
+          <select id="mwEmployee"><option value="">All employees (Sabhi Staff)</option></select>
+          <svg class="mw-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </label>
+
+      <!-- Status Filter Radio Pills -->
+      <div class="mw-field">
+        <span>Record Status</span>
+        <div class="mw-status-pills">
+          <label class="mw-status-radio-label">
+            <input type="radio" name="mwStatusRadio" value="Active" checked>
+            <span class="mw-status-pill-btn">Active</span>
+          </label>
+          <label class="mw-status-radio-label">
+            <input type="radio" name="mwStatusRadio" value="All">
+            <span class="mw-status-pill-btn">All</span>
+          </label>
+          <label class="mw-status-radio-label">
+            <input type="radio" name="mwStatusRadio" value="Inactive">
+            <span class="mw-status-pill-btn">In-Active</span>
+          </label>
+        </div>
+        <select id="mwStatusFilter" style="display:none;"><option value="Active">Active</option><option value="All">All</option><option value="Inactive">In-Active</option></select>
+      </div>
+    </div>
+
+    <div class="mw-filter-actions">
+      <button id="mwClear" class="secondary no-btn-theme mw-clear-btn" type="button">Clear</button>
+      <button id="mwApply" class="mw-apply-btn no-btn-theme" type="button">Apply filter</button>
+    </div>
   </section>
   <dialog id="detailsDialog" class="details-dialog">
     <div class="details-card"><h2>Record details</h2><dl id="detailsList" class="details-list"></dl><div class="details-actions"><button id="closeDetails" type="button">Close</button></div></div>
@@ -408,43 +520,52 @@
     const mobileAllWork=document.getElementById('mobileAllWork');
     const mwRecords=document.getElementById('mwRecords'),mwLoadMore=document.getElementById('mwLoadMore');
     const mwListMeta=document.getElementById('mwListMeta'),mwStatus=document.getElementById('mwStatus');
-    const mwFilterButton=document.getElementById('mwFilterButton'),mwFilterCount=document.getElementById('mwFilterCount'),mwChips=document.getElementById('mwChips');
+    const mwFilterButton=document.getElementById('mwFilterButton');
     const mwFilterSheet=document.getElementById('mwFilterSheet'),mwFilterOverlay=document.getElementById('mwFilterOverlay');
     const mwDateRange=document.getElementById('mwDateRange'),mwStatusFilter=document.getElementById('mwStatusFilter'),mwEmployee=document.getElementById('mwEmployee');
+    const mwDaysBadge=document.getElementById('mwDaysBadge'),mwTotalBadge=document.getElementById('mwTotalBadge'),mwStatsBox=document.getElementById('mwStatsBox');
+    const mwCustomPickerBox=document.getElementById('mwCustomPickerBox'),mwCustomFrom=document.getElementById('mwCustomFrom'),mwCustomTo=document.getElementById('mwCustomTo'),mwCustomApply=document.getElementById('mwCustomApply');
+    const mwPreset7=document.getElementById('mwPreset7'),mwPresetMonth=document.getElementById('mwPresetMonth'),mwPresetCustom=document.getElementById('mwPresetCustom');
     let mwPage=1,mwLoading=false,mwLastGroup='',mwGroupData=new Map(),mwEventsBound=false,mwDateControl=null;
+    let mwCurrentRange={from:'',to:''},mwActivePreset='month';
+
     function mwDateKey(value){const text=String(value||'');if(/^\d{4}-\d{2}-\d{2}/.test(text))return text.slice(0,10);const date=new Date(value);return Number.isNaN(date.getTime())?'':date.toISOString().slice(0,10)}
     function mwDateLabel(value){if(!value)return'—';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
     function mwShortDate(value){if(!value)return'';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?value:date.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}
-    function mwChipRange(range){
-      if(!range?.from||!range?.to)return'';
-      const from=new Date(`${range.from}T00:00:00`),to=new Date(`${range.to}T00:00:00`);
-      if(Number.isNaN(from.getTime())||Number.isNaN(to.getTime()))return'';
-      if(from.getFullYear()===to.getFullYear())return`${mwShortDate(range.from)} – ${mwShortDate(range.to)}`;
-      return`${mwDateLabel(range.from)} – ${mwDateLabel(range.to)}`;
-    }
     function mwMoney(value){return'₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
     function mwTime(value){if(!value)return'';const date=new Date(value);return Number.isNaN(date.getTime())?'':date.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true}).toUpperCase()}
     function mwDateInput(date){const year=date.getFullYear(),month=String(date.getMonth()+1).padStart(2,'0'),day=String(date.getDate()).padStart(2,'0');return`${year}-${month}-${day}`}
-    function mwDefaultRange(){const to=new Date(),from=new Date();from.setDate(from.getDate()-29);return{from:mwDateInput(from),to:mwDateInput(to)}}
+    
+    function mwMonthRange(){
+      const now=new Date(),from=new Date(now.getFullYear(),now.getMonth(),1);
+      return{from:mwDateInput(from),to:mwDateInput(now)};
+    }
+    function mw7DaysRange(){
+      const now=new Date(),from=new Date();from.setDate(now.getDate()-6);
+      return{from:mwDateInput(from),to:mwDateInput(now)};
+    }
+    function mwLastMonthRange(){
+      const now=new Date(),from=new Date(now.getFullYear(),now.getMonth()-1,1),to=new Date(now.getFullYear(),now.getMonth(),0);
+      return{from:mwDateInput(from),to:mwDateInput(to)};
+    }
+
     function mwSetStatus(message,error=false){mwStatus.textContent=message;mwStatus.className='mw-status'+(message?' show':'')+(error?' error':'')}
     function mwServiceSummary(record){
       if(Array.isArray(record.items)&&record.items.length)return record.items.map(item=>`${item.shortName||item.serviceType}${Number(item.quantity||1)>1?` x${item.quantity}`:''}`).join(', ');
       return record.serviceType||'Collection';
     }
-    function mwUpdateFilterBar(){
-      const chips=[];
-      const range=mwDateControl?.getRange?.();
-      if(range?.from&&range?.to)chips.push(mwChipRange(range));
-      chips.push(mwStatusFilter.value==='Inactive'?'In-Active':mwStatusFilter.value==='All'?'All Statuses':'Active');
-      if(mwEmployee.value){const option=mwEmployee.options[mwEmployee.selectedIndex];if(option)chips.push(option.textContent)}
-      mwFilterCount.textContent=String(chips.length);
-      const addLink=document.getElementById('mwAdd');
-      if(addLink&&!addLink.hidden)addLink.href=session?.employee?.role==='Admin'&&mwEmployee.value?`/collection-entry?employeeId=${encodeURIComponent(mwEmployee.value)}`:'/collection-entry';
-      mwChips.replaceChildren();
-      for(const text of chips){const chip=document.createElement('span');chip.className='mw-chip';chip.textContent=text;mwChips.append(chip)}
+
+    function mwOpenFilters(){
+      mwFilterSheet.classList.add('open');
+      mwFilterOverlay.classList.add('open');
+      document.body.classList.add('mw-sheet-locked');
     }
-    function mwOpenFilters(){mwFilterSheet.classList.add('open');mwFilterOverlay.classList.add('open');document.body.classList.add('mw-sheet-locked')}
-    function mwCloseFilters(){mwDateControl?.close?.();mwFilterSheet.classList.remove('open');mwFilterOverlay.classList.remove('open');document.body.classList.remove('mw-sheet-locked')}
+    function mwCloseFilters(){
+      mwFilterSheet.classList.remove('open');
+      mwFilterOverlay.classList.remove('open');
+      document.body.classList.remove('mw-sheet-locked');
+    }
+
     function mwGroupHead(date,count,total){
       const head=document.createElement('div');head.className='mw-group-head';
       const left=document.createElement('strong');left.textContent=`${mwDateLabel(date)} · ${Number(count||0)} ${Number(count||0)===1?'Entry':'Entries'}`;
@@ -453,16 +574,16 @@
     }
     function mwActionIcon(kind){
       const paths={
-        view:'<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/>',
+        view:'<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/>',
         edit:'<path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/><path d="m14 6 3 3"/>',
         delete:'<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/><path d="M10 11v6M14 11v6"/>'
       };
       const icon=document.createElement('span');icon.className='mw-action-icon';
-      icon.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[kind]}</svg>`;
+      icon.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;max-width:13px;max-height:13px;">${paths[kind]}</svg>`;
       return icon;
     }
     function mwActionButton(kind,label,handler){
-      const button=document.createElement('button');button.type='button';button.className='mw-action '+kind;button.title=label;button.setAttribute('aria-label',label);
+      const button=document.createElement('button');button.type='button';button.className='mw-action no-btn-theme '+kind;button.title=label;button.setAttribute('aria-label',label);
       button.append(mwActionIcon(kind));
       const text=document.createElement('span');text.textContent=label;button.append(text);
       button.addEventListener('click',event=>{event.stopPropagation();handler(button)});return button;
@@ -473,6 +594,7 @@
       const when=document.createElement('span');when.className='mw-by-date';when.textContent=`${mwDateLabel(dateKey)}, ${mwTime(record.createdAt||record.entryDate)||'—'}`;
       row.append(by,when);return row;
     }
+
     function mwRenderCard(record){
       const card=document.createElement('article');card.className='mw-card'+(record.status==='Inactive'?' inactive':'');
       const summary=document.createElement('div');summary.className='mw-summary';summary.tabIndex=0;summary.setAttribute('role','button');summary.setAttribute('aria-expanded','false');
@@ -489,6 +611,28 @@
       const sub=mwByline(record,dateKey,'mw-sub');
       summary.append(top,sub);
       const details=document.createElement('div');details.className='mw-details';
+      
+      if(Array.isArray(record.items)&&record.items.length>0){
+        const itemsBox=document.createElement('div');itemsBox.className='mw-items-box';
+        for(const item of record.items){
+          const row=document.createElement('div');row.className='mw-item-line';
+          const name=document.createElement('span');name.className='mw-item-name';
+          name.textContent=`${item.shortName||item.serviceType}${Number(item.quantity||1)>1?` × ${item.quantity}`:''}`;
+          const rate=document.createElement('span');rate.className='mw-item-rate';
+          rate.textContent=mwMoney(item.amount||(Number(item.rate||0)*(Number(item.quantity||1))));
+          row.append(name,rate);itemsBox.append(row);
+        }
+        details.append(itemsBox);
+      } else if(record.serviceType){
+        const itemsBox=document.createElement('div');itemsBox.className='mw-items-box';
+        const row=document.createElement('div');row.className='mw-item-line';
+        const name=document.createElement('span');name.className='mw-item-name';
+        name.textContent=record.serviceType;
+        const rate=document.createElement('span');rate.className='mw-item-rate';
+        rate.textContent=mwMoney(record.amount);
+        row.append(name,rate);itemsBox.append(row);
+        details.append(itemsBox);
+      }
       const meta=document.createElement('div');meta.className='mw-detail-line';
       if(Number(record.costCutting||0)>0){
         const cutting=document.createElement('div');cutting.className='mw-cutting-pill';
@@ -507,7 +651,8 @@
       const actions=document.createElement('div');actions.className='mw-actions';
       actions.append(mwActionButton('view','View',()=>showDetails(record)));
       if(record.status!=='Inactive'&&can('edit')&&session.pageAccess?.[definition.entryPage]!==false){
-        const edit=document.createElement('a');edit.className='mw-action edit';edit.title='Edit work entry';edit.setAttribute('aria-label','Edit work entry');edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;edit.append(mwActionIcon('edit'));const editText=document.createElement('span');editText.textContent='Edit';edit.append(editText);edit.addEventListener('click',event=>event.stopPropagation());actions.append(edit);
+        const edit=document.createElement('a');edit.className='mw-action no-btn-theme edit';edit.title='Edit work entry';edit.setAttribute('aria-label','Edit work entry');edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;
+        edit.append(mwActionIcon('edit'));const editText=document.createElement('span');editText.textContent='Edit';edit.append(editText);edit.addEventListener('click',event=>event.stopPropagation());actions.append(edit);
       }
       if(record.status!=='Inactive'&&can('delete'))actions.append(mwActionButton('delete','Delete',button=>mwSoftDelete(record,button)));
       details.append(actions);
@@ -516,10 +661,52 @@
       summary.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
       card.append(summary,details);return card;
     }
+
+    function mwUpdateActiveFilterStrip(){
+      const strip=document.getElementById('mwActiveFilterStrip');
+      const text=document.getElementById('mwActiveFilterText');
+      if(!strip||!text)return;
+
+      const parts=[];
+      if(mwActivePreset==='custom'){
+        const from=mwCurrentRange.from,to=mwCurrentRange.to;
+        if(from&&to){
+          const d1=new Date(`${from}T00:00:00`),d2=new Date(`${to}T00:00:00`);
+          const diffDays=Math.ceil(Math.abs(d2.getTime()-d1.getTime())/(1000*60*60*24))+1;
+          parts.push(`${mwDateLabel(from)} – ${mwDateLabel(to)} (${diffDays} ${diffDays===1?'Day':'Days'})`);
+        }
+      }
+      if(mwStatusFilter&&mwStatusFilter.value&&mwStatusFilter.value!=='Active'){
+        parts.push(mwStatusFilter.value==='Inactive'?'In-Active':'All Statuses');
+      }
+      if(mwEmployee&&mwEmployee.value){
+        const opt=mwEmployee.options[mwEmployee.selectedIndex];
+        if(opt&&opt.text)parts.push(opt.text);
+      }
+
+      if(parts.length>0){
+        text.textContent=parts.join(' · ');
+        strip.removeAttribute('hidden');
+      }else{
+        strip.setAttribute('hidden','');
+      }
+    }
+
+    function mwUpdateStats(from,to,totalAmount){
+      if(!from||!to)return;
+      const d1=new Date(`${from}T00:00:00`),d2=new Date(`${to}T00:00:00`);
+      const diffDays=Math.ceil(Math.abs(d2.getTime()-d1.getTime())/(1000*60*60*24))+1;
+      if(mwDaysBadge)mwDaysBadge.textContent=`${diffDays} ${diffDays===1?'Day':'Days'}`;
+      if(mwTotalBadge)mwTotalBadge.textContent=mwMoney(totalAmount);
+      if(mwStatsBox)mwStatsBox.title=`${mwDateLabel(from)} – ${mwDateLabel(to)}`;
+      mwUpdateActiveFilterStrip();
+    }
+
     function mwRender(data,append=false){
       if(!append){mwRecords.replaceChildren();mwLastGroup=''}
       mwGroupData=new Map((data.dateGroups||[]).map(group=>[group.date,group]));
       const totalAmount=(data.dateGroups||[]).reduce((sum,group)=>sum+Number(group.total||0),0);
+      mwUpdateStats(mwCurrentRange.from,mwCurrentRange.to,totalAmount);
       mwListMeta.replaceChildren();
       const entries=document.createElement('span');entries.innerHTML=`<strong>${Number(data.total||0)}</strong> entries`;
       const total=document.createElement('span');total.className='total';total.textContent=`${mwMoney(totalAmount)} total`;
@@ -536,9 +723,10 @@
       mwPage=Number(data.page||1);
       mwLoadMore.hidden=mwPage*Number(data.limit||20)>=Number(data.total||0);
     }
+
     async function mwLoad(append=false){
       if(mwLoading)return;
-      const range=mwDateControl?.getRange?.();
+      const range=mwCurrentRange;
       if(!range?.from||!range?.to||range.to<range.from){mwSetStatus('Select a valid date range.',true);return}
       const targetPage=append?mwPage+1:1;
       const params=new URLSearchParams({page:String(targetPage),limit:'20',from:range.from,to:range.to,status:mwStatusFilter.value});
@@ -549,42 +737,178 @@
       catch(error){mwSetStatus(error.message||'Could not load your work entries.',true)}
       finally{mwLoading=false;mwLoadMore.disabled=false;mwLoadMore.textContent='Load more'}
     }
+
     async function mwSoftDelete(record,button){
       if(!record._id||!window.confirm('Move this work entry to In-Active It will remain available under the In-Active filter.'))return;
       if(button)button.disabled=true;
       try{const result=await salonAuth.request(`/api/collections/${encodeURIComponent(record._id)}`,{method:'DELETE'});if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Work entry moved to In-Active.');await mwLoad()}
       catch(error){mwSetStatus(error.message||'Could not move the work entry to In-Active.',true);if(button)button.disabled=false}
     }
+
+    function mwSetPreset(preset){
+      mwActivePreset=preset;
+      [mwPreset7,mwPresetMonth,mwPresetCustom].forEach(btn=>btn?.classList.remove('active'));
+      const sheetPresetBtns=document.querySelectorAll('.mw-sheet-preset-btn');
+      sheetPresetBtns.forEach(btn=>btn.classList.remove('active'));
+      document.getElementById('mwSheetCustomRangeBox')?.setAttribute('hidden','');
+      mwCustomPickerBox?.setAttribute('hidden','');
+
+      if(preset==='7days'){
+        mwPreset7?.classList.add('active');
+        document.getElementById('mwSheetPreset7')?.classList.add('active');
+        mwCurrentRange=mw7DaysRange();
+      }else if(preset==='month'){
+        mwPresetMonth?.classList.add('active');
+        document.getElementById('mwSheetPresetMonth')?.classList.add('active');
+        mwCurrentRange=mwMonthRange();
+      }else if(preset==='lastmonth'){
+        document.getElementById('mwSheetPresetLastMonth')?.classList.add('active');
+        mwCurrentRange=mwLastMonthRange();
+      }else if(preset==='custom'){
+        mwPresetCustom?.classList.add('active');
+        document.getElementById('mwSheetPresetCustom')?.classList.add('active');
+      }
+      mwDateControl?.setRange?.(mwCurrentRange.from,mwCurrentRange.to,false);
+      mwUpdateActiveFilterStrip();
+      const activeBtn=document.querySelector('.mw-pill-btn.active');
+      activeBtn?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
+    }
+
     function mwBindEvents(){
       if(mwEventsBound)return;mwEventsBound=true;
       mwFilterButton.addEventListener('click',mwOpenFilters);
       document.getElementById('mwFilterClose').addEventListener('click',mwCloseFilters);
       mwFilterOverlay.addEventListener('click',mwCloseFilters);
+
+      // Single-line bar presets
+      mwPreset7?.addEventListener('click',()=>{mwSetPreset('7days');mwLoad();});
+      mwPresetMonth?.addEventListener('click',()=>{mwSetPreset('month');mwLoad();});
+      mwPresetCustom?.addEventListener('click',()=>{
+        const isHidden=mwCustomPickerBox?.hasAttribute('hidden');
+        if(isHidden){
+          mwCustomPickerBox?.removeAttribute('hidden');
+          mwPresetCustom?.classList.add('active');
+          if(!mwCustomFrom.value)mwCustomFrom.value=mwCurrentRange.from;
+          if(!mwCustomTo.value)mwCustomTo.value=mwCurrentRange.to;
+        }else{
+          mwCustomPickerBox?.setAttribute('hidden','');
+        }
+      });
+
+      mwCustomApply?.addEventListener('click',()=>{
+        const from=mwCustomFrom.value,to=mwCustomTo.value;
+        if(!from||!to||to<from){alert('Select a valid from and to date.');return;}
+        mwCurrentRange={from,to};
+        mwActivePreset='custom';
+        [mwPreset7,mwPresetMonth].forEach(btn=>btn?.classList.remove('active'));
+        mwPresetCustom?.classList.add('active');
+        mwCustomPickerBox?.setAttribute('hidden','');
+        mwUpdateActiveFilterStrip();
+        mwPresetCustom?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
+        mwLoad();
+      });
+
+      document.getElementById('mwActiveFilterReset')?.addEventListener('click',()=>{
+        mwSetPreset('month');
+        if(mwStatusFilter)mwStatusFilter.value='Active';
+        const activeRadio=document.querySelector('input[name="mwStatusRadio"][value="Active"]');
+        if(activeRadio)activeRadio.checked=true;
+        if(mwEmployee)mwEmployee.value='';
+        mwUpdateActiveFilterStrip();
+        mwLoad();
+      });
+
+      document.getElementById('mwActiveFilterTrigger')?.addEventListener('click',()=>{
+        const isHidden=mwCustomPickerBox?.hasAttribute('hidden');
+        if(isHidden){
+          mwCustomPickerBox?.removeAttribute('hidden');
+          if(!mwCustomFrom.value)mwCustomFrom.value=mwCurrentRange.from;
+          if(!mwCustomTo.value)mwCustomTo.value=mwCurrentRange.to;
+          mwCustomPickerBox.scrollIntoView({behavior:'smooth',block:'nearest'});
+        }else{
+          mwCustomPickerBox?.setAttribute('hidden','');
+        }
+      });
+
+      // Sheet presets
+      document.getElementById('mwSheetPreset7')?.addEventListener('click',()=>{
+        mwSetPreset('7days');
+      });
+      document.getElementById('mwSheetPresetMonth')?.addEventListener('click',()=>{
+        mwSetPreset('month');
+      });
+      document.getElementById('mwSheetPresetLastMonth')?.addEventListener('click',()=>{
+        mwSetPreset('lastmonth');
+      });
+      document.getElementById('mwSheetPresetCustom')?.addEventListener('click',()=>{
+        mwSetPreset('custom');
+        const box=document.getElementById('mwSheetCustomRangeBox');
+        if(box){
+          box.removeAttribute('hidden');
+          const fInput=document.getElementById('mwSheetFromInput');
+          const tInput=document.getElementById('mwSheetToInput');
+          if(fInput&&!fInput.value)fInput.value=mwCurrentRange.from;
+          if(tInput&&!tInput.value)tInput.value=mwCurrentRange.to;
+        }
+      });
+
+      // Sheet Status Radio pills
+      document.querySelectorAll('input[name="mwStatusRadio"]').forEach(radio=>{
+        radio.addEventListener('change',()=>{
+          mwStatusFilter.value=radio.value;
+        });
+      });
+
       document.getElementById('mwApply').addEventListener('click',()=>{
-        const range=mwDateControl?.getRange?.();
-        if(!range?.from||!range?.to||range.to<range.from){mwSetStatus('Select a valid date range.',true);return}
-        mwCloseFilters();mwSetStatus('');mwUpdateFilterBar();mwLoad();
+        if(mwActivePreset==='custom'){
+          const fInput=document.getElementById('mwSheetFromInput');
+          const tInput=document.getElementById('mwSheetToInput');
+          if(fInput?.value&&tInput?.value){
+            if(tInput.value<fInput.value){alert('Select a valid from and to date.');return;}
+            mwCurrentRange={from:fInput.value,to:tInput.value};
+          }
+        }
+        mwCloseFilters();mwSetStatus('');mwUpdateActiveFilterStrip();mwLoad();
       });
+
       document.getElementById('mwClear').addEventListener('click',()=>{
-        mwDateControl?.reset(false);mwStatusFilter.value='Active';mwEmployee.value='';mwUpdateFilterBar();mwCloseFilters();mwSetStatus('');mwLoad();
+        mwSetPreset('month');
+        mwStatusFilter.value='Active';
+        const activeRadio=document.querySelector('input[name="mwStatusRadio"][value="Active"]');
+        if(activeRadio)activeRadio.checked=true;
+        if(mwEmployee)mwEmployee.value='';
+        mwCloseFilters();mwSetStatus('');mwUpdateActiveFilterStrip();mwLoad();
       });
+
       mwLoadMore.addEventListener('click',()=>mwLoad(true));
-      document.addEventListener('keydown',event=>{if(event.key==='Escape')mwCloseFilters()});
+      document.addEventListener('keydown',event=>{if(event.key==='Escape'){mwCloseFilters();mwCustomPickerBox?.setAttribute('hidden','');}});
     }
+
     async function mwInit(){
       document.querySelector('main.wrap').hidden=true;mobileAllWork.hidden=false;document.body.classList.add('mw-mobile-page');
       document.title='My Work - YOURS SALON';
-      mwDateControl=SalonDateRange.mount(mwDateRange,{defaultPreset:'last30',popoverPlacement:'center',onChange:()=>mwUpdateFilterBar()});
+      mwDateControl=SalonDateRange.mount(mwDateRange,{defaultPreset:'thisMonth',popoverPlacement:'center',onChange:()=>{}});
+      
+      // Default to This Month
+      mwCurrentRange=mwMonthRange();
+      mwCustomFrom.value=mwCurrentRange.from;
+      mwCustomTo.value=mwCurrentRange.to;
+      const sheetFrom=document.getElementById('mwSheetFromInput');
+      const sheetTo=document.getElementById('mwSheetToInput');
+      if(sheetFrom)sheetFrom.value=mwCurrentRange.from;
+      if(sheetTo)sheetTo.value=mwCurrentRange.to;
       mwStatusFilter.value='Active';
-      if(!can('add')||session.pageAccess?.[definition.entryPage]===false)document.getElementById('mwAdd').hidden=true;
+
       if(session.employee.role==='Admin'){
         document.getElementById('mwEmployeeField').hidden=false;
         const staff=await salonAuth.request('/api/staff');
         for(const employee of staff)mwEmployee.add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));
         if(requestedEmployeeId&&staff.some(employee=>employee._id===requestedEmployeeId))mwEmployee.value=requestedEmployeeId;
       }
-      mwBindEvents();mwUpdateFilterBar();await mwLoad();
+      mwBindEvents();
+      await mwLoad();
     }
+    
     function render(data,append=false){
       const currentColumns=columns(),selectable=canBulkDelete();head.replaceChildren();
       const headerRow=document.createElement('tr');selectAllCheckbox=null;

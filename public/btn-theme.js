@@ -21,7 +21,7 @@
 
   const buttonSelector = 'button:not([class*="salon-"]):not(.secondary):not(.danger)' +
     ':not(.link):not(.method):not(.eye):not(.dot):not(.arrow):not(.no-btn-theme):not(.mw-action)' +
-    ':not(.aw-other-card):not(.aw-service):not(.aw-minus):not(.aw-plus):not(.aw-tab)';
+    ':not(.aw-other-card):not(.aw-service):not(.aw-minus):not(.aw-plus):not(.aw-tab):not(.mw-filter-icon-btn):not(.mw-pill-btn):not(.mw-sheet-preset-btn):not(.mw-sheet-close-btn):not(.mw-apply-btn):not(.mw-clear-btn):not(.mw-active-filter-reset)';
   const themeSelector = buttonSelector + ',[data-salon-btn-theme]';
 
   function apply(source) {
