@@ -150,7 +150,7 @@
           <label for="inpAdvAmount">Advance Amount</label>
           <div class="sal-amount-wrap">
             <span class="currency-sym">₹</span>
-            <input type="number" id="inpAdvAmount" class="sal-amount-input" value="1000" oninput="updateLiveDeduct()" placeholder="0" min="1" required>
+            <input type="number" id="inpAdvAmount" class="sal-amount-input" oninput="updateLiveDeduct()" placeholder="0" min="1" required>
           </div>
           <!-- Quick Tap Amount Bubbles (Untouched per Point 2 & 4) -->
           <div class="sal-quick-grid">
@@ -909,6 +909,16 @@
 
     let salData = null;
     let currentAdvBalance = 0;
+    function getAdvDefaultAmount() {
+      if (typeof window.appConfig !== 'undefined' && window.appConfig.defaultAdvanceAmount !== undefined) {
+        return window.appConfig.defaultAdvanceAmount;
+      }
+      const localVal = localStorage.getItem('defaultAdvanceAmount');
+      if (localVal !== null && !isNaN(Number(localVal))) {
+        return Number(localVal);
+      }
+      return 1000;
+    }
     let currentAdvPayMode = 'Cash';
     let currentAdvFilterPreset = 'month';
     let advHistoryRecords = [];
@@ -962,7 +972,11 @@
       } else if (isSal) {
         if (!salData) salLoad();
       } else if (isAdd) {
-        updateLiveDeduct();
+              const initAdvAmt = document.getElementById('inpAdvAmount');
+      if (initAdvAmt && !initAdvAmt.value) {
+        initAdvAmt.value = getAdvDefaultAmount();
+      }
+      updateLiveDeduct();
       }
     }
 
@@ -976,11 +990,19 @@
       const inp = document.getElementById('inpAdvAmount');
       const val = Math.max(0, (Number(inp.value) || 0) + delta);
       inp.value = val;
+            const initAdvAmt = document.getElementById('inpAdvAmount');
+      if (initAdvAmt && !initAdvAmt.value) {
+        initAdvAmt.value = getAdvDefaultAmount();
+      }
       updateLiveDeduct();
     }
     function setExactAdvAmount(val) {
       const inp = document.getElementById('inpAdvAmount');
       inp.value = val;
+            const initAdvAmt = document.getElementById('inpAdvAmount');
+      if (initAdvAmt && !initAdvAmt.value) {
+        initAdvAmt.value = getAdvDefaultAmount();
+      }
       updateLiveDeduct();
     }
     function updateLiveDeduct() {
@@ -1454,6 +1476,10 @@
       if (dispBal) dispBal.textContent = salMoney(balance);
       const badge = document.getElementById('advCurMonthBadge');
       if (badge) badge.textContent = '● ' + salMonthText(salMonth.value);
+            const initAdvAmt = document.getElementById('inpAdvAmount');
+      if (initAdvAmt && !initAdvAmt.value) {
+        initAdvAmt.value = getAdvDefaultAmount();
+      }
       updateLiveDeduct();
 
       // Update Salary Screen Header & KPIs
@@ -1499,12 +1525,18 @@
         advBoxList.innerHTML = '<div class="p-3 text-center text-xs text-slate-400">No advance entries for this month.</div>';
       } else {
         advBoxList.innerHTML = advanceList.map(rec => `
-          <div class="sal-sub-row">
-            <div>
-              <span class="sal-sub-date">${escapeHtml(salDateText(rec.entryDate))}${rec.createdAt ? ' · ' + escapeHtml(salTimeText(rec.createdAt)) : ''} · ${escapeHtml(rec.paymentMode || 'Cash')}</span>
-              <span class="sal-sub-remark">${escapeHtml(rec.remark || 'Advance taken')}</span>
+          <div class="drawer-row">
+            <div class="drawer-left">
+              <div class="minus-badge">&minus;</div>
+              <div class="drawer-meta-line">
+                <span class="meta-date">${escapeHtml(salDateText(rec.entryDate))}</span>
+                <span style="color:#cbd5e1;">&bull;</span>
+                <span class="meta-type">${escapeHtml(rec.remark || 'Advance')}</span>
+                <span style="color:#cbd5e1;">&bull;</span>
+                <span class="meta-mode">${escapeHtml(rec.paymentMode || 'Cash')}</span>
+              </div>
             </div>
-            <strong class="sal-sub-amt text-amber-600">− ${salMoney(rec.amount)}</strong>
+            <div class="drawer-amt">- ${salMoney(rec.amount)}</div>
           </div>
         `).join('');
       }

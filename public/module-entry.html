@@ -88,7 +88,10 @@
     </form>
     <div class="aw-bottom-bar">
       <div class="aw-total-box"><span>TOTAL &middot; <b id="awItemCount">0</b> ITEMS</span><label class="aw-total-edit"><span>₹</span><input id="awTotal" type="number" min="0" step="0.01" inputmode="decimal" value="0" aria-label="Total amount"></label></div>
-      <button id="awSave" class="aw-save" data-salon-btn-theme type="submit" form="awForm">Save Work</button>
+      <button id="awSave" class="aw-save" data-salon-btn-theme type="submit" form="awForm">
+        <svg class="sal-btn-icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span id="awSaveText">Save Work</span>
+      </button>
     </div>
   </section>
   <div id="awSheetOverlay" class="aw-sheet-overlay"></div>
@@ -385,7 +388,7 @@
       const selected=awSelectedItems();
       awItemCount.textContent=String(selected.reduce((sum,item)=>sum+item.quantity,0));
       if(!awTotalManual)awTotal.value=String(awTotalValue());
-      awSave.textContent=awEditing?'Update Work':'Save Work';
+      awSave.innerHTML=<svg class=" sal-btn-icon\ viewBox=\0 0 24 24\><path d=\M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z\/><polyline points=\17 21 17 13 7 13 7 21\/><polyline points=\7 3 7 8 15 8\/></svg><span>${awEditing?'Update Work':'Save Work'}</span>;
       awRenderSheet();
     }
     function awRenderDateOptions(dates,selected){
@@ -476,7 +479,7 @@
         const paymentMode=document.querySelector('input[name="paymentMode"]:checked')?.value||'Cash';
         const total=awTotalValue();
         if(!Number.isFinite(total)||total<0){awSetStatus('Enter a valid Total amount.',true);return}
-        awBusy=true;awSave.disabled=true;awSave.textContent=awEditing?'Updating...':'Saving...';awSetStatus('');
+        awBusy=true;awSave.disabled=true;awSave.innerHTML=<svg class=\sal-btn-icon\ viewBox=\0 0 24 24\><path d=\M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z\/><polyline points=\17 21 17 13 7 13 7 21\/><polyline points=\7 3 7 8 15 8\/></svg><span>${awEditing?'Updating...':'Saving...'}</span>;awSetStatus('');
         try{
           const payload={
             entryDate:date,

@@ -53,7 +53,7 @@
       `--salon-border-dark:${borderDark};` +
       `}` +
       `${themeSelector}{background-color:${first} !important;background-image:${image} !important;color:${text} !important}` +
-      `${themeSelector}:disabled{opacity:.55}`;
+      `${themeSelector}:disabled{opacity:1;cursor:not-allowed}`;
   }
 
   window.salonApplyButtonTheme = apply;
