@@ -909,16 +909,6 @@
 
     let salData = null;
     let currentAdvBalance = 0;
-    function getAdvDefaultAmount() {
-      if (typeof window.appConfig !== 'undefined' && window.appConfig.defaultAdvanceAmount !== undefined) {
-        return window.appConfig.defaultAdvanceAmount;
-      }
-      const localVal = localStorage.getItem('defaultAdvanceAmount');
-      if (localVal !== null && !isNaN(Number(localVal))) {
-        return Number(localVal);
-      }
-      return 1000;
-    }
     let currentAdvPayMode = 'Cash';
     let currentAdvFilterPreset = 'month';
     let advHistoryRecords = [];
@@ -972,11 +962,7 @@
       } else if (isSal) {
         if (!salData) salLoad();
       } else if (isAdd) {
-              const initAdvAmt = document.getElementById('inpAdvAmount');
-      if (initAdvAmt && !initAdvAmt.value) {
-        initAdvAmt.value = getAdvDefaultAmount();
-      }
-      updateLiveDeduct();
+        updateLiveDeduct();
       }
     }
 
@@ -990,19 +976,11 @@
       const inp = document.getElementById('inpAdvAmount');
       const val = Math.max(0, (Number(inp.value) || 0) + delta);
       inp.value = val;
-            const initAdvAmt = document.getElementById('inpAdvAmount');
-      if (initAdvAmt && !initAdvAmt.value) {
-        initAdvAmt.value = getAdvDefaultAmount();
-      }
       updateLiveDeduct();
     }
     function setExactAdvAmount(val) {
       const inp = document.getElementById('inpAdvAmount');
       inp.value = val;
-            const initAdvAmt = document.getElementById('inpAdvAmount');
-      if (initAdvAmt && !initAdvAmt.value) {
-        initAdvAmt.value = getAdvDefaultAmount();
-      }
       updateLiveDeduct();
     }
     function updateLiveDeduct() {
@@ -1476,10 +1454,6 @@
       if (dispBal) dispBal.textContent = salMoney(balance);
       const badge = document.getElementById('advCurMonthBadge');
       if (badge) badge.textContent = '● ' + salMonthText(salMonth.value);
-            const initAdvAmt = document.getElementById('inpAdvAmount');
-      if (initAdvAmt && !initAdvAmt.value) {
-        initAdvAmt.value = getAdvDefaultAmount();
-      }
       updateLiveDeduct();
 
       // Update Salary Screen Header & KPIs
