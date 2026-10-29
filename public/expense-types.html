@@ -64,6 +64,7 @@
       <form id="expenseTypeForm" class="form-grid">
         <div class="field"><label for="sr">SR *</label><input id="sr" name="sr" type="number" min="1" step="1" required></div>
         <div class="field"><label for="name">Expense Type *</label><input id="name" name="name" maxlength="100" required></div>
+        <div class="field"><label for="advanceCategory">Advance Category</label><select id="advanceCategory" name="advanceCategory"><option value="Advance">Advance</option><option value="Salary">Salary</option></select></div>
         <div class="field"><label for="statusSelect">Status</label><select id="statusSelect" name="status"><option>Active</option><option>Inactive</option></select></div>
         <button id="saveButton" type="submit">Save type</button>
       </form>
@@ -74,7 +75,7 @@
       <h2>Expense type list</h2>
       <div class="table-wrap">
         <table id="expenseTypeTable" data-table-view>
-          <thead><tr><th>SR</th><th>Expense Type</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>SR</th><th>Expense Type</th><th>Advance Category</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="typeRows"></tbody>
         </table>
         <div id="emptyState">Loading expense types...</div>
@@ -125,6 +126,16 @@
           cell.textContent=String(value);
           row.append(cell);
         }
+        const catCell=document.createElement('td');
+        const catBadge=document.createElement('span');
+        const isSalary=(expenseType.advanceCategory==='Salary');
+        catBadge.className='badge';
+        catBadge.style.cssText=isSalary
+          ?'background:#e0f2fe;color:#0284c7;font-weight:700;border:1px solid #bae6fd;padding:2px 8px;border-radius:6px;'
+          :'background:#fff7ed;color:#ea580c;font-weight:700;border:1px solid #fed7aa;padding:2px 8px;border-radius:6px;';
+        catBadge.textContent=expenseType.advanceCategory||'Advance';
+        catCell.append(catBadge);
+        row.append(catCell);
         const statusCell=document.createElement('td');
         const badge=document.createElement('span');
         badge.className='badge'+(expenseType.status==='Active'?'':' inactive');
@@ -161,6 +172,7 @@
       document.getElementById('expenseTypeFormPanel').hidden=true;
       editingId='';
       document.getElementById('formTitle').textContent='Expense Type';
+      document.getElementById('advanceCategory').value='Advance';
       document.getElementById('saveButton').textContent='Save type';
       setAddTypeButton(false);
     }
@@ -171,6 +183,7 @@
       editingId=expenseType._id;
       document.getElementById('sr').value=expenseType.sr;
       document.getElementById('name').value=expenseType.name;
+      document.getElementById('advanceCategory').value=expenseType.advanceCategory||'Advance';
       document.getElementById('statusSelect').value=expenseType.status;
       document.getElementById('formTitle').textContent='Edit expense type';
       document.getElementById('saveButton').textContent='Update type';

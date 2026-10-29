@@ -58,6 +58,9 @@
             location.replace('/password-change');
             return;
           }
+          if (session.pageAccess && session.pageAccess.settings === false) {
+            document.querySelector('.m-add-button[href="/settings"]')?.remove();
+          }
           const result = await salonAuth.request('/api/my-profile');
           const employee = result.employee;
           document.getElementById('profileName').textContent = employee.employeeName || 'Employee';

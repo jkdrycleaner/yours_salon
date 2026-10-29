@@ -9,6 +9,8 @@
     attendance: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="m9 15 2 2 4-4"/>',
     customers: '<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 3.5 4.8"/>',
     reports: '<path d="M4 19.5V4.5h16v15z"/><path d="M8 16v-4M12 16V8M16 16v-6"/>',
+    employees: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    config: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
     profile: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>',
     settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4v-.2a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1z"/>',
     logout: '<path d="M10 4H5v16h5M14 8l4 4-4 4M8 12h10"/>',
@@ -27,7 +29,9 @@
 
   function hasPage(session, key) {
     if (session?.employee?.role === 'Admin') return true;
-    if (session?.pageAccess?.[key] === true) return true;
+    if (session?.pageAccess && key in session.pageAccess) {
+      return Boolean(session.pageAccess[key]);
+    }
     const fallback = {
       'collection-records': 'Customer Entry',
       'expense-records': 'Daily Expense',
@@ -43,7 +47,7 @@
   function currentSection(path) {
     if (path === '/employee-dashboard' || path === '/employee-dashboard.html') return 'dashboard';
     if (path.startsWith('/collection')) return 'collection';
-    if (path.startsWith('/expense')) return 'expense';
+    if (path.startsWith('/expense')) return 'salary';
     if (path.startsWith('/salary')) return 'salary';
     if (path.startsWith('/counter')) return 'counter';
     return '';
@@ -91,14 +95,43 @@
     nav.className = 'm-mobile-nav';
     nav.setAttribute('aria-label', 'Employee navigation');
     const navItems = [
-      { key: 'dashboard', href: '/employee-dashboard', label: 'Dashboard', icon: 'dashboard' },
-      { key: 'collection-records', href: session?.pageAccess?.['collection-entry'] !== false ? '/collection-entry' : '/collection-table', label: 'My Work', icon: 'collection' },
-      { key: 'salary-records', href: '/salary-table', label: 'Salary', icon: 'salary' },
-      { key: 'counter-records', href: '/counter-table', label: 'Counter Cash', icon: 'counter' }
+      {
+        key: 'dashboard',
+        show: true,
+        href: '/employee-dashboard',
+        label: 'Dashboard',
+        icon: 'dashboard',
+        activeKey: 'dashboard'
+      },
+      {
+        key: 'collection-records',
+        show: hasPage(session, 'collection-records') || hasPage(session, 'collection-entry'),
+        href: hasPage(session, 'collection-entry') ? '/collection-entry' : '/collection-table',
+        label: 'My Work',
+        icon: 'collection',
+        activeKey: 'collection'
+      },
+      {
+        key: 'salary-records',
+        show: hasPage(session, 'salary-records') || hasPage(session, 'salary-entry') || hasPage(session, 'expense-records') || hasPage(session, 'expense-entry'),
+        href: hasPage(session, 'salary-records') ? '/salary-table' : (hasPage(session, 'salary-entry') ? '/salary-entry' : '/expense-table'),
+        label: 'Advance/Salary',
+        icon: 'salary',
+        activeKey: 'salary'
+      },
+      {
+        key: 'counter-records',
+        show: hasPage(session, 'counter-records') || hasPage(session, 'counter-entry'),
+        href: hasPage(session, 'counter-records') ? '/counter-table' : '/counter-entry',
+        label: 'Counter Cash',
+        icon: 'counter',
+        activeKey: 'counter'
+      }
     ];
+
     for (const item of navItems) {
-      if (item.key === 'dashboard' || hasPage(session, item.key)) {
-        nav.append(makeLink(item.href, item.label, item.icon, section === item.key.split('-')[0]));
+      if (item.show) {
+        nav.append(makeLink(item.href, item.label, item.icon, section === item.activeKey));
       }
     }
     const moreButton = document.createElement('button');
@@ -120,16 +153,31 @@
     sheet.innerHTML = '<div class="m-sheet-handle"></div><h2>More</h2>';
     const grid = document.createElement('div');
     grid.className = 'm-more-grid';
-    if (hasPage(session, 'expense-records')) grid.append(makeMoreTile('/expense-table', 'Expense', 'expense', 'blue'));
-    grid.append(
-      makeMoreTile('/attendance', 'Attendance', 'attendance', 'green', true),
-      makeMoreTile('/customers', 'Customers', 'customers', 'blue', true)
-    );
-    if (hasPage(session, 'reports')) grid.append(makeMoreTile('/reports', 'Reports', 'reports', 'amber'));
-    grid.append(
-      makeMoreTile('/profile', 'Profile', 'profile', 'purple'),
-      makeMoreTile('/settings', 'Settings', 'settings', 'amber')
-    );
+
+    if (hasPage(session, 'attendance')) {
+      grid.append(makeMoreTile('/attendance', 'Attendance', 'attendance', 'green', true));
+    }
+    if (hasPage(session, 'customers')) {
+      grid.append(makeMoreTile('/customers', 'Customers', 'customers', 'blue', true));
+    }
+    if (hasPage(session, 'reports') || hasPage(session, 'activity-report')) {
+      const reportsHref = hasPage(session, 'reports') ? '/reports' : '/activity-report';
+      grid.append(makeMoreTile(reportsHref, 'Reports', 'reports', 'amber'));
+    }
+    if (hasPage(session, 'employee-list') || hasPage(session, 'employee-entry')) {
+      const empHref = hasPage(session, 'employee-list') ? '/employees' : '/employee-entry';
+      grid.append(makeMoreTile(empHref, 'Employees', 'employees', 'green'));
+    }
+    if (hasPage(session, 'configuration')) {
+      grid.append(makeMoreTile('/config', 'Configuration', 'config', 'blue'));
+    }
+    if (hasPage(session, 'profile')) {
+      grid.append(makeMoreTile('/profile', 'Profile', 'profile', 'purple'));
+    }
+    if (hasPage(session, 'settings')) {
+      grid.append(makeMoreTile('/settings', 'Settings', 'settings', 'amber'));
+    }
+
     const logout = document.createElement('button');
     logout.type = 'button';
     logout.className = 'm-more-tile red';
@@ -160,6 +208,10 @@
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeMore();
     });
+
+    if (new URLSearchParams(location.search).get('openMore') === '1') {
+      openMore();
+    }
 
     window.salonMobile = { closeMore, openMore, icons, svg, initials, hasPage };
   }

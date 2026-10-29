@@ -821,8 +821,8 @@ body.aw-saved-locked {
   height: 45px;
   border: 1px solid #c9a227;
   border-radius: 13px;
-  background: #dda51a;
-  color: #2b2108;
+  background: var(--salon-btn-bg, #09AA1C);
+  color: var(--salon-btn-text, #ffffff);
   font: 800 15px Arial, sans-serif;
   cursor: pointer;
 }
@@ -1677,17 +1677,20 @@ body.mw-sheet-locked {
   cursor: pointer;
 }
 
-#mwApply {
+#mwApply, #advApply {
   width: 100%;
   min-width: 0;
+  background: var(--salon-btn-bg, #09AA1C) !important;
+  color: var(--salon-btn-text, #ffffff) !important;
 }
 
-#mwClear {
+#mwClear, #advClear {
   width: 100%;
   min-width: 0;
-  border: 1px solid #eef1f5;
-  background: #eef1f5;
-  color: #111827;
+  border: 1px solid #e2e8f0 !important;
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  font-weight: 700 !important;
 }
 
 @media (max-width: 700px) {
@@ -1773,91 +1776,98 @@ main.wrap[hidden],
   padding: 9px 12px;
   font-size: 12.5px;
 }
+/* Top Capsule Segmented Tabs (Unified Advance & My Work exact capsule style) */
+.sal-portal-tabs,
 .aw-segmented-tabs,
 #mobileAddWork .aw-segmented-tabs,
 #mobileAllWork .aw-segmented-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  padding: 4px;
-  margin-bottom: 8px;
-  background: #f8fafc;
-  border: 1px solid var(--salon-border-light, #e2e8f0);
-  border-radius: 12px;
-  transition: border-color 0.15s ease;
-  box-sizing: border-box;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px !important;
+  padding: 3px 4px !important;
+  margin-bottom: 12px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--salon-border-light, #e2e8f0) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
 }
 
-.aw-segmented-tabs:hover,
-#mobileAddWork .aw-segmented-tabs:hover,
-#mobileAllWork .aw-segmented-tabs:hover {
-  border-color: var(--salon-border-hover, #94a3b8);
-}
-
+.sal-portal-tabs .aw-tab,
 .aw-segmented-tabs .aw-tab,
 .aw-segmented-tabs a.aw-tab,
 #mobileAddWork .aw-segmented-tabs .aw-tab,
 #mobileAllWork .aw-segmented-tabs .aw-tab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 34px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 500;
+  flex: 1 1 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  border: none !important;
+  outline: none !important;
+  border-radius: 9999px !important;
+  background: transparent !important;
+  color: #475569 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
   text-decoration: none !important;
-  cursor: pointer;
-  user-select: none;
-  box-sizing: border-box;
-  transition: all 0.15s ease;
+  user-select: none !important;
+  box-sizing: border-box !important;
+  transition: all 0.15s ease !important;
+  white-space: nowrap !important;
 }
 
-.aw-segmented-tabs a.aw-tab:visited,
-#mobileAddWork .aw-segmented-tabs a.aw-tab:visited,
-#mobileAllWork .aw-segmented-tabs a.aw-tab:visited {
-  color: #64748b;
-}
-
+.sal-portal-tabs .aw-tab:hover,
 .aw-segmented-tabs .aw-tab:hover,
-.aw-segmented-tabs .aw-tab:active,
 .aw-segmented-tabs a.aw-tab:hover,
-.aw-segmented-tabs a.aw-tab:active,
 #mobileAddWork .aw-segmented-tabs .aw-tab:hover,
-#mobileAddWork .aw-segmented-tabs .aw-tab:active,
-#mobileAllWork .aw-segmented-tabs .aw-tab:hover,
-#mobileAllWork .aw-segmented-tabs .aw-tab:active {
-  border-color: var(--salon-border-dark, #0f172a);
-  color: var(--salon-border-dark, #0f172a);
+#mobileAllWork .aw-segmented-tabs .aw-tab:hover {
+  color: var(--salon-border-dark, #0f172a) !important;
 }
 
+.sal-portal-tabs .aw-tab.active,
 .aw-segmented-tabs .aw-tab.active,
+.aw-segmented-tabs a.aw-tab.active,
 #mobileAddWork .aw-segmented-tabs .aw-tab.active,
 #mobileAllWork .aw-segmented-tabs .aw-tab.active {
-  background: #ffffff;
-  color: var(--salon-border-dark, #0f172a);
-  border: 1.5px solid var(--salon-border-dark, #0f172a);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  font-weight: 600;
+  background: var(--salon-btn-bg, #09AA1C) !important;
+  background-image: none !important;
+  color: var(--salon-btn-text, #ffffff) !important;
+  font-weight: 700 !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  box-shadow: 0 2px 5px rgba(9, 170, 28, 0.25) !important;
 }
 
-.aw-segmented-tabs .aw-tab-icon,
-#mobileAddWork .aw-segmented-tabs .aw-tab-icon,
-#mobileAllWork .aw-segmented-tabs .aw-tab-icon {
-  font-size: 13px;
-  line-height: 1;
+.sal-portal-tabs .aw-tab .aw-tab-icon,
+.aw-segmented-tabs .aw-tab .aw-tab-icon,
+#mobileAddWork .aw-segmented-tabs .aw-tab .aw-tab-icon,
+#mobileAllWork .aw-segmented-tabs .aw-tab .aw-tab-icon {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  color: #64748b !important;
+}
+
+.sal-portal-tabs .aw-tab.active .aw-tab-icon,
+.aw-segmented-tabs .aw-tab.active .aw-tab-icon,
+#mobileAddWork .aw-segmented-tabs .aw-tab.active .aw-tab-icon,
+#mobileAllWork .aw-segmented-tabs .aw-tab.active .aw-tab-icon {
+  color: var(--salon-btn-text, #ffffff) !important;
 }
 
 .aw-segmented-tabs .aw-chevron,
 #mobileAddWork .aw-segmented-tabs .aw-chevron,
 #mobileAllWork .aw-segmented-tabs .aw-chevron {
-  font-size: 15px;
-  line-height: 1;
-  color: #94a3b8;
+  display: none !important;
 }
-
 #mobileAddWork .aw-status-strip {
   display: flex;
   align-items: center;
@@ -4322,7 +4332,7 @@ body.mobile-employee.salary-mobile #salaryMobile {
  position: relative !important;
  height: 72px !important;
  padding: 0 18px !important;
- background: url(\/balance_to_get_wave.png\) no-repeat center / cover !important;
+ background: url('/balance_to_get_wave.svg') no-repeat center / cover !important;
  border-radius: 20px !important;
  box-shadow: 0 6px 20px rgba(0, 168, 67, 0.3) !important;
  display: flex !important;
@@ -4407,4 +4417,169 @@ body.mobile-employee.salary-mobile #salaryMobile {
  font-size: 13px !important;
  font-weight: 800 !important;
  color: #ea580c !important;
+}
+
+/* ================= POINT 1 & POINT 2 DEFINITIVE OVERRIDES ================= */
+/* Point 1: Total Box Dark Border */
+.aw-total-box,
+#mobileAddWork .aw-total-box {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  min-width: 104px !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  padding: 4px 12px !important;
+  border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;
+  border-radius: 11px !important;
+  background: #ffffff !important;
+  transition: border-color .15s ease, box-shadow .15s ease !important;
+}
+
+.aw-total-box:hover,
+.aw-total-box:active,
+.aw-total-box:focus-within,
+#mobileAddWork .aw-total-box:focus-within {
+  border-color: var(--salon-border-dark, #09AA1C) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--salon-btn-bg, #09AA1C) 20%, transparent) !important;
+}
+
+/* Point 1: Save Work Button Spacing */
+.aw-save,
+button.aw-save,
+#awSave {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 0 16px !important;
+}
+
+.aw-save svg,
+.aw-save .sal-btn-icon,
+#awSave svg,
+#awSave .sal-btn-icon {
+  display: inline-block !important;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  margin-right: 2px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Point 2: Solid Green Active Capsule Tab & All Work Icon */
+.sal-portal-tabs,
+.aw-segmented-tabs,
+#mobileAddWork .aw-segmented-tabs,
+#mobileAllWork .aw-segmented-tabs {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px !important;
+  padding: 3px 4px !important;
+  margin-bottom: 12px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--salon-border-light, #e2e8f0) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+.sal-portal-tabs .aw-tab,
+.aw-segmented-tabs .aw-tab,
+.aw-segmented-tabs a.aw-tab,
+#mobileAddWork .aw-segmented-tabs .aw-tab,
+#mobileAllWork .aw-segmented-tabs .aw-tab {
+  flex: 1 1 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  border: none !important;
+  outline: none !important;
+  border-radius: 9999px !important;
+  background: transparent !important;
+  color: #475569 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  user-select: none !important;
+  box-sizing: border-box !important;
+  transition: all 0.15s ease !important;
+  white-space: nowrap !important;
+}
+
+.sal-portal-tabs .aw-tab.active,
+.aw-segmented-tabs .aw-tab.active,
+.aw-segmented-tabs a.aw-tab.active,
+#mobileAddWork .aw-segmented-tabs .aw-tab.active,
+#mobileAllWork .aw-segmented-tabs .aw-tab.active {
+  background: var(--salon-btn-bg, #09AA1C) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  box-shadow: 0 2px 5px rgba(9, 170, 28, 0.25) !important;
+}
+
+.sal-portal-tabs .aw-tab .aw-tab-icon,
+.aw-segmented-tabs .aw-tab .aw-tab-icon,
+#mobileAddWork .aw-segmented-tabs .aw-tab .aw-tab-icon,
+#mobileAllWork .aw-segmented-tabs .aw-tab .aw-tab-icon {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  color: #64748b !important;
+}
+
+.sal-portal-tabs .aw-tab.active .aw-tab-icon,
+.aw-segmented-tabs .aw-tab.active .aw-tab-icon,
+#mobileAddWork .aw-segmented-tabs .aw-tab.active .aw-tab-icon,
+#mobileAllWork .aw-segmented-tabs .aw-tab.active .aw-tab-icon {
+  color: #ffffff !important;
+}
+
+/* Fix wave pseudo elements syntax if broken */
+.sal-box:has(#salEarnedAmt) .sal-box-left::before {
+  content: "" !important;
+  display: block !important;
+  width: 72px !important;
+  height: 100% !important;
+  background: url('/wave_green_earned.png') no-repeat center left / cover !important;
+  flex-shrink: 0 !important;
+}
+.sal-box#boxAdvance .sal-box-left::before {
+  content: "" !important;
+  display: block !important;
+  width: 72px !important;
+  height: 100% !important;
+  background: url('/wave_amber_advance.png') no-repeat center left / cover !important;
+  flex-shrink: 0 !important;
+}
+.sal-box#boxPaid .sal-box-left::before {
+  content: "" !important;
+  display: block !important;
+  width: 72px !important;
+  height: 100% !important;
+  background: url('/wave_blue_paid.png') no-repeat center left / cover !important;
+  flex-shrink: 0 !important;
+}
+.sal-balance-card {
+  position: relative !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  padding: 0 16px !important;
+  background: url('/balance_to_get_wave.svg') no-repeat center / cover !important;
+  border-radius: 18px !important;
+  box-shadow: 0 6px 18px rgba(0, 168, 67, 0.28) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border: none !important;
 }

@@ -13,6 +13,11 @@
   ]);
 
   function token() {
+    const fromUrl = new URLSearchParams(location.search).get('testToken');
+    if (fromUrl) {
+      localStorage.setItem(tokenKey, fromUrl);
+      return fromUrl;
+    }
     return localStorage.getItem(tokenKey) || '';
   }
 
@@ -86,6 +91,37 @@
       if (employeeOnlyPaths.has(pagePath) && isAdmin) {
         location.replace('/admin-dashboard');
         return null;
+      }
+      if (!isAdmin && session.pageAccess) {
+        const pageKeyMap = {
+          '/collection-table': 'collection-records',
+          '/collection-entry': 'collection-entry',
+          '/expense-table': 'expense-records',
+          '/expense-entry': 'expense-entry',
+          '/salary-table': 'salary-records',
+          '/salary-entry': 'salary-entry',
+          '/counter-table': 'counter-records',
+          '/counter-entry': 'counter-entry',
+          '/attendance': 'attendance',
+          '/customers': 'customers',
+          '/profile': 'profile',
+          '/settings': 'settings',
+          '/reports': 'reports',
+          '/activity-report': 'activity-report',
+          '/employees': 'employee-list',
+          '/employee-entry': 'employee-entry',
+          '/config': 'configuration',
+          '/expense-types': 'expense-types',
+          '/rate-list': 'rate-list',
+          '/bulk-entry': 'bulk-entry',
+          '/import-validation': 'import-validation',
+          '/shop-details': 'shop-information'
+        };
+        const currentKey = pageKeyMap[pagePath.replace(/\.html$/i, '')];
+        if (currentKey && session.pageAccess[currentKey] === false) {
+          location.replace('/employee-dashboard');
+          return null;
+        }
       }
       window.salonSession = session;
       trackPage(session).catch(() => {});

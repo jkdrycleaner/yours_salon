@@ -31,6 +31,14 @@
   <script src="/mobile.js"></script>
   <script>
     document.getElementById('logout').addEventListener('click', () => window.salonAuth?.logout?.());
+    (async () => {
+      try {
+        const session = await window.salonReady;
+        if (session?.pageAccess && session.pageAccess.profile === false) {
+          document.querySelector('.settings-link[href="/profile"]')?.remove();
+        }
+      } catch {}
+    })();
   </script>
 </body>
 </html>

@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/table-view.css">
   <link rel="stylesheet" href="/date-range.css">
   <link rel="stylesheet" href="/mobile.css">
-  <link rel="stylesheet" href="/my-work.css?v=3">
+  <link rel="stylesheet" href="/my-work.css?v=20261029_v6">
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1250px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.links{display:flex;flex-wrap:wrap;gap:8px}.links a,.action{min-height:35px;padding:8px 11px;border:0;border-radius:8px;background:#eff2f5;color:#344054;text-decoration:none;font:700 12px Arial;cursor:pointer}.links a.add{background:#c99a23;color:#fff}.action.delete{background:#fff0ef;color:#9a352f}.action.deactivate{background:#fff9e8;color:#765b14}.filters{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-top:18px;padding:13px;background:#fafbfc;border:1px solid #e6ebf0;border-radius:11px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:#526176;font-weight:700}.field select{height:38px;min-width:150px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.filters button{height:38px;padding:8px 14px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.filters button.secondary{background:#eff2f5;color:#344054}.table-wrap{margin-top:16px;overflow:auto;border:1px solid #e1e7ee;border-radius:11px}table{width:100%;min-width:1080px;border-collapse:collapse;font-size:12px}th,td{padding:11px 12px;text-align:left;border-bottom:1px solid #edf0f4;white-space:nowrap}th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}tbody tr:last-child td{border-bottom:0}.empty{text-align:center;color:#7b8797;padding:25px}.status{display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px}.status.show{display:block;background:#fff0ef;color:#a13932}.row-actions{display:flex;gap:6px}.row-actions .action{min-height:30px;padding:6px 9px;font-size:11px}.row-inactive td{color:#a13932}.row-inactive td.sticky-action{background:#fff7f6}.badge{display:inline-block;padding:4px 7px;border-radius:99px;background:#e9f6f1;color:#286b53;font-size:10px;font-weight:700}.badge.inactive{background:#fff0ef;color:#a13932}.details-dialog{width:min(520px,92vw);padding:0;border:0;border-radius:14px;box-shadow:0 22px 60px #17233245}.details-dialog::backdrop{background:#17233266}.details-card{padding:20px}.details-card h2{margin:0 0 14px;font-size:18px}.details-list{display:grid;grid-template-columns:150px 1fr;gap:9px;margin:0}.details-list dt{color:#758397;font-size:12px;font-weight:700}.details-list dd{margin:0;color:#243244;font-size:12px;overflow-wrap:anywhere}.details-actions{display:flex;justify-content:flex-end;margin-top:17px}.details-actions button{min-height:36px;padding:8px 14px;border:0;border-radius:8px;background:#eff2f5;color:#344054;font:700 12px Arial;cursor:pointer}@media(max-width:620px){.wrap{padding:20px 12px 30px}.filters{align-items:stretch;flex-direction:column}.field select{width:100%}.filters button{width:100%}.links{width:100%}.links a{flex:1;text-align:center}.details-list{grid-template-columns:1fr}.details-list dt{margin-top:7px}}
   </style>
@@ -26,7 +26,8 @@
   </style>
   <style>
     .sal-page{display:none;width:100%;max-width:760px;margin:0 auto;padding:16px 16px 24px;background:#f4f7fb;color:#1d2939;font-family:Arial,sans-serif}
-    body.mobile-employee.salary-mobile .sal-page{display:block}
+    body.salary-mobile .sal-page,
+    body.mobile-employee.salary-mobile .sal-page{display:block !important;}
     body.mobile-employee.salary-mobile .m-page,body.mobile-employee.salary-mobile .m-filter-bar,body.mobile-employee.salary-mobile .m-mobile-records,body.mobile-employee.salary-mobile .m-list-meta,body.mobile-employee.salary-mobile .m-mobile-load-more{display:none!important}
     .sal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 16px}
     .sal-head h1{margin:0;color:#1d2939;font:800 30px/1.1 Arial,sans-serif;letter-spacing:-.03em}
@@ -72,6 +73,464 @@
     .sal-empty{padding:24px 12px;border:1px dashed #dce3eb;border-radius:14px;color:#8a96a5;font-size:13px;text-align:center;background:#fff}
     .sal-status{display:none;margin-top:12px;padding:11px;border-radius:10px;background:#fff0ef;color:#a13832;font-size:13px}
     .sal-status.show{display:block}
+  </style>
+  <style id="p1p2InlineFix">
+    /* Point 1: Total Box Dark Theme Border */
+    .aw-total-box,
+    #mobileAddWork .aw-total-box {
+      border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;
+    }
+    /* Point 1: Save Work Button Spacing & Icon */
+    .aw-save,
+    button.aw-save,
+    #awSave {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+    }
+    .aw-save svg,
+    .aw-save .sal-btn-icon,
+    #awSave svg,
+    #awSave .sal-btn-icon {
+      margin-right: 8px !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
+      flex-shrink: 0 !important;
+    }
+    /* Point 2: Advance Style Capsule Tabs */
+    .sal-portal-tabs,
+    .aw-segmented-tabs,
+    #mobileAddWork .aw-segmented-tabs,
+    #mobileAllWork .aw-segmented-tabs {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 4px !important;
+      padding: 3px 4px !important;
+      background: #ffffff !important;
+      border: 1px solid var(--salon-border-light, #e2e8f0) !important;
+      border-radius: 9999px !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+    }
+    .sal-portal-tabs .aw-tab,
+    .aw-segmented-tabs .aw-tab,
+    .aw-segmented-tabs a.aw-tab,
+    #mobileAddWork .aw-segmented-tabs .aw-tab,
+    #mobileAllWork .aw-segmented-tabs .aw-tab {
+      flex: 1 1 0 !important;
+      min-width: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      height: 36px !important;
+      min-height: 36px !important;
+      padding: 0 4px !important;
+      border: none !important;
+      outline: none !important;
+      border-radius: 9999px !important;
+      background: transparent !important;
+      color: #475569 !important;
+      font-size: 11.5px !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      box-sizing: border-box !important;
+      transition: all 0.15s ease !important;
+      white-space: nowrap !important;
+    }
+    .sal-portal-tabs .aw-tab.active,
+    .aw-segmented-tabs .aw-tab.active,
+    .aw-segmented-tabs a.aw-tab.active,
+    #mobileAddWork .aw-segmented-tabs .aw-tab.active,
+    #mobileAllWork .aw-segmented-tabs .aw-tab.active {
+      background: var(--salon-btn-bg, #09AA1C) !important;
+      background-image: none !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      border-radius: 9999px !important;
+      border: none !important;
+      box-shadow: 0 2px 5px rgba(9, 170, 28, 0.25) !important;
+    }
+    .sal-portal-tabs .aw-tab .aw-tab-icon,
+    .aw-segmented-tabs .aw-tab .aw-tab-icon {
+      font-size: 14px !important;
+      color: #64748b !important;
+    }
+    .sal-portal-tabs .aw-tab.active .aw-tab-icon,
+    .aw-segmented-tabs .aw-tab.active .aw-tab-icon {
+      color: #ffffff !important;
+    }
+  </style>
+  <style id="exactSalaryWaveStyles">
+    @media (max-width: 480px) {
+      .sal-page,
+      #salaryMobile,
+      body.mobile-employee.salary-mobile .sal-page {
+        padding: 10px 10px 20px !important;
+      }
+    }
+    .salon-success-overlay {
+      z-index: 99999 !important;
+    }
+    /* Point 8: 5 Fixed Wave Cards Stack */
+    .sal-card-stack {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+      margin-bottom: 16px !important;
+      width: 100% !important;
+    }
+
+    /* 1. Earned Salary (Fixed Green) */
+    .card-earned {
+      position: relative !important;
+      background: #ffffff !important;
+      border-radius: 18px !important;
+      height: 64px !important;
+      min-height: 64px !important;
+      display: flex !important;
+      align-items: center !important;
+      overflow: hidden !important;
+      border: 2px solid #00a843 !important;
+      box-shadow: 0 4px 16px rgba(0, 168, 67, 0.08) !important;
+    }
+
+    /* 2. Advance Taken (Fixed Amber) */
+    .card-advance-wrap {
+      background: #ffffff !important;
+      border-radius: 18px !important;
+      border: 2px solid #f59e0b !important;
+      overflow: hidden !important;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.08) !important;
+    }
+    .card-advance-head {
+      height: 64px !important;
+      min-height: 64px !important;
+      display: flex !important;
+      align-items: center !important;
+      position: relative !important;
+      cursor: pointer !important;
+    }
+
+    /* 3. Salary Paid (Fixed Blue) */
+    .card-paid-wrap {
+      background: #ffffff !important;
+      border-radius: 18px !important;
+      border: 2px solid #0284c7 !important;
+      overflow: hidden !important;
+      box-shadow: 0 4px 16px rgba(2, 132, 199, 0.08) !important;
+    }
+
+    /* Left Original Wave Graphic */
+    .sal-wave-img {
+      height: 100% !important;
+      width: 72px !important;
+      min-width: 72px !important;
+      max-width: 72px !important;
+      object-fit: cover !important;
+      object-position: left center !important;
+      flex-shrink: 0 !important;
+      user-select: none !important;
+      pointer-events: none !important;
+      display: block !important;
+    }
+
+    /* Center Info */
+    .card-center {
+      flex: 1 1 auto !important;
+      padding: 0 6px 0 8px !important;
+      min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+    }
+    .card-center h3 {
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      color: #0f172a !important;
+      letter-spacing: -0.2px !important;
+      margin: 0 !important;
+      line-height: 1.25 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .card-center p {
+      font-size: 10.5px !important;
+      color: #64748b !important;
+      font-weight: 600 !important;
+      margin: 2px 0 0 0 !important;
+      line-height: 1.2 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    /* Vertical Divider */
+    .div-line {
+      width: 1px !important;
+      height: 28px !important;
+      background: #e2e8f0 !important;
+      margin: 0 4px !important;
+      flex-shrink: 0 !important;
+    }
+
+    /* Right Amount Bubble */
+    .bubble-wrap {
+      padding-right: 8px !important;
+      flex-shrink: 0 !important;
+    }
+    .amt-bubble {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 3px !important;
+      padding: 5px 10px !important;
+      border-radius: 10px !important;
+      font-size: 14.5px !important;
+      font-weight: 800 !important;
+      white-space: nowrap !important;
+    }
+    .amt-green { background: #e8f9ee !important; color: #009337 !important; }
+    .amt-amber { background: #fef4e8 !important; color: #ea580c !important; }
+    .amt-blue { background: #eaf5ff !important; color: #0284c7 !important; }
+
+    /* Expanded Drawer (Compact with - icon, date, adv-type, mode, amt) */
+    .drawer-box {
+      padding: 8px 12px 10px !important;
+      background: #ffffff !important;
+      border-top: 1.5px dashed #fcd34d !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 5px !important;
+    }
+    .card-advance-wrap:not(.is-expanded) .drawer-box {
+      display: none !important;
+    }
+    .card-advance-wrap.is-expanded .drawer-box {
+      display: flex !important;
+    }
+    .card-paid-wrap:not(.is-expanded) .drawer-box {
+      display: none !important;
+    }
+    .card-paid-wrap.is-expanded .drawer-box {
+      display: flex !important;
+    }
+    .sal-box-chevron {
+      display: inline-block !important;
+      transition: transform 0.2s ease !important;
+      font-size: 11px !important;
+    }
+    .is-expanded .sal-box-chevron {
+      transform: rotate(180deg) !important;
+    }
+    .drawer-row {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      height: 32px !important;
+      padding: 0 8px !important;
+      border: 1px solid #fed7aa !important;
+      border-radius: 8px !important;
+      background: #fffaf5 !important;
+      box-sizing: border-box !important;
+    }
+    .drawer-left {
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      min-width: 0 !important;
+    }
+    .minus-badge {
+      width: 17px !important;
+      height: 17px !important;
+      border-radius: 50% !important;
+      background: #ea580c !important;
+      color: #ffffff !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 13px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      flex-shrink: 0 !important;
+    }
+    .drawer-meta-line {
+      display: flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      font-size: 11px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .meta-date { font-weight: 700 !important; color: #0f172a !important; }
+    .meta-type { font-weight: 700 !important; color: #c2410c !important; background: #ffedd5 !important; padding: 1px 5px !important; border-radius: 4px !important; font-size: 10px !important; }
+    .meta-mode { font-weight: 600 !important; color: #475569 !important; background: #f1f5f9 !important; padding: 1px 4px !important; border-radius: 4px !important; font-size: 9.5px !important; }
+    .drawer-amt { font-size: 13px !important; font-weight: 800 !important; color: #ea580c !important; flex-shrink: 0 !important; }
+
+    /* All Advance Month Card Styling (Point 11) */
+    .sal-adv-month-card {
+      background: #ffffff !important;
+      border: 1px solid #fed7aa !important;
+      border-radius: 14px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+      padding: 12px !important;
+      margin-bottom: 12px !important;
+      box-sizing: border-box !important;
+    }
+    .sal-adv-month-header {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding-bottom: 10px !important;
+      margin-bottom: 10px !important;
+      border-bottom: 1px dashed #fed7aa !important;
+    }
+    .sal-adv-month-title {
+      display: flex !important;
+      align-items: center !important;
+      gap: 7px !important;
+      font-size: 13.5px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+    }
+    .sal-adv-month-title svg {
+      width: 16px !important;
+      height: 16px !important;
+      color: #ea580c !important;
+      stroke: #ea580c !important;
+      flex-shrink: 0 !important;
+    }
+    .sal-adv-month-total {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      background: #fff7ed !important;
+      border: 1px solid #ffedd5 !important;
+      border-radius: 9999px !important;
+      padding: 3px 10px !important;
+      line-height: 1 !important;
+    }
+    .sal-adv-total-lbl {
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      color: #9a3412 !important;
+    }
+    .sal-adv-total-val {
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      color: #c2410c !important;
+    }
+    .sal-adv-month-entries {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 6px !important;
+    }
+
+    /* 4. Graph / Progress Card (Fixed Green Border, Orange Bar) */
+    .card-progress {
+      background: #ffffff !important;
+      border: 2px solid #00a843 !important;
+      border-radius: 20px !important;
+      padding: 12px 16px !important;
+      box-shadow: 0 4px 16px rgba(0, 168, 67, 0.06) !important;
+      box-sizing: border-box !important;
+    }
+    .progress-head {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      font-size: 13px !important;
+      margin-bottom: 8px !important;
+    }
+    .progress-head span { color: #0f172a !important; font-weight: 600 !important; }
+    .progress-head strong { color: #0f172a !important; font-weight: 800 !important; font-size: 14px !important; }
+    .progress-bar-bg {
+      width: 100% !important;
+      height: 10px !important;
+      background: #e2e8f0 !important;
+      border-radius: 99px !important;
+      overflow: hidden !important;
+      margin-bottom: 8px !important;
+      display: flex !important;
+    }
+    .progress-bar-fill {
+      height: 100% !important;
+      background: #ea580c !important;
+      border-radius: 99px !important;
+      transition: width 0.3s ease !important;
+    }
+    .progress-bar-fill-blue {
+      height: 100% !important;
+      background: #0284c7 !important;
+      border-radius: 99px !important;
+      transition: width 0.3s ease !important;
+    }
+    .progress-dots {
+      display: flex !important;
+      align-items: center !important;
+      gap: 16px !important;
+      font-size: 11.5px !important;
+      color: #64748b !important;
+      font-weight: 600 !important;
+    }
+    .dot-item { display: flex !important; align-items: center !important; gap: 5px !important; }
+    .dot-circ { width: 7px !important; height: 7px !important; border-radius: 50% !important; }
+    .dot-orange { background: #ea580c !important; }
+    .dot-blue { background: #0284c7 !important; }
+
+    /* 5. BALANCE TO GET Card (Full Wave Background) */
+    .card-balance-get,
+    .sal-balance-card {
+      position: relative !important;
+      background: url('/balance_to_get_wave.svg') no-repeat center / cover !important;
+      border-radius: 18px !important;
+      height: 64px !important;
+      min-height: 64px !important;
+      padding: 0 16px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      box-shadow: 0 6px 18px rgba(0, 168, 67, 0.28) !important;
+      color: #ffffff !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+    .bal-get-left h3 {
+      font-size: 13.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.5px !important;
+      text-transform: uppercase !important;
+      margin: 0 0 2px 0 !important;
+      color: #ffffff !important;
+    }
+    .bal-get-left p {
+      font-size: 10.5px !important;
+      opacity: 0.92 !important;
+      font-weight: 500 !important;
+      margin: 0 !important;
+      color: #ffffff !important;
+    }
+    .bal-get-right {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+    .bal-white-div {
+      width: 1.5px !important;
+      height: 30px !important;
+      background: rgba(255, 255, 255, 0.35) !important;
+    }
+    .bal-get-amt {
+      font-size: 23px !important;
+      font-weight: 800 !important;
+      letter-spacing: -0.5px !important;
+      color: #ffffff !important;
+    }
   </style>
 </head>
 <body>
@@ -242,52 +701,109 @@
       <!-- Single-Line Filter Bar (Exact My Work style) -->
       <div class="mw-single-filter-card">
         <div class="mw-filter-group">
-          <button class="mw-filter-icon-btn no-btn-theme" type="button" title="Filter Records">
+          <button class="mw-filter-icon-btn no-btn-theme" id="advFilterBtn" type="button" title="Filter Records" onclick="openAdvFilters()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z"/></svg>
           </button>
-          <button class="mw-pill-btn no-btn-theme" id="advPreset7" type="button" onclick="setAdvFilter('7days', this)">7 Days</button>
-          <button class="mw-pill-btn no-btn-theme active" id="advPresetMonth" type="button" onclick="setAdvFilter('month', this)">This Month</button>
-          <button class="mw-pill-btn no-btn-theme" id="advPresetCustom" type="button" onclick="toggleAdvCustomPicker(this)">
+          <button class="mw-pill-btn no-btn-theme active" id="advPresetMonth" type="button" onclick="setAdvTopPreset('month', this)">This Month</button>
+          <button class="mw-pill-btn no-btn-theme" id="advPresetCustom" type="button" onclick="toggleAdvCustomInline()">
             <span>Custom</span>
             <svg class="mw-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
           </button>
         </div>
-        <div class="mw-stats-pill">
-          <span class="mw-stat-count" id="advDaysBadge">30 Days</span>
-          <span class="mw-stat-sep">·</span>
-          <strong class="mw-stat-amount" id="advTotalBadge">₹0</strong>
+        <div class="mw-filter-v-divider"></div>
+        <div class="mw-filter-right-stats" id="advStatsBox" title="Filter Date Range">
+          <span class="mw-days-badge" id="advDaysBadge">-- Days</span>
+          <strong class="mw-total-badge" id="advTotalBadge" style="color:#c2410c;">₹0</strong>
         </div>
       </div>
 
-      <!-- Custom Date Picker Dropdown Popover -->
-      <div class="adv-custom-popover" id="advCustomPopover" style="display:none;">
-        <div class="popover-row">
-          <div>
-            <label>From</label>
-            <input type="date" id="advFilterFrom">
+      <!-- Custom Date Range Picker Box (collapsible inline, exact All Work style) -->
+      <div id="advCustomPickerBox" class="mw-custom-picker-box" hidden>
+        <div class="mw-custom-date-row">
+          <div class="mw-custom-field">
+            <label for="advCustomFrom">From Date</label>
+            <input type="date" id="advCustomFrom">
           </div>
-          <div>
-            <label>To</label>
-            <input type="date" id="advFilterTo">
+          <div class="mw-custom-field">
+            <label for="advCustomTo">To Date</label>
+            <input type="date" id="advCustomTo">
           </div>
         </div>
-        <div class="popover-actions">
-          <button type="button" class="mw-apply-btn no-btn-theme" onclick="applyAdvCustomFilter()">Apply Filter</button>
-        </div>
+        <button id="advCustomApply" class="mw-custom-apply-btn no-btn-theme" data-salon-btn-theme type="button" onclick="applyAdvInlineCustom()">Apply Range</button>
       </div>
 
-      <!-- Active Filter Banner (Exact My Work style) -->
-      <div class="mw-active-filter-banner" id="advActiveStrip" hidden>
-        <div class="mw-active-filter-copy">
-          <span class="mw-active-filter-lbl">Filter:</span>
-          <strong class="mw-active-filter-val" id="advActiveText">This Month</strong>
+      <!-- Active Filter Summary Strip (Exact My Work style) -->
+      <div id="advActiveFilterStrip" class="mw-active-filter-strip" hidden>
+        <div class="mw-active-filter-left" id="advActiveFilterTrigger" title="Tap to change custom dates" onclick="toggleAdvCustomInline()">
+          <span class="mw-active-filter-dot"></span>
+          <span>Filter: <strong id="advActiveFilterText">Custom Range</strong></span>
         </div>
-        <button class="mw-active-filter-reset no-btn-theme" type="button" onclick="resetAdvFilter()">✕ Reset</button>
+        <button id="advActiveFilterReset" class="mw-active-filter-reset no-btn-theme" type="button" title="Reset filter" onclick="resetAdvFilter()">✕ Reset</button>
       </div>
 
       <!-- Grouped Records Container (Exact My Work style) -->
       <div id="advRecordsList">
         <div class="sal-empty">Loading advance history...</div>
+      </div>
+    </section>
+
+    <!-- Advance Filter Bottom Sheet Popup (Matching Collection Filter Sheet) -->
+    <div id="advFilterOverlay" class="mw-filter-overlay" onclick="closeAdvFilters()"></div>
+    <section id="advFilterSheet" class="mw-filter-sheet" role="dialog" aria-label="Filter Advance Records">
+      <div class="mw-sheet-handle"></div>
+      <div class="mw-sheet-head">
+        <div class="mw-sheet-title-row">
+          <div class="mw-filter-head-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z"/></svg>
+          </div>
+          <h2>Filter Records</h2>
+        </div>
+        <button id="advFilterClose" class="mw-sheet-close-btn no-btn-theme" type="button" aria-label="Close" onclick="closeAdvFilters()">✕</button>
+      </div>
+
+      <div class="mw-filter-fields">
+        <!-- Date Presets Grid -->
+        <div class="mw-field">
+          <span>Date Range Presets</span>
+          <div class="mw-sheet-presets-grid">
+            <button type="button" class="mw-sheet-preset-btn no-btn-theme" id="advSheetPreset7" onclick="setAdvSheetPreset('7days')">Last 7 Days</button>
+            <button type="button" class="mw-sheet-preset-btn no-btn-theme active" id="advSheetPresetMonth" onclick="setAdvSheetPreset('month')">This Month</button>
+            <button type="button" class="mw-sheet-preset-btn no-btn-theme" id="advSheetPresetLastMonth" onclick="setAdvSheetPreset('lastmonth')">Last Month</button>
+            <button type="button" class="mw-sheet-preset-btn no-btn-theme" id="advSheetPresetCustom" onclick="setAdvSheetPreset('custom')">Custom Range</button>
+          </div>
+        </div>
+
+        <!-- Sheet Custom Range Date Pickers -->
+        <div id="advSheetCustomRangeBox" class="mw-sheet-custom-box" hidden>
+          <div class="mw-sheet-date-inputs">
+            <label class="mw-date-input-wrap"><span>From</span><input type="date" id="advSheetFromInput"></label>
+            <label class="mw-date-input-wrap"><span>To</span><input type="date" id="advSheetToInput"></label>
+          </div>
+        </div>
+
+        <!-- Status Filter Radio Pills -->
+        <div class="mw-field">
+          <span>Record Status</span>
+          <div class="mw-status-pills">
+            <label class="mw-status-radio-label">
+              <input type="radio" name="advStatusRadio" value="Active" checked>
+              <span class="mw-status-pill-btn">Active</span>
+            </label>
+            <label class="mw-status-radio-label">
+              <input type="radio" name="advStatusRadio" value="All">
+              <span class="mw-status-pill-btn">All</span>
+            </label>
+            <label class="mw-status-radio-label">
+              <input type="radio" name="advStatusRadio" value="Inactive">
+              <span class="mw-status-pill-btn">In-Active</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="mw-filter-actions">
+        <button id="advClear" class="secondary no-btn-theme mw-clear-btn" type="button" onclick="advClearFilters()">Clear</button>
+        <button id="advApply" class="mw-apply-btn no-btn-theme" data-salon-btn-theme type="button" onclick="advApplySheetFilters()">Apply filter</button>
       </div>
     </section>
 
@@ -297,105 +813,111 @@
       <div class="sal-month-row">
         <h2 class="sal-month-title">Salary Breakdown</h2>
         <div class="sal-month-picker-wrap">
-          <button type="button" class="sal-nav-arrow no-btn-theme" onclick="salStepMonth(-1)" title="Previous Month">‹</button>
+          <button type="button" class="sal-nav-arrow no-btn-theme" onclick="salStepMonth(-1)" title="Previous Month">&#8249;</button>
           <label class="sal-month-pill" title="Tap to choose month">
             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
             <span id="salMonthLabel">October 2026</span>
             <svg viewBox="0 0 24 24" style="width:10px;height:10px;"><path d="m6 9 6 6 6-6"/></svg>
             <input id="salMonth" type="month" aria-label="Salary month">
           </label>
-          <button type="button" class="sal-nav-arrow no-btn-theme" onclick="salStepMonth(1)" title="Next Month">›</button>
+          <button type="button" class="sal-nav-arrow no-btn-theme" onclick="salStepMonth(1)" title="Next Month">&#8250;</button>
         </div>
       </div>
 
-      <!-- Interactive Salary Accordion Cards -->
-      <div class="sal-card-group" id="salCardsContainer">
-        <!-- Card 1: Earned Salary (Fixed Summary) -->
-        <div class="sal-box">
-          <div class="sal-box-head">
-            <div class="sal-box-left">
-              <div class="sal-icon-badge green">+</div>
-              <div class="sal-box-info">
-                <strong>Earned Salary</strong>
-                <span id="salEarnedSub">Collection ₹0</span>
-              </div>
-            </div>
-            <strong class="sal-box-amount green" id="salEarnedAmt">₹0</strong>
+      <!-- 5 Fixed Wave Cards Stack -->
+      <div class="sal-card-stack">
+        <!-- 1. Earned Salary (Fixed 2px Green Border + Left Wave Graphic) -->
+        <div class="card-earned">
+          <img src="/wave_green_earned.png" class="sal-wave-img" alt="Green Wave">
+          <div class="card-center">
+            <h3>Earned Salary</h3>
+            <p id="salEarnedSub">Collection ₹0</p>
+          </div>
+          <div class="div-line"></div>
+          <div class="bubble-wrap">
+            <div class="amt-bubble amt-green" id="salEarnedAmt">₹0</div>
           </div>
         </div>
 
-        <!-- Card 2: Advance Taken (CLICK TO EXPAND DETAILS!) -->
-        <div class="sal-box clickable is-expanded" id="boxAdvance" onclick="toggleSalBox(this)">
-          <div class="sal-box-head">
-            <div class="sal-box-left">
-              <div class="sal-icon-badge amber">−</div>
-              <div class="sal-box-info">
-                <strong>Advance Taken</strong>
-                <span>
-                  <span class="sal-entry-pill" id="salAdvCount">0 Entries</span>
-                  <span>Tap to view entries</span>
-                </span>
+        <!-- 2. Advance Taken (Fixed 2px Amber Border + Left Wave Graphic) -->
+        <div class="card-advance-wrap clickable" id="boxAdvance" onclick="toggleSalBox(this)">
+          <div class="card-advance-head">
+            <img src="/wave_amber_advance.png" class="sal-wave-img" alt="Amber Wave">
+            <div class="card-center">
+              <h3>Advance Taken</h3>
+              <p><span class="sal-entry-pill" id="salAdvCount">0 Entries</span></p>
+            </div>
+            <div class="div-line"></div>
+            <div class="bubble-wrap">
+              <div class="amt-bubble amt-amber">
+                <span id="salAdvAmt">&#8722; ₹0</span>
+                <span class="sal-box-chevron">&#9660;</span>
               </div>
             </div>
-            <div class="sal-box-right">
-              <strong class="sal-box-amount amber" id="salAdvAmt">− ₹0</strong>
-              <svg class="sal-box-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-            </div>
           </div>
+
           <!-- Expanded Itemized Breakdown for Advance -->
-          <div class="sal-box-detail" id="salAdvDetailList">
+          <div class="drawer-box" id="salAdvDetailList">
             <div class="p-3 text-center text-xs text-slate-400">No advance entries for this month.</div>
           </div>
         </div>
 
-        <!-- Card 3: Salary Paid (CLICK TO EXPAND DETAILS!) -->
-        <div class="sal-box clickable" id="boxSalaryPaid" onclick="toggleSalBox(this)">
-          <div class="sal-box-head">
-            <div class="sal-box-left">
-              <div class="sal-icon-badge blue">−</div>
-              <div class="sal-box-info">
-                <strong>Salary Paid</strong>
-                <span>
-                  <span class="sal-entry-pill" id="salPaidCount">0 Payments</span>
-                  <span>Tap to view entries</span>
-                </span>
+        <!-- 3. Salary Paid (Fixed 2px Blue Border + Left Wave Graphic) -->
+        <div class="card-paid-wrap clickable" id="boxSalaryPaid" onclick="toggleSalBox(this)">
+          <div class="card-advance-head">
+            <img src="/wave_blue_paid.png" class="sal-wave-img" alt="Blue Wave">
+            <div class="card-center">
+              <h3>Salary Paid</h3>
+              <p><span class="sal-entry-pill" id="salPaidCount">0 Payments</span></p>
+            </div>
+            <div class="div-line"></div>
+            <div class="bubble-wrap">
+              <div class="amt-bubble amt-blue">
+                <span id="salPaidAmt">&#8722; ₹0</span>
+                <span class="sal-box-chevron">&#9660;</span>
               </div>
             </div>
-            <div class="sal-box-right">
-              <strong class="sal-box-amount blue" id="salPaidAmt">− ₹0</strong>
-              <svg class="sal-box-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-            </div>
           </div>
+
           <!-- Expanded Itemized Breakdown for Salary Paid -->
-          <div class="sal-box-detail" id="salPaidDetailList">
+          <div class="drawer-box" id="salPaidDetailList" style="display:none;">
             <div class="p-3 text-center text-xs text-slate-400">No salary payment entries for this month.</div>
           </div>
         </div>
-      </div>
 
-      <!-- Ratio Visual Progress Bar -->
-      <div class="sal-ratio-card">
-        <div class="sal-ratio-head">
-          <span id="salRatioTaken">Taken ₹0 of ₹0</span>
-          <strong id="salRatioPercent">0%</strong>
+        <!-- 4. Progress / Ratio Card (Fixed 2px Green Border + Orange Bar) -->
+        <div class="card-progress">
+          <div class="progress-head">
+            <span>Taken <b id="salRatioTaken">₹0 of ₹0</b></span>
+            <strong id="salRatioPercent">0%</strong>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="salSegAmber" style="width: 0%;"></div>
+            <div class="progress-bar-fill-blue" id="salSegBlue" style="width: 0%;"></div>
+          </div>
+          <div class="progress-dots">
+            <div class="dot-item">
+              <span class="dot-circ dot-orange"></span>
+              <span>Advance: <span id="salLegAdv">₹0</span></span>
+            </div>
+            <div class="dot-item">
+              <span class="dot-circ dot-blue"></span>
+              <span>Salary Paid: <span id="salLegPaid">₹0</span></span>
+            </div>
+          </div>
         </div>
-        <div class="sal-track">
-          <div class="sal-seg amber" id="salSegAmber" style="width: 0%;"></div>
-          <div class="sal-seg blue" id="salSegBlue" style="width: 0%;"></div>
-        </div>
-        <div class="sal-legend-row">
-          <span class="sal-legend-item"><span class="sal-dot amber"></span>Advance Taken (<span id="salLegAdv">₹0</span>)</span>
-          <span class="sal-legend-item"><span class="sal-dot blue"></span>Salary Paid (<span id="salLegPaid">₹0</span>)</span>
-        </div>
-      </div>
 
-      <!-- Net Balance to Get KPI Card -->
-      <div class="sal-balance-card" id="salNetCard">
-        <div>
-          <span class="sal-net-title">BALANCE TO GET</span>
-          <small class="sal-net-sub" id="dispSalNetSub">Pending to receive from salon</small>
+        <!-- 5. BALANCE TO GET Card (Full Wave Background) -->
+        <div class="card-balance-get" id="salNetCard">
+          <div class="bal-get-left">
+            <h3>BALANCE TO GET</h3>
+            <p id="dispSalNetSub">Pending to receive from salon</p>
+          </div>
+          <div class="bal-get-right">
+            <div class="bal-white-div"></div>
+            <div class="bal-get-amt" id="dispSalNet">₹0</div>
+          </div>
         </div>
-        <div class="sal-net-amount" id="dispSalNet">₹0</div>
       </div>
     </section>
 
@@ -406,181 +928,16 @@
     <div id="salStatus" class="sal-status" role="status"></div>
   </section>
 
-    <!-- ================= SCREEN 2: ALL ADVANCE (WORK-LIKE VIEW) ================= -->
-    <section id="viewAllAdv" hidden>
-      <!-- Single-Line Filter Bar -->
-      <div class="single-line-filter-card">
-        <div class="filter-group">
-          <div class="filter-icon-btn" title="Date Presets">
-            <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-          </div>
-          <button class="pill-btn" type="button" onclick="setAdvFilter('7days', this)">7 Days</button>
-          <button class="pill-btn active" type="button" onclick="setAdvFilter('month', this)">This Month</button>
-          <button class="pill-btn custom-date-btn" type="button" onclick="toggleAdvCustomPicker(this)">
-            <span>Custom</span>
-            <span class="chevron">▾</span>
-          </button>
-        </div>
-        <div class="meta-strip">
-          <div class="stat-badge" id="advDaysBadge">30 Days</div>
-          <div class="stat-badge total" id="advTotalBadge">₹0</div>
-        </div>
-      </div>
-
-      <!-- Custom Date Picker Dropdown Popover -->
-      <div class="adv-custom-popover" id="advCustomPopover" style="display:none;">
-        <div class="popover-row">
-          <div>
-            <label>From</label>
-            <input type="date" id="advFilterFrom">
-          </div>
-          <div>
-            <label>To</label>
-            <input type="date" id="advFilterTo">
-          </div>
-        </div>
-        <div class="popover-actions">
-          <button type="button" class="popover-apply-btn" onclick="applyAdvCustomFilter()">Apply Filter</button>
-        </div>
-      </div>
-
-      <!-- Active Filter Strip -->
-      <div class="active-filter-strip" id="advActiveStrip" hidden>
-        <span class="strip-label">Filter:</span>
-        <span class="strip-value" id="advActiveText">This Month</span>
-        <button class="strip-reset-btn" type="button" onclick="resetAdvFilter()">✕ Reset</button>
-      </div>
-
-      <!-- Grouped Records Container -->
-      <div id="advRecordsList" class="adv-list-wrap">
-        <div class="sal-empty">Loading advance history...</div>
-      </div>
-    </section>
-
-    <!-- ================= SCREEN 3: MY SALARY (INTERACTIVE ACCORDIONS) ================= -->
-    <section id="viewSalary" hidden>
-      <!-- Month Selector Row -->
-      <div class="sal-month-row">
-        <h2 class="sal-title">Salary Breakdown</h2>
-        <div class="sal-month-picker-wrap">
-          <button type="button" class="sal-nav-arrow" onclick="salStepMonth(-1)" title="Previous Month">‹</button>
-          <label class="sal-month-pill" title="Tap to choose month">
-            <svg class="w-3.5 h-3.5 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            <span id="salMonthLabel">October 2026</span>
-            <svg class="w-2.5 h-2.5 stroke-current fill-none stroke-2 ml-0.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
-            <input id="salMonth" type="month" aria-label="Salary month">
-          </label>
-          <button type="button" class="sal-nav-arrow" onclick="salStepMonth(1)" title="Next Month">›</button>
-        </div>
-      </div>
-
-      <!-- Interactive Salary Accordion Cards -->
-      <div class="sal-card-group" id="salCardsContainer">
-        <!-- Card 1: Earned Salary (Fixed Summary) -->
-        <div class="sal-box">
-          <div class="sal-box-head">
-            <div class="sal-box-left">
-              <div class="sal-icon-badge green">+</div>
-              <div class="sal-box-info">
-                <strong>Earned Salary</strong>
-                <span id="salEarnedSub">Collection ₹0</span>
-              </div>
-            </div>
-            <strong class="sal-box-amount green" id="salEarnedAmt">₹0</strong>
-          </div>
-        </div>
-
-        <!-- Card 2: Advance Taken (CLICK TO EXPAND DETAILS!) -->
-        <div class="sal-box clickable is-expanded" id="boxAdvance" onclick="toggleSalBox(this)">
-          <div class="sal-box-head">
-            <div class="sal-box-left">
-              <div class="sal-icon-badge amber">−</div>
-              <div class="sal-box-info">
-                <strong>Advance Taken</strong>
-                <span>
-                  <span class="sal-entry-pill" id="salAdvCount">0 Entries</span>
-                  <span>Tap to view entries</span>
-                </span>
-              </div>
-            </div>
-            <div class="sal-box-right">
-              <strong class="sal-box-amount amber" id="salAdvAmt">− ₹0</strong>
-              <svg class="sal-box-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-            </div>
-          </div>
-          <!-- Expanded Itemized Breakdown for Advance -->
-          <div class="sal-box-detail" id="salAdvDetailList">
-            <div class="p-3 text-center text-xs text-slate-400">No advance entries for this month.</div>
-          </div>
-        </div>
-
-        <!-- Card 3: Salary Paid (CLICK TO EXPAND DETAILS!) -->
-        <div class="sal-box clickable" id="boxSalaryPaid" onclick="toggleSalBox(this)">
-          <div class="sal-box-head">
-            <div class="sal-box-left">
-              <div class="sal-icon-badge blue">−</div>
-              <div class="sal-box-info">
-                <strong>Salary Paid</strong>
-                <span>
-                  <span class="sal-entry-pill" id="salPaidCount">0 Payments</span>
-                  <span>Tap to view entries</span>
-                </span>
-              </div>
-            </div>
-            <div class="sal-box-right">
-              <strong class="sal-box-amount blue" id="salPaidAmt">− ₹0</strong>
-              <svg class="sal-box-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-            </div>
-          </div>
-          <!-- Expanded Itemized Breakdown for Salary Paid -->
-          <div class="sal-box-detail" id="salPaidDetailList">
-            <div class="p-3 text-center text-xs text-slate-400">No salary payment entries for this month.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ratio Visual Progress Bar -->
-      <div class="sal-ratio-card">
-        <div class="sal-ratio-head">
-          <span id="salRatioTaken">Taken ₹0 of ₹0</span>
-          <strong id="salRatioPercent">0%</strong>
-        </div>
-        <div class="sal-track">
-          <div class="sal-seg amber" id="salSegAmber" style="width: 0%;"></div>
-          <div class="sal-seg blue" id="salSegBlue" style="width: 0%;"></div>
-        </div>
-        <div class="sal-legend-row">
-          <span class="sal-legend-item"><span class="sal-dot bg-amber-500"></span>Advance Taken (<span id="salLegAdv">₹0</span>)</span>
-          <span class="sal-legend-item"><span class="sal-dot bg-blue-500"></span>Salary Paid (<span id="salLegPaid">₹0</span>)</span>
-        </div>
-      </div>
-
-      <!-- Net Balance to Get KPI Card -->
-      <div class="sal-balance-card" id="salNetCard">
-        <div>
-          <span class="sal-net-title">BALANCE TO GET</span>
-          <small class="sal-net-sub" id="dispSalNetSub">Pending to receive from salon</small>
-        </div>
-        <div class="sal-net-amount" id="dispSalNet">₹0</div>
-      </div>
-    </section>
-
-    <!-- Hidden compatibility elements so legacy calls do not throw -->
-    <div id="salFilters" style="display:none;"></div>
-    <div id="salList" style="display:none;"></div>
-    <div id="salSummary" style="display:none;"></div>
-    <div id="salStatus" class="sal-status" role="status"></div>
-  </section>
-  <section id="mobileAllWork" class="mw-page" hidden>
+    <section id="mobileAllWork" class="mw-page" hidden>
     <!-- Segmented Tabs (Add Work vs All Work) -->
-    <div class="aw-segmented-tabs">
+    <div class="sal-portal-tabs aw-segmented-tabs">
       <a class="aw-tab no-btn-theme" href="/collection-entry">
         <span class="aw-tab-icon">+</span>
         <span>Add Work</span>
       </a>
-      <div class="aw-tab active">
+      <div class="aw-tab active no-btn-theme">
+        <span class="aw-tab-icon">📄</span>
         <span>All Work</span>
-        <span class="aw-chevron">›</span>
       </div>
     </div>
 
@@ -627,7 +984,7 @@
           <input type="date" id="mwCustomTo">
         </div>
       </div>
-      <button id="mwCustomApply" class="mw-custom-apply-btn no-btn-theme" type="button">Apply Range</button>
+      <button id="mwCustomApply" class="mw-custom-apply-btn no-btn-theme" data-salon-btn-theme type="button">Apply Range</button>
     </div>
 
     <div id="mwListMeta" class="mw-list-meta" hidden></div>
@@ -705,7 +1062,7 @@
 
     <div class="mw-filter-actions">
       <button id="mwClear" class="secondary no-btn-theme mw-clear-btn" type="button">Clear</button>
-      <button id="mwApply" class="mw-apply-btn no-btn-theme" type="button">Apply filter</button>
+      <button id="mwApply" class="mw-apply-btn no-btn-theme" data-salon-btn-theme type="button">Apply filter</button>
     </div>
   </section>
   <dialog id="detailsDialog" class="details-dialog">
@@ -718,7 +1075,8 @@
   <script src="/date-range.js"></script>
   <script>
     const routePath=location.pathname.replace(/\/+$/,'')||'/';
-    const moduleKey=routePath.split('/').pop().replace('-table','');
+    const queryModule = new URLSearchParams(location.search).get('module');
+    const moduleKey = queryModule || routePath.split('/').pop().replace('-table','');
     const definitions={
       collection:{title:'Collection Records',description:'View collection records. Use Add to create a new entry.',permission:'Customer Entry',entry:'/collection-entry',entryPage:'collection-entry'},
       expense:{title:'Expense Records',description:'View employee expense records. Use Add to create a new entry.',permission:'Daily Expense',entry:'/expense-entry',entryPage:'expense-entry'},
@@ -931,10 +1289,16 @@
     }
 
     function salAdvanceRecords() {
-      return (salData?.records || []).filter(record => record.recordType === 'expense' && /advance/i.test(String(record.expenseType || '')));
+      return (salData?.records || []).filter(record => {
+        const cat = record.advanceCategory || (record.recordType === 'salary' ? 'Salary' : (/advance/i.test(String(record.expenseType || '')) ? 'Advance' : 'Advance'));
+        return cat === 'Advance';
+      });
     }
     function salSalaryRecords() {
-      return (salData?.records || []).filter(record => record.recordType === 'salary');
+      return (salData?.records || []).filter(record => {
+        const cat = record.advanceCategory || (record.recordType === 'salary' ? 'Salary' : (/advance/i.test(String(record.expenseType || '')) ? 'Advance' : 'Advance'));
+        return cat === 'Salary';
+      });
     }
 
     // Tab Navigation
@@ -960,7 +1324,11 @@
       if (isAll) {
         loadAdvHistory();
       } else if (isSal) {
-        if (!salData) salLoad();
+        if (!salData) {
+          salLoad();
+        } else {
+          salRender();
+        }
       } else if (isAdd) {
         updateLiveDeduct();
       }
@@ -1137,7 +1505,7 @@
       }
 
       const entryDate = inpDate.value;
-      if (!/^d{4}-d{2}-d{2}$/.test(entryDate)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(entryDate)) {
         showAdvFeedback('Please select a valid date.', 'error');
         inpDate.focus();
         return;
@@ -1163,16 +1531,21 @@
           body: JSON.stringify(payload)
         });
 
-        showAdvFeedback('✓ Advance of ' + salMoney(amount) + ' recorded successfully for ' + salDateText(entryDate) + '!', 'success');
+        fb.style.display = 'none';
         inpRemark.value = '';
 
         // Refresh salary data
         await salLoad();
 
-        setTimeout(() => {
+        if (window.salonUi?.showSuccess) {
+          await window.salonUi.showSuccess('Advance of ' + salMoney(amount) + ' recorded successfully for ' + salDateText(entryDate) + '!');
+        } else {
+          showAdvFeedback('✓ Advance of ' + salMoney(amount) + ' recorded successfully for ' + salDateText(entryDate) + '!', 'success');
+          await new Promise(r => setTimeout(r, 1200));
           fb.style.display = 'none';
-          salSwitchTab('all');
-        }, 1200);
+        }
+
+        salSwitchTab('all');
 
       } catch (err) {
         showAdvFeedback(err.message || 'Could not record advance. Please try again.', 'error');
@@ -1202,45 +1575,186 @@
       salLoad();
     }
 
-    // Tab 2 (All Advance) Filters & Card Rendering
-    function setAdvFilter(preset, btn) {
-      currentAdvFilterPreset = preset;
-      document.querySelectorAll('.single-line-filter-card .pill-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-      document.getElementById('advCustomPopover').style.display = 'none';
-      loadAdvHistory();
+    // Tab 2 (All Advance) Filters & Bottom Sheet State
+    let currentAdvRange = { from: '', to: '' };
+    let currentAdvStatus = 'Active';
+
+    function openAdvFilters() {
+      const sheet = document.getElementById('advFilterSheet');
+      const overlay = document.getElementById('advFilterOverlay');
+      if (!sheet || !overlay) return;
+
+      // Sync presets in sheet
+      document.querySelectorAll('#advFilterSheet .mw-sheet-preset-btn').forEach(b => b.classList.remove('active'));
+      const activeSheetBtn = document.getElementById(
+        currentAdvFilterPreset === '7days' ? 'advSheetPreset7' :
+        currentAdvFilterPreset === 'lastmonth' ? 'advSheetPresetLastMonth' :
+        currentAdvFilterPreset === 'custom' ? 'advSheetPresetCustom' : 'advSheetPresetMonth'
+      );
+      if (activeSheetBtn) activeSheetBtn.classList.add('active');
+
+      const customBox = document.getElementById('advSheetCustomRangeBox');
+      if (currentAdvFilterPreset === 'custom') {
+        customBox?.removeAttribute('hidden');
+        const fInput = document.getElementById('advSheetFromInput');
+        const tInput = document.getElementById('advSheetToInput');
+        if (fInput && !fInput.value) fInput.value = currentAdvRange.from;
+        if (tInput && !tInput.value) tInput.value = currentAdvRange.to;
+      } else {
+        customBox?.setAttribute('hidden', '');
+      }
+
+      // Sync status radio
+      const radio = document.querySelector(`input[name="advStatusRadio"][value="${currentAdvStatus}"]`);
+      if (radio) radio.checked = true;
+
+      overlay.classList.add('open');
+      sheet.classList.add('open');
+      document.body.classList.add('mw-sheet-locked');
     }
 
-    function toggleAdvCustomPicker(btn) {
-      const popover = document.getElementById('advCustomPopover');
-      const isVisible = (popover.style.display === 'block');
-      popover.style.display = isVisible ? 'none' : 'block';
-      if (!isVisible) {
+    function closeAdvFilters() {
+      document.getElementById('advFilterSheet')?.classList.remove('open');
+      document.getElementById('advFilterOverlay')?.classList.remove('open');
+      document.body.classList.remove('mw-sheet-locked');
+    }
+
+    function setAdvSheetPreset(preset) {
+      currentAdvFilterPreset = preset;
+      document.querySelectorAll('#advFilterSheet .mw-sheet-preset-btn').forEach(b => b.classList.remove('active'));
+      const customBox = document.getElementById('advSheetCustomRangeBox');
+
+      if (preset === '7days') {
+        document.getElementById('advSheetPreset7')?.classList.add('active');
+        customBox?.setAttribute('hidden', '');
+      } else if (preset === 'month') {
+        document.getElementById('advSheetPresetMonth')?.classList.add('active');
+        customBox?.setAttribute('hidden', '');
+      } else if (preset === 'lastmonth') {
+        document.getElementById('advSheetPresetLastMonth')?.classList.add('active');
+        customBox?.setAttribute('hidden', '');
+      } else if (preset === 'custom') {
+        document.getElementById('advSheetPresetCustom')?.classList.add('active');
+        customBox?.removeAttribute('hidden');
+        const fInput = document.getElementById('advSheetFromInput');
+        const tInput = document.getElementById('advSheetToInput');
         const now = new Date();
-        document.getElementById('advFilterTo').value = now.toISOString().slice(0, 10);
-        const past = new Date(now.getTime() - 29 * 86400000);
-        document.getElementById('advFilterFrom').value = past.toISOString().slice(0, 10);
+        if (fInput && !fInput.value) {
+          const past = new Date(now.getTime() - 29 * 86400000);
+          fInput.value = past.toISOString().slice(0, 10);
+        }
+        if (tInput && !tInput.value) tInput.value = now.toISOString().slice(0, 10);
       }
     }
 
-    function applyAdvCustomFilter() {
-      const from = document.getElementById('advFilterFrom').value;
-      const to = document.getElementById('advFilterTo').value;
-      if (!from || !to) return;
-      document.querySelectorAll('.single-line-filter-card .pill-btn').forEach(b => b.classList.remove('active'));
-      document.querySelector('.custom-date-btn').classList.add('active');
-      document.getElementById('advCustomPopover').style.display = 'none';
+    function setAdvTopPreset(preset, btn) {
+      currentAdvFilterPreset = preset;
+      document.querySelectorAll('#viewAllAdv .mw-pill-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      else if (preset === 'month') document.getElementById('advPresetMonth')?.classList.add('active');
+      document.getElementById('advCustomPickerBox')?.setAttribute('hidden', '');
+      loadAdvHistory();
+    }
 
+    function toggleAdvCustomInline() {
+      const box = document.getElementById('advCustomPickerBox');
+      const customBtn = document.getElementById('advPresetCustom');
+      const isHidden = box?.hasAttribute('hidden');
+
+      if (isHidden) {
+        box?.removeAttribute('hidden');
+        document.querySelectorAll('#viewAllAdv .mw-pill-btn').forEach(b => b.classList.remove('active'));
+        customBtn?.classList.add('active');
+
+        const fromInput = document.getElementById('advCustomFrom');
+        const toInput = document.getElementById('advCustomTo');
+        const now = new Date();
+        if (fromInput && !fromInput.value) {
+          const past = new Date(now.getTime() - 29 * 86400000);
+          fromInput.value = currentAdvRange.from || past.toISOString().slice(0, 10);
+        }
+        if (toInput && !toInput.value) {
+          toInput.value = currentAdvRange.to || now.toISOString().slice(0, 10);
+        }
+      } else {
+        box?.setAttribute('hidden', '');
+        if (currentAdvFilterPreset !== 'custom') {
+          customBtn?.classList.remove('active');
+        }
+      }
+    }
+
+    function applyAdvInlineCustom() {
+      const from = document.getElementById('advCustomFrom').value;
+      const to = document.getElementById('advCustomTo').value;
+      if (!from || !to) {
+        alert('Please select both From and To dates.');
+        return;
+      }
+      if (to < from) {
+        alert('To date cannot be earlier than From date.');
+        return;
+      }
       currentAdvFilterPreset = 'custom';
-      loadAdvHistory(from, to);
+      currentAdvRange = { from, to };
+
+      document.querySelectorAll('#viewAllAdv .mw-pill-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('advPresetCustom')?.classList.add('active');
+      document.getElementById('advCustomPickerBox')?.setAttribute('hidden', '');
+
+      loadAdvHistory();
+    }
+
+    function advApplySheetFilters() {
+      if (currentAdvFilterPreset === 'custom') {
+        const from = document.getElementById('advSheetFromInput').value;
+        const to = document.getElementById('advSheetToInput').value;
+        if (!from || !to) {
+          alert('Please select both From and To dates for Custom Range.');
+          return;
+        }
+        if (to < from) {
+          alert('To date cannot be earlier than From date.');
+          return;
+        }
+        currentAdvRange = { from, to };
+      }
+
+      const checkedRadio = document.querySelector('input[name="advStatusRadio"]:checked');
+      if (checkedRadio) currentAdvStatus = checkedRadio.value;
+
+      // Sync top bar
+      document.querySelectorAll('#viewAllAdv .mw-pill-btn').forEach(b => b.classList.remove('active'));
+      if (currentAdvFilterPreset === 'month') {
+        document.getElementById('advPresetMonth')?.classList.add('active');
+      } else if (currentAdvFilterPreset === 'custom') {
+        document.getElementById('advPresetCustom')?.classList.add('active');
+      }
+      document.getElementById('advCustomPickerBox')?.setAttribute('hidden', '');
+
+      closeAdvFilters();
+      loadAdvHistory();
+    }
+
+    function advClearFilters() {
+      currentAdvFilterPreset = 'month';
+      currentAdvStatus = 'Active';
+      const activeRadio = document.querySelector('input[name="advStatusRadio"][value="Active"]');
+      if (activeRadio) activeRadio.checked = true;
+
+      document.querySelectorAll('#viewAllAdv .mw-pill-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('advPresetMonth')?.classList.add('active');
+      document.getElementById('advCustomPickerBox')?.setAttribute('hidden', '');
+
+      closeAdvFilters();
+      loadAdvHistory();
     }
 
     function resetAdvFilter() {
-      const monthBtn = document.querySelectorAll('.single-line-filter-card .pill-btn')[1];
-      setAdvFilter('month', monthBtn);
+      advClearFilters();
     }
 
-    async function loadAdvHistory(customFrom, customTo) {
+    async function loadAdvHistory() {
       const listWrap = document.getElementById('advRecordsList');
       listWrap.innerHTML = '<div class="sal-empty">Loading advance history...</div>';
 
@@ -1258,43 +1772,60 @@
         from = ym + '-01';
         const nextMonth = new Date(parseInt(ym.slice(0,4),10), parseInt(ym.slice(5,7),10), 0);
         to = ym + '-' + String(nextMonth.getDate()).padStart(2, '0');
-      } else if (currentAdvFilterPreset === 'custom' && customFrom && customTo) {
-        from = customFrom;
-        to = customTo;
+      } else if (currentAdvFilterPreset === 'lastmonth') {
+        const d = new Date();
+        d.setDate(1);
+        d.setMonth(d.getMonth() - 1);
+        const ym = d.toISOString().slice(0, 7);
+        from = ym + '-01';
+        const nextMonth = new Date(parseInt(ym.slice(0,4),10), parseInt(ym.slice(5,7),10), 0);
+        to = ym + '-' + String(nextMonth.getDate()).padStart(2, '0');
+      } else if (currentAdvFilterPreset === 'custom' && currentAdvRange.from && currentAdvRange.to) {
+        from = currentAdvRange.from;
+        to = currentAdvRange.to;
       }
 
-      // Update Active Strip
-      const strip = document.getElementById('advActiveStrip');
-      const activeText = document.getElementById('advActiveText');
-      if (currentAdvFilterPreset === 'custom' && from && to) {
-        strip.hidden = false;
-        activeText.textContent = salDateText(from) + ' – ' + salDateText(to);
-      } else if (currentAdvFilterPreset === '7days') {
-        strip.hidden = false;
-        activeText.textContent = 'Last 7 Days (' + salDateText(from) + ' – ' + salDateText(to) + ')';
+      currentAdvRange = { from, to };
+
+      // Update days badge
+      let daysCount = 1;
+      if (from && to) {
+        const d1 = new Date(from);
+        const d2 = new Date(to);
+        daysCount = Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
+      }
+      const daysBadge = document.getElementById('advDaysBadge');
+      if (daysBadge) daysBadge.textContent = daysCount + (daysCount === 1 ? ' Day' : ' Days');
+
+      // Update Active Filter Summary Strip
+      const strip = document.getElementById('advActiveFilterStrip');
+      const activeText = document.getElementById('advActiveFilterText');
+      const isDefault = (currentAdvFilterPreset === 'month' && currentAdvStatus === 'Active');
+      if (!isDefault) {
+        const parts = [];
+        if (currentAdvStatus && currentAdvStatus !== 'Active') parts.push(currentAdvStatus);
+        if (currentAdvFilterPreset === '7days') parts.push('Last 7 Days (' + salDateText(from) + ' – ' + salDateText(to) + ')');
+        else if (currentAdvFilterPreset === 'lastmonth') parts.push('Last Month (' + salMonthText(from.slice(0,7)) + ')');
+        else if (currentAdvFilterPreset === 'custom') parts.push(salDateText(from) + ' – ' + salDateText(to));
+        else parts.push('This Month');
+        if (activeText) activeText.textContent = parts.join(' · ');
+        if (strip) strip.hidden = false;
       } else {
-        strip.hidden = true;
+        if (strip) strip.hidden = true;
       }
 
       try {
-        let url = '/api/module-records?module=expense&limit=100';
+        let url = '/api/module-records?module=expense&limit=200';
         if (from) url += '&from=' + encodeURIComponent(from);
         if (to) url += '&to=' + encodeURIComponent(to);
+        if (currentAdvStatus) url += '&status=' + encodeURIComponent(currentAdvStatus);
 
         const data = await salonAuth.request(url);
         advHistoryRecords = (data.records || []).filter(r => /advance/i.test(String(r.expenseType || '')));
 
-        // Calculate days and total
-        let daysCount = 1;
-        if (from && to) {
-          const d1 = new Date(from);
-          const d2 = new Date(to);
-          daysCount = Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
-        }
         const totalSum = advHistoryRecords.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-
-        document.getElementById('advDaysBadge').textContent = daysCount + ' Days';
-        document.getElementById('advTotalBadge').textContent = salMoney(totalSum);
+        const totalBadge = document.getElementById('advTotalBadge');
+        if (totalBadge) totalBadge.textContent = salMoney(totalSum);
 
         renderAdvHistoryCards(advHistoryRecords);
 
@@ -1305,64 +1836,69 @@
 
     function renderAdvHistoryCards(records) {
       const listWrap = document.getElementById('advRecordsList');
-      if (!records.length) {
+      if (!records || !records.length) {
         listWrap.innerHTML = '<div class="sal-empty">No advance records found for this period.</div>';
         return;
       }
 
-      // Group records by entryDate
-      const groups = {};
-      records.forEach((r, idx) => {
-        const d = String(r.entryDate || '').slice(0, 10);
-        if (!groups[d]) groups[d] = [];
-        groups[d].push({ record: r, index: idx + 1 });
+      // Group records by Month (YYYY-MM)
+      const monthGroups = {};
+      records.forEach(r => {
+        const dStr = String(r.entryDate || r.createdAt || '').slice(0, 10);
+        const mKey = dStr.slice(0, 7) || new Date().toISOString().slice(0, 7);
+        if (!monthGroups[mKey]) monthGroups[mKey] = [];
+        monthGroups[mKey].push(r);
       });
 
-      const sortedDates = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+      // Sort months descending (e.g. 2026-10, 2026-09)
+      const sortedMonths = Object.keys(monthGroups).sort((a, b) => b.localeCompare(a));
 
       let html = '';
-      sortedDates.forEach(dateStr => {
-        const items = groups[dateStr];
-        const daySum = items.reduce((sum, item) => sum + (Number(item.record.amount) || 0), 0);
-
-        html += '<div class="mw-date-group">';
-        html += '  <div class="mw-date-header">';
-        html += '    <span class="mw-date-title">' + salDateText(dateStr) + ' · ' + items.length + ' Advance' + (items.length > 1 ? 's' : '') + '</span>';
-        html += '    <span class="mw-date-sum">' + salMoney(daySum) + '</span>';
-        html += '  </div>';
-
-        items.forEach(({ record, index }) => {
-          const mode = record.paymentMode || 'Cash';
-          const isCash = (mode === 'Cash');
-          const amt = salMoney(record.amount);
-          const remark = record.remark ? escapeHtml(record.remark) : 'No remark';
-          const createdAt = salDateText(record.createdAt || record.entryDate) + (record.createdAt ? ' ' + salTimeText(record.createdAt) : '');
-
-          html += '<div class="sal-adv-card" onclick="toggleAdvCard(this, event)">';
-          html += '  <div class="sal-adv-summary">';
-          html += '    <div class="sal-adv-topline">';
-          html += '      <span class="sal-adv-no">#' + index + '</span>';
-          html += '      <strong class="sal-adv-title">Advance Taken</strong>';
-          html += '      <span class="sal-adv-mode-chip ' + (isCash ? 'cash' : 'online') + '">' + mode + '</span>';
-          html += '    </div>';
-          html += '    <div class="sal-adv-right">';
-          html += '      <strong class="sal-adv-amount">' + amt + '</strong>';
-          html += '      <svg class="sal-adv-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
-          html += '    </div>';
-          html += '  </div>';
-
-          html += '  <div class="sal-adv-body">';
-          html += '    <div class="sal-adv-remark"><strong>Remark:</strong> ' + remark + '</div>';
-          html += '    <div class="sal-adv-meta">Recorded: ' + createdAt + ' · Status: ' + (record.status || 'Active') + '</div>';
-          html += '    <div class="sal-adv-actions">';
-          html += '      <button type="button" class="sal-adv-action-btn no-btn-theme view" onclick="event.stopPropagation(); viewAdvDetail(\'' + record._id + '\')">👁 View</button>';
-          html += '      <button type="button" class="sal-adv-action-btn no-btn-theme edit" onclick="event.stopPropagation(); editAdvRecord(\'' + record._id + '\')">✏ Edit</button>';
-          html += '      <button type="button" class="sal-adv-action-btn no-btn-theme delete" onclick="event.stopPropagation(); deleteAdvRecord(\'' + record._id + '\')">🗑 Delete</button>';
-          html += '    </div>';
-          html += '  </div>';
-          html += '</div>';
+      sortedMonths.forEach(mKey => {
+        const items = monthGroups[mKey];
+        // Sort entries in descending order (newest date first)
+        items.sort((a, b) => {
+          const tA = new Date(a.entryDate || a.createdAt || 0).getTime();
+          const tB = new Date(b.entryDate || b.createdAt || 0).getTime();
+          return tB - tA;
         });
 
+        const monthTotal = items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+        html += '<div class="sal-adv-month-card">';
+        html += '  <div class="sal-adv-month-header">';
+        html += '    <div class="sal-adv-month-title">';
+        html += '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>';
+        html += '      <span>' + salMonthText(mKey) + '</span>';
+        html += '    </div>';
+        html += '    <div class="sal-adv-month-total">';
+        html += '      <span class="sal-adv-total-lbl">Total Advance:</span>';
+        html += '      <strong class="sal-adv-total-val">' + salMoney(monthTotal) + '</strong>';
+        html += '    </div>';
+        html += '  </div>';
+
+        html += '  <div class="sal-adv-month-entries">';
+        items.forEach(rec => {
+          const dText = escapeHtml(salDateText(rec.entryDate || rec.createdAt));
+          const typeText = escapeHtml(rec.remark || rec.expenseType || 'Advance');
+          const modeText = escapeHtml(rec.paymentMode || 'Cash');
+          const amtText = salMoney(rec.amount);
+
+          html += '    <div class="drawer-row" style="cursor:pointer;" onclick="viewAdvDetail(\'' + rec._id + '\')">';
+          html += '      <div class="drawer-left">';
+          html += '        <div class="minus-badge">&minus;</div>';
+          html += '        <div class="drawer-meta-line">';
+          html += '          <span class="meta-date">' + dText + '</span>';
+          html += '          <span style="color:#cbd5e1;">&bull;</span>';
+          html += '          <span class="meta-type">' + typeText + '</span>';
+          html += '          <span style="color:#cbd5e1;">&bull;</span>';
+          html += '          <span class="meta-mode">' + modeText + '</span>';
+          html += '        </div>';
+          html += '      </div>';
+          html += '      <div class="drawer-amt">- ' + amtText + '</div>';
+          html += '    </div>';
+        });
+        html += '  </div>';
         html += '</div>';
       });
 
@@ -1471,7 +2007,7 @@
       document.getElementById('salPaidCount').textContent = salaryList.length + ' Payment' + (salaryList.length === 1 ? '' : 's');
       document.getElementById('salPaidAmt').textContent = '− ' + salMoney(salaryPaid);
 
-      document.getElementById('salRatioTaken').textContent = 'Taken ' + salMoney(taken) + ' of ' + salMoney(earned);
+      document.getElementById('salRatioTaken').textContent = salMoney(taken) + ' of ' + salMoney(earned);
       document.getElementById('salRatioPercent').textContent = percent + '%';
       document.getElementById('salSegAmber').style.width = advanceWidth + '%';
       document.getElementById('salSegBlue').style.width = salaryWidth + '%';
@@ -1486,11 +2022,11 @@
       if (extra > 0) {
         dispNet.textContent = salMoney(extra);
         dispNetSub.textContent = 'Extra Paid (More Than Earned Salary)';
-        netCard.className = 'sal-balance-card extra';
+        netCard.className = 'card-balance-get extra';
       } else {
         dispNet.textContent = salMoney(balance);
         dispNetSub.textContent = 'Pending to receive from salon';
-        netCard.className = 'sal-balance-card';
+        netCard.className = 'card-balance-get';
       }
 
       // Populate Advance Accordion Itemized List
@@ -1521,12 +2057,18 @@
         paidBoxList.innerHTML = '<div class="p-3 text-center text-xs text-slate-400">No salary payment entries for this month.</div>';
       } else {
         paidBoxList.innerHTML = salaryList.map(rec => `
-          <div class="sal-sub-row">
-            <div>
-              <span class="sal-sub-date">${escapeHtml(salDateText(rec.entryDate))}${rec.createdAt ? ' · ' + escapeHtml(salTimeText(rec.createdAt)) : ''} · ${escapeHtml(rec.paymentMode || 'Online')}</span>
-              <span class="sal-sub-remark">${escapeHtml(rec.remark || 'Salary installment')}</span>
+          <div class="drawer-row">
+            <div class="drawer-left">
+              <div class="minus-badge" style="background:#0284c7;">&minus;</div>
+              <div class="drawer-meta-line">
+                <span class="meta-date">${escapeHtml(salDateText(rec.entryDate))}</span>
+                <span style="color:#cbd5e1;">&bull;</span>
+                <span class="meta-type" style="color:#0369a1;background:#e0f2fe;">${escapeHtml(rec.remark || 'Salary Payment')}</span>
+                <span style="color:#cbd5e1;">&bull;</span>
+                <span class="meta-mode">${escapeHtml(rec.paymentMode || 'Online')}</span>
+              </div>
             </div>
-            <strong class="sal-sub-amt text-blue-600">− ${salMoney(rec.amount)}</strong>
+            <div class="drawer-amt" style="color:#0284c7;">- ${salMoney(rec.amount)}</div>
           </div>
         `).join('');
       }
@@ -1547,6 +2089,7 @@
 
     async function salInit() {
       document.body.classList.add('salary-mobile');
+      document.body.classList.add('mobile-employee');
       document.querySelector('main.wrap').hidden = true;
       salaryMobile.hidden = false;
 
@@ -1570,8 +2113,10 @@
         if (/^\d{4}-(0[1-9]|1[0-2])$/.test(salMonth.value)) salLoad();
       });
 
-      // Start on Tab 1 (Add Advance) as requested
-      salSwitchTab('add');
+      // Default to 'salary' breakdown if module is salary, else 'add'
+      const requestedTab = new URLSearchParams(location.search).get('tab');
+      const startTab = requestedTab || (moduleKey === 'salary' ? 'salary' : 'add');
+      salSwitchTab(startTab);
 
       // Load initial salary balance and data
       await salLoad();
@@ -2030,9 +2575,12 @@
     mobileFilterButton.addEventListener('click',openMobileFilters);
     document.getElementById('mobileFilterClose').addEventListener('click',closeMobileFilters);
     mobileFilterOverlay.addEventListener('click',closeMobileFilters);
-    document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMobileFilters()});
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMobileFilters();closeAdvFilters();document.getElementById('advCustomPickerBox')?.setAttribute('hidden','');}});
     window.salonPageReady=(async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;      if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
-      if((moduleKey==='salary'||moduleKey==='expense')&&isMobileViewport&&session.employee.role!=='Admin'){await salInit();return}
+      if((moduleKey==='salary'||moduleKey==='expense')&&(isMobileViewport||queryModule==='salary'||location.pathname==='/salary-table')){
+        await salInit();
+        return;
+      }
       if(moduleKey==='collection'&&isMobileViewport){await mwInit();return}
       if(session.employee.role==='Admin'){document.getElementById('employeeField').hidden=false;const staff=await salonAuth.request('/api/staff');for(const employee of staff)document.getElementById('employee').add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));if(requestedEmployeeId&&staff.some(employee=>employee._id===requestedEmployeeId))document.getElementById('employee').value=requestedEmployeeId}
       if(!can('add')||session.pageAccess?.[definition.entryPage]===false)entryLink.hidden=true;

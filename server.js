@@ -53,6 +53,10 @@ const accessPageDefinitions = [
     { key: 'salary-entry', label: 'Salary Entry', path: '/salary-entry', permission: 'Salary', action: 'add' },
     { key: 'counter-records', label: 'Counter Cash Records', path: '/counter-table', permission: 'Cash At Counter' },
     { key: 'counter-entry', label: 'Counter Cash Entry', path: '/counter-entry', permission: 'Cash At Counter', action: 'add' },
+    { key: 'attendance', label: 'Attendance', path: '/attendance' },
+    { key: 'customers', label: 'Customers', path: '/customers' },
+    { key: 'profile', label: 'Profile', path: '/profile' },
+    { key: 'settings', label: 'Settings', path: '/settings' },
     { key: 'employee-list', label: 'Employee List', path: '/employees', group: 'employee-list' },
     { key: 'employee-entry', label: 'Add Employee', path: '/employee-entry', group: 'employee-list' },
     { key: 'user-access', label: 'User Access', path: '/user-access', adminOnly: true },
@@ -188,6 +192,7 @@ const defaultShopDetails = {
 const expenseTypeSchema = new mongoose.Schema({
     sr: { type: Number, required: true, unique: true, min: 1 },
     name: { type: String, required: true, unique: true, trim: true, maxlength: 100 },
+    advanceCategory: { type: String, enum: ['Advance', 'Salary', 'None', ''], default: 'Advance' },
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }
 }, { timestamps: true });
 const ExpenseType = mongoose.models.ExpenseType ||
@@ -294,6 +299,7 @@ const employeeRecordSchema = new mongoose.Schema({
     entryDate: { type: Date, required: true },
     expenseTypeSr: { type: Number, min: 1 },
     expenseType: { type: String, trim: true, default: '' },
+    advanceCategory: { type: String, enum: ['Advance', 'Salary', 'None', ''], default: '' },
     salaryMonth: { type: String, match: /^\d{4}-\d{2}$/ },
     paymentMode: { type: String, enum: ['Cash', 'Online'], default: 'Cash' },
     amount: { type: Number, required: true, min: 0.01 },
@@ -573,16 +579,16 @@ const AuditLog = mongoose.models.AuditLog || mongoose.model('AuditLog', auditLog
 class EmployeeInputError extends Error {}
 
 const defaultExpenseTypes = [
-    { sr: 2, name: 'Daily Expense List', status: 'Active' },
-    { sr: 3, name: 'Salon Supplies', status: 'Active' },
-    { sr: 4, name: 'Rent', status: 'Active' },
-    { sr: 5, name: 'Electric Bill', status: 'Active' },
-    { sr: 6, name: 'EMI', status: 'Inactive' },
-    { sr: 7, name: 'Home', status: 'Active' },
-    { sr: 8, name: 'Shop', status: 'Active' },
-    { sr: 9, name: 'Water', status: 'Active' },
-    { sr: 10, name: 'Other', status: 'Active' },
-    { sr: 1, name: 'Advance Amount', status: 'Active' }
+    { sr: 2, name: 'Daily Expense List', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 3, name: 'Salon Supplies', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 4, name: 'Rent', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 5, name: 'Electric Bill', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 6, name: 'EMI', advanceCategory: 'Advance', status: 'Inactive' },
+    { sr: 7, name: 'Home', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 8, name: 'Shop', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 9, name: 'Water', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 10, name: 'Other', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 1, name: 'Advance Amount', advanceCategory: 'Advance', status: 'Active' }
 ];
 
 async function ensureDefaultExpenseTypes() {
@@ -1048,6 +1054,7 @@ function defaultPageAccess(config, employee, definition) {
     if (isAdmin(employee)) return true;
     if (definition.adminOnly) return false;
     if (definition.key === 'dashboard') return true;
+    if (['profile', 'settings'].includes(definition.key)) return true;
     return definition.permission ? permissionAllows(config, employee, definition.permission) : false;
 }
 
@@ -2247,13 +2254,30 @@ async function employeeDashboardData(employee, month) {
         date.setUTCDate(date.getUTCDate() + offset);
         sparkline.push(dailyEarning(collectionsByDay.get(date.toISOString().slice(0, 10)) || 0));
     }
+    const allExpenseTypes = await ExpenseType.find().select('sr name advanceCategory').lean();
+    const catBySr = new Map(allExpenseTypes.map(t => [t.sr, t.advanceCategory || (/advance/i.test(t.name) ? 'Advance' : 'Advance')]));
+    const catByName = new Map(allExpenseTypes.map(t => [t.name.toLowerCase(), t.advanceCategory || (/advance/i.test(t.name) ? 'Advance' : 'Advance')]));
+
+    function resolveRecordCategory(record) {
+        if (record.recordType === 'salary') return 'Salary';
+        if (record.advanceCategory) return record.advanceCategory;
+        if (record.expenseTypeSr && catBySr.has(record.expenseTypeSr)) return catBySr.get(record.expenseTypeSr);
+        const nm = String(record.expenseType || '').trim().toLowerCase();
+        if (catByName.has(nm)) return catByName.get(nm);
+        return /advance/i.test(record.expenseType || '') ? 'Advance' : 'Advance';
+    }
+
+    records.forEach(r => {
+        r.advanceCategory = resolveRecordCategory(r);
+    });
+
     const todayCollection = collectionsByDay.get(todayKey) || 0;
     const yesterdayCollection = collectionsByDay.get(yesterdayStart.toISOString().slice(0, 10)) || 0;
     const todayAdvance = todayRecords
-        .filter(record => record.recordType === 'expense' && /advance/i.test(String(record.expenseType || '')))
+        .filter(record => resolveRecordCategory(record) === 'Advance')
         .reduce((sum, record) => sum + Number(record.amount || 0), 0);
     const todaySalaryPaid = todayRecords
-        .filter(record => record.recordType === 'salary')
+        .filter(record => resolveRecordCategory(record) === 'Salary')
         .reduce((sum, record) => sum + Number(record.amount || 0), 0);
     const todaySummary = {
         date: todayKey,
@@ -2272,9 +2296,10 @@ async function employeeDashboardData(employee, month) {
     const expenses = records.filter(record => record.recordType === 'expense')
         .reduce((sum, record) => sum + Number(record.amount || 0), 0);
     const advanceTaken = records
-        .filter(record => record.recordType === 'expense' && /advance/i.test(String(record.expenseType || '')))
+        .filter(record => record.advanceCategory === 'Advance')
         .reduce((sum, record) => sum + Number(record.amount || 0), 0);
-    const salaryPaid = records.filter(record => record.recordType === 'salary')
+    const salaryPaid = records
+        .filter(record => record.advanceCategory === 'Salary')
         .reduce((sum, record) => sum + Number(record.amount || 0), 0);
     const taken = advanceTaken + salaryPaid;
     const monthSummary = {
@@ -2338,7 +2363,7 @@ async function employeeDashboardData(employee, month) {
     };
 }
 
-app.get('/api/my-profile', requireSecureAuth, verifyEmployee, async (req, res) => {
+app.get('/api/my-profile', requireSecureAuth, verifyEmployee, requireAnyPageAccess('profile'), async (req, res) => {
     try {
         if (!req.employee?._id || isAdmin(req.employee)) {
             return res.status(403).json({ error: 'Profile is only available to employee accounts.' });
@@ -2830,12 +2855,13 @@ app.post('/api/expense-types', requireSecureAuth, verifyEmployee, requireAnyPage
     try {
         const sr = Number(req.body.sr);
         const name = String(req.body.name ?? '').trim();
+        const advanceCategory = ['Advance', 'Salary'].includes(req.body.advanceCategory) ? req.body.advanceCategory : 'Advance';
         const status = String(req.body.status ?? 'Active').trim();
         if (!Number.isSafeInteger(sr) || sr < 1 || !name || name.length > 100 ||
             !['Active', 'Inactive'].includes(status)) {
             return res.status(400).json({ error: 'Enter a valid serial number, expense type name, and status.' });
         }
-        const expenseType = await ExpenseType.create({ sr, name, status });
+        const expenseType = await ExpenseType.create({ sr, name, advanceCategory, status });
         await recordAudit(req, {
             action: 'CREATE', page: 'Expense Type', module: 'Expense Type', recordType: 'ExpenseType',
             recordId: String(expenseType._id), newValue: expenseType
@@ -2860,6 +2886,7 @@ app.put('/api/expense-types/:id', requireSecureAuth, verifyEmployee, requireAnyP
         }
         const sr = Number(req.body.sr);
         const name = String(req.body.name ?? '').trim();
+        const advanceCategory = ['Advance', 'Salary'].includes(req.body.advanceCategory) ? req.body.advanceCategory : 'Advance';
         const status = String(req.body.status ?? '').trim();
         if (!Number.isSafeInteger(sr) || sr < 1 || !name || name.length > 100 ||
             !['Active', 'Inactive'].includes(status)) {
@@ -2879,7 +2906,7 @@ app.put('/api/expense-types/:id', requireSecureAuth, verifyEmployee, requireAnyP
         }
         const expenseType = await ExpenseType.findByIdAndUpdate(
             req.params.id,
-            { $set: { sr, name, status } },
+            { $set: { sr, name, advanceCategory, status } },
             { returnDocument: 'after', runValidators: true }
         );
         if (previousType.name !== name) {
@@ -4856,6 +4883,7 @@ async function prepareEmployeeRecordInput(req, recordType, employeeId = req.body
 
     let expenseTypeSr;
     let expenseType = '';
+    let advanceCategory = '';
     if (recordType === 'expense') {
         // Default to sr 1 (Advance Amount) if not specified
         expenseTypeSr = Number(req.body.expenseTypeSr || 1);
@@ -4871,6 +4899,9 @@ async function prepareEmployeeRecordInput(req, recordType, employeeId = req.body
             throw new EmployeeRecordInputError('This expense type is not assigned to your employee account.', 403);
         }
         expenseType = catalogType.name;
+        advanceCategory = catalogType.advanceCategory || (/advance/i.test(catalogType.name) ? 'Advance' : 'Advance');
+    } else if (recordType === 'salary') {
+        advanceCategory = 'Salary';
     }
 
     let salaryMonth;
@@ -4891,6 +4922,7 @@ async function prepareEmployeeRecordInput(req, recordType, employeeId = req.body
         date,
         expenseTypeSr,
         expenseType,
+        advanceCategory,
         salaryMonth,
         paymentMode,
         amount,
@@ -4907,6 +4939,7 @@ app.post('/api/employee-records', requireSecureAuth, verifyEmployee, async (req,
             employeeName: input.targetEmployee.employeeName,
             entryDate: input.date,
             ...(input.expenseTypeSr ? { expenseTypeSr: input.expenseTypeSr, expenseType: input.expenseType } : {}),
+            ...(input.advanceCategory ? { advanceCategory: input.advanceCategory } : {}),
             ...(input.salaryMonth ? { salaryMonth: input.salaryMonth } : {}),
             paymentMode: input.paymentMode,
             amount: input.amount,
@@ -5415,6 +5448,40 @@ app.listen(PORT, () => {
         migrateLegacyDateAccess().catch(error => {
             console.error('Legacy date-access migration error:', error);
         });
+        migrateDefaultUserAccessPages().catch(error => {
+            console.error('User access migration error:', error);
+        });
+    };
+    const migrateDefaultUserAccessPages = async () => {
+        try {
+            const config = await AppConfig.findOne({ key: 'collection' });
+            if (!config || !Array.isArray(config.accessRules) || !config.accessRules.length) return;
+            let modified = false;
+            const updatedRules = config.accessRules.map(rule => {
+                if (!Array.isArray(rule.pages)) return rule;
+                const pages = [...rule.pages];
+                let ruleModified = false;
+                if (!pages.includes('profile')) {
+                    pages.push('profile');
+                    ruleModified = true;
+                }
+                if (!pages.includes('settings')) {
+                    pages.push('settings');
+                    ruleModified = true;
+                }
+                if (ruleModified) {
+                    modified = true;
+                    return { ...rule, pages };
+                }
+                return rule;
+            });
+            if (modified) {
+                await AppConfig.updateOne({ key: 'collection' }, { $set: { accessRules: updatedRules } });
+                console.log('Migrated accessRules to ensure profile and settings pages.');
+            }
+        } catch (error) {
+            console.error('User access migration error:', error);
+        }
     };
     if (mongoose.connection.readyState === 1) runDateAccessMigration();
     mongoose.connection.on('connected', runDateAccessMigration);
