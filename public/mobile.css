@@ -36,9 +36,13 @@
 
   body.mobile-employee.salon-layout > main,
   body.mobile-employee.salon-layout > .wrap,
-  body.mobile-employee.salon-layout > .container {
+  body.mobile-employee.salon-layout > .container,
+  body.mobile-employee.salon-layout main.wrap {
     width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
   body.mobile-employee .m-mobile-header {
@@ -1554,5 +1558,46 @@ html.m-filter-locked {
     align-items: center;
     justify-content: center;
     text-align: center;
+  }
+}
+
+@media (min-width: 701px) {
+  .m-mobile-header,
+  .m-mobile-nav,
+  .m-more-overlay,
+  .m-more-sheet,
+  #mobileDashboard,
+  .m-dash,
+  #salaryMobile,
+  .sal-page,
+  #mobileAllWork,
+  .mw-page,
+  #mobileAddWork,
+  .aw-page,
+  .m-mobile-filter-button,
+  .m-filter-bar,
+  .m-filter-overlay,
+  .m-mobile-load-more {
+    display: none !important;
+  }
+  body.mobile-employee {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  body.mobile-employee .salon-header,
+  body.mobile-employee .salon-sidebar,
+  body.mobile-employee .salon-sidebar-overlay,
+  body.mobile-employee .salon-page-bar {
+    display: flex !important;
+  }
+  main.wrap,
+  #dashboardContent,
+  #dashboardHeading,
+  .wrap,
+  .heading {
+    display: block !important;
+  }
+  .table-wrap {
+    display: block !important;
   }
 }

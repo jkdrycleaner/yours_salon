@@ -612,6 +612,7 @@
       document.addEventListener('keydown',event=>{if(event.key==='Escape')awCloseSheet()});
     }
     async function awInit(){
+      if (!isMobileViewport || (session && session.employee && session.employee.role === 'Admin')) return;
       document.querySelector('main.wrap').hidden=true;
       mobileAddWork.hidden=false;
       document.body.classList.add('aw-mobile-page');

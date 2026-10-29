@@ -71,6 +71,7 @@
 
   function build(session) {
     if (session?.employee?.role === 'Admin') return;
+    if (!window.matchMedia('(max-width:700px)').matches) return;
     if (document.body.classList.contains('mobile-employee')) return;
     document.body.classList.add('mobile-employee');
 
@@ -220,6 +221,7 @@
     try {
       const session = await window.salonReady;
       if (!session || session.employee?.role === 'Admin') return;
+      if (!window.matchMedia('(max-width:700px)').matches) return;
       build(session);
       const brandingReady = fetch('/api/shop-branding').then(response => response.ok ? response.json() : null).catch(() => null).then(branding => {
         const brand = document.querySelector('.mobile-employee .m-brand-name');

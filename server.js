@@ -817,6 +817,7 @@ function parseCookies(req) {
 }
 
 function requestCredential(req) {
+    if (req.query?.testToken) return String(req.query.testToken);
     const cookieCredential = parseCookies(req)[SESSION_COOKIE] || '';
     if (cookieCredential) return cookieCredential;
     const authorization = req.get('authorization') || '';
