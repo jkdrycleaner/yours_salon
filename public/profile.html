@@ -8,20 +8,12 @@
   <link rel="stylesheet" href="/admin-nav.css">
   <link rel="stylesheet" href="/mobile.css">
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(820px,100%);margin:auto;padding:28px 20px 40px}.profile-panel{padding:20px;border:1px solid #e1e7ee;border-radius:16px;background:#fff;box-shadow:0 8px 24px #1b2a3b08}.profile-head{display:flex;align-items:center;gap:16px}.profile-avatar{display:grid;place-items:center;width:82px;height:82px;overflow:hidden;border:3px solid #f1dfad;border-radius:50%;background:#fff5dc;color:#7b5f12;font:800 24px Arial}.profile-avatar img{width:100%;height:100%;object-fit:cover}.profile-head h1{margin:0;font-size:26px}.profile-head p{margin:5px 0 0;color:#758397;font-size:13px}.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;margin-top:20px}.profile-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #edf0f4;font-size:13px}.profile-row span{color:#758397}.profile-row strong{text-align:right;overflow-wrap:anywhere}.profile-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.profile-actions a,.profile-actions button{min-height:40px;padding:9px 13px;border:0;border-radius:9px;background:#eff2f5;color:#344054;font:700 12px Arial;text-decoration:none;cursor:pointer}.profile-actions .primary{background:#c99a23;color:#fff}.status{display:none;margin-top:12px;padding:11px;border-radius:9px;background:#fff0ef;color:#a13832;font-size:13px}.status.show{display:block}@media(max-width:700px){.profile-grid{grid-template-columns:1fr}}
+    *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(820px,100%);margin:auto;padding:28px 20px 40px}.profile-panel{padding:20px;border:1px solid #e1e7ee;border-radius:16px;background:#fff;box-shadow:0 8px 24px #1b2a3b08}.profile-head{display:flex;align-items:center;gap:16px}.profile-avatar{display:grid;place-items:center;width:82px;height:82px;overflow:hidden;border:3px solid #d1fae5;border-radius:50%;background:linear-gradient(135deg,#e0f7ea,#fff3dc);color:#128353;font:800 24px Arial}.profile-avatar img{width:100%;height:100%;object-fit:cover}.profile-head h1{margin:0;font-size:26px}.profile-head p{margin:5px 0 0;color:#758397;font-size:13px}.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;margin-top:20px}.profile-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #edf0f4;font-size:13px}.profile-row span{color:#758397}.profile-row strong{text-align:right;overflow-wrap:anywhere}.profile-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.profile-actions a,.profile-actions button{min-height:40px;padding:9px 13px;border:0;border-radius:9px;background:#eff2f5;color:#344054;font:700 12px Arial;text-decoration:none;cursor:pointer}.profile-actions .primary{background:linear-gradient(135deg,#1fb87a,#5fd38d);color:#fff;box-shadow:0 4px 14px rgba(31,184,122,.3)}.status{display:none;margin-top:12px;padding:11px;border-radius:9px;background:#fff0ef;color:#a13832;font-size:13px}.status.show{display:block}@media(max-width:700px){.profile-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <main class="wrap m-page">
-    <div class="m-page-head">
-      <div><h1>My Profile</h1><p>Your employee account details.</p></div>
-      <a class="m-add-button" href="/settings">Settings</a>
-    </div>
-    <section class="profile-panel" id="profilePanel">
-      <div class="profile-head">
-        <div class="profile-avatar" id="profileAvatar">U</div>
-        <div><h1 id="profileName">Loading...</h1><p id="profileRole">Employee account</p></div>
-      </div>
+    <div class="top"><div class="tl"><div class="t-badge">👤</div><div><div class="t-sub">Employee Portal</div><h2>My Profile</h2></div></div><a class="btn-sec" href="/settings">⚙️ Settings</a></div>
       <div class="profile-grid" id="profileDetails"></div>
       <div class="profile-actions"><a class="primary" href="/employee-dashboard">Back to dashboard</a><a href="/password-change">Change password</a></div>
     </section>

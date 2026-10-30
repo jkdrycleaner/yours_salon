@@ -20,11 +20,11 @@
     .field select{height:38px;min-width:150px;padding:8px 10px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;color:#242424;font:13px Arial}
     .actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
     button,.link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;border:0;border-radius:8px;padding:8px 13px;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer}
-    button{background:#C49A32;color:#211A0B}
+    button{background:#1fb87a;color:#211A0B}
     button.secondary,.link{background:#F0F1F3;color:#34383E}
     button.danger{background:#FCEDEC;color:#9E3933}
     button:disabled{opacity:.55;cursor:not-allowed}
-    .link.add{background:#C49A32;color:#211A0B}
+    .link.add{background:#1fb87a;color:#211A0B}
     [hidden]{display:none!important}
     .table-wrap{margin-top:15px;overflow:auto;border:1px solid #E5E7EB;border-radius:9px;background:#FFF}
     table{border-collapse:collapse;width:100%;min-width:1180px;font-size:12px}
@@ -40,7 +40,7 @@
     .row-actions{display:flex;gap:5px}
     .row-actions button,.row-actions .link{min-height:29px;padding:5px 8px;font-size:11px}
     .select-column{width:38px;text-align:center;padding-left:10px;padding-right:10px}
-    .select-column input{width:16px;height:16px;margin:0;accent-color:#C49A32;cursor:pointer}
+    .select-column input{width:16px;height:16px;margin:0;accent-color:#1fb87a;cursor:pointer}
     .bulk-bar{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:12px;padding:10px 12px;border:1px solid #E5E7EB;border-radius:9px;background:#FAFAFB;font-size:12px;color:#555B64}
     .bulk-bar[hidden]{display:none}
     .bulk-bar strong{color:#242424}
@@ -56,11 +56,25 @@
 </head>
 <body>
   <main class="container">
-    <header><div><h1>Employee List</h1><p class="sub">View employees and manage their details. Use Add Employee to create a new employee.</p></div></header>
+    <div class="top">
+      <div class="ttl">
+        <div class="bd" style="background:linear-gradient(135deg,#8b6cff,#b79cff)">👥</div>
+        <div>
+          <h1>Employee List</h1>
+          <p class="sub">View employees and manage their details. Use Add Employee to create a new employee.</p>
+        </div>
+      </div>
+      <div class="actions"><a id="addEmployeeLink" class="btn" href="/employee-entry">＋ Add Employee</a></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat s4"><i>👥</i><div><small>Total Employees</small><b id="empStatTotal">0</b></div></div>
+      <div class="stat s1"><i>✅</i><div><small>Active</small><b id="empStatActive">0</b></div></div>
+      <div class="stat s3"><i>⏸️</i><div><small>Inactive</small><b id="empStatInactive">0</b></div></div>
+    </div>
 
     <section class="toolbar">
       <div class="field"><label for="statusFilter">Status</label><select id="statusFilter"><option value="Active">Active</option><option value="All">All</option><option value="Inactive">In-Active</option></select></div>
-      <div class="actions"><a id="addEmployeeLink" class="link add" href="/employee-entry">Add Employee</a></div>
     </section>
 
     <div id="bulkBar" class="bulk-bar" hidden>
@@ -242,7 +256,14 @@
         if(canBulkDelete())row.append(employeeSelectionCell(employee));
         addCell(row,employee.sr);
         addCell(row,employee.employeeId);
-        addCell(row,employee.employeeName);
+        const nameCell=addCell(row,'');
+        const empDiv=document.createElement('div');
+        empDiv.className='emp';
+        const empAv=document.createElement('span');
+        const ini=String(employee.employeeName||'U').trim().split(/\s+/).map(p=>p[0]).join('').slice(0,2).toUpperCase()||'U';
+        empAv.textContent=ini;
+        empDiv.append(empAv,document.createTextNode(employee.employeeName||'—'));
+        nameCell.append(empDiv);
         addCell(row,employee.emailAddress);
         addCell(row,employee.mobileNumber);
         const statusCell=addCell(row,'');
@@ -309,6 +330,12 @@
       const result=await response.json();
       if(!response.ok)throw new Error(result.error||'Could not load employees.');
       employees=result;
+      const totalEl = document.getElementById('empStatTotal');
+      const activeEl = document.getElementById('empStatActive');
+      const inactEl = document.getElementById('empStatInactive');
+      if(totalEl) totalEl.textContent = employees.length;
+      if(activeEl) activeEl.textContent = employees.filter(e => e.status === 'Active').length;
+      if(inactEl) inactEl.textContent = employees.filter(e => e.status !== 'Active').length;
       renderEmployees();
     }
 

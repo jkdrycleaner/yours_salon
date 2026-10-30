@@ -25,11 +25,11 @@
   const themeSelector = buttonSelector + ',[data-salon-btn-theme]';
 
   function apply(source) {
-    let first = String(readValue(source, 'Button Color', 'buttonColor', '#C9A227')).trim();
-    let second = String(readValue(source, 'Button Color 2', 'buttonColor2', '#8A6D1B')).trim();
-    if (!/^#[0-9a-f]{6}$/i.test(first)) first = '#C9A227';
-    if (!/^#[0-9a-f]{6}$/i.test(second)) second = '#8A6D1B';
-    const mix = String(readValue(source, 'Button Style', 'buttonStyle', 'Solid')).trim().toLowerCase() === 'mix';
+    let first = String(readValue(source, 'Button Color', 'buttonColor', '#1fb87a')).trim();
+    let second = String(readValue(source, 'Button Color 2', 'buttonColor2', '#5fd38d')).trim();
+    if (!/^#[0-9a-f]{6}$/i.test(first)) first = '#1fb87a';
+    if (!/^#[0-9a-f]{6}$/i.test(second)) second = '#5fd38d';
+    const mix = String(readValue(source, 'Button Style', 'buttonStyle', 'Mix')).trim().toLowerCase() !== 'solid';
     const image = mix ? `linear-gradient(135deg, ${first}, ${second})` : 'none';
     const text = readableText(first);
     const rgb = hexToRgb(first);

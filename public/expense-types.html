@@ -12,7 +12,7 @@
      body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
      .container{width:100%;max-width:920px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
     .logo{font-size:24px;font-weight:700;color:#A77B12;margin-bottom:18px;border-bottom:1px solid #ECEDEF;padding-bottom:12px}
-    .logo span{color:#C49A32}
+    .logo span{color:#1fb87a}
     .container>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
     h1{font-size:21px;margin:0}
     h2{font-size:16px;margin:0 0 13px}
@@ -21,7 +21,7 @@
     .panel{padding:16px;margin:14px 0;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
     .actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
     button,.link{display:inline-flex;align-items:center;justify-content:center;min-height:39px;border:0;border-radius:8px;padding:9px 13px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
-    button{background:#C49A32;color:#211A0B}
+    button{background:#1fb87a;color:#211A0B}
     button.secondary,.link{background:#F0F1F3;color:#34383E}
     button:disabled{opacity:.55;cursor:not-allowed}
     .help{font-size:12px;margin:10px 0 0}
@@ -29,7 +29,7 @@
     .field{display:flex;flex-direction:column;gap:5px}
     .field label{font-size:11px;font-weight:700;color:#656B74}
     .field input,.field select{width:100%;height:39px;padding:7px 10px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;color:#242424;font:inherit}
-    .field input:focus,.field select:focus{outline:0;border-color:#C49A32;box-shadow:0 0 0 3px rgba(196,154,50,.14)}
+    .field input:focus,.field select:focus{outline:0;border-color:#1fb87a;box-shadow:0 0 0 3px rgba(196,154,50,.14)}
     .table-wrap{overflow:auto;border:1px solid #E5E7EB;border-radius:9px;background:#FFF}
     table{border-collapse:collapse;width:100%;min-width:520px;font-size:13px}
     th,td{text-align:left;padding:11px;border-bottom:1px solid #ECEDEF}
@@ -50,8 +50,15 @@
 </head>
 <body>
   <main class="container">
-     <h1>Expense Types</h1>
-    <p class="sub">Manage expense type names, serial numbers, and active status. Active types appear in the Employee form, ordered by SR.</p>
+    <div class="top">
+      <div class="ttl">
+        <div class="bd" style="background:linear-gradient(135deg,#ff7a9c,#ffa6bd)">🧾</div>
+        <div>
+          <h1>Expense Types</h1>
+          <p class="sub">Manage expense type names, serial numbers, and active status. Active types appear in the Employee form, ordered by SR.</p>
+        </div>
+      </div>
+    </div>
 
     <section class="panel">
       <div class="actions" style="justify-content:space-between;margin-bottom:12px">

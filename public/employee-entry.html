@@ -18,7 +18,7 @@
     .panel{padding:16px;margin:14px 0;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
     .actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
     button,.link{display:inline-flex;align-items:center;justify-content:center;min-height:39px;border:0;border-radius:8px;padding:9px 13px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
-    button{background:#C49A32;color:#211A0B}
+    button{background:#1fb87a;color:#211A0B}
     button.secondary,.link{background:#F0F1F3;color:#34383E}
     button:disabled{opacity:.55;cursor:not-allowed}
     .help{font-size:12px;margin:10px 0 0}
@@ -26,13 +26,13 @@
     .field{display:flex;flex-direction:column;gap:5px}
     .field label{font-size:11px;font-weight:700;color:#656B74}
     .field input,.field select{width:100%;height:39px;padding:7px 10px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;color:#242424;font:inherit}
-    .field input:focus,.field select:focus{outline:0;border-color:#C49A32;box-shadow:0 0 0 3px rgba(196,154,50,.14)}
+    .field input:focus,.field select:focus{outline:0;border-color:#1fb87a;box-shadow:0 0 0 3px rgba(196,154,50,.14)}
     .expense-type-field{grid-column:span 2}
     .expense-type-toolbar{display:flex;justify-content:flex-end}
     .expense-type-toolbar button{min-height:30px;padding:6px 9px;font-size:11px}
     .expense-type-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px;padding:9px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF}
     .expense-type-option{display:flex;align-items:center;gap:8px;min-width:0;padding:7px;border-radius:6px;background:#F8F9FA;font-size:12px;overflow-wrap:anywhere}
-    .field .expense-type-option input{flex:0 0 18px;width:18px;height:18px;min-height:18px;margin:0;padding:0;border:0;background:transparent;box-shadow:none;accent-color:#C49A32}
+    .field .expense-type-option input{flex:0 0 18px;width:18px;height:18px;min-height:18px;margin:0;padding:0;border:0;background:transparent;box-shadow:none;accent-color:#1fb87a}
     .field .expense-type-option input:focus{outline:2px solid rgba(196,154,50,.45);outline-offset:2px;box-shadow:none}
     .form-actions{display:flex;gap:9px;margin-top:13px}
     .add-row{display:flex;gap:8px;margin-top:13px}
@@ -49,10 +49,13 @@
 </head>
 <body>
   <main class="container">
-    <header>
-      <div><h1 id="formTitle">Add Employee</h1><p class="sub">Create a new employee. The default login password is 1234 and must be changed at first sign-in.</p></div>
-      <div class="actions"><a class="link" href="/employees">Back to Employee List</a></div>
-    </header>
+    <div class="top">
+      <div class="ttl">
+        <div class="bd" style="background:linear-gradient(135deg,#8b6cff,#b79cff)">👥</div>
+        <div><h1 id="formTitle">Add Employee</h1><p class="sub">Create a new employee. The default login password is 1234 and must be changed at first sign-in.</p></div>
+      </div>
+      <div class="actions"><a class="btn g" href="/employees">‹ Back to Employee List</a></div>
+    </div>
 
     <section class="panel">
       <form id="employeeForm">

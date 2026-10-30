@@ -1,14 +1,14 @@
 :root {
-  --m-gold: #c99a23;
-  --m-gold-dark: #9a7414;
-  --m-ink: #243244;
-  --m-muted: #758397;
-  --m-line: #e5e9ef;
-  --m-soft: #f4f6f9;
-  --m-green: #138a4b;
-  --m-blue: #2563c9;
-  --m-red: #b42318;
-  --m-navy: #202b38;
+  --m-gold: #1fb87a;
+  --m-gold-dark: #14a06a;
+  --m-ink: #2b2540;
+  --m-muted: #8b86a3;
+  --m-line: #eeeaf7;
+  --m-soft: #f1fbf6;
+  --m-green: #1fb87a;
+  --m-blue: #4c9bff;
+  --m-red: #ff7a9c;
+  --m-navy: #2b2540;
   --m-header: 64px;
   --m-nav: 66px;
 }
@@ -24,7 +24,7 @@
   body.mobile-employee {
     padding-top: var(--m-header);
     padding-bottom: calc(var(--m-nav) + env(safe-area-inset-bottom, 0px));
-    background: #f3f5f9 !important;
+    background: linear-gradient(160deg,#eafaf0 0%,#fff9ea 50%,#eefaf6 100%) fixed !important;
   }
 
   body.mobile-employee .salon-header,

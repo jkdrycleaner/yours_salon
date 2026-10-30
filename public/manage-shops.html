@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/app-boot.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Manage Shops & Provisioning — SUPER ADMIN</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/mobile.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    }
+    .wrap {
+      width: min(1140px, 100%);
+      margin: 0 auto;
+      padding: 10px 14px 40px;
+    }
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .tl {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .t-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1fb87a, #5fd38d);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(31, 184, 122, 0.3);
+    }
+    .t-sub {
+      color: var(--mut);
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .top h2 {
+      margin: 2px 0 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .grid2 {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .grid2 { grid-template-columns: 1fr; }
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .card-head h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .form-col {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .code-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .code-prefix {
+      position: absolute;
+      left: 10px;
+      color: var(--mut);
+      font-size: 11px;
+      font-weight: 700;
+      pointer-events: none;
+    }
+    .code-input-wrap input {
+      padding-left: 20px !important;
+      font-family: monospace !important;
+      font-weight: 700 !important;
+      color: #14a06a !important;
+    }
+    .template-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid #d5e5dc;
+      border-radius: 10px;
+      background: #f7fbf8;
+      cursor: pointer;
+    }
+    .template-card input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #1fb87a;
+      margin: 0;
+    }
+    .template-info small {
+      display: block;
+      color: var(--mut);
+      font-size: 10.5px;
+      margin-top: 2px;
+    }
+    .template-info strong {
+      font-size: 12.5px;
+      color: var(--ink);
+    }
+    .status-msg {
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-size: 12px;
+      display: none;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    .status-msg.error {
+      display: block;
+      background: #ffe9ef;
+      color: #c9184a;
+      border: 1px solid #ffccd5;
+    }
+    .status-msg.success {
+      display: block;
+      background: #e8f9f4;
+      color: #128353;
+      border: 1px solid #b7eedc;
+    }
+    .shops-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+    th {
+      background: linear-gradient(90deg, #e0f7ea, #fff3dc);
+      color: #1b6342;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 9px 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 12px;
+      border-top: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    .code-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #eaf8f1;
+      color: #128353;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid #c2ebd7;
+    }
+    .db-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #f4f0fc;
+      color: #6346bc;
+      font-family: monospace;
+      font-size: 10.5px;
+    }
+    .pill-active {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: #e0f7ea;
+      color: #128353;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+    .pill-suspended {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: #ffe9ef;
+      color: #c9184a;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+    .action-btn {
+      padding: 4px 9px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .action-btn:hover {
+      background: #f0fbf5;
+      border-color: #5fd38d;
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div class="tl">
+        <div class="t-badge">🏢</div>
+        <div>
+          <div class="t-sub">Super Admin Portal</div>
+          <h2>Multi-Tenant Shop Provisioning</h2>
+        </div>
+      </div>
+      <a class="btn-sec" href="/admin-dashboard">‹ Back to Dashboard</a>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="stats" id="provisionStats">
+      <div class="stat s1"><i>🏢</i><div><small>Total Registered</small><b id="statTotalShops">0</b></div></div>
+      <div class="stat s2"><i>⚡</i><div><small>Active Salons</small><b id="statActiveShops">0</b></div></div>
+      <div class="stat s4"><i>🗄️</i><div><small>Isolated DBs</small><b id="statTotalDbs">0</b></div></div>
+    </div>
+
+    <div class="grid2">
+      <!-- 1-Click Provisioning Form -->
+      <section class="card">
+        <div class="card-head">
+          <h3>⚡ 1-Click Create New Shop</h3>
+        </div>
+        <form id="createShopForm" class="form-col" onsubmit="event.preventDefault(); submitCreateShop();">
+          <div class="field">
+            <label for="shopName">Shop Name *</label>
+            <input id="shopName" type="text" placeholder="e.g. Royal Cut Luxury Salon" required oninput="autoGenerateSlug(this.value)">
+          </div>
+
+          <div class="field">
+            <label for="shopCode">Salon Code (Subdomain / Slug) *</label>
+            <div class="code-input-wrap">
+              <span class="code-prefix">#</span>
+              <input id="shopCode" type="text" placeholder="royalcut" required pattern="[a-z0-9_-]+" title="Only lowercase letters, numbers, and dashes">
+            </div>
+            <small style="color:var(--mut);font-size:10px;margin-top:2px;">Owner will sign in using this Salon Code.</small>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="ownerName">Owner Name</label>
+              <input id="ownerName" type="text" placeholder="e.g. Vikram Singh">
+            </div>
+            <div class="field">
+              <label for="mobile">Mobile Number *</label>
+              <input id="mobile" type="tel" placeholder="9876543210" required>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="adminUserId">Admin User ID *</label>
+              <input id="adminUserId" type="text" value="admin" required>
+            </div>
+            <div class="field">
+              <label for="password">Initial Password *</label>
+              <input id="password" type="text" value="1234" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Starter Package / Template</label>
+            <label class="template-card">
+              <input type="radio" name="plan" value="Standard" checked>
+              <div class="template-info">
+                <strong>Standard Salon Template</strong>
+                <small>Pre-loaded with 10 Rate List Services & 9 Expense Categories</small>
+              </div>
+            </label>
+          </div>
+
+          <button id="btnSubmitShop" type="submit" class="btn" style="width:100%;min-height:42px;margin-top:4px;">
+            <span>Create & Provision Shop ⚡</span>
+          </button>
+
+          <div id="statusBox" class="status-msg"></div>
+        </form>
+      </section>
+
+      <!-- Registered Salons List -->
+      <section class="card">
+        <div class="card-head">
+          <h3>📋 Registered Salons (<span id="shopCount">0</span>)</h3>
+          <button class="action-btn" type="button" onclick="loadShops()">🔄 Refresh</button>
+        </div>
+
+        <div class="shops-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Salon Name</th>
+                <th>Salon Code</th>
+                <th>Tenant Database</th>
+                <th>Owner / Mobile</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="shopsTableBody">
+              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--mut);">Loading shops list...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js"></script>
+  <script src="/mobile.js"></script>
+  <script>
+    function autoGenerateSlug(name) {
+      const codeInput = document.getElementById('shopCode');
+      if (codeInput.dataset.manuallyEdited === 'true') return;
+      const slug = name.toLowerCase().trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '')
+        .slice(0, 16);
+      codeInput.value = slug;
+    }
+
+    document.getElementById('shopCode').addEventListener('input', function() {
+      this.dataset.manuallyEdited = 'true';
+    });
+
+    async function loadShops() {
+      const tbody = document.getElementById('shopsTableBody');
+      try {
+        const res = await salonAuth.request('/api/super-admin/shops');
+        const shops = res.shops || [];
+        document.getElementById('shopCount').textContent = shops.length;
+        document.getElementById('statTotalShops').textContent = shops.length;
+        document.getElementById('statActiveShops').textContent = shops.filter(s => s.status === 'Active').length;
+        document.getElementById('statTotalDbs').textContent = shops.length;
+
+        if (shops.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--mut);">No shops registered yet. Use the form on the left to create your first shop!</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = shops.map(shop => {
+          const isActive = shop.status === 'Active';
+          return `
+            <tr>
+              <td>
+                <strong style="color:var(--ink);">${escapeHtml(shop.shopName || 'Salon')}</strong>
+                <small style="display:block;color:var(--mut);font-size:10px;">Created: ${new Date(shop.createdAt || Date.now()).toLocaleDateString('en-IN')}</small>
+              </td>
+              <td><span class="code-badge">#${escapeHtml(shop.shopCode)}</span></td>
+              <td><span class="db-badge">${escapeHtml(shop.dbName)}</span></td>
+              <td>
+                <div style="font-weight:600;">${escapeHtml(shop.ownerName || '—')}</div>
+                <small style="color:var(--mut);font-size:10.5px;">${escapeHtml(shop.mobileNumber || shop.email || '—')}</small>
+              </td>
+              <td>
+                <span class="${isActive ? 'pill-active' : 'pill-suspended'}">${isActive ? '● Active' : '● Suspended'}</span>
+              </td>
+              <td>
+                <div style="display:flex;gap:6px;">
+                  <a class="action-btn" href="/login?salonCode=${encodeURIComponent(shop.shopCode)}" target="_blank" title="Test login for this salon">
+                    🚀 Open
+                  </a>
+                  <button class="action-btn" type="button" onclick="toggleStatus('${escapeHtml(shop.shopCode)}', '${isActive ? 'Suspended' : 'Active'}')">
+                    ${isActive ? '⏸️ Suspend' : '▶️ Activate'}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#c9184a;">Error loading shops: ${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
+    async function submitCreateShop() {
+      const btn = document.getElementById('btnSubmitShop');
+      const statusBox = document.getElementById('statusBox');
+      const shopName = document.getElementById('shopName').value.trim();
+      const shopCode = document.getElementById('shopCode').value.trim().toLowerCase();
+      const ownerName = document.getElementById('ownerName').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const adminUserId = document.getElementById('adminUserId').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const plan = document.querySelector('input[name="plan"]:checked')?.value || 'Standard';
+
+      statusBox.className = 'status-msg';
+      statusBox.style.display = 'none';
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> <span>Provisioning Database & Seeding...</span>';
+
+      try {
+        const result = await salonAuth.request('/api/super-admin/shops', {
+          method: 'POST',
+          body: JSON.stringify({
+            shopName,
+            shopCode,
+            ownerName,
+            mobile,
+            adminUserId,
+            password,
+            plan
+          })
+        });
+
+        statusBox.className = 'status-msg success';
+        statusBox.innerHTML = `
+          🎉 <strong>Success!</strong> ${escapeHtml(result.message)}<br>
+          <div style="margin-top:6px;font-size:11.5px;">
+            Salon Code: <strong>${escapeHtml(shopCode)}</strong> | User: <strong>${escapeHtml(adminUserId)}</strong> | Password: <strong>${escapeHtml(password)}</strong><br>
+            <a href="/login?salonCode=${encodeURIComponent(shopCode)}" target="_blank" style="color:#128353;text-decoration:underline;font-weight:700;">Click here to open this new salon in a new tab ↗</a>
+          </div>
+        `;
+        document.getElementById('createShopForm').reset();
+        document.getElementById('adminUserId').value = 'admin';
+        document.getElementById('password').value = '1234';
+        document.getElementById('shopCode').dataset.manuallyEdited = 'false';
+
+        await loadShops();
+      } catch (err) {
+        statusBox.className = 'status-msg error';
+        statusBox.textContent = err.message || 'Could not provision shop.';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Create & Provision Shop ⚡</span>';
+      }
+    }
+
+    async function toggleStatus(code, newStatus) {
+      if (!confirm(`Are you sure you want to mark '${code}' as ${newStatus}?`)) return;
+      try {
+        await salonAuth.request(`/api/super-admin/shops/${encodeURIComponent(code)}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: newStatus })
+        });
+        await loadShops();
+      } catch (err) {
+        alert('Failed to update status: ' + err.message);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Initial load
+    (async () => {
+      await window.salonReady;
+      await loadShops();
+    })();
+  </script>
+</body>
+</html>

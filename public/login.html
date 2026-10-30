@@ -3,25 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#211A16">
+<meta name="theme-color" content="#c99a23">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Login — YOURS SALON</title>
 <style>
 :root{
- --bg:#f7f5f2;--panel:#fff;--text:#171513;--muted:#6f6a64;--line:#ddd7cf;
- --accent:#c9a227;--header:#211a16;--headerText:#fff;--card:#fff;
- --btn-bg:#211a16;--btn-bg2:#c9a227;--btn-text:#fff;--btn-image:none;
+ --bg:linear-gradient(160deg,#eafaf0 0%,#fff9ea 50%,#eefaf6 100%);--panel:#fff;--text:#2b2540;--muted:#8b86a3;--line:#eeeaf7;
+ --accent:#1fb87a;--header:#1fb87a;--headerText:#fff;--card:#fff;
+ --btn-bg:#1fb87a;--btn-bg2:#5fd38d;--btn-text:#fff;--btn-image:linear-gradient(135deg,#1fb87a,#5fd38d);
  --logo-width:64px;--logo-height:64px;--brand-size:34px;
 }
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0}
-body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);background-attachment:fixed;color:var(--text)}
 button,input{font:inherit}button{cursor:pointer}
 .page{width:100%;height:100dvh;min-height:100dvh;padding:clamp(8px,1.5vw,18px);display:flex;align-items:center;justify-content:center}
-.shell{width:min(1000px,100%);height:min(640px,calc(100dvh - clamp(16px,3vw,32px)));display:grid;grid-template-columns:1fr 1fr;background:var(--panel);border-radius:clamp(16px,2vw,24px);overflow:hidden;box-shadow:0 25px 70px rgba(33,26,22,.13)}
-.visual{position:relative;min-width:0;min-height:0;background:#18130f;color:#fff;overflow:hidden}
-.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .55s ease;background-position:center;background-size:cover;background-image:linear-gradient(135deg,#1c1712,#3a2f22 55%,#171310)}
+.shell{width:min(1000px,100%);height:min(640px,calc(100dvh - clamp(16px,3vw,32px)));display:grid;grid-template-columns:1fr 1fr;background:var(--panel);border-radius:26px;overflow:hidden;box-shadow:0 25px 70px rgba(120,90,200,.12);border:1px solid var(--line)}
+.visual{position:relative;min-width:0;min-height:0;background:linear-gradient(135deg,#1fb87a,#5fd38d 55%,#ffd35c);color:#fff;overflow:hidden}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .55s ease;background-position:center;background-size:cover;background-image:linear-gradient(135deg,#1fb87a,#5fd38d 55%,#ffd35c)}
 .slide.active{opacity:1;visibility:visible}
-.slide::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,8,6,.68),rgba(10,8,6,.24) 72%,rgba(10,8,6,.04))}
+.slide::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,8,6,.4),rgba(10,8,6,.1) 72%,rgba(10,8,6,.02))}
 .slide-content{position:absolute;z-index:2;left:8%;right:8%;top:9%;max-width:600px}
 .slide-title{font-family:Georgia,serif;font-size:clamp(30px,3.6vw,52px);line-height:1.05;font-weight:500;margin:0 0 10px}
 .slide-desc{font-size:clamp(12px,1.1vw,16px);line-height:1.5;color:#f6f0e7}
@@ -42,18 +46,18 @@ button,input{font:inherit}button{cursor:pointer}
 .field{margin-bottom:8px}
 .field label{display:block;font-size:12px;font-weight:650;margin:0 0 5px}
 .input-wrap{position:relative}
-.input-wrap input{width:100%;height:46px;padding:0 46px 0 14px;border:1px solid var(--line);border-radius:11px;background:var(--card);outline:0;color:var(--text)}
-.input-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+.input-wrap input{width:100%;height:46px;padding:0 46px 0 14px;border:1px solid #dcefe5;border-radius:12px;background:#f1fbf6;outline:0;color:var(--text);transition:.15s}
+.input-wrap input:focus{border-color:#5fd38d;background:#fff;box-shadow:0 0 0 3px rgba(95,211,141,.25)}
 .eye{position:absolute;right:5px;top:5px;display:grid;place-items:center;width:36px;height:36px;border:0;background:transparent;color:var(--muted);border-radius:9px}
-.eye:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.eye:hover{color:#1fb87a;background:rgba(31,184,122,.1)}
 .eye svg{width:18px;height:18px}
 .eye .eye-off{display:none}
 .eye.eye--on .eye-on{display:none}
 .eye.eye--on .eye-off{display:block}
 .forgot-row{display:flex;justify-content:flex-end;align-items:center;margin:-2px 0 8px}
-.forgot-link{border:0;background:transparent;padding:3px 0;color:var(--accent);font-size:12px;font-weight:700}
+.forgot-link{border:0;background:transparent;padding:3px 0;color:#1fb87a;font-size:12px;font-weight:700}
 .forgot-link:hover{text-decoration:underline}
-.login-btn{width:100%;height:46px;border:0;border-radius:11px;background-color:var(--btn-bg);background-image:var(--btn-image);color:var(--btn-text);font-weight:700;font-size:14px}
+.login-btn{width:100%;height:48px;border:0;border-radius:14px;background:linear-gradient(135deg,#1fb87a,#5fd38d);color:#fff;font-weight:700;font-size:14px;box-shadow:0 8px 18px rgba(31,184,122,.3);transition:.15s;cursor:pointer}
 .login-btn:disabled{opacity:.65;cursor:wait}
 .or{display:flex;align-items:center;gap:12px;color:#9a938b;font-size:11px;margin:8px 0}
 .or::before,.or::after{content:"";height:1px;background:var(--line);flex:1}
@@ -75,37 +79,15 @@ button,input{font:inherit}button{cursor:pointer}
 body.dark{--bg:#100e0c;--panel:#1a1715;--text:#f5f0e9;--muted:#aaa198;--line:#39332e;--card:#211d1a}
 body.dark .login-btn{color:var(--btn-text)}
 body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
-@media(max-width:900px){
- .page{padding:0;align-items:stretch}
- .shell{width:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;box-shadow:none}
- .visual{height:28dvh;min-height:150px;flex:0 0 28dvh}
- .slide-content{top:10%;left:7%;right:7%}
- .slide-title{font-size:clamp(25px,6.6vw,36px)}
- .slide-desc{font-size:12px}
- .slider-nav{bottom:8%;left:7%;right:7%}
- .arrow{width:34px;height:34px;font-size:19px}
- .login-panel{flex:1;padding:10px 16px 8px;overflow-y:auto}
- .panel-inner{width:min(520px,100%);margin:auto;padding-top:20px;padding-bottom:2px}
- .brand{margin:0 0 8px}
- .brand p{font-size:12px;margin-top:4px}
- .welcome{margin-bottom:8px}
- .welcome h2{font-size:19px;margin-bottom:3px}
- .welcome p{font-size:12px}
- .field{margin-bottom:7px}
- .field label{font-size:11px;margin-bottom:4px}
- .input-wrap input{height:42px;font-size:13px}
- .eye{height:32px;width:34px;top:5px;right:4px}
- .eye svg{width:17px;height:17px}
- .login-btn{height:42px;font-size:13px}
- .or{margin:7px 0;font-size:11px}
- .method-icon{height:38px}
- .help{font-size:10px;margin-top:6px}
+@media(max-width:820px){
+ .page{padding:0 !important;align-items:stretch !important;min-height:100dvh !important;height:auto !important}
+ .shell{width:100% !important;height:auto !important;min-height:100dvh !important;border-radius:0 !important;display:block !important;box-shadow:none !important;border:0 !important}
+ .visual{display:none !important}
+ .login-panel{width:100% !important;padding:22px 18px 30px !important;overflow-y:visible !important;display:block !important}
+ .panel-inner{width:100% !important;max-width:440px !important;margin:0 auto !important;padding:0 !important}
 }
-@media(max-width:420px) and (max-height:760px){
- .visual{height:26dvh;min-height:140px;flex-basis:26dvh}
- .brand h1{letter-spacing:.02em}
- .method-icon{height:36px}
- .input-wrap input,.login-btn{height:40px}
+@media(min-width:821px) and (max-width:1020px){
+ .shell{width:96%;height:min(600px,calc(100dvh - 24px))}
 }
 @media(min-width:901px) and (max-height:760px){
  .login-panel{padding-top:10px;padding-bottom:8px}
@@ -164,6 +146,46 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
  .welcome h2{font-size:19px}
  .help{display:none}
 }
+
+.salon-active-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: #fdfaf3;
+  border: 1px solid #edd9a6;
+  border-radius: 9px;
+  font-size: 13px;
+}
+.salon-badge-info {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #334155;
+}
+.salon-badge-info strong {
+  color: #855d08;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  background: #f7eecf;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+.salon-switch-btn {
+  background: transparent;
+  border: 0;
+  color: #a77b12;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 2px 4px;
+}
+.salon-switch-btn:hover {
+  color: #6d4e04;
+}
 </style>
 </head>
 <body>
@@ -185,7 +207,16 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
 
 <div class="welcome"><h2 id="loginTitle">Welcome Back</h2><p id="loginSubtitle">Sign in to continue to your account</p></div>
 
+<div id="activeSessionBanner" hidden style="margin-bottom:14px;padding:10px 12px;background:#eefbf4;border:1px solid #bcecd2;border-radius:12px;"></div>
+
 <form id="loginForm" novalidate>
+  <div class="field">
+    <label for="salonCode">Salon Code <small style="color:var(--mut);font-weight:400;">(e.g. royalcut, samplesalon)</small></label>
+    <div class="input-wrap" style="position:relative;display:flex;align-items:center;">
+      <span style="position:absolute;left:13px;color:#1fb87a;font-weight:800;font-size:14px;pointer-events:none;">#</span>
+      <input id="salonCode" name="salonCode" placeholder="Enter salon code (e.g. royalcut)" autocomplete="off" required maxlength="50" style="padding-left:28px !important;text-transform:lowercase;font-weight:700;color:#14a06a;">
+    </div>
+  </div>
   <div class="field"><label for="userId">User ID / Email</label><div class="input-wrap"><input id="userId" name="userId" autocomplete="username" required maxlength="100"></div></div>
   <div class="field"><label for="password">Password</label><div class="input-wrap">
     <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="200">
@@ -261,21 +292,68 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
 </div></div>
 
 <script>
-const tokenKey='salon_google_credential';
-const statusBox=document.getElementById('status');
-const loginForm=document.getElementById('loginForm');
-const forgotForm=document.getElementById('forgotForm');
-const setupForm=document.getElementById('setupForm');
-const methodsBlock=document.getElementById('methods');
-const passwordLoginEnabled={value:true};
-let resetToken='';
-let slideTimer=null;
-let setupRequired=false;
 
-function showStatus(message,type){
-  statusBox.textContent=message||'';
-  statusBox.className='status'+(type?' '+type:'');
+// Register PWA Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
 }
+
+const tokenKey = 'salon_google_credential';
+const statusBox = document.getElementById('status');
+const loginForm = document.getElementById('loginForm');
+const forgotForm = document.getElementById('forgotForm');
+const setupForm = document.getElementById('setupForm');
+const methodsBlock = document.getElementById('methods');
+const salonCodeInput = document.getElementById('salonCode');
+const userIdInput = document.getElementById('userId');
+const passwordInput = document.getElementById('password');
+
+const passwordLoginEnabled = { value: true };
+let resetToken = '';
+let slideTimer = null;
+let setupRequired = false;
+
+function showStatus(message, type) {
+  if (!statusBox) return;
+  statusBox.textContent = message || '';
+  statusBox.className = 'status' + (type ? ' ' + type : '');
+}
+
+function getActiveSalonCode() {
+  const params = new URLSearchParams(window.location.search);
+  const qCode = (params.get('salonCode') || params.get('code') || '').trim().toLowerCase();
+  if (qCode) {
+    localStorage.setItem('salon_code', qCode);
+    return qCode;
+  }
+  return (localStorage.getItem('salon_code') || '').trim().toLowerCase() || 'samplesalon';
+}
+
+async function applySalonBranding(code) {
+  if (!code) return;
+  try {
+    const res = await fetch('/api/tenant/verify/' + encodeURIComponent(code));
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('salon_code', data.shopCode);
+      document.cookie = 'salon_code=' + data.shopCode + '; path=/; max-age=31536000';
+      if (data.branding?.name) document.getElementById('brandName').textContent = data.branding.name;
+      if (data.branding?.description) document.getElementById('brandDescription').textContent = data.branding.description;
+      if (data.branding?.logoUrl) {
+        const logoEl = document.getElementById('logo');
+        if (logoEl) { logoEl.src = data.branding.logoUrl; logoEl.hidden = false; }
+      }
+    }
+  } catch {}
+}
+
+if (salonCodeInput) {
+  salonCodeInput.addEventListener('change', () => applySalonBranding(salonCodeInput.value.trim().toLowerCase()));
+  salonCodeInput.addEventListener('blur', () => applySalonBranding(salonCodeInput.value.trim().toLowerCase()));
+}
+
 function authHeaders(){const token=localStorage.getItem(tokenKey);return token?{Authorization:'Bearer '+token}:{}}
 async function request(url,options={}){
   const response=await fetch(url,options);
@@ -435,7 +513,8 @@ document.querySelectorAll('.eye').forEach(button=>{
 
 async function loadBranding(){
   try{
-    applyBranding(await request('/api/shop-branding'));
+    const sCode = getActiveSalonCode();
+    applyBranding(await request('/api/shop-branding' + (sCode ? '?salonCode=' + encodeURIComponent(sCode) : '')));
   }catch(error){
     showStatus(error.message,'error');
   }
@@ -463,31 +542,39 @@ document.getElementById('forgotLink').addEventListener('click',()=>{
 });
 document.getElementById('forgotBack').addEventListener('click',showLoginView);
 
-loginForm.addEventListener('submit',async event=>{
+loginForm.addEventListener('submit', async event => {
   event.preventDefault();
-  const userIdField=document.getElementById('userId');
-  const passwordField=document.getElementById('password');
-  const userId=userIdField.value.trim();
-  const password=passwordField.value;
-  if(!userId){showStatus('Please enter User ID / Email.','error');userIdField.focus();return}
-  if(!password){showStatus('Please enter password.','error');passwordField.focus();return}
-  const button=document.getElementById('loginBtn');
-  button.disabled=true;button.textContent='Signing in...';
-  showStatus('Checking your account...','loading');
-  try{
-    const result=await request('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,password})});
-    localStorage.setItem(tokenKey,result.token);
-    localStorage.setItem('salon_user_email',result.employee.userId);
-    if(result.employee.mustChangePassword){location.replace('/password-change');return}
+  const sCode = (salonCodeInput ? salonCodeInput.value : '').trim().toLowerCase() || getActiveSalonCode();
+  const userId = userIdInput.value.trim();
+  const password = passwordInput.value;
+  if (!sCode) { showStatus('Please enter Salon Code.', 'error'); salonCodeInput.focus(); return; }
+  if (!userId) { showStatus('Please enter User ID / Email.', 'error'); userIdInput.focus(); return; }
+  if (!password) { showStatus('Please enter password.', 'error'); passwordInput.focus(); return; }
+
+  const button = document.getElementById('loginBtn');
+  button.disabled = true; button.textContent = 'Signing in...';
+  showStatus('Checking your account...', 'loading');
+  try {
+    localStorage.setItem('salon_code', sCode);
+    document.cookie = 'salon_code=' + sCode + '; path=/; max-age=31536000';
+    const result = await request('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-salon-code': sCode },
+      body: JSON.stringify({ salonCode: sCode, userId, password })
+    });
+    localStorage.setItem(tokenKey, result.token);
+    localStorage.setItem('salon_user_email', result.employee.userId);
+    if (result.employee.mustChangePassword) { location.replace('/password-change'); return; }
     location.replace(await portalPath(result.employee));
-  }catch(error){
-    showStatus(error.message,'error');
-    if(error.payload?.blocked){
-      passwordField.value='';
-      document.getElementById('forgotLink').style.textDecoration='underline';
+  } catch (error) {
+    showStatus(error.message, 'error');
+    if (error.payload?.blocked) {
+      passwordInput.value = '';
+      document.getElementById('forgotLink').style.textDecoration = 'underline';
     }
-  }finally{
-    button.disabled=false;button.textContent='Login →';
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Sign in to Salon';
   }
 });
 
@@ -578,22 +665,63 @@ async function loadSetupStatus(){
     showStatus(error.message,'error');
   }
 }
-async function continueSession(){
-  const token=localStorage.getItem(tokenKey);
-  if(!token)return;
-  try{
-    const session=await request('/api/session',{headers:authHeaders()});
-    if(session.employee.mustChangePassword){location.replace('/password-change');return}
-    location.replace(await portalPath(session.employee,session));
-  }catch{
+async function checkExistingSession(){
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('logout')) {
+    localStorage.removeItem(tokenKey);
+    localStorage.removeItem('salon_user_email');
+    try { await fetch('/api/logout', { method: 'POST' }); } catch {}
+    return;
+  }
+  const token = localStorage.getItem(tokenKey);
+  if (!token) return;
+  try {
+    const session = await request('/api/session', { headers: authHeaders() });
+    if (session && session.employee) {
+      const banner = document.getElementById('activeSessionBanner');
+      if (banner) {
+        const uName = session.employee.employeeName || session.employee.userId || 'User';
+        const sName = session.shop?.shopName || session.shopName || 'Salon';
+        const sCode = session.shop?.shopCode || 'samplesalon';
+        const pPath = await portalPath(session.employee, session);
+        banner.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <div>
+              <span style="font-size:11px;color:#188050;font-weight:700;">● Active session:</span>
+              <strong style="color:#0f5132;font-size:12px;">${uName}</strong>
+              <span style="font-size:11px;color:#495057;">(${sName} #${sCode})</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <a href="${pPath}" style="padding:4px 10px;border-radius:6px;background:#1fb87a;color:#fff;text-decoration:none;font-weight:700;font-size:11px;">Open Dashboard →</a>
+              <button type="button" id="btnSignOutSession" style="padding:4px 8px;border-radius:6px;border:1px solid #ced4da;background:#fff;color:#c9184a;font-weight:700;font-size:11px;cursor:pointer;">Sign out</button>
+            </div>
+          </div>
+        `;
+        banner.hidden = false;
+        document.getElementById('btnSignOutSession')?.addEventListener('click', async () => {
+          localStorage.removeItem(tokenKey);
+          localStorage.removeItem('salon_user_email');
+          try { await fetch('/api/logout', { method: 'POST' }); } catch {}
+          banner.hidden = true;
+          showStatus('Signed out successfully.', 'success');
+        });
+      }
+    }
+  } catch {
     localStorage.removeItem(tokenKey);
     localStorage.removeItem('salon_user_email');
   }
 }
 
-loadBranding();
-loadSetupStatus();
-continueSession();
+(async () => {
+  const code = getActiveSalonCode();
+  if (salonCodeInput) salonCodeInput.value = code;
+  await applySalonBranding(code);
+  await loadBranding();
+  await loadSetupStatus();
+  await checkExistingSession();
+})();
+
 </script>
 </body>
 </html>

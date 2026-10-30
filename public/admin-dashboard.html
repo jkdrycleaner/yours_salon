@@ -4,61 +4,618 @@
   <script src="/app-boot.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Admin Dashboard - YOURS SALON</title>
+  <title>Admin Dashboard · Sample Salon</title>
   <link rel="stylesheet" href="/admin-nav.css">
   <style>
-    *{box-sizing:border-box}
-    body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}
-    .wrap{width:min(1180px,100%);margin:auto;padding:28px 20px 40px}
-    .heading{margin-bottom:18px}
-    .heading h1{margin:0;font-size:27px}
-    .heading p{margin:6px 0 0;color:#758397;font-size:13px}
-    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-    .card{padding:17px;border:1px solid #e1e7ee;border-radius:14px;background:#fff;box-shadow:0 8px 22px #20334b08}
-    .card span{display:block;color:#758397;font-size:11px;font-weight:700}
-    .card strong{display:block;margin-top:10px;font-size:20px}
-    .card:nth-child(1){background:#edf9f4}.card:nth-child(2){background:#fff8e8}
-    .card:nth-child(3){background:#eff6ff}.card:nth-child(4){background:#f4efff}
-    .panel{margin-top:14px;padding:18px;border:1px solid #e1e7ee;border-radius:14px;background:#fff}
-    .panel h2{margin:0 0 12px;font-size:17px}
-    .quick-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
-    .quick-links a{padding:13px;border:1px solid #e2e8ef;border-radius:10px;background:#fafbfc;color:#344054;text-decoration:none;font-size:12px;font-weight:700}
-    .quick-links a:hover{border-color:#d2ad4c;background:#fffaf0}
-    @media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:520px){.wrap{padding:20px 12px 30px}.heading h1{font-size:23px}.card{padding:13px}.quick-links{grid-template-columns:1fr}}
+    :root {
+      --bg: linear-gradient(160deg,#eafaf0 0%,#fff9ea 50%,#eefaf6 100%);
+      --surface: rgba(255, 255, 255, 0.94);
+      --surface2: #f1fbf6;
+      --line: #eeeaf7;
+      --gold: #1fb87a;
+      --gold2: #14a06a;
+      --text: #2b2540;
+      --muted: #8b86a3;
+      --teal: #2bc4a8;
+      --rust: #ff7a9c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg) fixed !important;
+      color: var(--text) !important;
+      font: 13px "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 12px 18px 48px;
+    }
+    .crumb {
+      font-size: 13px;
+      color: var(--mut);
+      margin: 0 4px 12px;
+    }
+    .crumb b {
+      color: var(--ink);
+    }
+    .status {
+      margin: 10px 0;
+      padding: 11px;
+      border-radius: 12px;
+      background: #ffe9ef;
+      color: #e11d48;
+      display: none;
+    }
+    .status.show { display: block; }
+    
+    .op-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin: 24px 0 14px;
+      flex-wrap: wrap;
+    }
+    .op-head h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .op-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .tabs .btn {
+      padding: 8px 14px !important;
+      font-size: 12.5px !important;
+      border-radius: 12px !important;
+      background: #f4f1fc !important;
+      color: var(--text) !important;
+      box-shadow: none !important;
+    }
+    .tabs .btn.active {
+      background: linear-gradient(135deg, #1fb87a, #5fd38d) !important;
+      color: #fff !important;
+      box-shadow: 0 4px 12px rgba(31, 184, 122, 0.3) !important;
+    }
+    .op-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .op-toolbar input {
+      height: 38px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font: inherit;
+      color: var(--text);
+    }
+    
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .stat-grid .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 14px rgba(120, 90, 200, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-grid .stat span {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .stat-grid .stat strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .stat-grid .stat small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .stat-grid .stat.total strong {
+      color: #14a06a;
+    }
+
+    .panel-box {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin: 14px 0;
+      box-shadow: 0 6px 20px rgba(120, 90, 200, 0.06);
+    }
+    .panel-box h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    th {
+      background: linear-gradient(90deg, #e0f7ea, #fff3dc);
+      color: #2f6b4c;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 700;
+      padding: 10px 12px;
+      text-align: left;
+    }
+    td {
+      padding: 10px 12px;
+      border-top: 1px solid var(--line);
+      color: var(--text);
+    }
+    td.num, th.num {
+      text-align: right;
+    }
+    .bar-list {
+      display: grid;
+      gap: 10px;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(90px, 140px) 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .bar-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .bar-track {
+      height: 10px;
+      border-radius: 99px;
+      background: #eaf8f1;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1fb87a, #5fd38d);
+      border-radius: 99px;
+    }
+    .bar-value {
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--text);
+    }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    @media (max-width: 900px) {
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid2 { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <main class="wrap">
-    <section class="heading">
-      <h1>Admin Dashboard</h1>
+    <!-- Breadcrumb -->
+    <div class="crumb">Admin Portal › <b>Dashboard</b></div>
+
+    <!-- Hero Banner (Exact match to light theme.html) -->
+    <div class="hero">
+      <small id="dt"></small>
+      <h1 id="welcomeGreeting">Welcome Back, Sample Admin 👋</h1>
       <p>Manage salon operations, records, employees and reports from one place.</p>
-    </section>
-    <section class="cards" aria-label="Admin areas">
-      <article class="card"><span>RECORDS</span><strong>Collection, expense and salary</strong></article>
-      <article class="card"><span>PEOPLE</span><strong>Employees and permissions</strong></article>
-      <article class="card"><span>REPORTS</span><strong>Reports and activity history</strong></article>
-      <article class="card"><span>SETTINGS</span><strong>Rates, shop and configuration</strong></article>
-    </section>
-    <section class="panel">
-      <h2>Quick access</h2>
-      <nav class="quick-links" aria-label="Admin quick access">
-        <a href="/collection-table">Collection Records</a>
-        <a href="/expense-table">Expense Records</a>
-        <a href="/salary-table">Salary Records</a>
-        <a href="/counter-table">Counter Cash Records</a>
-        <a href="/employees">Employee List</a>
-        <a href="/user-access">User Access</a>
-        <a href="/reports">Reports</a>
-        <a href="/activity-report">Activity Report</a>
-        <a href="/config">Configuration</a>
-        <a href="/shop-details">Shop Details</a>
-        <a href="/rate-list">Rate List</a>
-        <a href="/bulk-entry">Bulk Entry</a>
-      </nav>
-    </section>
+    </div>
+
+    <!-- Category Tiles (Exact match to light theme.html) -->
+    <div class="tiles">
+      <div class="tile t1" onclick="location.href='/collection-table'">
+        <div class="ic">💰</div>
+        <small>RECORDS</small>
+        <h3>Collection, Expense And Salary</h3>
+      </div>
+      <div class="tile t2" onclick="location.href='/employees'">
+        <div class="ic">👥</div>
+        <small>PEOPLE</small>
+        <h3>Employees And Permissions</h3>
+      </div>
+      <div class="tile t3" onclick="location.href='/reports'">
+        <div class="ic">📊</div>
+        <small>REPORTS</small>
+        <h3>Reports And Activity History</h3>
+      </div>
+      <div class="tile t4" onclick="location.href='/config'">
+        <div class="ic">⚙️</div>
+        <small>SETTINGS</small>
+        <h3>Rates, Shop And Configuration</h3>
+      </div>
+    </div>
+
+    <!-- Quick Access Grid (Exact match to light theme.html) -->
+    <div class="card" style="margin-bottom: 22px;">
+      <h2 style="font-size: 17px; margin: 0 0 14px; color: var(--ink);">⚡ Quick Access</h2>
+      <div class="qa">
+        <a href="/collection-table"><i>💰</i>Collection Records</a>
+        <a href="/expense-table"><i>🧾</i>Expense Records</a>
+        <a href="/salary-table"><i>💵</i>Salary Records</a>
+        <a href="/counter-table"><i>🏧</i>Counter Cash Records</a>
+        <a href="/employees"><i>👥</i>Employee List</a>
+        <a href="/manage-shops"><i>🏢</i>Manage Shops</a>
+        <a href="/user-access"><i>🔐</i>User Access</a>
+        <a href="/reports"><i>📈</i>Reports</a>
+        <a href="/activity-report"><i>🕘</i>Activity Report</a>
+        <a href="/config"><i>🛠️</i>Configuration</a>
+        <a href="/shop-details"><i>💈</i>Shop Details</a>
+        <a href="/rate-list"><i>🏷️</i>Rate List</a>
+        <a href="/bulk-entry"><i>📥</i>Bulk Entry</a>
+      </div>
+    </div>
+
+    <!-- Operational Daily & Trends Section -->
+    <div class="panel-box">
+      <div class="op-head">
+        <div>
+          <h2>📈 Operational Insights</h2>
+          <p id="periodLabel">Daily collections, staff activity and business trends</p>
+        </div>
+        <div class="op-toolbar">
+          <input type="date" id="reportDate" aria-label="Report date">
+          <button class="btn g" id="todayButton" type="button" style="padding:8px 14px;font-size:12px;">Today</button>
+          <button class="btn" id="refreshButton" type="button" style="padding:8px 14px;font-size:12px;">Refresh</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <nav class="tabs" aria-label="Report period">
+          <button class="btn active" data-view="today" type="button">Today</button>
+          <button class="btn" data-view="weekly" type="button">Weekly</button>
+          <button class="btn" data-view="monthly" type="button">Monthly</button>
+          <button class="btn" data-view="time" type="button">Time Wise</button>
+          <button class="btn" data-view="trends" type="button">Trends</button>
+        </nav>
+      </div>
+
+      <div class="status" id="status" role="status"></div>
+
+      <section class="stat-grid" aria-label="Collection summary">
+        <article class="stat"><span>Staff Collection</span><strong id="staffTotal">₹0</strong><small id="staffCount">0 entries</small></article>
+        <article class="stat"><span>Cost Cutting</span><strong id="costTotal">₹0</strong><small>Recorded deductions</small></article>
+        <article class="stat"><span>Cash Collection</span><strong id="cashTotal">₹0</strong><small id="cashCost">₹0 cost cutting</small></article>
+        <article class="stat"><span>Online Collection</span><strong id="onlineTotal">₹0</strong><small id="onlineCost">₹0 cost cutting</small></article>
+        <article class="stat total"><span>Total Service Value</span><strong id="grossTotal">₹0</strong><small>Collection + cutting</small></article>
+      </section>
+
+      <!-- Today View -->
+      <section class="view active" id="view-today">
+        <div class="grid2">
+          <article class="panel-box" style="margin:0;padding:14px;">
+            <h3>Staff Matrix · <span id="matrixCaption" style="font-size:12px;color:var(--muted);font-weight:normal;"></span></h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Staff</th><th class="num">Collection</th><th class="num">Cost</th><th class="num">Total</th><th class="num">Entries</th></tr></thead>
+                <tbody id="staffRows"></tbody>
+              </table>
+            </div>
+          </article>
+          <article class="panel-box" style="margin:0;padding:14px;">
+            <h3>Payment Mode</h3>
+            <div class="bar-list" id="paymentBars"></div>
+          </article>
+        </div>
+        <article class="panel-box" style="margin-top:14px;padding:14px;">
+          <h3>Entries · <span id="entriesCaption" style="font-size:12px;color:var(--muted);font-weight:normal;"></span></h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Time</th><th>Staff</th><th>Service</th><th>Payment</th><th class="num">Collection</th><th class="num">Cost</th></tr></thead>
+              <tbody id="entryRows"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- Weekly View -->
+      <section class="view" id="view-weekly">
+        <article class="panel-box" style="margin:0;padding:14px;">
+          <h3>Weekly Summary · <span id="weekCaption" style="font-size:12px;color:var(--muted);font-weight:normal;"></span></h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Day</th><th class="num">Entries</th><th class="num">Collection</th><th class="num">Cost Cutting</th><th class="num">Total Service Value</th></tr></thead>
+              <tbody id="weekRows"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="panel-box" style="margin-top:14px;padding:14px;">
+          <h3>Staff-wise Weekly Collection</h3>
+          <div class="bar-list" id="weekStaffBars"></div>
+        </article>
+      </section>
+
+      <!-- Monthly View -->
+      <section class="view" id="view-monthly">
+        <article class="panel-box" style="margin:0;padding:14px;">
+          <h3>Month-wise Summary</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Month</th><th class="num">Entries</th><th class="num">Collection</th><th class="num">Cost Cutting</th><th class="num">Total</th></tr></thead>
+              <tbody id="monthRows"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="panel-box" style="margin-top:14px;padding:14px;">
+          <h3>Staff-wise Monthly Collection</h3>
+          <div class="bar-list" id="monthStaffBars"></div>
+        </article>
+      </section>
+
+      <!-- Time View -->
+      <section class="view" id="view-time">
+        <article class="panel-box" style="margin:0;padding:14px;">
+          <h3>Time-wise Collection</h3>
+          <div class="bar-list" id="timeBars"></div>
+        </article>
+      </section>
+
+      <!-- Trends View -->
+      <section class="view" id="view-trends">
+        <article class="panel-box" style="margin:0;padding:14px;">
+          <h3>Collection Trend (Last 12 Months)</h3>
+          <div class="bar-list" id="trendBars"></div>
+        </article>
+        <div class="grid2" style="margin-top:14px;">
+          <article class="panel-box" style="margin:0;padding:14px;">
+            <h3>Staff-wise Trend</h3>
+            <div class="bar-list" id="trendStaffBars"></div>
+          </article>
+          <article class="panel-box" style="margin:0;padding:14px;">
+            <h3>Payment Mode Trend</h3>
+            <div class="bar-list" id="trendPaymentBars"></div>
+          </article>
+        </div>
+      </section>
+    </div>
   </main>
+
   <script src="/auth-guard.js"></script>
   <script src="/admin-nav.js"></script>
+  <script>
+  (()=>{
+    const dt = document.getElementById("dt");
+    if (dt) dt.textContent = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    (async () => {
+      try {
+        const session = window.salonReady ? await window.salonReady : null;
+        if (session && session.employee && session.employee.employeeName) {
+          const welcome = document.getElementById("welcomeGreeting");
+          if (welcome) welcome.textContent = `Welcome Back, ${session.employee.employeeName} 👋`;
+        }
+      } catch (e) {}
+    })();
+
+    const $ = id => document.getElementById(id);
+    const money = n => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    const pad = n => String(n).padStart(2, '0');
+    const dateInput = $('reportDate'), status = $('status');
+    let activeView = 'today', allRows = [];
+    const isoDate = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const fromIso = s => new Date(`${s}T00:00:00`);
+    const monthKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+    const titleMonth = k => { const [y, m] = k.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }); };
+    const rowDay = r => String(r.date || '').slice(0, 10);
+    const rowAmount = r => Number(r.amount || 0);
+    const rowCost = r => Number(r.costCutting || 0);
+    const within = (r, a, b) => rowDay(r) >= a && rowDay(r) <= b;
+
+    function rangeFor(view, date) {
+      const d = fromIso(date);
+      if (view === 'today') return [date, date];
+      if (view === 'weekly') {
+        const wd = (d.getDay() + 6) % 7;
+        const start = new Date(d);
+        start.setDate(d.getDate() - wd);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        return [isoDate(start), isoDate(end)];
+      }
+      return [`${d.getFullYear()}-${pad(d.getMonth() + 1)}-01`, date];
+    }
+
+    function makeBars(el, items) {
+      el.replaceChildren();
+      const max = Math.max(1, ...items.map(x => x.value));
+      if (!items.length) { el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--muted)">No data for this period.</div>'; return; }
+      for (const x of items) {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        const label = document.createElement('span');
+        label.className = 'bar-label';
+        label.textContent = x.label;
+        const track = document.createElement('div');
+        track.className = 'bar-track';
+        const fill = document.createElement('div');
+        fill.className = 'bar-fill';
+        fill.style.width = `${Math.max(x.value ? 2 : 0, x.value / max * 100)}%`;
+        track.append(fill);
+        const value = document.createElement('strong');
+        value.className = 'bar-value';
+        value.textContent = money(x.value);
+        row.append(label, track, value);
+        el.append(row);
+      }
+    }
+
+    function dataFor(view) {
+      const [a, b] = rangeFor(view, dateInput.value);
+      return allRows.filter(r => within(r, a, b));
+    }
+
+    function renderStats(rows) {
+      const collections = rows.filter(r => r.type === 'Collection');
+      const sum = xs => xs.reduce((n, r) => n + rowAmount(r), 0);
+      const cost = collections.reduce((n, r) => n + rowCost(r), 0);
+      const cash = collections.filter(r => r.paymentMode === 'Cash');
+      const online = collections.filter(r => r.paymentMode === 'Online');
+      $('staffTotal').textContent = money(sum(collections));
+      $('staffCount').textContent = `${collections.length} ${collections.length === 1 ? 'entry' : 'entries'}`;
+      $('costTotal').textContent = money(cost);
+      $('cashTotal').textContent = money(sum(cash));
+      $('cashCost').textContent = `${money(cash.reduce((n, r) => n + rowCost(r), 0))} cost cutting`;
+      $('onlineTotal').textContent = money(sum(online));
+      $('onlineCost').textContent = `${money(online.reduce((n, r) => n + rowCost(r), 0))} cost cutting`;
+      $('grossTotal').textContent = money(sum(collections) + cost);
+    }
+
+    function renderToday() {
+      const rows = dataFor('today').filter(r => r.type === 'Collection');
+      renderStats(rows);
+      $('matrixCaption').textContent = dateInput.value;
+      $('entriesCaption').textContent = `${rows.length} collection ${rows.length === 1 ? 'entry' : 'entries'} · ${dateInput.value}`;
+      const staff = new Map();
+      for (const r of rows) {
+        const name = r.employeeName || 'Unassigned';
+        const item = staff.get(name) || { amount: 0, cost: 0, count: 0 };
+        item.amount += rowAmount(r);
+        item.cost += rowCost(r);
+        item.count++;
+        staff.set(name, item);
+      }
+      const sr = [...staff].sort((a, b) => b[1].amount - a[1].amount);
+      $('staffRows').innerHTML = sr.length ? sr.map(([name, x]) => `<tr><td>${escapeHtml(name)}</td><td class="num">${money(x.amount)}</td><td class="num">${money(x.cost)}</td><td class="num">${money(x.amount + x.cost)}</td><td class="num">${x.count}</td></tr>`).join('') : '<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--muted)">No collection entries.</td></tr>';
+      const modes = ['Cash', 'Online'].map(m => ({ label: m, value: rows.filter(r => r.paymentMode === m).reduce((n, r) => n + rowAmount(r), 0) }));
+      makeBars($('paymentBars'), modes);
+      const er = [...rows].sort((a, b) => String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date)));
+      $('entryRows').innerHTML = er.length ? er.map(r => `<tr><td>${escapeHtml(r.entryNo || '—')}</td><td>${r.createdAt ? new Date(r.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—'}</td><td>${escapeHtml(r.employeeName || '—')}</td><td>${escapeHtml(r.detail || '—')}</td><td>${escapeHtml(r.paymentMode || '—')}</td><td class="num">${money(r.amount)}</td><td class="num">${money(r.costCutting)}</td></tr>`).join('') : '<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--muted)">No collection entries.</td></tr>';
+    }
+
+    function renderWeekly() {
+      const rows = dataFor('weekly').filter(r => r.type === 'Collection');
+      const [a, b] = rangeFor('weekly', dateInput.value);
+      $('weekCaption').textContent = `${a} — ${b}`;
+      const days = [];
+      for (let d = fromIso(a); isoDate(d) <= b; d.setDate(d.getDate() + 1)) {
+        const key = isoDate(d), list = rows.filter(r => rowDay(r) === key), amount = list.reduce((n, r) => n + rowAmount(r), 0), cost = list.reduce((n, r) => n + rowCost(r), 0);
+        days.push({ key, label: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }), count: list.length, amount, cost });
+      }
+      $('weekRows').innerHTML = days.map(x => `<tr><td>${x.label}</td><td class="num">${x.count}</td><td class="num">${money(x.amount)}</td><td class="num">${money(x.cost)}</td><td class="num">${money(x.amount + x.cost)}</td></tr>`).join('');
+      const by = new Map();
+      rows.forEach(r => by.set(r.employeeName || 'Unassigned', (by.get(r.employeeName || 'Unassigned') || 0) + rowAmount(r)));
+      makeBars($('weekStaffBars'), [...by].sort((x, y) => y[1] - x[1]).slice(0, 10).map(([label, value]) => ({ label, value })));
+    }
+
+    function renderMonthly() {
+      const d = fromIso(dateInput.value), start = new Date(d.getFullYear(), d.getMonth() - 11, 1), end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      const rows = allRows.filter(r => r.type === 'Collection' && rowDay(r) >= isoDate(start) && rowDay(r) <= isoDate(end));
+      const months = [];
+      for (let x = new Date(start); x <= end; x.setMonth(x.getMonth() + 1)) {
+        const k = monthKey(x), rs = rows.filter(r => rowDay(r).slice(0, 7) === k), amount = rs.reduce((n, r) => n + rowAmount(r), 0), cost = rs.reduce((n, r) => n + rowCost(r), 0);
+        months.push({ k, amount, cost, count: rs.length });
+      }
+      $('monthRows').innerHTML = months.slice().reverse().map(x => `<tr><td>${titleMonth(x.k)}</td><td class="num">${x.count}</td><td class="num">${money(x.amount)}</td><td class="num">${money(x.cost)}</td><td class="num">${money(x.amount + x.cost)}</td></tr>`).join('');
+      const selected = rows.filter(r => rowDay(r).slice(0, 7) === monthKey(d)), by = new Map();
+      selected.forEach(r => by.set(r.employeeName || 'Unassigned', (by.get(r.employeeName || 'Unassigned') || 0) + rowAmount(r)));
+      makeBars($('monthStaffBars'), [...by].sort((x, y) => y[1] - x[1]).slice(0, 10).map(([label, value]) => ({ label, value })));
+      makeBars($('trendBars'), months.map(x => ({ label: titleMonth(x.k), value: x.amount })));
+      const pm = ['Cash', 'Online'].map(m => ({ label: m, value: selected.filter(r => r.paymentMode === m).reduce((n, r) => n + rowAmount(r), 0) }));
+      makeBars($('trendPaymentBars'), pm);
+      makeBars($('trendStaffBars'), [...by].sort((x, y) => y[1] - x[1]).slice(0, 8).map(([label, value]) => ({ label, value })));
+    }
+
+    function renderTime() {
+      const rows = dataFor('today').filter(r => r.type === 'Collection'), slots = Array.from({ length: 12 }, (_, i) => ({ label: `${pad(i * 2)}:00–${pad(i * 2 + 2)}:00`, value: 0 }));
+      for (const r of rows) {
+        if (!r.createdAt) continue;
+        const h = new Date(r.createdAt).getHours();
+        slots[Math.min(11, Math.floor(h / 2))].value += rowAmount(r);
+      }
+      makeBars($('timeBars'), slots);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function render() {
+      const d = fromIso(dateInput.value);
+      $('periodLabel').textContent = `${d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · salon collections and performance`;
+      $('view-today').classList.toggle('active', activeView === 'today');
+      $('view-weekly').classList.toggle('active', activeView === 'weekly');
+      $('view-monthly').classList.toggle('active', activeView === 'monthly');
+      $('view-time').classList.toggle('active', activeView === 'time');
+      $('view-trends').classList.toggle('active', activeView === 'trends');
+      renderToday();
+      renderWeekly();
+      renderMonthly();
+      renderTime();
+    }
+
+    async function load() {
+      status.className = 'status';
+      try {
+        const d = fromIso(dateInput.value), start = new Date(d.getFullYear(), d.getMonth() - 11, 1), end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+        const q = new URLSearchParams({ from: isoDate(start), to: isoDate(end) });
+        const data = await salonAuth.request('/api/reports?' + q);
+        allRows = data.rows || [];
+        render();
+      } catch (e) {
+        status.textContent = e.message || 'Dashboard data load nahi hua.';
+        status.className = 'status show';
+      }
+    }
+
+    document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => {
+      activeView = b.dataset.view;
+      document.querySelectorAll('[data-view]').forEach(x => x.classList.toggle('active', x === b));
+      render();
+    }));
+    $('todayButton').addEventListener('click', () => { dateInput.value = isoDate(new Date()); load(); });
+    $('refreshButton').addEventListener('click', load);
+    dateInput.addEventListener('change', load);
+    dateInput.value = isoDate(new Date());
+    load();
+  })();
+  </script>
 </body>
 </html>

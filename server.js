@@ -8,7 +8,33 @@ const path = require('path');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { AsyncLocalStorage } = require('async_hooks');
 require('dotenv').config();
+
+const tenantStorage = new AsyncLocalStorage();
+
+function createTenantModelProxy(name, schema) {
+    return new Proxy(function(data, ...rest) {
+        const store = tenantStorage.getStore();
+        const db = store?.db || mongoose.connection;
+        const M = db.models[name] || db.model(name, schema);
+        return new M(data, ...rest);
+    }, {
+        get(target, prop) {
+            const store = tenantStorage.getStore();
+            const db = store?.db || mongoose.connection;
+            const M = db.models[name] || db.model(name, schema);
+            const val = M[prop];
+            return typeof val === 'function' ? val.bind(M) : val;
+        },
+        construct(target, args) {
+            const store = tenantStorage.getStore();
+            const db = store?.db || mongoose.connection;
+            const M = db.models[name] || db.model(name, schema);
+            return new M(...args);
+        }
+    });
+}
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -137,17 +163,22 @@ if (!process.env.MASTER_MONGO_URI) {
 const shopSchema = new mongoose.Schema({
     shopName: String,
     shopCode: { type: String, unique: true },
-    email: { type: String, unique: true },
-    dbUri: String
-});
+    dbName: String,
+    email: String,
+    mobileNumber: String,
+    ownerName: String,
+    status: { type: String, default: 'Active' },
+    plan: { type: String, default: 'Standard' },
+    expiryDate: Date,
+    createdAt: { type: Date, default: Date.now }
+}, { strict: false });
 const Shop = mongoose.models.Shop || mongoose.model('Shop', shopSchema);
 
 const shopDetailsSchema = new mongoose.Schema({
     key: { type: String, required: true, unique: true },
     settings: { type: mongoose.Schema.Types.Mixed, required: true }
 }, { timestamps: true });
-const ShopDetails = mongoose.models.ShopDetails ||
-    mongoose.model('ShopDetails', shopDetailsSchema);
+const ShopDetails = createTenantModelProxy('ShopDetails', shopDetailsSchema);
 
 const defaultShopDetails = {
     'Brand Name': 'YOURS SALON',
@@ -195,15 +226,13 @@ const expenseTypeSchema = new mongoose.Schema({
     advanceCategory: { type: String, enum: ['Advance', 'Salary', 'None', ''], default: 'Advance' },
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }
 }, { timestamps: true });
-const ExpenseType = mongoose.models.ExpenseType ||
-    mongoose.model('ExpenseType', expenseTypeSchema);
+const ExpenseType = createTenantModelProxy('ExpenseType', expenseTypeSchema);
 
 const employeeFieldSchema = new mongoose.Schema({
     key: { type: String, required: true, unique: true },
     label: { type: String, required: true, unique: true, trim: true, maxlength: 50 }
 }, { timestamps: true });
-const EmployeeField = mongoose.models.EmployeeField ||
-    mongoose.model('EmployeeField', employeeFieldSchema);
+const EmployeeField = createTenantModelProxy('EmployeeField', employeeFieldSchema);
 
 const employeeSchema = new mongoose.Schema({
     sr: { type: Number, min: 0 },
@@ -256,8 +285,7 @@ employeeSchema.index(
     { emailAddress: 1 },
     { unique: true, partialFilterExpression: { emailAddress: { $gt: '' } } }
 );
-const Employee = mongoose.models.Employee ||
-    mongoose.model('Employee', employeeSchema);
+const Employee = createTenantModelProxy('Employee', employeeSchema);
 
 const collectionSchema = new mongoose.Schema({
     entryNo: { type: Number, required: true },
@@ -289,8 +317,7 @@ const collectionSchema = new mongoose.Schema({
 });
 collectionSchema.index({ entryDate: 1, entryNo: 1 }, { unique: true });
 collectionSchema.index({ entryDate: 1, staffId: 1, status: 1, amount: 1 });
-const CollectionEntry = mongoose.models.Collection ||
-    mongoose.model('Collection', collectionSchema);
+const CollectionEntry = createTenantModelProxy('Collection', collectionSchema);
 
 const employeeRecordSchema = new mongoose.Schema({
     recordType: { type: String, enum: ['expense', 'salary', 'counter'], required: true },
@@ -311,8 +338,7 @@ const employeeRecordSchema = new mongoose.Schema({
     inactiveBy: { type: String, trim: true, default: '' }
 }, { timestamps: true });
 employeeRecordSchema.index({ employeeId: 1, entryDate: -1, recordType: 1 });
-const EmployeeRecord = mongoose.models.EmployeeRecord ||
-    mongoose.model('EmployeeRecord', employeeRecordSchema);
+const EmployeeRecord = createTenantModelProxy('EmployeeRecord', employeeRecordSchema);
 
 const adminCredentialSchema = new mongoose.Schema({
     key: { type: String, unique: true, required: true },
@@ -320,8 +346,7 @@ const adminCredentialSchema = new mongoose.Schema({
     passwordHash: { type: String, required: true, select: false },
     authVersion: { type: Number, default: 0 }
 }, { timestamps: true });
-const AdminCredential = mongoose.models.AdminCredential ||
-    mongoose.model('AdminCredential', adminCredentialSchema);
+const AdminCredential = createTenantModelProxy('AdminCredential', adminCredentialSchema);
 
 const permissionSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
@@ -354,8 +379,7 @@ const appConfigSchema = new mongoose.Schema({
     permissions: { type: [permissionSchema], default: [] },
     accessRules: { type: [accessRuleSchema], default: [] }
 });
-const AppConfig = mongoose.models.AppConfig ||
-    mongoose.model('AppConfig', appConfigSchema);
+const AppConfig = createTenantModelProxy('AppConfig', appConfigSchema);
 
 const importRuleSchema = new mongoose.Schema({
     dataset: { type: String, required: true, unique: true, trim: true },
@@ -367,8 +391,7 @@ const importRuleSchema = new mongoose.Schema({
     valueRules: { type: mongoose.Schema.Types.Mixed, default: {} },
     maxRows: { type: Number, default: 1000, min: 1, max: 1000 }
 }, { timestamps: true });
-const ImportRule = mongoose.models.ImportRule ||
-    mongoose.model('ImportRule', importRuleSchema);
+const ImportRule = createTenantModelProxy('ImportRule', importRuleSchema);
 
 const importDatasetDefinitions = [
     {
@@ -464,8 +487,7 @@ const employeeDateAccessSchema = new mongoose.Schema({
 employeeDateAccessSchema.index({ employeeId: 1, date: 1 }, { unique: true });
 employeeDateAccessSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 employeeDateAccessSchema.index({ date: -1, employeeId: 1 });
-const EmployeeDateAccess = mongoose.models.EmployeeDateAccess ||
-    mongoose.model('EmployeeDateAccess', employeeDateAccessSchema);
+const EmployeeDateAccess = createTenantModelProxy('EmployeeDateAccess', employeeDateAccessSchema);
 
 const rateListSchema = new mongoose.Schema({
     sr: { type: Number, default: 0, min: 0 },
@@ -477,7 +499,7 @@ const rateListSchema = new mongoose.Schema({
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
     createdBy: { type: String, trim: true, default: '', maxlength: 150 }
 }, { timestamps: true });
-const RateList = mongoose.models.RateList || mongoose.model('RateList', rateListSchema);
+const RateList = createTenantModelProxy('RateList', rateListSchema);
 
 function rateListSort(left, right) {
     const leftSr = Number.isFinite(Number(left?.sr)) ? Number(left.sr) : Number.MAX_SAFE_INTEGER;
@@ -574,7 +596,7 @@ const auditLogSchema = new mongoose.Schema({
 }, { timestamps: true });
 auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
 auditLogSchema.index({ createdAt: -1, action: 1, actorId: 1 });
-const AuditLog = mongoose.models.AuditLog || mongoose.model('AuditLog', auditLogSchema);
+const AuditLog = createTenantModelProxy('AuditLog', auditLogSchema);
 
 class EmployeeInputError extends Error {}
 
@@ -833,6 +855,80 @@ function setSessionCookie(res, token) {
 function clearSessionCookie(res) {
     res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`);
 }
+
+const tenantDbCache = new Map();
+
+function getTenantDb(dbName = 'shop_master_db') {
+    if (!tenantDbCache.has(dbName)) {
+        const db = mongoose.connection.useDb(dbName, { useCache: true });
+        tenantDbCache.set(dbName, db);
+    }
+    return tenantDbCache.get(dbName);
+}
+
+async function resolveTenant(req) {
+    // 1. From session token
+    const credential = requestCredential(req);
+    if (credential) {
+        try {
+            const decoded = jwt.verify(credential, sessionSecret);
+            if (decoded && decoded.dbName) {
+                const sCode = decoded.shopCode || 'yourssalon';
+                let sName = sCode;
+                try {
+                    const shop = await Shop.findOne({ shopCode: sCode }).lean();
+                    if (shop?.shopName) sName = shop.shopName;
+                } catch {}
+                return {
+                    shopCode: sCode,
+                    shopName: sName,
+                    dbName: decoded.dbName,
+                    db: getTenantDb(decoded.dbName)
+                };
+            }
+        } catch {}
+    }
+
+    // 2. From header, query, body, or cookies
+    const rawCode = (
+        req.headers['x-salon-code'] ||
+        req.query?.salonCode ||
+        req.body?.salonCode ||
+        parseCookies(req)['salon_code'] ||
+        ''
+    );
+    const code = String(rawCode).trim().toLowerCase();
+    if (code) {
+        try {
+            const shop = await Shop.findOne({ shopCode: code }).lean();
+            if (shop && shop.dbName) {
+                return {
+                    shopCode: shop.shopCode,
+                    dbName: shop.dbName,
+                    db: getTenantDb(shop.dbName)
+                };
+            }
+        } catch {}
+    }
+
+    // Default: yourssalon on shop_master_db
+    return {
+        shopCode: 'yourssalon',
+        dbName: 'shop_master_db',
+        db: getTenantDb('shop_master_db')
+    };
+}
+
+app.use(async (req, res, next) => {
+    try {
+        const tenant = await resolveTenant(req);
+        req.tenant = tenant;
+        tenantStorage.run(tenant, next);
+    } catch (err) {
+        next(err);
+    }
+});
+
 
 function auditValue(value, depth = 0) {
     if (value === null || value === undefined) return value ?? null;
@@ -1468,6 +1564,32 @@ app.use((req, res, next) => {
     return next();
 });
 
+app.get('/api/tenant/verify/:code', async (req, res) => {
+    try {
+        const code = String(req.params.code || '').trim().toLowerCase();
+        const shop = await Shop.findOne({ shopCode: code, status: 'Active' }).lean();
+        if (!shop) {
+            return res.status(404).json({ error: `Salon Code '${code}' not found.` });
+        }
+        const tenantDb = getTenantDb(shop.dbName);
+        const tenantShopDetails = tenantDb.models.ShopDetails || tenantDb.model('ShopDetails', shopDetailsSchema);
+        const detailsDoc = await tenantShopDetails.findOne({ key: 'primary' }).lean();
+        const settings = detailsDoc?.settings || defaultShopDetails;
+        return res.json({
+            ok: true,
+            shopCode: shop.shopCode,
+            shopName: shop.shopName || settings['Brand Name'] || 'Salon Portal',
+            branding: {
+                name: settings['Brand Name'] || shop.shopName,
+                description: settings['Brand Description'] || '',
+                logoUrl: settings['Logo URL'] || ''
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 app.use(express.static(PUBLIC_DIR, { index: false }));
 
 app.get('/', (req, res) => {
@@ -1787,8 +1909,17 @@ app.post('/api/login', async (req, res) => {
         if (mongoose.connection.readyState !== 1) {
             return res.status(503).json({ error: 'Database connection is unavailable. Check the Atlas network access list and try again.' });
         }
-        const userId = String(req.body.userId ?? '').trim().toLowerCase();
-        const password = String(req.body.password ?? '');
+        const salonCode = String(req.body.salonCode ?? req.headers['x-salon-code'] ?? req.tenant?.shopCode ?? 'yourssalon').trim().toLowerCase();
+        const shop = await Shop.findOne({ shopCode: salonCode }).lean();
+        if (!shop) {
+            return res.status(404).json({ error: `Salon Code '${salonCode}' not found.` });
+        }
+        const tenantDb = getTenantDb(shop.dbName);
+        const tenantContext = { shopCode: shop.shopCode, dbName: shop.dbName, db: tenantDb };
+
+        return tenantStorage.run(tenantContext, async () => {
+            const userId = String(req.body.userId ?? '').trim().toLowerCase();
+            const password = String(req.body.password ?? '');
         if (!userId || !password || userId.length > 100 || password.length > 200) {
             return res.status(400).json({ error: 'Enter your User ID and password.' });
         }
@@ -1834,6 +1965,8 @@ app.post('/api/login', async (req, res) => {
             loginAttempts.delete(attemptKey);
             const token = jwt.sign({
                 kind: 'salon-session',
+                shopCode: shop.shopCode,
+                dbName: shop.dbName,
                 role: 'Admin',
                 userId,
                 authVersion: storedAdminAccount.authVersion,
@@ -1857,6 +1990,8 @@ app.post('/api/login', async (req, res) => {
             loginAttempts.delete(attemptKey);
             const token = jwt.sign({
                 kind: 'salon-session',
+                shopCode: shop.shopCode,
+                dbName: shop.dbName,
                 role: 'Admin',
                 userId,
                 sub: 'bootstrap-admin'
@@ -1902,6 +2037,8 @@ app.post('/api/login', async (req, res) => {
         const role = isAdmin(employee) ? 'Admin' : 'Employee';
         const token = jwt.sign({
             kind: 'salon-session',
+            shopCode: shop.shopCode,
+            dbName: shop.dbName,
             role,
             userId: employee.userId,
             sub: String(employee._id)
@@ -1914,6 +2051,7 @@ app.post('/api/login', async (req, res) => {
             newValue: { userId: employee.userId, role }
         }, employee);
         return res.json({ token, employee: employeePublicDetails(employee) });
+        });
     } catch (error) {
         console.error('User ID login error:', error);
         return res.status(500).json({ error: 'Could not sign in. Please try again.' });
@@ -2163,6 +2301,10 @@ app.get('/api/session', requireSecureAuth, verifyEmployee, async (req, res) => {
             : getEmployeeExpenseTypes(req.employee, activeTypes)
                 .filter(item => activeTypeSerials.has(Number(item.sr)));
         return res.json({
+            shop: {
+                shopCode: req.tenant?.shopCode || 'samplesalon',
+                shopName: req.tenant?.shopName || 'Sample Salon'
+            },
             employee: employeePublicDetails(req.employee),
             permissions,
             expenseTypes,
@@ -2480,8 +2622,11 @@ async function loadReportData(range, employeeId = '') {
             type: 'Collection',
             employeeName: entry.staff,
             detail: entry.serviceType,
+            entryNo: entry.entryNo,
             amount: entry.amount,
+            costCutting: Number(entry.costCutting || 0),
             paymentMode: entry.paymentMode,
+            createdAt: entry.createdAt,
             createdBy: entry.createdBy || ''
         })),
         ...records.map(record => ({
@@ -4552,6 +4697,199 @@ app.patch('/api/employees/:id/deactivate', requireSecureAuth, verifyEmployee, re
         return res.status(500).json({ error: 'Could not deactivate employee.' });
     }
 });
+
+
+// ==================== SUPER ADMIN: MANAGE SHOPS & 1-CLICK PROVISIONING ====================
+
+app.get('/manage-shops', (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'manage-shops.html'));
+});
+
+app.get('/api/super-admin/shops', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        if (!isAdmin(req.employee)) {
+            return res.status(403).json({ error: 'Admin access is required.' });
+        }
+        const shops = await Shop.find({}).sort({ createdAt: -1 }).lean();
+        
+        const enriched = await Promise.all(shops.map(async (shop) => {
+            const dbName = shop.dbName || ('shop_' + shop.shopCode + '_db');
+            let stats = { employees: 0, collections: 0 };
+            try {
+                const tenantDb = getTenantDb(dbName);
+                stats.employees = await tenantDb.collection('employees').countDocuments();
+                stats.collections = await tenantDb.collection('collections').countDocuments();
+            } catch {}
+            return {
+                ...shop,
+                dbName,
+                stats
+            };
+        }));
+        
+        return res.json({ shops: enriched });
+    } catch (error) {
+        console.error('List shops error:', error);
+        return res.status(500).json({ error: 'Could not load shops list.' });
+    }
+});
+
+app.post('/api/super-admin/shops', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        if (!isAdmin(req.employee)) {
+            return res.status(403).json({ error: 'Admin access is required.' });
+        }
+
+        const shopName = String(req.body.shopName || '').trim();
+        const rawCode = String(req.body.shopCode || '').trim().toLowerCase();
+        const ownerName = String(req.body.ownerName || '').trim();
+        const mobile = String(req.body.mobile || '').trim();
+        const email = String(req.body.email || '').trim().toLowerCase();
+        const adminUserId = String(req.body.adminUserId || 'admin').trim().toLowerCase();
+        const password = String(req.body.password || '1234').trim();
+        const plan = String(req.body.plan || 'Standard').trim();
+        const expiryDays = Number(req.body.expiryDays || 365);
+
+        if (!shopName || shopName.length < 2) {
+            return res.status(400).json({ error: 'Shop Name is required (minimum 2 characters).' });
+        }
+
+        const shopCode = rawCode.replace(/[^a-z0-9_-]/g, '');
+        if (!shopCode || shopCode.length < 2) {
+            return res.status(400).json({ error: 'Valid Salon Code is required (e.g. glamour, royalcut).' });
+        }
+
+        const existing = await Shop.findOne({ shopCode }).lean();
+        if (existing) {
+            return res.status(400).json({ error: `Salon Code '${shopCode}' is already registered. Choose another code.` });
+        }
+
+        const dbName = `shop_${shopCode}_db`;
+        const expiryDate = new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000);
+
+        // 1. Register Shop in Master Database
+        const newShop = await Shop.create({
+            shopName,
+            shopCode,
+            dbName,
+            ownerName: ownerName || shopName,
+            mobileNumber: mobile,
+            email: email || `${shopCode}@salon.com`,
+            status: 'Active',
+            plan,
+            expiryDate,
+            createdAt: new Date()
+        });
+
+        // 2. Connect to Tenant DB
+        const tenantDb = getTenantDb(dbName);
+
+        // 3. Seed Admin Credentials
+        const passwordHash = await bcrypt.hash(password, 10);
+        await tenantDb.collection('admincredentials').updateOne(
+            { key: 'primary' },
+            {
+                $set: {
+                    key: 'primary',
+                    userId: adminUserId || 'admin',
+                    passwordHash,
+                    authVersion: 1,
+                    updatedAt: new Date()
+                },
+                $setOnInsert: { createdAt: new Date() }
+            },
+            { upsert: true }
+        );
+
+        // 4. Seed Shop Details & Branding
+        await tenantDb.collection('shopdetails').updateOne(
+            { key: 'primary' },
+            {
+                $set: {
+                    key: 'primary',
+                    settings: {
+                        'Brand Name': shopName,
+                        'Brand Description': 'Salon Management System',
+                        'Tagline': 'Look Good, Feel Confident',
+                        'Phone Number': mobile || '',
+                        'Logo URL': 'https://jkdrycleaner.github.io/Salon_Dashboard/Logo.jpeg',
+                        'Favicon URL': 'https://jkdrycleaner.github.io/Salon_Dashboard/Logo.jpeg',
+                        'Header Color': '#1fb87a',
+                        'Accent Color': '#5fd38d',
+                        'Show Password Login': 'Yes',
+                        'Show Google Login': 'No'
+                    },
+                    updatedAt: new Date()
+                },
+                $setOnInsert: { createdAt: new Date() }
+            },
+            { upsert: true }
+        );
+
+        // 5. Seed Starter Rate List
+        const starterRates = [
+            { sr: 1, serviceType: 'Hair Cut (Men)', shortName: 'Haircut', serviceCategory: 'Hair', rate: 150, status: 'Active' },
+            { sr: 2, serviceType: 'Hair Cut & Wash (Men)', shortName: 'Hair+Wash', serviceCategory: 'Hair', rate: 250, status: 'Active' },
+            { sr: 3, serviceType: 'Hair Cut (Women)', shortName: 'Haircut-W', serviceCategory: 'Hair', rate: 400, status: 'Active' },
+            { sr: 4, serviceType: 'Beard Trim & Styling', shortName: 'Beard', serviceCategory: 'Beard', rate: 100, status: 'Active' },
+            { sr: 5, serviceType: 'Shave & Face Massage', shortName: 'Shave', serviceCategory: 'Face', rate: 120, status: 'Active' },
+            { sr: 6, serviceType: 'Facial (Gold)', shortName: 'Gold Facial', serviceCategory: 'Facial', rate: 800, status: 'Active' },
+            { sr: 7, serviceType: 'Hair Spa', shortName: 'Spa', serviceCategory: 'Treatment', rate: 600, status: 'Active' },
+            { sr: 8, serviceType: 'Head Massage', shortName: 'Massage', serviceCategory: 'Massage', rate: 150, status: 'Active' },
+            { sr: 9, serviceType: 'Hair Color / Dye', shortName: 'Color', serviceCategory: 'Color', rate: 1000, status: 'Active' },
+            { sr: 10, serviceType: 'D-Tan Pack', shortName: 'D-Tan', serviceCategory: 'Face', rate: 350, status: 'Active' }
+        ];
+        await tenantDb.collection('ratelists').deleteMany({});
+        await tenantDb.collection('ratelists').insertMany(starterRates);
+
+        // 6. Seed Starter Expense Types
+        const starterExpenses = [
+            { sr: 1, expenseName: 'Advance Amount', status: 'Active' },
+            { sr: 2, expenseName: 'Daily Expense List', status: 'Active' },
+            { sr: 3, expenseName: 'Rent', status: 'Active' },
+            { sr: 4, expenseName: 'Electric Bill', status: 'Active' },
+            { sr: 5, expenseName: 'Salon Supplies & Products', status: 'Active' },
+            { sr: 6, expenseName: 'Tea & Refreshments', status: 'Active' },
+            { sr: 7, expenseName: 'Shop Maintenance', status: 'Active' },
+            { sr: 8, expenseName: 'Water', status: 'Active' },
+            { sr: 9, expenseName: 'Other', status: 'Active' }
+        ];
+        await tenantDb.collection('expensetypes').deleteMany({});
+        await tenantDb.collection('expensetypes').insertMany(starterExpenses);
+
+        return res.status(201).json({
+            success: true,
+            message: `Shop '${shopName}' (${shopCode}) provisioned and initialized successfully!`,
+            shop: newShop
+        });
+    } catch (error) {
+        console.error('Provision shop error:', error);
+        return res.status(500).json({ error: error.message || 'Could not provision new shop.' });
+    }
+});
+
+app.patch('/api/super-admin/shops/:code/status', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        if (!isAdmin(req.employee)) {
+            return res.status(403).json({ error: 'Admin access is required.' });
+        }
+        const code = String(req.params.code || '').trim().toLowerCase();
+        const status = String(req.body.status || 'Active').trim();
+        const updated = await Shop.findOneAndUpdate(
+            { shopCode: code },
+            { $set: { status } },
+            { new: true }
+        );
+        if (!updated) {
+            return res.status(404).json({ error: `Shop '${code}' not found.` });
+        }
+        return res.json({ success: true, shop: updated });
+    } catch (error) {
+        console.error('Update shop status error:', error);
+        return res.status(500).json({ error: 'Could not update status.' });
+    }
+});
+
 
 app.post('/api/super-admin/bulk-delete', requireSecureAuth, verifyEmployee, requireSuperAdmin, async (req, res) => {
     try {
