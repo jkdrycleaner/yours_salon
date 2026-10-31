@@ -821,7 +821,7 @@ body.aw-saved-locked {
   height: 45px;
   border: 1px solid #c9a227;
   border-radius: 13px;
-  background: var(--salon-btn-bg, #c99a23);
+  background: var(--salon-btn-bg, #09AA1C);
   color: var(--salon-btn-text, #ffffff);
   font: 800 15px Arial, sans-serif;
   cursor: pointer;
@@ -1680,7 +1680,7 @@ body.mw-sheet-locked {
 #mwApply, #advApply {
   width: 100%;
   min-width: 0;
-  background: var(--salon-btn-bg, #c99a23) !important;
+  background: var(--salon-btn-bg, #09AA1C) !important;
   color: var(--salon-btn-text, #ffffff) !important;
 }
 
@@ -1836,7 +1836,7 @@ main.wrap[hidden],
 .aw-segmented-tabs a.aw-tab.active,
 #mobileAddWork .aw-segmented-tabs .aw-tab.active,
 #mobileAllWork .aw-segmented-tabs .aw-tab.active {
-  background: var(--salon-btn-bg, #c99a23) !important;
+  background: var(--salon-btn-bg, #09AA1C) !important;
   background-image: none !important;
   color: var(--salon-btn-text, #ffffff) !important;
   font-weight: 700 !important;
@@ -4068,8 +4068,8 @@ body.mobile-employee.salary-mobile #salaryMobile {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 #inpAdvRemark.sal-input:focus {
-  border-color: var(--salon-border-dark, #c99a23);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--salon-btn-bg, #c99a23) 15%, transparent);
+  border-color: var(--salon-border-dark, #09AA1C);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--salon-btn-bg, #09AA1C) 15%, transparent);
 }
 .sal-portal-tabs,
 .aw-segmented-tabs,
@@ -4088,16 +4088,16 @@ body.mobile-employee.salary-mobile #salaryMobile {
   gap: 6px !important;
   padding: 5px 12px !important;
   background: #ffffff !important;
-  border: 1.5px solid var(--salon-btn-bg, #c99a23) !important;
+  border: 1.5px solid var(--salon-btn-bg, #09AA1C) !important;
   border-radius: 9999px !important;
-  color: var(--salon-btn-bg, #c99a23) !important;
+  color: var(--salon-btn-bg, #09AA1C) !important;
   font-size: 12.5px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
   box-shadow: 0 1px 3px rgba(9, 170, 28, 0.12) !important;
 }
 .sal-month-pill svg {
-  stroke: var(--salon-btn-bg, #c99a23) !important;
+  stroke: var(--salon-btn-bg, #09AA1C) !important;
 }
 .sal-nav-arrow {
   width: 28px !important;
@@ -4429,7 +4429,7 @@ body.mobile-employee.salary-mobile #salaryMobile {
   flex-direction: column !important;
   justify-content: center !important;
   padding: 4px 12px !important;
-  border: 1.5px solid var(--salon-border-dark, #c99a23) !important;
+  border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;
   border-radius: 11px !important;
   background: #ffffff !important;
   transition: border-color .15s ease, box-shadow .15s ease !important;
@@ -4439,8 +4439,8 @@ body.mobile-employee.salary-mobile #salaryMobile {
 .aw-total-box:active,
 .aw-total-box:focus-within,
 #mobileAddWork .aw-total-box:focus-within {
-  border-color: var(--salon-border-dark, #c99a23) !important;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--salon-btn-bg, #c99a23) 20%, transparent) !important;
+  border-color: var(--salon-border-dark, #09AA1C) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--salon-btn-bg, #09AA1C) 20%, transparent) !important;
 }
 
 /* Point 1: Save Work Button Spacing */
@@ -4518,7 +4518,7 @@ button.aw-save,
 .aw-segmented-tabs a.aw-tab.active,
 #mobileAddWork .aw-segmented-tabs .aw-tab.active,
 #mobileAllWork .aw-segmented-tabs .aw-tab.active {
-  background: var(--salon-btn-bg, #c99a23) !important;
+  background: var(--salon-btn-bg, #09AA1C) !important;
   background-image: none !important;
   color: #ffffff !important;
   font-weight: 700 !important;

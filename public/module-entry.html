@@ -2,103 +2,40 @@
 <html lang="en">
 <head>
   <script src="/app-boot.js"></script>
-  <script src="/btn-theme.js?v=d7e2d11_btn1"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Entry — YOURS SALON</title>
-  <link rel="stylesheet" href="/admin-nav.css?v=d7e2d11_btn1">
-  <link rel="stylesheet" href="/mobile.css?v=d7e2d11_btn1">
-  <link rel="stylesheet" href="/my-work.css?v=d7e2d11_btn1">
+  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/my-work.css?v=20261029_v3">
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(920px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:16px}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.links{display:flex;flex-wrap:wrap;gap:8px}.links a{min-height:38px;padding:9px 12px;border-radius:9px;background:#eff2f5;color:#344054;text-decoration:none;font-size:12px;font-weight:700}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.wide{grid-column:1/-1}.field label{color:#526176;font-size:11px;font-weight:700}.field input,.field select,.field textarea{width:100%;min-height:42px;padding:9px 11px;border:1px solid #d9e0e7;border-radius:9px;background:#fff;color:#243244;font:14px Arial}.field textarea{min-height:90px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:#d1a228;box-shadow:0 0 0 3px #f8f0d7}.actions{display:flex;align-items:center;gap:10px;margin-top:18px}.actions button{min-height:42px;padding:10px 16px;border:0;border-radius:9px;background:#c99a23;color:#fff;font:700 13px Arial;cursor:pointer}.actions button:disabled{opacity:.6;cursor:wait}.status{display:none;margin-top:14px;padding:11px;border-radius:9px;font-size:13px;line-height:1.45}.status.show{display:block;background:#eaf8f1;color:#22694d}.status.error{display:block;background:#fff0ef;color:#9a352f}.empty{padding:22px;text-align:center;color:#718096;background:#fff;border:1px dashed #d4dce5;border-radius:12px}@media(max-width:600px){.wrap{padding:18px 12px 30px}.heading{flex-direction:column}.grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.panel{padding:15px}.actions button{width:100%}}
   </style>
-      <style id="p1p2InlineFix">
-    /* Total Box Matching Shop Details Button Color */
+  <style id="p1p2InlineFix">
+    /* Point 1: Total Box Dark Theme Border */
     .aw-total-box,
     #mobileAddWork .aw-total-box {
-      min-height: 44px !important;
-      height: 44px !important;
-      padding: 3px 12px !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: center !important;
-      box-sizing: border-box !important;
-      border: 1.5px solid var(--salon-border-dark, var(--salon-btn-bg, #c99a23)) !important;
-      border-radius: 12px !important;
-      background: #ffffff !important;
-      box-shadow: none !important;
+      border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;
     }
-    .aw-total-box span,
-    #mobileAddWork .aw-total-box span {
-      font-size: 9px !important;
-      line-height: 1.1 !important;
-      color: var(--salon-border-dark, var(--salon-btn-bg, #8a6d1b)) !important;
-      font-weight: 700 !important;
-      letter-spacing: .04em !important;
-      margin-bottom: 2px !important;
-      text-transform: uppercase !important;
-    }
-    .aw-total-edit,
-    #mobileAddWork .aw-total-edit {
-      display: flex !important;
-      align-items: center !important;
-      line-height: 1 !important;
-    }
-    .aw-total-edit span,
-    #mobileAddWork .aw-total-edit span {
-      font-size: 13px !important;
-      font-weight: 700 !important;
-      color: #1e293b !important;
-      padding-right: 2px !important;
-      margin-bottom: 0 !important;
-    }
-    .aw-total-edit input,
-    #mobileAddWork .aw-total-edit input {
-      font-size: 14px !important;
-      font-weight: 700 !important;
-      color: #1e293b !important;
-      width: 65px !important;
-      background: transparent !important;
-      border: 0 !important;
-      padding: 0 !important;
-      outline: none !important;
-    }
-    /* Save Work Button Matching Shop Details Button Color */
+    /* Point 1: Save Work Button Spacing & Icon */
     .aw-save,
     button.aw-save,
     #awSave {
-      flex: 1 !important;
-      height: 44px !important;
-      min-height: 44px !important;
-      border: 0 !important;
-      border-radius: 12px !important;
-      background: var(--salon-btn-bg, #c99a23) !important;
-      background-color: var(--salon-btn-bg, #c99a23) !important;
-      background-image: var(--salon-btn-bg-img, none) !important;
-      color: var(--salon-btn-text, #ffffff) !important;
-      font: 700 14px Arial, sans-serif !important;
-      letter-spacing: .02em !important;
-      cursor: pointer !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
       gap: 8px !important;
-      box-shadow: 0 4px 12px color-mix(in srgb, var(--salon-btn-bg, #c99a23) 30%, transparent) !important;
     }
     .aw-save svg,
     .aw-save .sal-btn-icon,
     #awSave svg,
     #awSave .sal-btn-icon {
-      margin-right: 6px !important;
+      margin-right: 8px !important;
       display: inline-block !important;
       vertical-align: middle !important;
       flex-shrink: 0 !important;
-      width: 18px !important;
-      height: 18px !important;
-      stroke: var(--salon-btn-text, #ffffff) !important;
-      fill: none !important;
     }
-    /* Capsule Tabs & Active Tab Matching Shop Details Button Color */
+    /* Point 2: Advance Style Capsule Tabs */
     .sal-portal-tabs,
     .aw-segmented-tabs,
     #mobileAddWork .aw-segmented-tabs,
@@ -145,14 +82,13 @@
     .aw-segmented-tabs a.aw-tab.active,
     #mobileAddWork .aw-segmented-tabs .aw-tab.active,
     #mobileAllWork .aw-segmented-tabs .aw-tab.active {
-      background: var(--salon-btn-bg, #c99a23) !important;
-      background-color: var(--salon-btn-bg, #c99a23) !important;
-      background-image: var(--salon-btn-bg-img, none) !important;
-      color: var(--salon-btn-text, #ffffff) !important;
+      background: var(--salon-btn-bg, #09AA1C) !important;
+      background-image: none !important;
+      color: #ffffff !important;
       font-weight: 700 !important;
       border-radius: 9999px !important;
       border: none !important;
-      box-shadow: 0 2px 6px color-mix(in srgb, var(--salon-btn-bg, #c99a23) 30%, transparent) !important;
+      box-shadow: 0 2px 5px rgba(9, 170, 28, 0.25) !important;
     }
     .sal-portal-tabs .aw-tab .aw-tab-icon,
     .aw-segmented-tabs .aw-tab .aw-tab-icon {
@@ -161,7 +97,7 @@
     }
     .sal-portal-tabs .aw-tab.active .aw-tab-icon,
     .aw-segmented-tabs .aw-tab.active .aw-tab-icon {
-      color: var(--salon-btn-text, #ffffff) !important;
+      color: #ffffff !important;
     }
   </style>
 </head>
@@ -240,7 +176,7 @@
       </div>
     </form>
     <div class="aw-bottom-bar">
-      <div class="aw-total-box"><span>TOTAL &middot; <b id="awItemCount">0</b> ITEMS</span><label class="aw-total-edit"><span>₹</span><input id="awTotal" type="number" min="0" step="0.01" inputmode="decimal" value="0" aria-label="Total amount"></label></div>
+      <div class="aw-total-box" style="border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;"><span>TOTAL &middot; <b id="awItemCount">0</b> ITEMS</span><label class="aw-total-edit"><span>₹</span><input id="awTotal" type="number" min="0" step="0.01" inputmode="decimal" value="0" aria-label="Total amount"></label></div>
       <button id="awSave" class="aw-save" data-salon-btn-theme type="submit" form="awForm" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important;"><svg class="sal-btn-icon" style="margin-right:8px !important; display:inline-block !important; vertical-align:middle !important; flex-shrink:0 !important;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> <span id="awSaveText" style="display:inline-block !important;">Save Work</span></button>
     </div>
   </section>
@@ -676,7 +612,6 @@
       document.addEventListener('keydown',event=>{if(event.key==='Escape')awCloseSheet()});
     }
     async function awInit(){
-      if (!isMobileViewport || (session && session.employee && session.employee.role === 'Admin')) return;
       document.querySelector('main.wrap').hidden=true;
       mobileAddWork.hidden=false;
       document.body.classList.add('aw-mobile-page');
