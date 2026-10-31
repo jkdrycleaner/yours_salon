@@ -13,7 +13,7 @@
     config: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
     profile: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>',
     settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4v-.2a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1z"/>',
-    logout: '<path d="M10 4H5v16h5M14 8l4 4-4 4M8 12h10"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16 17 21 12 16 7" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke-linecap="round" stroke-linejoin="round"/>',
     crown: '<path d="m4 8 4 3 4-6 4 6 4-3-2 10H6z"/>',
     chevron: '<path d="m6 9 6 6 6-6"/>'
   };
@@ -180,7 +180,7 @@
 
     const logout = document.createElement('button');
     logout.type = 'button';
-    logout.className = 'm-more-tile red';
+    logout.className = 'm-more-tile red no-btn-theme';
     logout.innerHTML = `<span class="m-more-icon">${svg('logout')}</span><span>Logout</span>`;
     logout.addEventListener('click', () => window.salonAuth?.logout?.());
     grid.append(logout);
@@ -226,6 +226,9 @@
         const logo = document.querySelector('.mobile-employee .m-logo');
         if (branding?.name && brand) brand.textContent = branding.name;
         if (branding?.logoUrl && logo) logo.innerHTML = `<img src="${branding.logoUrl}" alt="">`;
+        const mTheme = String(branding?.mobileTheme || 'Theme 1').toLowerCase().replace(/\s+/g, '-');
+        document.documentElement.setAttribute('data-mobile-theme', mTheme);
+        if (document.body) document.body.setAttribute('data-mobile-theme', mTheme);
       });
       window.salonMobileShellReady = Promise.race([
         brandingReady,

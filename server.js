@@ -182,6 +182,7 @@ const ShopDetails = createTenantModelProxy('ShopDetails', shopDetailsSchema);
 
 const defaultShopDetails = {
     'Theme': 'Theme 2',
+    'Mobile Theme': 'Theme 1',
     'Brand Name': 'YOURS SALON',
     'Brand Description': 'Salon Management System',
     'Tagline': 'Look Good, Feel Confident',
@@ -1782,6 +1783,7 @@ app.get('/api/shop-branding', async (req, res) => {
             logoUrl: settings['Logo URL'] || '',
             faviconUrl: settings['Favicon URL'] || '',
             theme: settings['Theme'] || 'Theme 2',
+            mobileTheme: settings['Mobile Theme'] || 'Theme 1',
             login: {
                 theme: ['Light', 'Dark', 'Combination'].includes(settings['Login Page Theme'])
                     ? settings['Login Page Theme']

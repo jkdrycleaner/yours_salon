@@ -243,39 +243,53 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 7px;
+    gap: 6px;
     padding: 0;
     border: 0;
-    background: transparent;
-    color: var(--m-ink);
-    font: 700 12px Arial, sans-serif;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    color: var(--m-ink) !important;
+    font: 600 11.5px Arial, sans-serif;
     text-decoration: none;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    outline: none !important;
+  }
+
+  body.mobile-employee .m-more-tile span:last-child {
+    color: #475467 !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
   }
 
   body.mobile-employee .m-more-icon {
     display: grid;
     place-items: center;
-    width: 58px;
-    height: 58px;
-    border-radius: 18px;
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
     background: #f3f5f9;
     color: #526176;
+    transition: transform 0.15s ease, background-color 0.15s ease;
   }
 
   body.mobile-employee .m-more-icon svg {
-    width: 26px;
-    height: 26px;
+    width: 20px;
+    height: 20px;
     stroke: currentColor;
     fill: none;
-    stroke-width: 1.8;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   body.mobile-employee .m-more-tile.green .m-more-icon { background: #e9f8ef; color: #2b7a50; }
   body.mobile-employee .m-more-tile.blue .m-more-icon { background: #eaf2ff; color: #2b62b8; }
   body.mobile-employee .m-more-tile.amber .m-more-icon { background: #fff5dc; color: #9a7414; }
   body.mobile-employee .m-more-tile.purple .m-more-icon { background: #f2ecff; color: #7450b5; }
-  body.mobile-employee .m-more-tile.red .m-more-icon { background: #fff0ef; color: #b42318; }
+  body.mobile-employee .m-more-tile.red .m-more-icon { background: #fff0ef !important; color: #dc2626 !important; border: 1px solid #fee2e2 !important; }
+  body.mobile-employee .m-more-tile.red:active .m-more-icon { background: #fee2e2 !important; transform: scale(0.95); }
 
   body.mobile-employee .m-more-tile .soon {
     padding: 2px 6px;
