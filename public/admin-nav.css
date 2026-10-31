@@ -22,6 +22,97 @@
   --salon-header-height: 74px;
 }
 
+/* ==================== THEME SYSTEM (Themes 1 - 5) ==================== */
+/* Theme 1: Classic Original Slate & Gold */
+html[data-theme="theme-1"], body[data-theme="theme-1"] {
+  --ink: #1d2939 !important;
+  --mut: #758397 !important;
+  --line: #e1e7ee !important;
+  --salon-gold: #c99a23 !important;
+  --salon-ink: #1d2939 !important;
+  --salon-muted: #758397 !important;
+  --salon-line: #e1e7ee !important;
+  --salon-soft: #f7f9fb !important;
+  --green: #c99a23 !important;
+  --green2: #a77b12 !important;
+  --green-grad: linear-gradient(135deg, #c99a23, #e5b94c) !important;
+  --green-shadow: 0 6px 14px rgba(201, 154, 35, 0.3) !important;
+  background: #f4f6f9 fixed !important;
+  color: #1d2939 !important;
+}
+
+/* Theme 2: Modern Mint & Soft Light (Phase 1 & 2) */
+html[data-theme="theme-2"], body[data-theme="theme-2"] {
+  --ink: #2b2540 !important;
+  --mut: #8b86a3 !important;
+  --line: #eeeaf7 !important;
+  --salon-gold: #1fb87a !important;
+  --salon-ink: #2b2540 !important;
+  --salon-muted: #8b86a3 !important;
+  --salon-line: #eeeaf7 !important;
+  --salon-soft: #f1fbf6 !important;
+  --green: #1fb87a !important;
+  --green2: #5fd38d !important;
+  --green-grad: linear-gradient(135deg, #1fb87a, #5fd38d) !important;
+  --green-shadow: 0 6px 14px rgba(31, 184, 122, .35) !important;
+  background: linear-gradient(160deg, #eafaf0 0%, #fff9ea 50%, #eefaf6 100%) fixed !important;
+  color: #2b2540 !important;
+}
+
+/* Theme 3: Royal Gold & Obsidian Luxury */
+html[data-theme="theme-3"], body[data-theme="theme-3"] {
+  --ink: #262118 !important;
+  --mut: #8c7d67 !important;
+  --line: #ecdcb8 !important;
+  --salon-gold: #d4a327 !important;
+  --salon-ink: #262118 !important;
+  --salon-muted: #8c7d67 !important;
+  --salon-line: #ecdcb8 !important;
+  --salon-soft: #faf6eb !important;
+  --green: #d4a327 !important;
+  --green2: #ad7c08 !important;
+  --green-grad: linear-gradient(135deg, #d4a327, #f3cf70) !important;
+  --green-shadow: 0 6px 14px rgba(212, 163, 39, .35) !important;
+  background: linear-gradient(160deg, #fdfaf3 0%, #fefcf8 50%, #f8f1de 100%) fixed !important;
+  color: #262118 !important;
+}
+
+/* Theme 4: Ocean Sapphire & Slate */
+html[data-theme="theme-4"], body[data-theme="theme-4"] {
+  --ink: #0f172a !important;
+  --mut: #64748b !important;
+  --line: #d6e4f5 !important;
+  --salon-gold: #2563eb !important;
+  --salon-ink: #0f172a !important;
+  --salon-muted: #64748b !important;
+  --salon-line: #d6e4f5 !important;
+  --salon-soft: #f0f7ff !important;
+  --green: #2563eb !important;
+  --green2: #1d4ed8 !important;
+  --green-grad: linear-gradient(135deg, #2563eb, #60a5fa) !important;
+  --green-shadow: 0 6px 14px rgba(37, 99, 235, .35) !important;
+  background: linear-gradient(160deg, #edf5ff 0%, #f8faff 50%, #e0f0fe 100%) fixed !important;
+  color: #0f172a !important;
+}
+
+/* Theme 5: Rose Velvet & Ruby Luxury */
+html[data-theme="theme-5"], body[data-theme="theme-5"] {
+  --ink: #1f1418 !important;
+  --mut: #88626f !important;
+  --line: #fbcfe8 !important;
+  --salon-gold: #e11d48 !important;
+  --salon-ink: #1f1418 !important;
+  --salon-muted: #88626f !important;
+  --salon-line: #fbcfe8 !important;
+  --salon-soft: #fff5f7 !important;
+  --green: #e11d48 !important;
+  --green2: #be123c !important;
+  --green-grad: linear-gradient(135deg, #e11d48, #fb7185) !important;
+  --green-shadow: 0 6px 14px rgba(225, 29, 72, .35) !important;
+  background: linear-gradient(160deg, #fff0f3 0%, #fffbfc 50%, #fde4ea 100%) fixed !important;
+  color: #1f1418 !important;
+}
+
 * { box-sizing: border-box; }
 
 html, body {

@@ -74,7 +74,7 @@
   <script>
     const groups={
       identity:['Brand Name','Brand Description','Tagline','Logo URL','Favicon URL'],
-      dashboard:['Theme Mode','Header Style','Header Color','Accent Color','Header Text Color','Body Background','Card Background','Button Style','Button Color','Button Color 2','Show Search','Show Notification Bell','Show User Profile','Show Date & Time'],
+      dashboard:['Theme','Theme Mode','Header Style','Header Color','Accent Color','Header Text Color','Body Background','Card Background','Button Style','Button Color','Button Color 2','Show Search','Show Notification Bell','Show User Profile','Show Date & Time'],
       login:['Login Logo Width','Login Logo Height','Login Name Font Size','Login Page Theme','Login Slide 1 Image','Login Slide 1 Title','Login Slide 1 Description','Login Slide 2 Image','Login Slide 2 Title','Login Slide 2 Description','Login Slide 3 Image','Login Slide 3 Title','Login Slide 3 Description','Login Slide Duration','Show Google Login','Show Mobile Login','Show Face Login','Show Password Login']
     };
     const statusBox=document.getElementById('status');
@@ -95,10 +95,14 @@
       wrapper.className='field';
       const label=document.createElement('label');
       label.textContent=key;
-      const selectOptions=key.startsWith('Show ')?['Yes','No']
-        :key==='Login Page Theme'?['Light','Dark','Combination']
-        :key==='Button Style'?['Solid','Mix']
-        :null;
+      const selectOptions = key === 'Theme' ? ['Theme 1', 'Theme 2', 'Theme 3', 'Theme 4', 'Theme 5']
+        : key.startsWith('Show ') ? ['Yes', 'No']
+        : key === 'Login Page Theme' ? ['Light', 'Dark', 'Combination']
+        : key === 'Button Style' ? ['Solid', 'Mix']
+        : null;
+      if (key === 'Theme') {
+        label.innerHTML = 'Theme <small style="color:#1fb87a;font-weight:normal;font-size:11px;">(Theme 1: Classic Original | Theme 2: Modern Mint | Theme 3: Royal Gold | Theme 4: Ocean Blue | Theme 5: Rose Velvet)</small>';
+      }
       const input=document.createElement(selectOptions?'select':'input');
       input.dataset.setting=key;
       input.id=`setting-${key.toLowerCase().replace(/[^a-z0-9]+/g,'-')}`;
@@ -166,6 +170,12 @@
         const result=await response.json();
         if(!response.ok)throw new Error(result.error||'Could not save shop details.');
         renderSettings(result.settings);
+        if(result.settings?.['Theme']){
+          const tSlug = String(result.settings['Theme']).toLowerCase().replace(/\s+/g,'-');
+          document.documentElement.setAttribute('data-theme', tSlug);
+          if (document.body) document.body.setAttribute('data-theme', tSlug);
+          localStorage.setItem('salon_theme', tSlug);
+        }
         if(window.salonApplyButtonTheme)window.salonApplyButtonTheme(result.settings);
         showStatus('Shop details saved successfully.','success');
       }catch(error){

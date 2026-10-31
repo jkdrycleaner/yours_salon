@@ -181,6 +181,7 @@ const shopDetailsSchema = new mongoose.Schema({
 const ShopDetails = createTenantModelProxy('ShopDetails', shopDetailsSchema);
 
 const defaultShopDetails = {
+    'Theme': 'Theme 2',
     'Brand Name': 'YOURS SALON',
     'Brand Description': 'Salon Management System',
     'Tagline': 'Look Good, Feel Confident',
@@ -1780,6 +1781,7 @@ app.get('/api/shop-branding', async (req, res) => {
             tagline: settings.Tagline || '',
             logoUrl: settings['Logo URL'] || '',
             faviconUrl: settings['Favicon URL'] || '',
+            theme: settings['Theme'] || 'Theme 2',
             login: {
                 theme: ['Light', 'Dark', 'Combination'].includes(settings['Login Page Theme'])
                     ? settings['Login Page Theme']
@@ -2300,11 +2302,18 @@ app.get('/api/session', requireSecureAuth, verifyEmployee, async (req, res) => {
             ? activeTypes.map(({ sr, name }) => ({ sr, name }))
             : getEmployeeExpenseTypes(req.employee, activeTypes)
                 .filter(item => activeTypeSerials.has(Number(item.sr)));
+        let currentTheme = 'Theme 2';
+        try {
+            const details = await ShopDetails.findOne({ key: 'primary' }).lean();
+            if (details?.settings?.['Theme']) currentTheme = details.settings['Theme'];
+        } catch {}
         return res.json({
             shop: {
                 shopCode: req.tenant?.shopCode || 'samplesalon',
-                shopName: req.tenant?.shopName || 'Sample Salon'
+                shopName: req.tenant?.shopName || 'Sample Salon',
+                theme: currentTheme
             },
+            theme: currentTheme,
             employee: employeePublicDetails(req.employee),
             permissions,
             expenseTypes,
@@ -3838,6 +3847,9 @@ app.put('/api/shop-details', requireSecureAuth, verifyEmployee, requireAnyPageAc
             }
             if (/Color( \d+)?$/.test(key) && !/^#[0-9a-f]{6}$/i.test(value)) {
                 return res.status(400).json({ error: `${key} must be a six-digit hex color.` });
+            }
+            if (key === 'Theme' && !['Theme 1', 'Theme 2', 'Theme 3', 'Theme 4', 'Theme 5'].includes(value)) {
+                return res.status(400).json({ error: 'Theme must be Theme 1, Theme 2, Theme 3, Theme 4, or Theme 5.' });
             }
             if (key.startsWith('Show ') && !['Yes', 'No'].includes(value)) {
                 return res.status(400).json({ error: `${key} must be Yes or No.` });

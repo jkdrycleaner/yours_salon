@@ -1,5 +1,9 @@
 (() => {
   const root = document.documentElement;
+  try {
+    const cachedTheme = localStorage.getItem('salon_theme') || 'theme-2';
+    root.setAttribute('data-theme', cachedTheme);
+  } catch {}
   if (root.classList.contains('app-boot-done')) return;
   root.classList.add('app-booting');
 
@@ -84,6 +88,12 @@
   }
 
   function applyBranding(branding) {
+    if (branding?.theme) {
+      const slug = String(branding.theme).toLowerCase().replace(/\s+/g, '-');
+      root.setAttribute('data-theme', slug);
+      if (document.body) document.body.setAttribute('data-theme', slug);
+      try { localStorage.setItem('salon_theme', slug); } catch {}
+    }
     const logo = document.querySelector('#appBootOverlay .app-boot-logo');
     if (!logo) return;
     const fallback = String(branding?.name || 'Y').trim().charAt(0) || 'Y';

@@ -438,6 +438,12 @@
     // Dynamic Shop Branding
     fetch('/api/shop-branding', { headers: authHeaders() }).then(response => response.ok ? response.json() : null).then(branding => {
       if (!branding) return;
+      if (branding.theme) {
+        const themeSlug = String(branding.theme).toLowerCase().replace(/\s+/g, '-');
+        document.documentElement.setAttribute('data-theme', themeSlug);
+        if (document.body) document.body.setAttribute('data-theme', themeSlug);
+        localStorage.setItem('salon_theme', themeSlug);
+      }
       if (branding.name) {
         shopName.textContent = branding.name;
         logo.textContent = branding.name.trim().charAt(0).toUpperCase();
@@ -453,6 +459,11 @@
     try {
       const session = window.salonReady ? await window.salonReady : await request('/api/session');
       if (!session) return;
+      const themeVal = session.shop?.theme || session.theme || 'Theme 2';
+      const themeSlug = String(themeVal).toLowerCase().replace(/\s+/g, '-');
+      document.documentElement.setAttribute('data-theme', themeSlug);
+      if (document.body) document.body.setAttribute('data-theme', themeSlug);
+      localStorage.setItem('salon_theme', themeSlug);
       if (session.employee?.mustChangePassword && !['/password-change', '/password-change.html'].includes(currentPath)) {
         location.replace('/password-change');
         return;

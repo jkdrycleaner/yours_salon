@@ -233,6 +233,45 @@
     .view { display: none; }
     .view.active { display: block; }
 
+    /* Multi-Theme Dashboard Switching */
+    html[data-theme="theme-1"] .theme-2-view,
+    body[data-theme="theme-1"] .theme-2-view {
+      display: none !important;
+    }
+    html:not([data-theme="theme-1"]) .theme-1-view,
+    body:not([data-theme="theme-1"]) .theme-1-view {
+      display: none !important;
+    }
+
+    /* Theme 1 Classic Original Dashboard Layout */
+    .theme-1-view { width: 100%; }
+    .theme-1-view .heading { margin-bottom: 22px; }
+    .theme-1-view .heading h1 { margin: 0; font-size: 28px; font-weight: 800; color: #1d2939; }
+    .theme-1-view .heading p { margin: 6px 0 0; color: #758397; font-size: 13.5px; }
+    .theme-1-view .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .theme-1-view .card { padding: 18px; border: 1px solid #e1e7ee; border-radius: 14px; background: #fff; box-shadow: 0 8px 22px rgba(32, 51, 75, 0.05); cursor: pointer; transition: transform .15s, box-shadow .15s; }
+    .theme-1-view .card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(32, 51, 75, 0.1); }
+    .theme-1-view .card span { display: block; color: #758397; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+    .theme-1-view .card strong { display: block; margin-top: 10px; font-size: 17px; color: #1d2939; line-height: 1.3; }
+    .theme-1-view .card:nth-child(1) { background: #edf9f4; border-color: #c9eedc; }
+    .theme-1-view .card:nth-child(2) { background: #fff8e8; border-color: #f7e6b8; }
+    .theme-1-view .card:nth-child(3) { background: #eff6ff; border-color: #cee2fe; }
+    .theme-1-view .card:nth-child(4) { background: #f4efff; border-color: #dfcefe; }
+
+    .theme-1-view .panel { margin-top: 16px; padding: 22px; border: 1px solid #e1e7ee; border-radius: 14px; background: #fff; box-shadow: 0 6px 20px rgba(32, 51, 75, 0.04); }
+    .theme-1-view .panel h2 { margin: 0 0 16px; font-size: 18px; font-weight: 800; color: #1d2939; }
+    .theme-1-view .quick-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .theme-1-view .quick-links a { padding: 14px 16px; border: 1px solid #e2e8ef; border-radius: 10px; background: #fafbfc; color: #344054; text-decoration: none; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; transition: .15s; }
+    .theme-1-view .quick-links a:hover { border-color: #d2ad4c; background: #fffaf0; color: #9c6e0c; transform: translateY(-1px); }
+    @media(max-width:850px){
+      .theme-1-view .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .theme-1-view .quick-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media(max-width:540px){
+      .theme-1-view .cards { grid-template-columns: 1fr; }
+      .theme-1-view .quick-links { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 900px) {
       .stat-grid { grid-template-columns: repeat(2, 1fr); }
       .grid2 { grid-template-columns: 1fr; }
@@ -241,6 +280,52 @@
 </head>
 <body>
   <main class="wrap">
+    <!-- ==================== THEME 1: ORIGINAL CLASSIC DASHBOARD ==================== -->
+    <div class="theme-1-view">
+      <section class="heading">
+        <h1 id="theme1Greeting">Admin Dashboard</h1>
+        <p>Manage salon operations, records, employees and reports from one place.</p>
+      </section>
+      <section class="cards" aria-label="Admin areas">
+        <article class="card" onclick="location.href='/collection-table'">
+          <span>RECORDS</span>
+          <strong>Collection, expense and salary</strong>
+        </article>
+        <article class="card" onclick="location.href='/employees'">
+          <span>PEOPLE</span>
+          <strong>Employees and permissions</strong>
+        </article>
+        <article class="card" onclick="location.href='/reports'">
+          <span>REPORTS</span>
+          <strong>Reports and activity history</strong>
+        </article>
+        <article class="card" onclick="location.href='/config'">
+          <span>SETTINGS</span>
+          <strong>Rates, shop and configuration</strong>
+        </article>
+      </section>
+      <section class="panel">
+        <h2>⚡ Quick access</h2>
+        <nav class="quick-links" aria-label="Admin quick access">
+          <a href="/collection-table"><span>💰 Collection Records</span><span>→</span></a>
+          <a href="/expense-table"><span>🧾 Expense Records</span><span>→</span></a>
+          <a href="/salary-table"><span>💵 Salary Records</span><span>→</span></a>
+          <a href="/counter-table"><span>🏧 Counter Cash Records</span><span>→</span></a>
+          <a href="/employees"><span>👥 Employee List</span><span>→</span></a>
+          <a href="/manage-shops"><span>🏢 Manage Shops</span><span>→</span></a>
+          <a href="/user-access"><span>🔐 User Access</span><span>→</span></a>
+          <a href="/reports"><span>📈 Reports</span><span>→</span></a>
+          <a href="/activity-report"><span>🕘 Activity Report</span><span>→</span></a>
+          <a href="/config"><span>🛠️ Configuration</span><span>→</span></a>
+          <a href="/shop-details"><span>💈 Shop Details</span><span>→</span></a>
+          <a href="/rate-list"><span>🏷️ Rate List</span><span>→</span></a>
+          <a href="/bulk-entry"><span>📥 Bulk Entry</span><span>→</span></a>
+        </nav>
+      </section>
+    </div>
+
+    <!-- ==================== THEME 2+: MODERN OPERATIONAL DASHBOARD ==================== -->
+    <div class="theme-2-view">
     <!-- Breadcrumb -->
     <div class="crumb">Admin Portal › <b>Dashboard</b></div>
 
@@ -417,6 +502,7 @@
         </div>
       </section>
     </div>
+    </div>
   </main>
 
   <script src="/auth-guard.js"></script>
@@ -431,6 +517,8 @@
         if (session && session.employee && session.employee.employeeName) {
           const welcome = document.getElementById("welcomeGreeting");
           if (welcome) welcome.textContent = `Welcome Back, ${session.employee.employeeName} 👋`;
+          const t1Greet = document.getElementById("theme1Greeting");
+          if (t1Greet) t1Greet.textContent = `Welcome, ${session.employee.employeeName} (Admin Dashboard)`;
         }
       } catch (e) {}
     })();
