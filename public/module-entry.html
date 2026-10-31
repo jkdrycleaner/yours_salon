@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
   <script src="/app-boot.js"></script>
+  <script src="/btn-theme.js?v=d7e2d11_btn1"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Entry — YOURS SALON</title>
-  <link rel="stylesheet" href="/admin-nav.css?v=d7e2d11_gold">
-  <link rel="stylesheet" href="/mobile.css?v=d7e2d11_gold">
-  <link rel="stylesheet" href="/my-work.css?v=d7e2d11_gold">
+  <link rel="stylesheet" href="/admin-nav.css?v=d7e2d11_btn1">
+  <link rel="stylesheet" href="/mobile.css?v=d7e2d11_btn1">
+  <link rel="stylesheet" href="/my-work.css?v=d7e2d11_btn1">
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(920px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:16px}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.links{display:flex;flex-wrap:wrap;gap:8px}.links a{min-height:38px;padding:9px 12px;border-radius:9px;background:#eff2f5;color:#344054;text-decoration:none;font-size:12px;font-weight:700}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.wide{grid-column:1/-1}.field label{color:#526176;font-size:11px;font-weight:700}.field input,.field select,.field textarea{width:100%;min-height:42px;padding:9px 11px;border:1px solid #d9e0e7;border-radius:9px;background:#fff;color:#243244;font:14px Arial}.field textarea{min-height:90px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:#d1a228;box-shadow:0 0 0 3px #f8f0d7}.actions{display:flex;align-items:center;gap:10px;margin-top:18px}.actions button{min-height:42px;padding:10px 16px;border:0;border-radius:9px;background:#c99a23;color:#fff;font:700 13px Arial;cursor:pointer}.actions button:disabled{opacity:.6;cursor:wait}.status{display:none;margin-top:14px;padding:11px;border-radius:9px;font-size:13px;line-height:1.45}.status.show{display:block;background:#eaf8f1;color:#22694d}.status.error{display:block;background:#fff0ef;color:#9a352f}.empty{padding:22px;text-align:center;color:#718096;background:#fff;border:1px dashed #d4dce5;border-radius:12px}@media(max-width:600px){.wrap{padding:18px 12px 30px}.heading{flex-direction:column}.grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.panel{padding:15px}.actions button{width:100%}}
   </style>
-    <style id="p1p2InlineFix">
-    /* Total Box Gold Theme Border & Label Alignment */
+      <style id="p1p2InlineFix">
+    /* Total Box Matching Shop Details Button Color */
     .aw-total-box,
     #mobileAddWork .aw-total-box {
       min-height: 44px !important;
@@ -22,7 +23,7 @@
       flex-direction: column !important;
       justify-content: center !important;
       box-sizing: border-box !important;
-      border: 1.5px solid #c99a23 !important;
+      border: 1.5px solid var(--salon-border-dark, var(--salon-btn-bg, #c99a23)) !important;
       border-radius: 12px !important;
       background: #ffffff !important;
       box-shadow: none !important;
@@ -31,7 +32,7 @@
     #mobileAddWork .aw-total-box span {
       font-size: 9px !important;
       line-height: 1.1 !important;
-      color: #8a6d1b !important;
+      color: var(--salon-border-dark, var(--salon-btn-bg, #8a6d1b)) !important;
       font-weight: 700 !important;
       letter-spacing: .04em !important;
       margin-bottom: 2px !important;
@@ -62,7 +63,7 @@
       padding: 0 !important;
       outline: none !important;
     }
-    /* Save Work Button Gold Theme */
+    /* Save Work Button Matching Shop Details Button Color */
     .aw-save,
     button.aw-save,
     #awSave {
@@ -71,10 +72,10 @@
       min-height: 44px !important;
       border: 0 !important;
       border-radius: 12px !important;
-      background: linear-gradient(135deg, #c99a23, #a77b12) !important;
-      background-color: #c99a23 !important;
-      background-image: linear-gradient(135deg, #c99a23, #a77b12) !important;
-      color: #ffffff !important;
+      background: var(--salon-btn-bg, #c99a23) !important;
+      background-color: var(--salon-btn-bg, #c99a23) !important;
+      background-image: var(--salon-btn-bg-img, none) !important;
+      color: var(--salon-btn-text, #ffffff) !important;
       font: 700 14px Arial, sans-serif !important;
       letter-spacing: .02em !important;
       cursor: pointer !important;
@@ -82,7 +83,7 @@
       align-items: center !important;
       justify-content: center !important;
       gap: 8px !important;
-      box-shadow: 0 4px 12px rgba(201, 154, 35, 0.28) !important;
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--salon-btn-bg, #c99a23) 30%, transparent) !important;
     }
     .aw-save svg,
     .aw-save .sal-btn-icon,
@@ -94,10 +95,10 @@
       flex-shrink: 0 !important;
       width: 18px !important;
       height: 18px !important;
-      stroke: #ffffff !important;
+      stroke: var(--salon-btn-text, #ffffff) !important;
       fill: none !important;
     }
-    /* Advance Style Capsule Tabs & Gold Active Tab */
+    /* Capsule Tabs & Active Tab Matching Shop Details Button Color */
     .sal-portal-tabs,
     .aw-segmented-tabs,
     #mobileAddWork .aw-segmented-tabs,
@@ -144,13 +145,14 @@
     .aw-segmented-tabs a.aw-tab.active,
     #mobileAddWork .aw-segmented-tabs .aw-tab.active,
     #mobileAllWork .aw-segmented-tabs .aw-tab.active {
-      background: linear-gradient(135deg, #c99a23, #a77b12) !important;
-      background-image: linear-gradient(135deg, #c99a23, #a77b12) !important;
-      color: #ffffff !important;
+      background: var(--salon-btn-bg, #c99a23) !important;
+      background-color: var(--salon-btn-bg, #c99a23) !important;
+      background-image: var(--salon-btn-bg-img, none) !important;
+      color: var(--salon-btn-text, #ffffff) !important;
       font-weight: 700 !important;
       border-radius: 9999px !important;
       border: none !important;
-      box-shadow: 0 2px 6px rgba(201, 154, 35, 0.28) !important;
+      box-shadow: 0 2px 6px color-mix(in srgb, var(--salon-btn-bg, #c99a23) 30%, transparent) !important;
     }
     .sal-portal-tabs .aw-tab .aw-tab-icon,
     .aw-segmented-tabs .aw-tab .aw-tab-icon {
@@ -159,7 +161,7 @@
     }
     .sal-portal-tabs .aw-tab.active .aw-tab-icon,
     .aw-segmented-tabs .aw-tab.active .aw-tab-icon {
-      color: #ffffff !important;
+      color: var(--salon-btn-text, #ffffff) !important;
     }
   </style>
 </head>

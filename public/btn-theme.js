@@ -21,8 +21,8 @@
 
   const buttonSelector = 'button:not([class*="salon-"]):not(.secondary):not(.danger)' +
     ':not(.link):not(.method):not(.eye):not(.dot):not(.arrow):not(.no-btn-theme):not(.mw-action)' +
-    ':not(.aw-other-card):not(.aw-service):not(.aw-minus):not(.aw-plus):not(.aw-tab):not(.aw-save):not(#awSave):not(.mw-filter-icon-btn):not(.mw-pill-btn):not(.mw-sheet-preset-btn):not(.mw-sheet-close-btn):not(.mw-clear-btn):not(.mw-active-filter-reset)';
-  const themeSelector = buttonSelector + ',[data-salon-btn-theme]';
+    ':not(.aw-other-card):not(.aw-service):not(.aw-minus):not(.aw-plus):not(.aw-tab):not(.mw-filter-icon-btn):not(.mw-pill-btn):not(.mw-sheet-preset-btn):not(.mw-sheet-close-btn):not(.mw-clear-btn):not(.mw-active-filter-reset)';
+  const themeSelector = buttonSelector + ',[data-salon-btn-theme],.aw-save,#awSave';
 
   function apply(source) {
     let first = String(readValue(source, 'Button Color', 'buttonColor', '#C9A227')).trim();
@@ -30,11 +30,11 @@
     if (!/^#[0-9a-f]{6}$/i.test(first)) first = '#C9A227';
     if (!/^#[0-9a-f]{6}$/i.test(second)) second = '#8A6D1B';
     const mix = String(readValue(source, 'Button Style', 'buttonStyle', 'Solid')).trim().toLowerCase() === 'mix';
-    const image = mix ? `linear-gradient(135deg, ${first}, ${second})` : 'none';
+    const image = mix ? 'linear-gradient(135deg, ' + first + ', ' + second + ')' : 'none';
     const text = readableText(first);
     const rgb = hexToRgb(first);
-    const borderLight = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.35)`;
-    const borderHover = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.65)`;
+    const borderLight = 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', 0.35)';
+    const borderHover = 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', 0.65)';
     const borderDark = first;
 
     let element = document.getElementById('salonButtonTheme');
@@ -44,16 +44,22 @@
       document.head.appendChild(element);
     }
     element.textContent =
-      `:root{` +
-      `--salon-btn-bg:${first};` +
-      `--salon-btn-bg2:${second};` +
-      `--salon-btn-text:${text};` +
-      `--salon-border-light:${borderLight};` +
-      `--salon-border-hover:${borderHover};` +
-      `--salon-border-dark:${borderDark};` +
-      `}` +
-      `${themeSelector}{background-color:${first} !important;background-image:${image} !important;color:${text} !important}` +
-      `${themeSelector}:disabled{opacity:1;cursor:not-allowed}`;
+      ':root{' +
+      '--salon-btn-bg:' + first + ';' +
+      '--salon-btn-bg2:' + second + ';' +
+      '--salon-btn-bg-img:' + image + ';' +
+      '--salon-btn-text:' + text + ';' +
+      '--salon-border-light:' + borderLight + ';' +
+      '--salon-border-hover:' + borderHover + ';' +
+      '--salon-border-dark:' + borderDark + ';' +
+      '}' +
+      themeSelector + '{background-color:' + first + ' !important;background-image:' + image + ' !important;color:' + text + ' !important}' +
+      themeSelector + ':disabled{opacity:1;cursor:not-allowed}' +
+      '\n.aw-total-box, #mobileAddWork .aw-total-box { border-color: ' + borderDark + ' !important; }' +
+      '\n.aw-total-box span, #mobileAddWork .aw-total-box span { color: ' + borderDark + ' !important; }' +
+      '\n.sal-portal-tabs .aw-tab.active, .aw-segmented-tabs .aw-tab.active, #mobileAddWork .aw-segmented-tabs .aw-tab.active, #mobileAllWork .aw-segmented-tabs .aw-tab.active { background-color: ' + first + ' !important; background-image: ' + image + ' !important; color: ' + text + ' !important; }' +
+      '\n.sal-portal-tabs .aw-tab.active .aw-tab-icon, .aw-segmented-tabs .aw-tab.active .aw-tab-icon { color: ' + text + ' !important; }' +
+      '\n.aw-save svg, .aw-save .sal-btn-icon, #awSave svg, #awSave .sal-btn-icon { stroke: ' + text + ' !important; }';
   }
 
   window.salonApplyButtonTheme = apply;
