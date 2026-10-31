@@ -21,15 +21,15 @@
 
   const buttonSelector = 'button:not([class*="salon-"]):not(.secondary):not(.danger)' +
     ':not(.link):not(.method):not(.eye):not(.dot):not(.arrow):not(.no-btn-theme):not(.mw-action)' +
-    ':not(.aw-other-card):not(.aw-service):not(.aw-minus):not(.aw-plus):not(.aw-tab):not(.mw-filter-icon-btn):not(.mw-pill-btn):not(.mw-sheet-preset-btn):not(.mw-sheet-close-btn):not(.mw-clear-btn):not(.mw-active-filter-reset)';
+    ':not(.aw-other-card):not(.aw-service):not(.aw-minus):not(.aw-plus):not(.aw-tab):not(.aw-save):not(#awSave):not(.mw-filter-icon-btn):not(.mw-pill-btn):not(.mw-sheet-preset-btn):not(.mw-sheet-close-btn):not(.mw-clear-btn):not(.mw-active-filter-reset)';
   const themeSelector = buttonSelector + ',[data-salon-btn-theme]';
 
   function apply(source) {
-    let first = String(readValue(source, 'Button Color', 'buttonColor', '#1fb87a')).trim();
-    let second = String(readValue(source, 'Button Color 2', 'buttonColor2', '#5fd38d')).trim();
-    if (!/^#[0-9a-f]{6}$/i.test(first)) first = '#1fb87a';
-    if (!/^#[0-9a-f]{6}$/i.test(second)) second = '#5fd38d';
-    const mix = String(readValue(source, 'Button Style', 'buttonStyle', 'Mix')).trim().toLowerCase() !== 'solid';
+    let first = String(readValue(source, 'Button Color', 'buttonColor', '#C9A227')).trim();
+    let second = String(readValue(source, 'Button Color 2', 'buttonColor2', '#8A6D1B')).trim();
+    if (!/^#[0-9a-f]{6}$/i.test(first)) first = '#C9A227';
+    if (!/^#[0-9a-f]{6}$/i.test(second)) second = '#8A6D1B';
+    const mix = String(readValue(source, 'Button Style', 'buttonStyle', 'Solid')).trim().toLowerCase() === 'mix';
     const image = mix ? `linear-gradient(135deg, ${first}, ${second})` : 'none';
     const text = readableText(first);
     const rgb = hexToRgb(first);
