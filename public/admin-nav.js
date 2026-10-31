@@ -468,6 +468,12 @@
         location.replace('/password-change');
         return;
       }
+      if (window.matchMedia('(max-width: 700px)').matches && session.employee?.role !== 'Admin') {
+        const mobileScript = document.createElement('script');
+        mobileScript.src = '/mobile.js';
+        document.body.appendChild(mobileScript);
+        return;
+      }
       addHeader(session);
     } catch {
       localStorage.removeItem(tokenKey);
