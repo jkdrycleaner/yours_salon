@@ -253,7 +253,7 @@
       const select=document.createElement('select');select.id='entryDate';select.name='entryDate';select.required=true;
       wrap.append(label,select);fields.append(wrap);return select;
     }
-    function showStatus(message,error=false){statusBox.textContent=message;statusBox.className='status show'+(error?' error':'')}
+    function showStatus(message,error=false){statusBox.textContent=message;statusBox.className='status show'+(error?' error':'');if(message){if(error){if(window.salonUi?.showError)window.salonUi.showError(message);else alert(message);}else{if(window.salonUi?.showSuccess)window.salonUi.showSuccess(message);}}}
     const isMobileViewport=window.matchMedia('(max-width:700px)').matches;
     const mobileAddWork=document.getElementById('mobileAddWork');
     const awDateSelect=document.getElementById('awDateSelect'),awEntryNo=document.getElementById('awEntryNo');
@@ -268,7 +268,7 @@
     let awMeta=null,awServices=[],awQuantities=new Map(),awEditing=null,awEditDate='',awBusy=false,awEventsBound=false,awTotalManual=false,awSavedPending=false;
     function awMoney(value){return '₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
     function awDateLabel(value){if(!value)return'';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?String(value):date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
-    function awSetStatus(message,error=false){awStatus.textContent=message;awStatus.className='aw-status'+(message?' show':'')+(message&&error?' error':'')}
+    function awSetStatus(message,error=false){awStatus.textContent=message;awStatus.className='aw-status'+(message?' show':'')+(message&&error?' error':'');if(error&&message){if(window.salonUi?.showError)window.salonUi.showError(message);else alert(message);}}
     function awSavedRow(label,value){
       const row=document.createElement('div');row.className='aw-saved-row';
       const term=document.createElement('dt');term.textContent=label;
@@ -292,7 +292,7 @@
       awSavedOverlay.classList.add('open');
       awSavedOverlay.setAttribute('aria-hidden','false');
       document.body.classList.add('aw-saved-locked');
-      window.setTimeout(()=>{if(redirectTo)location.replace(redirectTo);else location.reload()},3000);
+      window.setTimeout(()=>{if(redirectTo)location.replace(redirectTo);else location.reload()},2000);
     }
     function awGreetingText(){const hour=new Date().getHours();return hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening'}
     function awFindService(serviceType){return awServices.find(item=>String(item.serviceType).toLowerCase()===String(serviceType).toLowerCase())}
@@ -486,7 +486,12 @@
       awDateSelect.value=set.has(selected)?selected:(awMeta?.todayDate||'');
     }
     async function awLoadMeta(date,options={}){
-      const query=date?`?date=${encodeURIComponent(date)}`:'';
+      const targetDate = date || new Date().toISOString().slice(0, 10);
+      const lastSavedNo = sessionStorage.getItem('lastSavedEntryNo_' + targetDate);
+      let query = '?date=' + encodeURIComponent(targetDate);
+      if (lastSavedNo && !options.ignoreLast) {
+        query += '&lastEntryNo=' + encodeURIComponent(lastSavedNo);
+      }
       const meta=await salonAuth.request('/api/collection-entry-meta'+query);
       const previous=awServices;
       awMeta=meta;
@@ -585,6 +590,7 @@
             body:JSON.stringify(payload)
           });
           const saved=result.record||{...payload,entryNo:result.entryNo||entryNo};
+          try { sessionStorage.setItem('lastSavedEntryNo_' + date, String(saved.entryNo)); } catch(e){}
           awSavedPending=true;
           awSave.disabled=true;
           awSave.textContent='Saved';

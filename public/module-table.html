@@ -1128,8 +1128,19 @@
       const cell=document.createElement('td'),actions=document.createElement('div');cell.className='sticky-action';actions.className='row-actions';
       const view=document.createElement('button');view.type='button';view.className='action';view.textContent='View';view.addEventListener('click',()=>showDetails(record));
       actions.append(view);
-      if(record.status!=='Inactive'&&can('edit')&&session.pageAccess?.[definition.entryPage]!==false){const edit=document.createElement('a');edit.className='action';edit.textContent='Edit';edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;actions.append(edit)}
-      if(record.status!=='Inactive'&&can('delete')){const remove=document.createElement('button');remove.type='button';remove.className='action delete';remove.textContent='Delete';remove.addEventListener('click',()=>softDelete(record,remove));actions.append(remove)}
+      if(record.status==='Inactive'){
+        const restore=document.createElement('button');restore.type='button';restore.className='action restore';restore.textContent='Restore';restore.style.background='#e0f2fe';restore.style.color='#0284c7';
+        restore.addEventListener('click',()=>restoreRecord(record,restore));
+        actions.append(restore);
+        if(session?.employee?.role==='Admin'){
+          const permDelete=document.createElement('button');permDelete.type='button';permDelete.className='action delete-permanent';permDelete.textContent='Delete Forever';permDelete.style.background='#fef2f2';permDelete.style.color='#b91c1c';
+          permDelete.addEventListener('click',()=>permanentDelete(record,permDelete));
+          actions.append(permDelete);
+        }
+      } else {
+        if(can('edit')&&session.pageAccess?.[definition.entryPage]!==false){const edit=document.createElement('a');edit.className='action';edit.textContent='Edit';edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;actions.append(edit)}
+        if(can('delete')){const remove=document.createElement('button');remove.type='button';remove.className='action delete';remove.textContent='Delete';remove.addEventListener('click',()=>softDelete(record,remove));actions.append(remove)}
+      }
       cell.append(actions);return cell;
     }
     function statusCell(record){
@@ -2180,6 +2191,7 @@
     function mwActionIcon(kind){
       const paths={
         view:'<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/>',
+        restore:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
         edit:'<path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/><path d="m14 6 3 3"/>',
         delete:'<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/><path d="M10 11v6M14 11v6"/>'
       };
@@ -2255,6 +2267,13 @@
       details.append(mwByline(record,dateKey,'mw-detail-byline'));
       const actions=document.createElement('div');actions.className='mw-actions';
       actions.append(mwActionButton('view','View',()=>showDetails(record)));
+      if(record.status==='Inactive'){
+        const restoreBtn=mwActionButton('restore','Restore',button=>mwRestore(record,button));
+        restoreBtn.title='Restore entry';
+        const textSpan=restoreBtn.querySelector('span:not(.mw-action-icon)');
+        if(textSpan)textSpan.remove();
+        actions.append(restoreBtn);
+      }
       if(record.status!=='Inactive'&&can('edit')&&session.pageAccess?.[definition.entryPage]!==false){
         const edit=document.createElement('a');edit.className='mw-action no-btn-theme edit';edit.title='Edit work entry';edit.setAttribute('aria-label','Edit work entry');edit.href=`${definition.entry}?edit=${encodeURIComponent(record._id)}`;
         edit.append(mwActionIcon('edit'));const editText=document.createElement('span');editText.textContent='Edit';edit.append(editText);edit.addEventListener('click',event=>event.stopPropagation());actions.append(edit);
@@ -2343,6 +2362,19 @@
       finally{mwLoading=false;mwLoadMore.disabled=false;mwLoadMore.textContent='Load more'}
     }
 
+    async function mwRestore(record,button){
+      if(!record._id||!window.confirm('Do you want to restore this work entry to Active status?'))return;
+      if(button)button.disabled=true;
+      try{
+        const result=await salonAuth.request(`/api/collections/${encodeURIComponent(record._id)}/restore`,{method:'PATCH'});
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Work entry restored to Active.');
+        await mwLoad();
+      }catch(error){
+        if(window.salonUi?.showError)window.salonUi.showError(error.message||'Could not restore the work entry.');
+        else mwSetStatus(error.message||'Could not restore the work entry.',true);
+        if(button)button.disabled=false;
+      }
+    }
     async function mwSoftDelete(record,button){
       if(!record._id||!window.confirm('Move this work entry to In-Active It will remain available under the In-Active filter.'))return;
       if(button)button.disabled=true;
@@ -2558,10 +2590,46 @@
       catch(error){body.innerHTML='<tr><td class="empty">Could not load records.</td></tr>';statusBox.textContent=error.message;statusBox.className='status show'}
     }
     async function softDelete(record,button){
-      if(!record._id||!window.confirm('Move this record to In-Active It will remain available under the In-Active filter.'))return;
-      button.disabled=true;statusBox.className='status';
-      try{const endpoint=moduleKey==='collection'?`/api/collections/${encodeURIComponent(record._id)}`:`/api/employee-records/${encodeURIComponent(record._id)}`;const result=await salonAuth.request(endpoint,{method:'DELETE'});if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Record moved to In-Active.');await load()}
-      catch(error){statusBox.textContent=error.message||'Could not move the record to In-Active.';statusBox.className='status show';button.disabled=false}
+      if(!record._id||!window.confirm('Move this record to In-Active? It will remain available under the In-Active filter.'))return;
+      button.disabled=true;
+      try{
+        const endpoint=moduleKey==='collection'?`/api/collections/${encodeURIComponent(record._id)}`:`/api/employee-records/${encodeURIComponent(record._id)}`;
+        const result=await salonAuth.request(endpoint,{method:'DELETE'});
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Record moved to In-Active.');
+        await load();
+      }catch(error){
+        if(window.salonUi?.showError)window.salonUi.showError(error.message||'Could not move the record to In-Active.');
+        else{statusBox.textContent=error.message||'Could not move the record to In-Active.';statusBox.className='status show';}
+        button.disabled=false;
+      }
+    }
+    async function restoreRecord(record,button){
+      if(!record._id||!window.confirm('Do you want to restore this entry to Active status?'))return;
+      button.disabled=true;
+      try{
+        const endpoint=moduleKey==='collection'?`/api/collections/${encodeURIComponent(record._id)}/restore`:`/api/employee-records/${encodeURIComponent(record._id)}/restore`;
+        const result=await salonAuth.request(endpoint,{method:'PATCH'});
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Record restored to Active.');
+        await load();
+      }catch(error){
+        if(window.salonUi?.showError)window.salonUi.showError(error.message||'Could not restore the record.');
+        else{statusBox.textContent=error.message||'Could not restore the record.';statusBox.className='status show';}
+        button.disabled=false;
+      }
+    }
+    async function permanentDelete(record,button){
+      if(!record._id||!window.confirm('Are you sure you want to PERMANENTLY delete this record? This action cannot be undone.'))return;
+      button.disabled=true;
+      try{
+        const endpoint=moduleKey==='collection'?`/api/collections/${encodeURIComponent(record._id)}/permanent`:`/api/employee-records/${encodeURIComponent(record._id)}/permanent`;
+        const result=await salonAuth.request(endpoint,{method:'DELETE'});
+        if(window.salonUi?.showSuccess)await window.salonUi.showSuccess(result.message||'Record permanently deleted.');
+        await load();
+      }catch(error){
+        if(window.salonUi?.showError)window.salonUi.showError(error.message||'Could not delete the record permanently.');
+        else{statusBox.textContent=error.message||'Could not delete the record permanently.';statusBox.className='status show';}
+        button.disabled=false;
+      }
     }
     dateControl=SalonDateRange.mount(document.getElementById('dateRange'),{defaultPreset:'last30',onChange:()=>{clearSelection();page=1;updateMobileFilterBar();load()}});
     document.getElementById('filter').addEventListener('click',()=>{clearSelection();page=1;closeMobileFilters();load()});

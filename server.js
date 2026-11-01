@@ -317,7 +317,7 @@ const collectionSchema = new mongoose.Schema({
     inactiveBy: { type: String, trim: true, default: '' },
     createdAt: { type: Date, default: Date.now }
 });
-collectionSchema.index({ entryDate: 1, entryNo: 1 }, { unique: true });
+collectionSchema.index({ entryDate: 1, entryNo: 1 }, { unique: true, partialFilterExpression: { status: 'Active' } });
 collectionSchema.index({ entryDate: 1, staffId: 1, status: 1, amount: 1 });
 const CollectionEntry = createTenantModelProxy('Collection', collectionSchema);
 
@@ -3317,6 +3317,42 @@ app.post('/api/collection-custom-services', requireSecureAuth, verifyEmployee, v
     }
 });
 
+async function calculateNextEntryNo(entryDate, lastEntryNo = null, staffId = null) {
+    const activeEntries = await CollectionEntry.find({
+        entryDate,
+        status: 'Active'
+    }).select('entryNo staffId createdAt').lean();
+
+    const takenSet = new Set(activeEntries.map(e => Number(e.entryNo)));
+    let candidate = 1;
+
+    if (lastEntryNo !== null && lastEntryNo !== undefined && Number(lastEntryNo) > 0) {
+        candidate = Number(lastEntryNo) + 1;
+    } else {
+        let staffLastEntry = null;
+        if (staffId) {
+            staffLastEntry = activeEntries
+                .filter(e => e.staffId && String(e.staffId) === String(staffId))
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))[0];
+        }
+
+        if (staffLastEntry && Number(staffLastEntry.entryNo) > 0) {
+            candidate = Number(staffLastEntry.entryNo) + 1;
+        } else if (takenSet.size > 0) {
+            const maxNo = Math.max(...takenSet);
+            candidate = maxNo + 1;
+        } else {
+            candidate = 1;
+        }
+    }
+
+    while (takenSet.has(candidate)) {
+        candidate++;
+    }
+
+    return candidate;
+}
+
 app.get('/api/collection-entry-meta', requireSecureAuth, verifyEmployee, verifyCollectionAccess, async (req, res) => {
     try {
         const canAdd = await hasActionAccess(req.employee, 'collection', 'add');
@@ -3333,8 +3369,8 @@ app.get('/api/collection-entry-meta', requireSecureAuth, verifyEmployee, verifyC
         const collectionFilter = await employeeCollectionFilter(req.employee);
         const activeCollectionFilter = { ...collectionFilter };
         applyStatusFilter(activeCollectionFilter, 'Active');
-        const [lastEntry, services, todayAggregate, accessRows] = await Promise.all([
-            CollectionEntry.findOne({ entryDate }).sort({ entryNo: -1 }).select('entryNo').lean(),
+        const [nextEntryNo, services, todayAggregate, accessRows] = await Promise.all([
+            calculateNextEntryNo(entryDate, req.query.lastEntryNo, req.employee._id),
             RateList.find({ status: 'Active' }).lean(),
             CollectionEntry.aggregate([
                 { $match: { ...activeCollectionFilter, entryDate: todayDate } },
@@ -3355,7 +3391,7 @@ app.get('/api/collection-entry-meta', requireSecureAuth, verifyEmployee, verifyC
             todayDate: today,
             allowPreviousEntry: config?.allowPreviousEntry ?? false,
             allowedDates: [...allowedDates].sort((left, right) => right.localeCompare(left)),
-            nextEntryNo: Number(lastEntry?.entryNo || 0) + 1,
+            nextEntryNo,
             todayTotal: Number(todayAggregate[0]?.total || 0),
             todayCount: Number(todayAggregate[0]?.count || 0),
             services: services.map(item => ({
@@ -5562,8 +5598,16 @@ app.post('/api/save-collection', requireSecureAuth, verifyEmployee, verifyCollec
         if (String(req.body.remark || '').trim().length > 1000) {
             return res.status(400).json({ error: 'Remark cannot exceed 1000 characters.' });
         }
-        if (await CollectionEntry.exists({ entryDate: parsedEntryDate, entryNo: numericEntryNo })) {
-            return res.status(409).json({ error: `Entry No. ${numericEntryNo} already exists for ${entryDate}.` });
+        const duplicate = await CollectionEntry.findOne({
+            entryDate: parsedEntryDate,
+            entryNo: numericEntryNo,
+            status: 'Active'
+        }).select('staff amount entryNo').lean();
+        if (duplicate) {
+            const formattedAmount = Number(duplicate.amount || 0).toLocaleString('en-IN');
+            return res.status(409).json({
+                error: `Entry No. ${numericEntryNo} already exists for this date. (Entered by: ${duplicate.staff || 'Staff'}, Amount: ₹${formattedAmount})`
+            });
         }
 
         const allocation = parsedItems
@@ -5595,7 +5639,16 @@ app.post('/api/save-collection', requireSecureAuth, verifyEmployee, verifyCollec
         });
     } catch (error) {
         if (error.code === 11000) {
-            return res.status(409).json({ error: 'An entry with the same Entry No. already exists for that date.' });
+            try {
+                const existing = await CollectionEntry.findOne({ entryDate: parsedEntryDate, entryNo: numericEntryNo, status: 'Active' }).select('staff amount').lean();
+                if (existing) {
+                    const formattedAmount = Number(existing.amount || 0).toLocaleString('en-IN');
+                    return res.status(409).json({
+                        error: `Entry No. ${numericEntryNo} already exists for this date. (Entered by: ${existing.staff || 'Staff'}, Amount: ₹${formattedAmount})`
+                    });
+                }
+            } catch {}
+            return res.status(409).json({ error: `Entry No. ${numericEntryNo} already exists for this date.` });
         }
         if (error.status === 400) return res.status(400).json({ error: error.message });
         console.error('Collection save error:', error);
@@ -5679,13 +5732,17 @@ app.put('/api/collections/:id', requireSecureAuth, verifyEmployee, verifyCollect
             return res.status(400).json({ error: 'Remark cannot exceed 1000 characters.' });
         }
 
-        const duplicate = await CollectionEntry.exists({
+        const duplicate = await CollectionEntry.findOne({
             _id: { $ne: req.params.id },
             entryDate: parsedEntryDate,
-            entryNo: numericEntryNo
-        });
+            entryNo: numericEntryNo,
+            status: 'Active'
+        }).select('staff amount entryNo').lean();
         if (duplicate) {
-            return res.status(409).json({ error: `Entry No. ${numericEntryNo} already exists for ${entryDate}.` });
+            const formattedAmount = Number(duplicate.amount || 0).toLocaleString('en-IN');
+            return res.status(409).json({
+                error: `Entry No. ${numericEntryNo} already exists for this date. (Entered by: ${duplicate.staff || 'Staff'}, Amount: ₹${formattedAmount})`
+            });
         }
         const preserveItems = !parsedItems &&
             Array.isArray(before.items) &&
@@ -5789,6 +5846,146 @@ app.patch('/api/collections/:id/deactivate', requireSecureAuth, verifyEmployee, 
     }
 });
 
+app.get('/api/collection/next-entry-no', requireSecureAuth, verifyEmployee, verifyCollectionAccess, async (req, res) => {
+    try {
+        const dateText = String(req.query.date || getTodayDate()).trim();
+        const entryDate = parseDateStart(dateText);
+        if (!entryDate) return res.status(400).json({ error: 'Select a valid date.' });
+        const lastNo = req.query.lastEntryNo !== undefined && req.query.lastEntryNo !== '' ? Number(req.query.lastEntryNo) : null;
+        const nextEntryNo = await calculateNextEntryNo(entryDate, lastNo, req.employee._id);
+        return res.json({ date: dateText, nextEntryNo });
+    } catch (error) {
+        console.error('Next entry no error:', error);
+        return res.status(500).json({ error: 'Could not calculate next entry number.' });
+    }
+});
+
+app.patch('/api/collections/:id/restore', requireSecureAuth, verifyEmployee, verifyCollectionAccess, async (req, res) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ error: 'MongoDB is not connected. Please try again shortly.' });
+        }
+        if (!mongoose.isValidObjectId(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid customer entry.' });
+        }
+        const filter = { _id: req.params.id, ...await employeeCollectionFilter(req.employee) };
+        const entryToRestore = await CollectionEntry.findOne(filter);
+        if (!entryToRestore) {
+            return res.status(404).json({ error: 'Customer entry not found.' });
+        }
+        if (entryToRestore.status === 'Active') {
+            return res.status(400).json({ error: 'This customer entry is already active.' });
+        }
+
+        const conflict = await CollectionEntry.findOne({
+            _id: { $ne: entryToRestore._id },
+            entryDate: entryToRestore.entryDate,
+            entryNo: entryToRestore.entryNo,
+            status: 'Active'
+        }).select('entryNo staff amount').lean();
+
+        if (conflict) {
+            const formattedAmount = Number(conflict.amount || 0).toLocaleString('en-IN');
+            return res.status(409).json({
+                error: `Cannot restore: Entry No. ${entryToRestore.entryNo} is already in use by an active entry on this date. (Entered by: ${conflict.staff || 'Staff'}, Amount: ₹${formattedAmount})`
+            });
+        }
+
+        const before = entryToRestore.toObject();
+        entryToRestore.status = 'Active';
+        entryToRestore.inactiveAction = '';
+        entryToRestore.inactiveAt = null;
+        entryToRestore.inactiveBy = '';
+        await entryToRestore.save();
+
+        await recordAudit(req, {
+            action: 'RESTORE', page: 'Collection Table', module: 'Customer Entry',
+            recordType: 'Collection', recordId: String(entryToRestore._id), oldValue: before, newValue: entryToRestore
+        });
+        return res.json({ message: 'Customer entry restored successfully.', entry: entryToRestore });
+    } catch (error) {
+        console.error('Collection restore error:', error);
+        return res.status(500).json({ error: 'Could not restore the customer entry.' });
+    }
+});
+
+app.delete('/api/collections/:id/permanent', requireSecureAuth, verifyEmployee, verifyCollectionAccess, async (req, res) => {
+    try {
+        if (!isAdmin(req.employee)) {
+            return res.status(403).json({ error: 'Only administrators can permanently delete records.' });
+        }
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ error: 'MongoDB is not connected. Please try again shortly.' });
+        }
+        if (!mongoose.isValidObjectId(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid customer entry.' });
+        }
+        const entry = await CollectionEntry.findById(req.params.id);
+        if (!entry) {
+            return res.status(404).json({ error: 'Customer entry not found.' });
+        }
+        await CollectionEntry.deleteOne({ _id: entry._id });
+
+        await recordAudit(req, {
+            action: 'PERMANENT_DELETE', page: 'Collection Table', module: 'Customer Entry',
+            recordType: 'Collection', recordId: String(entry._id), oldValue: entry, newValue: null
+        });
+        return res.json({ message: 'Customer entry permanently deleted.' });
+    } catch (error) {
+        console.error('Collection permanent delete error:', error);
+        return res.status(500).json({ error: 'Could not permanently delete the customer entry.' });
+    }
+});
+
+app.patch('/api/employee-records/:id/restore', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        if (!mongoose.isValidObjectId(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid employee record.' });
+        }
+        const scope = { _id: req.params.id };
+        if (!isAdmin(req.employee)) scope.employeeId = req.employee._id;
+        const entry = await EmployeeRecord.findOne(scope);
+        if (!entry) return res.status(404).json({ error: 'Employee record not found.' });
+        const before = entry.toObject();
+        entry.status = 'Active';
+        entry.inactiveAction = '';
+        entry.inactiveAt = null;
+        entry.inactiveBy = '';
+        await entry.save();
+        await recordAudit(req, {
+            action: 'RESTORE', page: 'Employee Record Table', module: entry.recordType,
+            recordType: 'EmployeeRecord', recordId: String(entry._id), oldValue: before, newValue: entry
+        });
+        return res.json({ message: 'Record restored successfully.', record: entry });
+    } catch (error) {
+        console.error('Record restore error:', error);
+        return res.status(500).json({ error: 'Could not restore the record.' });
+    }
+});
+
+app.delete('/api/employee-records/:id/permanent', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        if (!isAdmin(req.employee)) {
+            return res.status(403).json({ error: 'Only administrators can permanently delete records.' });
+        }
+        if (!mongoose.isValidObjectId(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid employee record.' });
+        }
+        const entry = await EmployeeRecord.findById(req.params.id);
+        if (!entry) return res.status(404).json({ error: 'Employee record not found.' });
+        await EmployeeRecord.deleteOne({ _id: entry._id });
+        await recordAudit(req, {
+            action: 'PERMANENT_DELETE', page: 'Employee Record Table', module: entry.recordType,
+            recordType: 'EmployeeRecord', recordId: String(entry._id), oldValue: entry, newValue: null
+        });
+        return res.json({ message: 'Record permanently deleted.' });
+    } catch (error) {
+        console.error('Record permanent delete error:', error);
+        return res.status(500).json({ error: 'Could not permanently delete the record.' });
+    }
+});
+
+
 app.use((error, req, res, next) => {
     console.error('Unhandled request error:', error);
     if (res.headersSent) return next(error);
@@ -5797,6 +5994,24 @@ app.use((error, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+
+    const fixIndexes = async () => {
+        try {
+            const coll = mongoose.connection.collection('collections');
+            const indexes = await coll.indexes();
+            const oldIdx = indexes.find(i => i.name === 'entryDate_1_entryNo_1' && !i.partialFilterExpression);
+            if (oldIdx) {
+                console.log('Dropping legacy unique index entryDate_1_entryNo_1...');
+                await coll.dropIndex('entryDate_1_entryNo_1');
+                console.log('Dropped legacy index. Recreating partial unique index...');
+                await coll.createIndex({ entryDate: 1, entryNo: 1 }, { unique: true, partialFilterExpression: { status: 'Active' } });
+            }
+        } catch (e) {
+            // Index might not exist yet or collection is empty
+        }
+    };
+    fixIndexes();
+
     const runDateAccessMigration = () => {
         migrateLegacyDateAccess().catch(error => {
             console.error('Legacy date-access migration error:', error);
