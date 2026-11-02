@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Login — YOURS SALON</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
  --bg:linear-gradient(160deg,#eafaf0 0%,#fff9ea 50%,#eefaf6 100%);--panel:#fff;--text:#2b2540;--muted:#8b86a3;--line:#eeeaf7;
@@ -282,7 +283,10 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
 <div id="methods">
   <div class="or" id="orBlock">OR</div>
   <div class="methods-row" id="methodsRow">
-    <button class="method-icon" id="googleBtn" type="button" title="Login with Google" aria-label="Login with Google"><span class="google">G</span></button>
+    <div class="method-icon" id="googleBtn" role="button" tabindex="0" title="Login with Google" aria-label="Login with Google" style="cursor:pointer">
+      <span class="google">G</span>
+      <div id="googleBtnIframe" style="position:absolute;inset:0;opacity:0.001;overflow:hidden;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;"></div>
+    </div>
     <button class="method-icon" id="mobileBtn" type="button" title="Login with Mobile No. (coming soon)" aria-label="Login with Mobile No. — coming soon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg><span class="soon-dot"></span></button>
     <button class="method-icon" id="faceBtn" type="button" title="Login with Face (coming soon)" aria-label="Login with Face — coming soon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 10h.01M15.5 10h.01M8.5 14.5c1 1.2 2.1 1.8 3.5 1.8s2.5-.6 3.5-1.8"/></svg><span class="soon-dot"></span></button>
   </div>
@@ -360,7 +364,7 @@ async function request(url,options={}){
   let result={};
   try{result=await response.json()}catch{}
   if(!response.ok){
-    const error=new Error(result.error||'Request failed.');
+    const error=new Error(result.error||(response.status===404?'Server endpoint not found (404). Please restart the server.':'Request failed ('+response.status+').'));
     error.status=response.status;
     error.payload=result;
     throw error;
@@ -646,7 +650,83 @@ setupForm.addEventListener('submit',async event=>{
   }
 });
 
-document.getElementById('googleBtn').addEventListener('click',()=>showStatus('Google sign-in is not enabled. Use User ID and password.','error'));
+const GOOGLE_CLIENT_ID = '326263063666-ndmfvf4eidtvdkr5imc19din2evqbinv.apps.googleusercontent.com';
+
+async function handleGoogleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    showStatus('Google sign-in did not return credentials.', 'error');
+    return;
+  }
+  const sCode = (salonCodeInput?.value || localStorage.getItem('salon_code') || 'yourssalon').trim().toLowerCase();
+  showStatus('Verifying Google account with salon...', 'loading');
+  try {
+    const result = await request('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-salon-code': sCode },
+      body: JSON.stringify({ credential: response.credential, salonCode: sCode })
+    });
+    localStorage.setItem(tokenKey, result.token);
+    localStorage.setItem('salon_user_email', result.employee.userId || result.employee.emailAddress);
+    localStorage.setItem('salon_code', sCode);
+    document.cookie = 'salon_code=' + sCode + '; path=/; max-age=31536000';
+    showStatus('Signed in successfully! Redirecting...', 'success');
+    if (result.employee.mustChangePassword) {
+      location.replace('/password-change');
+      return;
+    }
+    location.replace(await portalPath(result.employee));
+  } catch (error) {
+    showStatus(error.message || 'Could not sign in with Google.', 'error');
+  }
+}
+
+function initGoogleSignIn() {
+  if (!window.google?.accounts?.id) return;
+  try {
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredentialResponse,
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+    const iframeEl = document.getElementById('googleBtnIframe');
+    if (iframeEl && !iframeEl.hasChildNodes()) {
+      window.google.accounts.id.renderButton(iframeEl, {
+        type: 'standard',
+        size: 'large',
+        width: 150
+      });
+    }
+  } catch (e) {
+    console.warn('Google sign-in init:', e);
+  }
+}
+
+window.addEventListener('load', () => {
+  let tries = 0;
+  const interval = setInterval(() => {
+    tries++;
+    if (window.google?.accounts?.id) {
+      clearInterval(interval);
+      initGoogleSignIn();
+    } else if (tries > 25) {
+      clearInterval(interval);
+    }
+  }, 200);
+});
+
+document.getElementById('googleBtn').addEventListener('click', () => {
+  if (!window.google?.accounts?.id) {
+    showStatus('Google Sign-In is still loading. Please wait a moment.', 'loading');
+    return;
+  }
+  initGoogleSignIn();
+  window.google.accounts.id.prompt((notification) => {
+    if (notification.isNotDisplayed()) {
+      showStatus('Google prompt unavailable (' + notification.getNotDisplayedReason() + '). Click the Google button again or check cookies.', 'error');
+    }
+  });
+});
 document.getElementById('mobileBtn').addEventListener('click',()=>showStatus('Mobile login is coming soon.','loading'));
 document.getElementById('faceBtn').addEventListener('click',()=>showStatus('Face login is coming soon.','loading'));
 

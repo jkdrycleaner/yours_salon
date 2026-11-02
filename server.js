@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { AsyncLocalStorage } = require('async_hooks');
+const { OAuth2Client } = require('google-auth-library');
 require('dotenv').config();
 
 const tenantStorage = new AsyncLocalStorage();
@@ -45,6 +46,8 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 const SESSION_COOKIE = 'salon_session';
 const SESSION_MAX_AGE_SECONDS = 8 * 60 * 60;
 const googleAuthRequired = false;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '326263063666-ndmfvf4eidtvdkr5imc19din2evqbinv.apps.googleusercontent.com';
+const googleOAuthClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 const defaultPermissionCategories = ['Customer Entry', 'Daily Expense', 'Salary', 'Cash At Counter'];
 const accessGroupDefinitions = [
     {
@@ -1747,6 +1750,7 @@ app.get('/api/public-config', async (req, res) => {
         const config = await AppConfig.findOne({ key: 'collection' }).lean();
         return res.json({
             googleAuthRequired,
+            googleClientId: GOOGLE_CLIENT_ID,
             allowPreviousEntry: config?.allowPreviousEntry ?? false,
             todayDate: getTodayDate()
         });
@@ -2059,6 +2063,126 @@ app.post('/api/login', async (req, res) => {
     } catch (error) {
         console.error('User ID login error:', error);
         return res.status(500).json({ error: 'Could not sign in. Please try again.' });
+    }
+});
+
+app.post('/api/auth/google', async (req, res) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ error: 'Database connection is unavailable. Check the Atlas network access list and try again.' });
+        }
+        const credential = String(req.body.credential || '').trim();
+        if (!credential) {
+            return res.status(400).json({ error: 'Missing Google credential.' });
+        }
+
+        let payload;
+        try {
+            const ticket = await googleOAuthClient.verifyIdToken({
+                idToken: credential,
+                audience: GOOGLE_CLIENT_ID
+            });
+            payload = ticket.getPayload();
+        } catch (err) {
+            console.error('Google token verification failed:', err);
+            return res.status(401).json({ error: 'Google sign-in verification failed. Please try again.' });
+        }
+
+        const email = String(payload?.email || '').trim().toLowerCase();
+        if (!email) {
+            return res.status(400).json({ error: 'Could not retrieve email from Google account.' });
+        }
+
+        const salonCode = String(req.body.salonCode ?? req.headers['x-salon-code'] ?? req.tenant?.shopCode ?? 'yourssalon').trim().toLowerCase();
+        const shop = await Shop.findOne({ shopCode: salonCode }).lean();
+        if (!shop) {
+            return res.status(404).json({ error: `Salon Code '${salonCode}' not found.` });
+        }
+        const tenantDb = getTenantDb(shop.dbName);
+        const tenantContext = { shopCode: shop.shopCode, dbName: shop.dbName, db: tenantDb };
+
+        return tenantStorage.run(tenantContext, async () => {
+            const storedAdminAccount = await AdminCredential.findOne({ key: 'primary' }).select('+passwordHash');
+            if (storedAdminAccount && storedAdminAccount.userId.toLowerCase() === email) {
+                const token = jwt.sign({
+                    kind: 'salon-session',
+                    shopCode: shop.shopCode,
+                    dbName: shop.dbName,
+                    role: 'Admin',
+                    userId: storedAdminAccount.userId,
+                    authVersion: storedAdminAccount.authVersion,
+                    sub: 'bootstrap-admin'
+                }, sessionSecret, { expiresIn: '8h' });
+                setSessionCookie(res, token);
+                await recordAudit(req, {
+                    action: 'LOGIN_GOOGLE',
+                    page: 'Login',
+                    module: 'Authentication',
+                    newValue: { userId: storedAdminAccount.userId, email, role: 'Admin' }
+                }, { employeeName: 'Admin', userId: storedAdminAccount.userId, role: 'Admin' });
+                return res.json({
+                    token,
+                    employee: employeePublicDetails({ role: 'Admin', userId: storedAdminAccount.userId, employeeName: 'Admin', emailAddress: email })
+                });
+            }
+
+            if (!storedAdminAccount && bootstrapAdminUserId && bootstrapAdminUserId.toLowerCase() === email) {
+                const token = jwt.sign({
+                    kind: 'salon-session',
+                    shopCode: shop.shopCode,
+                    dbName: shop.dbName,
+                    role: 'Admin',
+                    userId: bootstrapAdminUserId,
+                    sub: 'bootstrap-admin'
+                }, sessionSecret, { expiresIn: '8h' });
+                setSessionCookie(res, token);
+                await recordAudit(req, {
+                    action: 'LOGIN_GOOGLE',
+                    page: 'Login',
+                    module: 'Authentication',
+                    newValue: { userId: bootstrapAdminUserId, email, role: 'Admin' }
+                }, { employeeName: 'Admin', userId: bootstrapAdminUserId, role: 'Admin' });
+                return res.json({
+                    token,
+                    employee: employeePublicDetails({ role: 'Admin', userId: bootstrapAdminUserId, employeeName: 'Admin', emailAddress: email })
+                });
+            }
+
+            const employee = await Employee.findOne({
+                status: 'Active',
+                $or: [
+                    { emailAddress: email },
+                    { userId: email }
+                ]
+            });
+
+            if (!employee) {
+                return res.status(403).json({
+                    error: `Gmail ID '${email}' is not registered with this salon. Please ask Admin to link your email in employee settings.`
+                });
+            }
+
+            const role = isAdmin(employee) ? 'Admin' : 'Employee';
+            const token = jwt.sign({
+                kind: 'salon-session',
+                shopCode: shop.shopCode,
+                dbName: shop.dbName,
+                role,
+                userId: employee.userId,
+                sub: String(employee._id)
+            }, sessionSecret, { expiresIn: '8h' });
+            setSessionCookie(res, token);
+            await recordAudit(req, {
+                action: 'LOGIN_GOOGLE',
+                page: 'Login',
+                module: 'Authentication',
+                newValue: { userId: employee.userId, email, role }
+            }, employee);
+            return res.json({ token, employee: employeePublicDetails(employee) });
+        });
+    } catch (error) {
+        console.error('Google login error:', error);
+        return res.status(500).json({ error: 'Could not complete Google sign-in. Please try again.' });
     }
 });
 
