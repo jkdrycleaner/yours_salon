@@ -2645,11 +2645,12 @@
     mobileFilterOverlay.addEventListener('click',closeMobileFilters);
     document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMobileFilters();closeAdvFilters();document.getElementById('advCustomPickerBox')?.setAttribute('hidden','');}});
     window.salonPageReady=(async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;      if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
-      if((moduleKey==='salary'||moduleKey==='expense')&&(isMobileViewport||queryModule==='salary'||location.pathname==='/salary-table')){
+      const isAdminUser = session.employee?.role === 'Admin';
+      if(!isAdminUser && (moduleKey==='salary'||moduleKey==='expense') && (isMobileViewport || queryModule==='my-salary')){
         await salInit();
         return;
       }
-      if(moduleKey==='collection'&&isMobileViewport){await mwInit();return}
+      if(!isAdminUser && moduleKey==='collection'&&isMobileViewport){await mwInit();return}
       if(session.employee.role==='Admin'){document.getElementById('employeeField').hidden=false;const staff=await salonAuth.request('/api/staff');for(const employee of staff)document.getElementById('employee').add(new Option(`${employee.employeeName} · ${employee.employeeId}`,employee._id));if(requestedEmployeeId&&staff.some(employee=>employee._id===requestedEmployeeId))document.getElementById('employee').value=requestedEmployeeId}
       if(!can('add')||session.pageAccess?.[definition.entryPage]===false)entryLink.hidden=true;
       updateBulkBar();updateMobileFilterBar();
