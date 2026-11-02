@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salon-staff-pwa-v1';
+const CACHE_NAME = 'salon-staff-pwa-v2';
 const PRECACHE_ASSETS = [
   '/login.html',
   '/manifest.webmanifest',

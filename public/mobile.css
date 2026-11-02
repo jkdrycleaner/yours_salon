@@ -21,10 +21,17 @@
 }
 
 @media (max-width: 700px) {
+  :root {
+    --m-header: 52px;
+    --m-nav: 54px;
+  }
+
   body.mobile-employee {
-    padding-top: var(--m-header);
-    padding-bottom: calc(var(--m-nav) + env(safe-area-inset-bottom, 0px));
+    padding-top: var(--m-header) !important;
+    padding-bottom: calc(var(--m-nav) + env(safe-area-inset-bottom, 0px)) !important;
     background: #f3f5f9 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
   body.mobile-employee .salon-header,
@@ -36,9 +43,22 @@
 
   body.mobile-employee.salon-layout > main,
   body.mobile-employee.salon-layout > .wrap,
-  body.mobile-employee.salon-layout > .container {
+  body.mobile-employee.salon-layout > .container,
+  body.mobile-employee.salon-layout main.wrap,
+  body.mobile-employee.salon-layout .wrap,
+  body.mobile-employee > main,
+  body.mobile-employee > .wrap,
+  body.mobile-employee main.wrap,
+  body.mobile-employee .wrap {
     width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
     margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
   }
 
   body.mobile-employee .m-mobile-header {
