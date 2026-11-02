@@ -22,15 +22,12 @@
   </style>
     <style>
     @media (max-width: 700px) {
-      html, body.mobile-employee {
-        height: 100%;
-        overflow-x: hidden;
-      }
       body.mobile-employee {
         padding-top: var(--m-header, 52px) !important;
         padding-bottom: calc(var(--m-nav, 54px) + env(safe-area-inset-bottom, 0px)) !important;
-        background: #f3f5f9 !important;
+        background: #f4f7fb !important;
         margin: 0 !important;
+        box-sizing: border-box !important;
       }
       body.mobile-employee .wrap,
       body.mobile-employee main.wrap,
@@ -46,47 +43,36 @@
         box-sizing: border-box !important;
       }
       body.mobile-employee #mobileDashboard {
-        box-sizing: border-box;
-        width: 100%;
-        max-width: 100%;
-        min-width: 100%;
-        height: calc(100vh - var(--m-header, 52px) - var(--m-nav, 54px) - env(safe-area-inset-bottom, 0px));
-        height: calc(100dvh - var(--m-header, 52px) - var(--m-nav, 54px) - env(safe-area-inset-bottom, 0px));
-        min-height: calc(100vh - var(--m-header, 52px) - var(--m-nav, 54px) - env(safe-area-inset-bottom, 0px));
-        min-height: calc(100dvh - var(--m-header, 52px) - var(--m-nav, 54px) - env(safe-area-inset-bottom, 0px));
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 6px 12px 8px;
-        gap: 6px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        background: #f3f5f9;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        padding: 12px 14px 24px !important;
+        background: #f4f7fb !important;
+        display: block !important;
       }
       .emp-greeting {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin: 0;
-        padding: 2px 2px;
-        flex: 0 0 auto;
+        gap: 14px;
+        margin: 4px 0 14px;
       }
       .emp-avatar {
         position: relative;
         display: grid;
         place-items: center;
-        width: 42px;
-        height: 42px;
-        flex: 0 0 42px;
+        width: 58px;
+        height: 58px;
+        flex: 0 0 58px;
         overflow: hidden;
         border: 2px solid #f0c96a;
-        border-radius: 12px;
+        border-radius: 18px;
         background: #fff8e8;
         color: #c99a23;
       }
       .emp-avatar svg {
-        width: 22px;
-        height: 22px;
+        width: 32px;
+        height: 32px;
         stroke: currentColor;
         fill: none;
         stroke-width: 1.6;
@@ -100,79 +86,73 @@
         object-fit: cover;
       }
       .emp-greeting p {
-        margin: 0;
+        margin: 0 0 2px;
         color: #667085;
-        font-size: 11px;
-        line-height: 1.2;
+        font-size: 13px;
       }
       .emp-greeting h1 {
-        margin: 1px 0;
+        margin: 0;
         color: #1d2939;
-        font: 800 18px/1.15 Arial, sans-serif;
+        font: 800 24px/1.15 Arial, sans-serif;
         letter-spacing: -0.02em;
       }
       .emp-greeting small {
         display: block;
-        margin: 0;
-        color: #8a96a5;
-        font-size: 10.5px;
+        margin-top: 3px;
+        color: #667085;
+        font-size: 12px;
       }
       .emp-today {
-        flex: 1 1 auto;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 8px 12px 6px;
+        display: block;
+        padding: 16px 16px 0;
         border: 1px solid #e7ebf0;
-        border-radius: 14px;
+        border-radius: 20px;
         background: #fff;
-        box-shadow: 0 3px 12px #1b2a3b06;
-        margin: 0;
+        box-shadow: 0 8px 24px #1b2a3b08;
+        margin-top: 12px;
       }
       .emp-today-top {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        gap: 8px;
+        gap: 10px;
       }
       .emp-kicker {
         color: #9a7414;
-        font: 800 9.5px Arial, sans-serif;
+        font: 800 11px Arial, sans-serif;
         letter-spacing: .06em;
         text-transform: uppercase;
       }
       .emp-today-value {
-        margin-top: 2px;
+        margin-top: 4px;
         color: #0b7a43;
-        font: 800 28px/1 Arial, sans-serif;
+        font: 800 38px/1 Arial, sans-serif;
         letter-spacing: -0.03em;
       }
       .emp-today-label {
-        margin-top: 2px;
+        margin-top: 3px;
         color: #667085;
-        font-size: 10.5px;
+        font-size: 12px;
       }
       .emp-today-side {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        flex: 0 0 auto;
       }
       .emp-trend-row {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
       }
       .emp-trend {
         display: inline-flex;
         align-items: center;
-        gap: 2px;
-        padding: 2px 6px;
-        border-radius: 6px;
+        gap: 3px;
+        padding: 4px 8px;
+        border-radius: 8px;
         background: #e6f8ee;
         color: #0b7a43;
-        font: 800 9.5px Arial, sans-serif;
+        font: 800 11px Arial, sans-serif;
         white-space: nowrap;
       }
       .emp-trend.down {
@@ -181,13 +161,13 @@
       }
       .emp-trend-note {
         color: #8a96a5;
-        font-size: 9.5px;
+        font-size: 11px;
         white-space: nowrap;
       }
       .emp-spark {
-        width: 86px;
-        height: 24px;
-        margin-top: 3px;
+        width: 108px;
+        height: 36px;
+        margin-top: 6px;
       }
       .emp-spark svg {
         width: 100%;
@@ -196,12 +176,12 @@
       .emp-today-split {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        margin-top: 6px;
-        padding: 6px 0 2px;
+        margin-top: 14px;
+        padding: 12px 0;
         border-top: 1px solid #edf0f4;
       }
       .emp-today-split > div {
-        padding: 0 3px;
+        padding: 0 6px;
         border-left: 1px solid #edf0f4;
         text-align: center;
       }
@@ -217,13 +197,13 @@
       .emp-today-split span {
         display: block;
         color: #667085;
-        font-size: 9.5px;
+        font-size: 11px;
         white-space: nowrap;
       }
       .emp-today-split strong {
         display: block;
-        margin-top: 2px;
-        font-size: 14px;
+        margin-top: 4px;
+        font-size: 17px;
         font-weight: 800;
         letter-spacing: -0.02em;
       }
@@ -232,31 +212,30 @@
       .emp-purple { color: #8b3fd1; }
       .emp-green { color: #0b7a43; }
       .emp-star {
-        flex: 0 0 auto;
         display: flex;
         align-items: center;
-        gap: 9px;
-        margin: 0;
-        padding: 6px 10px;
+        gap: 14px;
+        margin-top: 12px;
+        padding: 14px 16px;
         border: 1px solid #f0d99a;
-        border-radius: 13px;
+        border-radius: 20px;
         background: #fff8e8;
       }
       .emp-star-avatar {
         position: relative;
         display: grid;
         place-items: center;
-        width: 36px;
-        height: 36px;
-        flex: 0 0 36px;
+        width: 56px;
+        height: 56px;
+        flex: 0 0 56px;
         border: 2px solid #e2b33f;
         border-radius: 50%;
         background: #fff;
         color: #c99a23;
       }
       .emp-star-avatar svg {
-        width: 20px;
-        height: 20px;
+        width: 32px;
+        height: 32px;
         stroke: currentColor;
         fill: none;
         stroke-width: 1.6;
@@ -277,20 +256,20 @@
         bottom: -2px;
         display: grid;
         place-items: center;
-        width: 15px;
-        height: 15px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
         background: #d8a62b;
         color: #fff;
-        font-size: 9px;
+        font-size: 10px;
       }
       .emp-star.is-winner {
         border-color: #e2b33f;
-        box-shadow: 0 3px 10px #d8a62b20;
+        box-shadow: 0 6px 18px #d8a62b20;
       }
       .emp-star.is-winner .emp-star-crown {
         background: #b8860b;
-        box-shadow: 0 0 0 2px #f8e6ae;
+        box-shadow: 0 0 0 3px #f8e6ae;
       }
       .emp-star-copy {
         min-width: 0;
@@ -298,60 +277,49 @@
       }
       .emp-star .emp-kicker {
         color: #b8860b;
-        font-size: 9px;
       }
       .emp-star h2 {
-        margin: 1px 0 0;
+        margin: 3px 0 0;
         color: #3d3524;
-        font-size: 13.5px;
+        font-size: 17px;
         font-weight: 800;
         letter-spacing: -0.01em;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
       .emp-star p {
-        margin: 1px 0 0;
+        margin: 2px 0 0;
         color: #8a6a12;
-        font-size: 10.5px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 12px;
       }
       .emp-star-badge {
         display: inline-block;
-        margin-top: 2px;
-        padding: 1px 5px;
-        border-radius: 4px;
+        margin-top: 4px;
+        padding: 2px 6px;
+        border-radius: 6px;
         background: #f7e4a9;
         color: #6d4c00;
-        font: 800 8.5px/1.2 Arial, sans-serif;
+        font: 800 9px/1.3 Arial, sans-serif;
       }
       .emp-month-card {
-        flex: 1 1 auto;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 8px 12px;
+        display: block;
+        margin-top: 12px;
+        padding: 16px;
         border: 1px solid #e7ebf0;
-        border-radius: 14px;
+        border-radius: 20px;
         background: #fff;
-        box-shadow: 0 3px 12px #1b2a3b06;
-        margin: 0;
+        box-shadow: 0 8px 24px #1b2a3b08;
       }
       .emp-month-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        padding-bottom: 5px;
+        gap: 10px;
+        padding-bottom: 10px;
         border-bottom: 1px solid #edf0f4;
       }
       .emp-month-head h2 {
         margin: 0;
         color: #1d2939;
-        font-size: 14px;
+        font-size: 18px;
         font-weight: 800;
         letter-spacing: -0.01em;
       }
@@ -359,20 +327,20 @@
         position: relative;
         display: flex;
         align-items: center;
-        gap: 4px;
-        min-height: 26px;
-        padding: 3px 7px;
+        gap: 6px;
+        min-height: 34px;
+        padding: 6px 10px;
         border: 1px solid #e5e9ef;
-        border-radius: 7px;
+        border-radius: 10px;
         background: #fff;
         color: #1d2939;
-        font: 700 10.5px Arial, sans-serif;
+        font: 700 12px Arial, sans-serif;
         cursor: pointer;
         white-space: nowrap;
       }
       .emp-month-pill svg {
-        width: 13px;
-        height: 13px;
+        width: 15px;
+        height: 15px;
         stroke: #667085;
         fill: none;
         stroke-width: 1.8;
@@ -391,25 +359,25 @@
         margin-top: 2px;
       }
       .emp-month-grid > div {
-        padding: 5px 0;
+        padding: 10px 0;
         border-bottom: 1px solid #edf0f4;
       }
       .emp-month-grid > div:nth-child(odd) {
-        padding-right: 6px;
+        padding-right: 10px;
         border-right: 1px solid #edf0f4;
       }
       .emp-month-grid > div:nth-child(even) {
-        padding-left: 6px;
+        padding-left: 10px;
       }
       .emp-month-grid span {
         display: block;
         color: #667085;
-        font-size: 9.5px;
+        font-size: 12px;
       }
       .emp-month-grid strong {
         display: block;
-        margin-top: 1px;
-        font-size: 15px;
+        margin-top: 3px;
+        font-size: 19px;
         font-weight: 800;
         letter-spacing: -0.02em;
       }
@@ -417,10 +385,10 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        margin-top: 4px;
+        gap: 10px;
+        margin-top: 10px;
         color: #667085;
-        font-size: 9.5px;
+        font-size: 12px;
       }
       .emp-taken b {
         color: #667085;
@@ -428,9 +396,9 @@
       }
       .emp-progress {
         display: flex;
-        height: 6px;
+        height: 10px;
         overflow: hidden;
-        margin-top: 3px;
+        margin-top: 6px;
         border-radius: 99px;
         background: #dff4e8;
       }
@@ -444,28 +412,28 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        margin-top: 5px;
-        padding: 6px 10px;
-        border-radius: 10px;
+        gap: 10px;
+        margin-top: 12px;
+        padding: 12px 16px;
+        border-radius: 14px;
         background: #202b38;
         color: #fff;
       }
       .emp-balance span {
         display: block;
         color: #fff;
-        font: 800 10.5px Arial, sans-serif;
-        letter-spacing: .03em;
+        font: 800 12px Arial, sans-serif;
+        letter-spacing: .04em;
       }
       .emp-balance small {
         display: block;
-        margin-top: 1px;
+        margin-top: 2px;
         color: #cbd3dc;
-        font-size: 9.5px;
+        font-size: 11px;
       }
       .emp-balance strong {
         color: #f4c64d;
-        font-size: 17px;
+        font-size: 22px;
         font-weight: 800;
         letter-spacing: -0.02em;
         white-space: nowrap;

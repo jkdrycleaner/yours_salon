@@ -474,21 +474,9 @@ async function request(url,options={}){
   }
   return result;
 }
-async function portalPath(employee,knownSession=null){
-  if(employee.role==='Admin')return'/admin-dashboard';
-  if(!window.matchMedia('(max-width:700px)').matches)return'/employee-dashboard';
-  try{
-    const session=knownSession||await request('/api/session',{headers:authHeaders()});
-    const access=session.actionAccess?.collection;
-    const fallback=session.permissions?.includes('Customer Entry');
-    const canAdd=access?access.add===true:fallback;
-    const canView=access?access.view===true:fallback;
-    if(canAdd)return'/forms';
-    if(canView)return'/reports';
-    return'/employee-dashboard';
-  }catch{
-    return'/employee-dashboard';
-  }
+async function portalPath(employee, knownSession = null) {
+  if (employee?.role === 'Admin') return '/admin-dashboard';
+  return '/collection-entry';
 }
 
 function setTheme(theme){
