@@ -2588,7 +2588,7 @@ function reportRange(query = {}) {
     }
 
     const anchor = parseDateStart(query.date) || parseDateStart(getTodayDate());
-    const period = ['daily', 'weekly', 'monthly'].includes(String(query.period))
+    const period = ['daily', 'weekly', 'monthly', 'yearly', 'all'].includes(String(query.period))
         ? String(query.period)
         : 'monthly';
     let start;
@@ -2597,13 +2597,23 @@ function reportRange(query = {}) {
         start = anchor;
         end = nextDate(start);
     } else if (period === 'weekly') {
-        start = new Date(anchor);
-        const day = start.getUTCDay();
-        start.setUTCDate(start.getUTCDate() - (day === 0 ? 6 : day - 1));
-        end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);
-    } else {
+        // Return full month of anchor date so all weeks (Week 1 to 4) of that month are available
         start = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(), 1));
         end = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth() + 1, 1));
+    } else if (period === 'yearly' || query.allMonths === 'true' || query.year) {
+        const year = query.year ? Number(query.year) : anchor.getUTCFullYear();
+        start = new Date(Date.UTC(year, 0, 1));
+        end = new Date(Date.UTC(year + 1, 0, 1));
+    } else {
+        if (query.scope === 'single-month') {
+            start = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(), 1));
+            end = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth() + 1, 1));
+        } else {
+            // For Month-wise Summary, return the year of anchor date
+            const year = anchor.getUTCFullYear();
+            start = new Date(Date.UTC(year, 0, 1));
+            end = new Date(Date.UTC(year + 1, 0, 1));
+        }
     }
     return {
         start,
@@ -2622,9 +2632,10 @@ async function loadReportData(range, employeeId = '') {
         collectionFilter.staffId = employeeId;
         recordFilter.employeeId = employeeId;
     }
-    const [collections, records] = await Promise.all([
+    const [collections, records, staffList] = await Promise.all([
         CollectionEntry.find(collectionFilter).sort({ entryDate: 1, createdAt: 1 }).lean(),
-        EmployeeRecord.find(recordFilter).sort({ entryDate: 1, createdAt: 1 }).lean()
+        EmployeeRecord.find(recordFilter).sort({ entryDate: 1, createdAt: 1 }).lean(),
+        Employee.find({ status: 'Active' }, { employeeId: 1, employeeName: 1 }).sort({ sr: 1, employeeName: 1 }).lean()
     ]);
     const rows = [
         ...collections.map(entry => ({
@@ -2632,9 +2643,10 @@ async function loadReportData(range, employeeId = '') {
             date: entry.entryDate,
             type: 'Collection',
             employeeName: entry.staff,
+            employeeId: entry.staffId ? String(entry.staffId) : '',
             detail: entry.serviceType,
             entryNo: entry.entryNo,
-            amount: entry.amount,
+            amount: Number(entry.amount || 0),
             costCutting: Number(entry.costCutting || 0),
             paymentMode: entry.paymentMode,
             createdAt: entry.createdAt,
@@ -2647,8 +2659,9 @@ async function loadReportData(range, employeeId = '') {
                 ? 'Expense'
                 : record.recordType === 'salary' ? 'Salary' : 'Cash At Counter',
             employeeName: record.employeeName,
+            employeeId: record.employeeId ? String(record.employeeId) : '',
             detail: record.expenseType || record.salaryMonth || record.remark || '',
-            amount: record.amount,
+            amount: Number(record.amount || 0),
             paymentMode: record.paymentMode,
             createdBy: record.createdBy || ''
         }))
@@ -2661,7 +2674,7 @@ async function loadReportData(range, employeeId = '') {
         return result;
     }, { collection: 0, expense: 0, salary: 0, counter: 0 });
     summary.net = summary.collection - summary.expense - summary.salary;
-    return { from: range.from, to: range.to, rows, summary };
+    return { from: range.from, to: range.to, rows, summary, staffList };
 }
 
 function pdfText(value) {
