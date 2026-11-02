@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#c99a23">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/salon-logo.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Salon Staff">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Login — YOURS SALON</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -19,7 +21,8 @@
 }
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0}
-body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);background-attachment:fixed;color:var(--text)}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);background-attachment:fixed;color:var(--text);padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+@media (display-mode: standalone){#pwaInstallWrap{display:none !important}}
 button,input{font:inherit}button{cursor:pointer}
 .page{width:100%;height:100dvh;min-height:100dvh;padding:clamp(8px,1.5vw,18px);display:flex;align-items:center;justify-content:center}
 .shell{width:min(1000px,100%);height:min(640px,calc(100dvh - clamp(16px,3vw,32px)));display:grid;grid-template-columns:1fr 1fr;background:var(--panel);border-radius:26px;overflow:hidden;box-shadow:0 25px 70px rgba(120,90,200,.12);border:1px solid var(--line)}
@@ -282,6 +285,12 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
 
 <div id="status" class="status" role="status" aria-live="polite"></div>
 
+<div id="pwaInstallWrap" hidden style="margin-top:10px;text-align:center;">
+  <button type="button" id="pwaInstallBtn" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid #1fb87a;background:#f0fdf4;color:#0f5132;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 2px 6px rgba(31,184,122,.15);">
+    <span>📲 Install Staff App on Phone</span>
+  </button>
+</div>
+
 <p class="help" id="helpText">Authorized salon staff only.</p>
 </div></section>
 </div></div>
@@ -294,6 +303,33 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
 }
+
+let deferredPwaPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPwaPrompt = e;
+  const wrap = document.getElementById('pwaInstallWrap');
+  if (wrap && !window.matchMedia('(display-mode: standalone)').matches) {
+    wrap.hidden = false;
+  }
+});
+
+document.getElementById('pwaInstallBtn')?.addEventListener('click', async () => {
+  if (!deferredPwaPrompt) return;
+  deferredPwaPrompt.prompt();
+  const { outcome } = await deferredPwaPrompt.userChoice;
+  if (outcome === 'accepted') {
+    const wrap = document.getElementById('pwaInstallWrap');
+    if (wrap) wrap.hidden = true;
+  }
+  deferredPwaPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+  const wrap = document.getElementById('pwaInstallWrap');
+  if (wrap) wrap.hidden = true;
+  deferredPwaPrompt = null;
+});
 
 const tokenKey = 'salon_google_credential';
 const statusBox = document.getElementById('status');

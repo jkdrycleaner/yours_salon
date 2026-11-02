@@ -1,25 +1,25 @@
 {
-  "name": "Salon Management Portal",
-  "short_name": "Salon App",
-  "description": "Multi-Tenant Salon Management Portal",
-  "start_url": "/login",
+  "name": "Yours Salon - Staff Portal",
+  "short_name": "Salon Staff",
+  "description": "Yours Salon Employee & Staff Portal",
+  "start_url": "/login.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0b1120",
-  "theme_color": "#c99a23",
+  "background_color": "#ffffff",
+  "theme_color": "#1fb87a",
   "icons": [
     {
-      "src": "/balance_to_get_wave.png",
-      "sizes": "192x192",
+      "src": "/salon-logo.png",
+      "sizes": "192x192 512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
       "src": "/balance_to_get_wave.png",
-      "sizes": "512x512",
+      "sizes": "192x192 512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
