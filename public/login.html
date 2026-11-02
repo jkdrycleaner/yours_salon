@@ -850,50 +850,43 @@ async function checkExistingSession(){
   if (params.get('logout')) {
     localStorage.removeItem(tokenKey);
     localStorage.removeItem('salon_user_email');
+    localStorage.removeItem('salon_last_session');
     try { await fetch('/api/logout', { method: 'POST' }); } catch {}
-    return;
+    return false;
   }
   const token = localStorage.getItem(tokenKey);
-  if (!token) return;
+  if (!token) return false;
   try {
     const session = await request('/api/session', { headers: authHeaders() });
     if (session && session.employee) {
-      const banner = document.getElementById('activeSessionBanner');
-      if (banner) {
-        const uName = session.employee.employeeName || session.employee.userId || 'User';
-        const sName = session.shop?.shopName || session.shopName || 'Salon';
-        const sCode = session.shop?.shopCode || 'yourssalon';
-        const pPath = await portalPath(session.employee, session);
-        banner.innerHTML = `
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-            <div>
-              <span style="font-size:11px;color:#188050;font-weight:700;">● Active session:</span>
-              <strong style="color:#0f5132;font-size:12px;">${uName}</strong>
-              <span style="font-size:11px;color:#495057;">(${sName} #${sCode})</span>
-            </div>
-            <div style="display:flex;gap:6px;">
-              <a href="${pPath}" style="padding:4px 10px;border-radius:6px;background:#1fb87a;color:#fff;text-decoration:none;font-weight:700;font-size:11px;">Open Dashboard →</a>
-              <button type="button" id="btnSignOutSession" style="padding:4px 8px;border-radius:6px;border:1px solid #ced4da;background:#fff;color:#c9184a;font-weight:700;font-size:11px;cursor:pointer;">Sign out</button>
-            </div>
-          </div>
-        `;
-        banner.hidden = false;
-        document.getElementById('btnSignOutSession')?.addEventListener('click', async () => {
-          localStorage.removeItem(tokenKey);
-          localStorage.removeItem('salon_user_email');
-          try { await fetch('/api/logout', { method: 'POST' }); } catch {}
-          banner.hidden = true;
-          showStatus('Signed out successfully.', 'success');
-        });
-      }
+      localStorage.setItem('salon_last_session', JSON.stringify(session));
+      const pPath = await portalPath(session.employee, session);
+      location.replace(pPath);
+      return true;
     }
-  } catch {
-    localStorage.removeItem(tokenKey);
-    localStorage.removeItem('salon_user_email');
+  } catch (err) {
+    if (err && err.status === 401) {
+      localStorage.removeItem(tokenKey);
+      localStorage.removeItem('salon_user_email');
+      localStorage.removeItem('salon_last_session');
+    } else {
+      // Offline / reconnecting network hiccup: use cached session
+      try {
+        const cached = JSON.parse(localStorage.getItem('salon_last_session') || 'null');
+        if (cached && cached.employee) {
+          const pPath = await portalPath(cached.employee, cached);
+          location.replace(pPath);
+          return true;
+        }
+      } catch {}
+    }
   }
+  return false;
 }
 
 (async () => {
+  const hasSession = await checkExistingSession();
+  if (hasSession) return;
   const code = getStoredSalonCode();
   if (code) {
     currentSalonCode = code;
@@ -907,7 +900,6 @@ async function checkExistingSession(){
     await loadBranding();
   }
   await loadSetupStatus();
-  await checkExistingSession();
 })();
 
 </script>

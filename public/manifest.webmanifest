@@ -2,7 +2,7 @@
   "name": "Yours Salon - Staff Portal",
   "short_name": "Salon Staff",
   "description": "Yours Salon Employee & Staff Portal",
-  "start_url": "/login.html",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

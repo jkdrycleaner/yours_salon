@@ -44,7 +44,7 @@ app.use(cors());
 const PORT = process.env.PORT || 5000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const SESSION_COOKIE = 'salon_session';
-const SESSION_MAX_AGE_SECONDS = 8 * 60 * 60;
+const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 const googleAuthRequired = false;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '326263063666-ndmfvf4eidtvdkr5imc19din2evqbinv.apps.googleusercontent.com';
 const googleOAuthClient = new OAuth2Client(GOOGLE_CLIENT_ID);
@@ -1891,7 +1891,7 @@ app.post('/api/setup-admin', async (req, res) => {
             role: 'Admin',
             userId,
             sub: 'bootstrap-admin'
-        }, sessionSecret, { expiresIn: '8h' });
+        }, sessionSecret, { expiresIn: '30d' });
         setSessionCookie(res, token);
         await recordAudit(req, {
             action: 'ADMIN_SETUP',
@@ -1979,7 +1979,7 @@ app.post('/api/login', async (req, res) => {
                 userId,
                 authVersion: storedAdminAccount.authVersion,
                 sub: 'bootstrap-admin'
-            }, sessionSecret, { expiresIn: '8h' });
+            }, sessionSecret, { expiresIn: '30d' });
             setSessionCookie(res, token);
             await recordAudit(req, {
                 action: 'LOGIN',
@@ -2003,7 +2003,7 @@ app.post('/api/login', async (req, res) => {
                 role: 'Admin',
                 userId,
                 sub: 'bootstrap-admin'
-            }, sessionSecret, { expiresIn: '8h' });
+            }, sessionSecret, { expiresIn: '30d' });
             setSessionCookie(res, token);
             await recordAudit(req, {
                 action: 'LOGIN',
@@ -2050,7 +2050,7 @@ app.post('/api/login', async (req, res) => {
             role,
             userId: employee.userId,
             sub: String(employee._id)
-        }, sessionSecret, { expiresIn: '8h' });
+        }, sessionSecret, { expiresIn: '30d' });
         setSessionCookie(res, token);
         await recordAudit(req, {
             action: 'LOGIN',
@@ -2112,7 +2112,7 @@ app.post('/api/auth/google', async (req, res) => {
                     userId: storedAdminAccount.userId,
                     authVersion: storedAdminAccount.authVersion,
                     sub: 'bootstrap-admin'
-                }, sessionSecret, { expiresIn: '8h' });
+                }, sessionSecret, { expiresIn: '30d' });
                 setSessionCookie(res, token);
                 await recordAudit(req, {
                     action: 'LOGIN_GOOGLE',
@@ -2134,7 +2134,7 @@ app.post('/api/auth/google', async (req, res) => {
                     role: 'Admin',
                     userId: bootstrapAdminUserId,
                     sub: 'bootstrap-admin'
-                }, sessionSecret, { expiresIn: '8h' });
+                }, sessionSecret, { expiresIn: '30d' });
                 setSessionCookie(res, token);
                 await recordAudit(req, {
                     action: 'LOGIN_GOOGLE',
@@ -2170,7 +2170,7 @@ app.post('/api/auth/google', async (req, res) => {
                 role,
                 userId: employee.userId,
                 sub: String(employee._id)
-            }, sessionSecret, { expiresIn: '8h' });
+            }, sessionSecret, { expiresIn: '30d' });
             setSessionCookie(res, token);
             await recordAudit(req, {
                 action: 'LOGIN_GOOGLE',
@@ -2365,7 +2365,7 @@ app.post('/api/admin-credentials', requireSecureAuth, verifyEmployee, requireAdm
             userId,
             authVersion: updatedAdmin.authVersion,
             sub: 'bootstrap-admin'
-        }, sessionSecret, { expiresIn: '8h' });
+        }, sessionSecret, { expiresIn: '30d' });
         setSessionCookie(res, token);
         await recordAudit(req, {
             action: 'ADMIN_CREDENTIAL_UPDATE',

@@ -1,8 +1,14 @@
-const CACHE_NAME = 'salon-staff-pwa-v2';
+const CACHE_NAME = 'salon-staff-pwa-v3';
 const PRECACHE_ASSETS = [
+  '/',
   '/login.html',
+  '/employee-dashboard',
   '/manifest.webmanifest',
-  '/salon-logo.png'
+  '/salon-logo.png',
+  '/admin-nav.css',
+  '/admin-nav.js',
+  '/auth-guard.js',
+  '/app-boot.js'
 ];
 
 self.addEventListener('install', (event) => {

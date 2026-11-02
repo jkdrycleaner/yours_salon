@@ -50,6 +50,7 @@
   function clearSession() {
     localStorage.removeItem(tokenKey);
     localStorage.removeItem('salon_user_email');
+    localStorage.removeItem('salon_last_session');
   }
 
   async function logout() {
@@ -124,11 +125,26 @@
         }
       }
       window.salonSession = session;
+      try { localStorage.setItem('salon_last_session', JSON.stringify(session)); } catch {}
       trackPage(session).catch(() => {});
       return session;
-    } catch {
-      clearSession();
-      location.replace('/login');
+    } catch (error) {
+      if (error && error.status === 401) {
+        clearSession();
+        location.replace('/login');
+        return null;
+      }
+      // If offline or momentary network glitch, use cached session to prevent accidental logout
+      try {
+        const cached = JSON.parse(localStorage.getItem('salon_last_session') || 'null');
+        if (cached && cached.employee) {
+          window.salonSession = cached;
+          return cached;
+        }
+      } catch {}
+      if (!token()) {
+        location.replace('/login');
+      }
       return null;
     }
   }
