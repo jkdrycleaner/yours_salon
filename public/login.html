@@ -58,10 +58,10 @@ button,input{font:inherit}button{cursor:pointer}
 .forgot-row{display:flex;justify-content:flex-end;align-items:center;margin:-2px 0 6px}
 .forgot-link{border:0;background:transparent;padding:2px 0;color:#1fb87a;font-size:11.5px;font-weight:700}
 .forgot-link:hover{text-decoration:underline}
-.login-btn{width:100%;height:42px;border:0;border-radius:12px;background:var(--btn-image,linear-gradient(135deg,#1fb87a,#5fd38d));color:var(--btn-text,#fff);font-weight:700;font-size:13.5px;box-shadow:0 4px 12px rgba(31,184,122,.25);transition:.15s;cursor:pointer}
+.login-btn{width:100%;height:42px;border:0;border-radius:12px;background:var(--btn-bg,#1fb87a);background-image:var(--btn-image,linear-gradient(135deg,#1fb87a,#5fd38d));color:#fff !important;font-weight:700;font-size:13.5px;box-shadow:0 4px 12px rgba(31,184,122,.25);transition:.15s;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
 .login-btn:disabled{opacity:.65;cursor:wait}
 .login-action-row{display:flex;gap:8px;align-items:center;margin-top:4px}
-.login-btn-compact{flex:1;height:42px;border:0;border-radius:12px;background:var(--btn-image,linear-gradient(135deg,#1fb87a,#5fd38d));color:var(--btn-text,#fff);font-weight:700;font-size:13.5px;box-shadow:0 4px 12px rgba(31,184,122,.25);transition:.15s;cursor:pointer}
+.login-btn-compact{flex:1;height:42px;border:0;border-radius:12px;background:var(--btn-bg,#1fb87a);background-image:var(--btn-image,linear-gradient(135deg,#1fb87a,#5fd38d));color:#fff !important;font-weight:700;font-size:13.5px;box-shadow:0 4px 12px rgba(31,184,122,.25);transition:.15s;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
 .login-btn-compact:disabled{opacity:.65;cursor:wait}
 .method-icons-inline{display:inline-flex;gap:6px;align-items:center}
 [hidden],.method-icon-sm[hidden],.method-icons-inline[hidden]{display:none !important}
@@ -493,12 +493,11 @@ function applyBranding(branding){
   const btnStyle=login.buttonStyle||'Solid';
   const c1=login.buttonColor||'#1fb87a';
   const c2=login.buttonColor2||'#5fd38d';
+  root.setProperty('--btn-bg',c1);
   if(btnStyle==='Mix'){
     root.setProperty('--btn-image',`linear-gradient(135deg, ${c1}, ${c2})`);
-    root.setProperty('--btn-bg',c1);
   }else{
-    root.setProperty('--btn-image','none');
-    root.setProperty('--btn-bg',c1);
+    root.setProperty('--btn-image',`linear-gradient(135deg, ${c1}, ${c1})`);
   }
   setTheme(String(login.theme||'Combination').toLowerCase()==='dark'?'dark':'light');
   renderSlides(login.slides||[],Number(login.slideDuration)||4000,name,branding.tagline);
