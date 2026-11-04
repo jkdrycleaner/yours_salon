@@ -349,7 +349,8 @@ const adminCredentialSchema = new mongoose.Schema({
     key: { type: String, unique: true, required: true },
     userId: { type: String, unique: true, required: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true, select: false },
-    authVersion: { type: Number, default: 0 }
+    authVersion: { type: Number, default: 0 },
+    recoveryEmail: { type: String, trim: true, default: '' }
 }, { timestamps: true });
 const AdminCredential = createTenantModelProxy('AdminCredential', adminCredentialSchema);
 
@@ -2186,6 +2187,108 @@ app.post('/api/auth/google', async (req, res) => {
     }
 });
 
+
+// Super Admin Password Reset via Verified Gmail & Screen OTP
+const superAdminOtpStore = new Map();
+
+app.post('/api/super-admin/request-otp', async (req, res) => {
+    try {
+        const email = String(req.body.email || '').trim().toLowerCase();
+        const storedAdmin = await AdminCredential.findOne({ key: 'primary' }).select('+passwordHash');
+        const allowedEmail = String(storedAdmin?.recoveryEmail || 'jk2811524@gmail.com').trim().toLowerCase();
+        
+        if (!email || email !== allowedEmail) {
+            return res.status(400).json({ error: 'This Gmail address is not authorized for Super Admin recovery.' });
+        }
+        
+        // Generate 6-digit OTP
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+        const sessionId = crypto.randomBytes(16).toString('hex');
+        
+        superAdminOtpStore.set(sessionId, {
+            otp,
+            email,
+            verified: false,
+            expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+        });
+        
+        return res.json({
+            success: true,
+            sessionId,
+            otp,
+            message: 'Gmail confirmed! OTP generated on screen.'
+        });
+    } catch (err) {
+        console.error('Super Admin request OTP error:', err);
+        return res.status(500).json({ error: 'Could not generate OTP.' });
+    }
+});
+
+app.post('/api/super-admin/verify-otp', async (req, res) => {
+    try {
+        const sessionId = String(req.body.sessionId || '');
+        const otp = String(req.body.otp || '').trim();
+        
+        const entry = superAdminOtpStore.get(sessionId);
+        if (!entry || entry.expiresAt < Date.now()) {
+            superAdminOtpStore.delete(sessionId);
+            return res.status(400).json({ error: 'OTP session expired. Request OTP again.' });
+        }
+        
+        if (entry.otp !== otp) {
+            return res.status(400).json({ error: 'Invalid OTP entered.' });
+        }
+        
+        entry.verified = true;
+        const resetToken = crypto.randomBytes(24).toString('hex');
+        passwordResetTokens.set(resetToken, {
+            kind: 'super-admin',
+            sessionId,
+            expiresAt: Date.now() + 10 * 60 * 1000
+        });
+        
+        return res.json({
+            success: true,
+            resetToken,
+            message: 'OTP verified successfully. Now enter new password.'
+        });
+    } catch (err) {
+        console.error('Super Admin verify OTP error:', err);
+        return res.status(500).json({ error: 'Could not verify OTP.' });
+    }
+});
+
+app.post('/api/super-admin/reset-password', async (req, res) => {
+    try {
+        const resetToken = String(req.body.resetToken || '').trim();
+        const newPassword = String(req.body.newPassword || '');
+        
+        if (!resetToken) return res.status(400).json({ error: 'Reset session expired.' });
+        if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+        
+        const reset = passwordResetTokens.get(resetToken);
+        if (!reset || reset.kind !== 'super-admin' || reset.expiresAt < Date.now()) {
+            passwordResetTokens.delete(resetToken);
+            return res.status(400).json({ error: 'Reset session expired.' });
+        }
+        
+        const storedAdmin = await AdminCredential.findOne({ key: 'primary' });
+        if (!storedAdmin) return res.status(404).json({ error: 'Super Admin credential not found.' });
+        
+        storedAdmin.passwordHash = await bcrypt.hash(newPassword, 10);
+        storedAdmin.authVersion = Number(storedAdmin.authVersion || 0) + 1;
+        await storedAdmin.save();
+        
+        passwordResetTokens.delete(resetToken);
+        if (reset.sessionId) superAdminOtpStore.delete(reset.sessionId);
+        
+        return res.json({ success: true, message: 'Super Admin password reset successfully!' });
+    } catch (err) {
+        console.error('Super Admin reset password error:', err);
+        return res.status(500).json({ error: 'Could not reset password.' });
+    }
+});
+
 app.post('/api/forgot-password/verify', async (req, res) => {
     try {
         if (mongoose.connection.readyState !== 1) {
@@ -2319,6 +2422,10 @@ app.post('/api/change-password', requireSecureAuth, verifyEmployee, async (req, 
 });
 
 app.post('/api/admin-credentials', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+    return res.status(403).json({ error: 'Super Admin password change is disabled from inside dashboard. Use Login Screen Reset with verified Gmail.' });
+});
+
+app.post('/api/admin-credentials-disabled-orig', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
     try {
         if (req.employee?._id) {
             return res.status(400).json({ error: 'Use the Employee Master to manage employee login credentials.' });

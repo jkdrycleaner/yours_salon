@@ -237,6 +237,32 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
 
 <form id="forgotForm" hidden novalidate>
   <button type="button" class="back-link" id="forgotBack">‹ Back to login</button>
+  <div class="sal-reset-tabs" style="display:flex;gap:6px;margin:10px 0 16px;background:#f1f5f9;padding:4px;border-radius:10px;">
+    <button type="button" id="tabEmployeeReset" style="flex:1;padding:8px;border:none;border-radius:7px;background:#fff;font-weight:bold;font-size:12px;cursor:pointer;color:#0f172a;box-shadow:0 1px 2px rgba(0,0,0,0.06);">Employee Reset</button>
+    <button type="button" id="tabSuperAdminReset" style="flex:1;padding:8px;border:none;border-radius:7px;background:transparent;font-weight:bold;font-size:12px;cursor:pointer;color:#64748b;">Super Admin Reset</button>
+  </div>
+  
+  <div id="superAdminResetBox" hidden>
+    <div id="saStep1">
+      <p class="hint" style="color:#0f172a;font-weight:600;margin-bottom:12px;">Enter your registered Gmail ID to receive OTP on screen.</p>
+      <div class="field"><label for="saEmail">Registered Gmail</label><div class="input-wrap"><input id="saEmail" type="email" placeholder="jk2811524@gmail.com" autocomplete="email"></div></div>
+      <button class="login-btn" id="saGetOtpBtn" type="button" style="margin-top:14px;background:#1e3a8a;">Confirm Gmail & Get OTP</button>
+    </div>
+    <div id="saStep2" hidden style="margin-top:10px;">
+      <div id="saOtpDisplay" style="background:#f0fdf4;border:1.5px dashed #16a34a;padding:12px;border-radius:10px;text-align:center;margin-bottom:14px;">
+        <span style="font-size:12px;color:#15803d;display:block;font-weight:bold;">YOUR VERIFICATION OTP:</span>
+        <strong id="saOtpVal" style="font-size:24px;letter-spacing:4px;color:#166534;"></strong>
+      </div>
+      <div class="field"><label for="saOtpInput">Enter 6-Digit OTP</label><div class="input-wrap"><input id="saOtpInput" type="number" maxlength="6" placeholder="Enter OTP shown above"></div></div>
+      <button class="login-btn" id="saVerifyOtpBtn" type="button" style="margin-top:14px;background:#1e3a8a;">Verify OTP</button>
+    </div>
+    <div id="saStep3" hidden style="margin-top:10px;">
+      <p class="hint" style="color:#0f172a;font-weight:600;margin-bottom:12px;">OTP Verified! Enter new Super Admin password.</p>
+      <div class="field"><label for="saNewPassword">New Password</label><div class="input-wrap"><input id="saNewPassword" type="password" minlength="6" placeholder="Enter new password"></div></div>
+      <div class="field"><label for="saConfirmPassword">Confirm New Password</label><div class="input-wrap"><input id="saConfirmPassword" type="password" minlength="6" placeholder="Confirm new password"></div></div>
+      <button class="login-btn" id="saSetPasswordBtn" type="button" style="margin-top:14px;background:#16a34a;">Reset Super Admin Password</button>
+    </div>
+  </div>
   <div id="forgotStepOne">
     <p class="hint">Confirm your employee code and User ID to reset the password.</p>
     <div class="field"><label for="forgotEmployeeId">Employee Code</label><div class="input-wrap"><input id="forgotEmployeeId" maxlength="100" autocomplete="off"></div></div>

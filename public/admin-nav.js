@@ -307,7 +307,7 @@
     password.href = '/password-change';
     password.textContent = 'Change password';
     password.className = 'salon-profile-menu-link';
-    if (currentPath === '/password-change' || currentPath === '/password-change.html') password.hidden = true;
+    if (currentPath === '/password-change' || currentPath === '/password-change.html' || (employee.role === 'Admin' && !employee._id && !employee.employeeId)) password.hidden = true;
     const logout = document.createElement('button');
     logout.type = 'button';
     logout.className = 'salon-profile-menu-link danger';
