@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Register Your Salon — 14-Day Free Cloud Trial</title>
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
+  <style>
+    :root {
+      --primary: #1fb87a;
+      --primary-dark: #128353;
+      --primary-light: #e8f9f4;
+      --ink: #1f2937;
+      --mut: #6b7280;
+      --bg: #f8fafc;
+      --line: #e2e8f0;
+      --card: #ffffff;
+      --accent: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), #5fd38d);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(31, 184, 122, 0.25);
+    }
+    .main-wrap {
+      flex: 1;
+      width: min(1040px, 94%);
+      margin: 30px auto;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 32px;
+      align-items: center;
+    }
+    @media (max-width: 860px) {
+      .main-wrap { grid-template-columns: 1fr; margin: 20px auto; }
+    }
+    .hero-col h1 {
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1.2;
+      color: #0f172a;
+      margin-bottom: 14px;
+    }
+    .hero-col h1 span {
+      background: linear-gradient(135deg, #10b981, #059669);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-col p {
+      font-size: 16px;
+      color: var(--mut);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14px;
+    }
+    .f-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      font-weight: bold;
+    }
+    .feature-item strong {
+      display: block;
+      color: #0f172a;
+      font-size: 14.5px;
+    }
+    .feature-item small {
+      color: var(--mut);
+      font-size: 12.5px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 10px 30px -5px rgba(0,0,0,0.06);
+    }
+    .card-head {
+      margin-bottom: 20px;
+    }
+    .badge-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: #eef2ff;
+      color: #4f46e5;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .card-head h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .card-head p {
+      font-size: 13px;
+      color: var(--mut);
+      margin-top: 4px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .field label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .field input {
+      height: 42px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      font-size: 13.5px;
+      outline: none;
+      transition: all 0.15s;
+    }
+    .field input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(31, 184, 122, 0.18);
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .code-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .code-wrap span {
+      position: absolute;
+      left: 12px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      pointer-events: none;
+    }
+    .code-wrap input {
+      padding-left: 26px !important;
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+    .infra-choice {
+      padding: 10px 12px;
+      border: 1px solid #b7eedc;
+      border-radius: 9px;
+      background: #f0fdf7;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .infra-choice input {
+      accent-color: var(--primary);
+      width: 16px;
+      height: 16px;
+    }
+    .btn-submit {
+      margin-top: 8px;
+      height: 46px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), #10b981);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(31, 184, 122, 0.35);
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(31, 184, 122, 0.45);
+    }
+    .btn-submit:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .progress-box {
+      display: none;
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #f0fdf7;
+      border: 1px solid #a7f3d0;
+      font-size: 12px;
+    }
+    .step-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #065f46;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 1s infinite alternate;
+    }
+    @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
+    .alert-box {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .alert-box.error {
+      display: block;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .alert-box.success {
+      display: block;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="/login" class="brand">
+      <div class="brand-icon">✨</div>
+      <span>YOURS SALON CLOUD</span>
+    </a>
+    <a href="/login" style="color:var(--mut);font-size:13px;text-decoration:none;font-weight:600;">
+      Already registered? <strong style="color:var(--primary-dark);">Sign In ➔</strong>
+    </a>
+  </header>
+
+  <main class="main-wrap">
+    <!-- Left Hero -->
+    <div class="hero-col">
+      <h1>Launch Your Salon on the <span>Cloud in 20 Seconds</span></h1>
+      <p>Automated cloud salon management platform. Get your own isolated database, customer billing, staff salary, and daily expense reports — 100% free for 14 days.</p>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="f-icon">⚡</div>
+          <div>
+            <strong>Automated Dedicated MongoDB Database</strong>
+            <small>Your salon data is 100% isolated and secured in its own database.</small>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="f-icon">📋</div>
+          <div>
+            <strong>Starter Rate List & Expense Types</strong>
+            <small>Pre-loaded with 10 standard services and 9 expense categories.</small>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="f-icon">👥</div>
+          <div>
+            <strong>Staff & Salary Management</strong>
+            <small>Commission and fixed salary calculations with instant monthly vouchers.</small>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="f-icon">🎁</div>
+          <div>
+            <strong>14 Days Free Trial • No Credit Card</strong>
+            <small>Instant activation, no upfront payment or commitments required.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Signup Card -->
+    <section class="card">
+      <div class="card-head">
+        <span class="badge-pill">Free Trial Registration</span>
+        <h2>Create Your Salon Account</h2>
+        <p>Fill out the form below to launch your dedicated salon software.</p>
+      </div>
+
+      <form id="registerForm" class="form-group" onsubmit="event.preventDefault(); submitRegister();">
+        <div class="field">
+          <label for="shopName">Salon Name *</label>
+          <input id="shopName" type="text" placeholder="e.g. Royal Cut Luxury Salon" required oninput="autoSlug(this.value)">
+        </div>
+
+        <div class="field">
+          <label for="shopCode">Salon Code (Your Login Slug) *</label>
+          <div class="code-wrap">
+            <span>#</span>
+            <input id="shopCode" type="text" placeholder="royalluxury" required pattern="[a-z0-9_-]+" title="Only lowercase letters and numbers">
+          </div>
+          <small style="color:var(--mut);font-size:11px;">You will log in using this code.</small>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="ownerName">Owner Name *</label>
+            <input id="ownerName" type="text" placeholder="e.g. Vikram Singh" required>
+          </div>
+          <div class="field">
+            <label for="mobile">Mobile Number *</label>
+            <input id="mobile" type="tel" placeholder="9876543210" required pattern="[0-9]{10}">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Create Admin Password *</label>
+          <input id="password" type="password" placeholder="Choose a password (min 4 chars)" required minlength="4">
+        </div>
+
+        <div class="field">
+          <label>Cloud Infrastructure</label>
+          <div class="infra-choice" style="cursor:default;background:#f0fdf7;border:1px solid #b7eedc;">
+            <input type="hidden" name="clusterProvisioning" value="shared">
+            <span style="font-size:20px;">⚡</span>
+            <div>
+              <strong style="display:block;font-size:12.5px;color:#065f46;">Dedicated Cloud Database (14-Day Free Trial)</strong>
+              <small style="display:block;color:var(--mut);font-size:10.5px;">Isolated salon database with starter rate list & expense categories. Instant setup.</small>
+            </div>
+          </div>
+        </div>
+
+        <button id="btnSubmit" type="submit" class="btn-submit">
+          <span>Launch My Salon Cloud 🚀</span>
+        </button>
+
+        <div id="progressBox" class="progress-box">
+          <div style="font-weight:700;color:#065f46;">🚀 Deploying Cloud Database...</div>
+          <div class="step-line">
+            <span class="step-dot"></span>
+            <span id="stepText">Creating project on MongoDB Atlas...</span>
+          </div>
+        </div>
+
+        <div id="alertBox" class="alert-box"></div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    function autoSlug(name) {
+      const codeInput = document.getElementById('shopCode');
+      if (codeInput.dataset.manual === 'true') return;
+      const slug = name.toLowerCase().trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '')
+        .slice(0, 16);
+      codeInput.value = slug;
+    }
+
+    document.getElementById('shopCode').addEventListener('input', function() {
+      this.dataset.manual = 'true';
+    });
+
+    async function submitRegister() {
+      const btn = document.getElementById('btnSubmit');
+      const progressBox = document.getElementById('progressBox');
+      const stepText = document.getElementById('stepText');
+      const alertBox = document.getElementById('alertBox');
+
+      const shopName = document.getElementById('shopName').value.trim();
+      const shopCode = document.getElementById('shopCode').value.trim().toLowerCase();
+      const ownerName = document.getElementById('ownerName').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const clusterProvisioning = 'shared';
+
+      alertBox.className = 'alert-box';
+      alertBox.style.display = 'none';
+
+      btn.disabled = true;
+      progressBox.style.display = 'block';
+      btn.innerHTML = '<span class="spinner"></span> <span>Launching Your Cloud...</span>';
+
+      stepText.textContent = 'Setting up isolated cloud database, starter rate list & expense categories...';
+
+      try {
+        const response = await fetch('/api/public/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            shopName,
+            shopCode,
+            ownerName,
+            mobile,
+            password,
+            clusterProvisioning
+          })
+        });
+
+        const data = await response.json();
+        progressBox.style.display = 'none';
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Registration failed.');
+        }
+
+        // Save token & credentials
+        if (data.token) {
+          localStorage.setItem('salon_google_credential', data.token);
+          localStorage.setItem('salon_user_email', 'admin');
+          localStorage.setItem('salon_code', shopCode);
+        }
+
+        alertBox.className = 'alert-box success';
+        alertBox.innerHTML = `
+          🎉 <strong>Success!</strong> ${data.message}<br>
+          <div style="margin-top:6px;">Opening your Salon Dashboard in 2 seconds...</div>
+        `;
+
+        setTimeout(() => {
+          location.replace(data.redirect || '/admin-dashboard');
+        }, 1500);
+
+      } catch (err) {
+        progressBox.style.display = 'none';
+        btn.disabled = false;
+        btn.innerHTML = '<span>Launch My Salon Cloud 🚀</span>';
+        alertBox.className = 'alert-box error';
+        alertBox.textContent = err.message || 'Registration failed.';
+      }
+    }
+  </script>
+  <script src="/mobile.js?v=20261105_m4" defer></script>
+</body>
+</html>

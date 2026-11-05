@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Employee List - YOURS SALON</title>
-  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
   <link rel="stylesheet" href="/table-view.css">
   <style>
     *{box-sizing:border-box}
@@ -53,6 +53,7 @@
     #emptyState{padding:20px;text-align:center;color:#737780;font-size:13px}
     @media(max-width:720px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.toolbar{align-items:stretch;flex-direction:column}.field select,.actions>*{width:100%}}
   </style>
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
 </head>
 <body>
   <main class="container">
@@ -84,7 +85,7 @@
     </div>
     <div id="status" role="status" aria-live="polite"></div>
   </main>
-  <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script>
+  <script src="/auth-guard.js"></script><script src="/admin-nav.js?v=20261105_m4" defer></script>
   <script>
     const statusBox=document.getElementById('status');
     const rowsElement=document.getElementById('employeeRows');
@@ -360,5 +361,6 @@
     });
   </script>
   <script src="/table-view.js"></script>
+  <script src="/mobile.js?v=20261105_m4" defer></script>
 </body>
 </html>

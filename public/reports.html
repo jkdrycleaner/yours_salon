@@ -1,1682 +1,566 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <script src="/app-boot.js"></script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Reports — YOURS SALON</title>
-  <link rel="stylesheet" href="/admin-nav.css">
-  <link rel="stylesheet" href="/table-view.css">
-  <link rel="stylesheet" href="/mobile.css">
-  <style>
-    :root {
-      --salon-navy: #092342;
-      --salon-navy-light: #153b68;
-      --salon-gold: #c99a23;
-      --salon-gold-soft: #fef9e7;
-      --salon-ink: #1d2939;
-      --salon-muted: #667085;
-      --salon-line: #e4e7ec;
-      --salon-soft: #f8fafc;
-      --radius-lg: 16px;
-      --radius-md: 12px;
-      --radius-sm: 8px;
-    }
+  <script src="/app-boot.js"></script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Reports — YOURS SALON</title><link rel="stylesheet" href="/admin-nav.css?v=20261105_m4"><link rel="stylesheet" href="/table-view.css"><link rel="stylesheet" href="/mobile.css?v=20261105_m4"><style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(1250px,100%);margin:auto;padding:28px 20px 40px}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.heading h1{margin:0;font-size:26px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.filters{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin-top:18px;padding:13px;background:#fff;border:1px solid #e1e7ee;border-radius:12px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:#526176;font-weight:700}.field input,.field select{height:38px;min-width:145px;padding:8px 10px;border:1px solid #d9e0e7;border-radius:8px;background:#fff;font:13px Arial}.filters button{height:38px;padding:8px 13px;border:0;border-radius:8px;background:#c99a23;color:#fff;font:700 12px Arial;cursor:pointer}.filters button.secondary{background:#eff2f5;color:#344054}.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:13px}.card{padding:14px;border:1px solid #e1e7ee;border-radius:12px;background:#fff}.card span{display:block;color:#758397;font-size:10px;font-weight:700}.card strong{display:block;margin-top:8px;font-size:18px}.table-wrap{margin-top:15px;overflow:auto;border:1px solid #e1e7ee;border-radius:12px;background:#fff}table{width:100%;min-width:850px;border-collapse:collapse;font-size:12px}th,td{padding:10px 11px;text-align:left;border-bottom:1px solid #edf0f4;white-space:nowrap}th{background:#f8fafc;color:#627187;font-size:10px;text-transform:uppercase}.empty{text-align:center;color:#7b8797;padding:25px}.status{display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px}.status.show{display:block;background:#fff0ef;color:#a13932}@media(max-width:850px){.cards{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:600px){.wrap{padding:20px 12px 30px}.heading{flex-direction:column}.filters{align-items:stretch;flex-direction:column}.field input,.field select,.filters button{width:100%}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #f4f6f9;
-      color: var(--salon-ink);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      padding-bottom: 75px;
-    }
-
-    .report-wrap {
-      width: min(1360px, 100%);
-      margin: auto;
-      padding: 10px 14px 40px;
-    }
-
-    /* Sleek Top Bar: Switcher + Export */
-    .top-action-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .pill-tabs {
-      display: inline-flex;
-      background: #e4e7ec;
-      padding: 3px;
-      border-radius: 9px;
-      gap: 3px;
-    }
-    .pill-tab {
-      border: 0;
-      background: transparent;
-      padding: 6px 14px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #475467;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      text-decoration: none;
-    }
-    .pill-tab.active {
-      background: #ffffff;
-      color: var(--salon-navy);
-      box-shadow: 0 1px 4px rgba(16, 24, 40, 0.08);
-    }
-
-    .export-btns {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-    .btn-exp {
-      height: 28px;
-      padding: 0 10px;
-      border: 1px solid var(--salon-line);
-      background: #ffffff;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #344054;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .btn-exp:hover { background: #f9fafb; }
-
-    /* Blue Banner Header (Exact Mockup Match) */
-    .banner-head {
-      background: linear-gradient(135deg, #092342 0%, #153b68 100%);
-      padding: 14px 18px;
-      border-radius: var(--radius-lg);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      box-shadow: 0 4px 14px rgba(9, 35, 66, 0.18);
-      margin-bottom: 12px;
-    }
-    .banner-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .banner-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      display: grid;
-      place-items: center;
-      font-size: 19px;
-      flex-shrink: 0;
-    }
-    .banner-titles h2 {
-      margin: 0;
-      font-size: 17px;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.01em;
-    }
-    .banner-titles p {
-      margin: 2px 0 0;
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.75);
-    }
-
-    .banner-pill {
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      border-radius: 20px;
-      padding: 5px 12px;
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-    .banner-pill input[type="date"],
-    .banner-pill select {
-      background: transparent;
-      border: 0;
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 700;
-      outline: none;
-      cursor: pointer;
-    }
-    .banner-pill select option {
-      background: #153b68;
-      color: #ffffff;
-    }
-    .btn-today-quick {
-      background: var(--salon-gold);
-      color: #12100e;
-      border: 0;
-      border-radius: 12px;
-      padding: 2px 8px;
-      font-size: 9px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    /* 5 Modern Collection Dashboard Cards (Compact, Light Shade) */
-    .cards-row-5 {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .c-card {
-      border-radius: 10px;
-      padding: 10px 12px;
-      border: 1px solid transparent;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 1px 4px rgba(16, 24, 40, 0.04);
-      min-height: 64px;
-      transition: transform .15s;
-    }
-    .c-card:hover { transform: translateY(-1px); }
-    .c-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 7px;
-      display: grid;
-      place-items: center;
-      color: #ffffff;
-      font-size: 15px;
-      flex-shrink: 0;
-    }
-    .c-info {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      flex: 1;
-    }
-    .c-title {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .c-amt {
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-      margin-top: 1px;
-    }
-    .c-sub {
-      font-size: 9px;
-      font-weight: 600;
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Light Shades */
-    .c-blue { background: #eef6ff; border-color: #cde2fe; color: #083c6c; }
-    .c-blue .c-icon { background: #0d6efd; }
-    .c-blue .c-sub { color: #1e5c94; }
-
-    .c-purple { background: #f7f2ff; border-color: #e2d2fe; color: #4c1d95; }
-    .c-purple .c-icon { background: #7c3aed; }
-    .c-purple .c-sub { color: #6d28d9; }
-
-    .c-green { background: #effcf4; border-color: #c3eed3; color: #0b462a; }
-    .c-green .c-icon { background: #10b981; }
-    .c-green .c-sub { color: #059669; }
-
-    .c-amber { background: #fff8ec; border-color: #fde0b7; color: #78350f; }
-    .c-amber .c-icon { background: #f59e0b; }
-    .c-amber .c-sub { color: #b45309; }
-
-    .c-pink { background: #fff0f6; border-color: #fcc2d7; color: #831043; }
-    .c-pink .c-icon { background: #ec4899; }
-    .c-pink .c-sub { color: #be185d; }
-
-    /* Report Card Container */
-    .report-box {
-      background: #ffffff;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--salon-line);
-      box-shadow: 0 2px 12px rgba(16, 24, 40, 0.04);
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-
-    /* Modern Table (Desktop) */
-    .table-responsive {
-      overflow-x: auto;
-      background: #ffffff;
-    }
-    .rep-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      text-align: left;
-    }
-    .rep-table thead th {
-      background: #092342;
-      color: #ffffff;
-      padding: 11px 14px;
-      font-weight: 700;
-      font-size: 12px;
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-      border: 0;
-    }
-    .rep-table thead th.th-gold {
-      background: #c99a23;
-      color: #12100e;
-    }
-    .rep-table tbody td {
-      padding: 11px 14px;
-      border-bottom: 1px solid #edf0f5;
-      color: var(--salon-ink);
-      white-space: nowrap;
-    }
-    .rep-table tbody tr:hover td {
-      background: #f8fafd;
-    }
-    .rep-table td.col-gold, .rep-table th.col-gold {
-      background: #fffdf5;
-      font-weight: 700;
-      color: #8c670a;
-    }
-    .rep-table tr:hover td.col-gold {
-      background: #fff8e1;
-    }
-
-    /* Table Staff Cell */
-    .staff-row-cell {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      font-weight: 600;
-    }
-    .staff-av {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 10px;
-      font-weight: 800;
-      color: #ffffff;
-      flex-shrink: 0;
-    }
-    .av-0 { background: #06b6d4; }
-    .av-1 { background: #a855f7; }
-    .av-2 { background: #f97316; }
-    .av-3 { background: #22c55e; }
-    .av-4 { background: #ec4899; }
-    .av-5 { background: #3b82f6; }
-
-    .attend-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      background: #eef2f6;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 11px;
-      color: #344054;
-      cursor: pointer;
-    }
-    .attend-badge:hover {
-      background: #d0e4ff;
-      color: #0d6efd;
-    }
-
-    /* Grand Total Row */
-    .rep-table tr.total-row td {
-      background: #092342 !important;
-      color: #ffffff !important;
-      font-weight: 800 !important;
-      padding: 12px 14px !important;
-      border: 0 !important;
-    }
-    .rep-table tr.total-row .gold-txt {
-      color: #f7d566 !important;
-    }
-
-    /* Mobile Views */
-    .mobile-cards-view {
-      display: none;
-      padding: 10px;
-      gap: 8px;
-      flex-direction: column;
-    }
-
-    /* Daily Mobile Card */
-    .m-card-staff {
-      background: #ffffff;
-      border: 1px solid var(--salon-line);
-      border-radius: 10px;
-      padding: 10px 12px;
-      box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .m-card-staff-head {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .m-card-staff-name {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--salon-navy);
-    }
-    .m-metrics-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 4px;
-      background: #f8fafc;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid #edf0f5;
-      text-align: center;
-    }
-    .m-metric-box small {
-      display: block;
-      font-size: 8px;
-      font-weight: 700;
-      color: var(--salon-muted);
-      margin-bottom: 2px;
-    }
-    .m-metric-box strong {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--salon-navy);
-    }
-    .m-metric-box.gold strong {
-      color: #8c670a;
-    }
-
-    /* Weekly & Monthly Mobile Card */
-    .m-nav-card {
-      background: #ffffff;
-      border: 1px solid var(--salon-line);
-      border-radius: 10px;
-      padding: 11px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      box-shadow: 0 1px 3px rgba(16, 24, 40, 0.03);
-    }
-    .m-nav-card-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .m-nav-card-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--salon-navy);
-    }
-    .m-nav-card-sub {
-      font-size: 10px;
-      color: var(--salon-muted);
-      margin-top: 1px;
-    }
-    .m-gold-pill {
-      background: #fff8e5;
-      border: 1px solid #f9df94;
-      color: #8c5d0a;
-      padding: 4px 10px;
-      border-radius: 14px;
-      font-size: 11px;
-      font-weight: 800;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-
-    /* Progress Breakdown List (Under Mobile Weekly) */
-    .m-staff-summary-box {
-      background: #ffffff;
-      border: 1px solid var(--salon-line);
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 6px;
-    }
-    .m-staff-summary-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--salon-navy);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .m-staff-prog-item {
-      margin-bottom: 8px;
-    }
-    .m-staff-prog-item:last-child { margin-bottom: 0; }
-    .m-prog-top {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      font-weight: 600;
-      margin-bottom: 3px;
-    }
-    .m-prog-bar-bg {
-      height: 6px;
-      background: #edf0f5;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .m-prog-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      background: #0d6efd;
-    }
-
-    /* Charts Section (Desktop) */
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      padding: 16px;
-      background: #ffffff;
-      border-top: 1px solid var(--salon-line);
-    }
-    .chart-card {
-      border: 1px solid var(--salon-line);
-      border-radius: 10px;
-      padding: 14px;
-      background: #fafbfc;
-    }
-    .chart-card-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--salon-navy);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .donut-wrap {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .donut-circle {
-      position: relative;
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      display: grid;
-      place-items: center;
-    }
-    .donut-inner {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .donut-inner strong {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--salon-navy);
-    }
-    .donut-inner small {
-      font-size: 8px;
-      color: var(--salon-muted);
-      text-transform: uppercase;
-      font-weight: 700;
-    }
-    .donut-legend {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 1;
-    }
-    .leg-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-    }
-    .leg-tag {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 600;
-      color: #344054;
-    }
-    .leg-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    /* Bar Visual */
-    .bar-visual {
-      display: flex;
-      align-items: flex-end;
-      gap: 12px;
-      height: 120px;
-      padding-top: 10px;
-      border-bottom: 1px solid #d0d5dd;
-    }
-    .bar-col-box {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      justify-content: flex-end;
-      gap: 3px;
-    }
-    .bar-col-pillar {
-      width: 100%;
-      max-width: 40px;
-      border-radius: 5px 5px 0 0;
-      min-height: 4px;
-    }
-    .bar-col-val {
-      font-size: 9px;
-      font-weight: 800;
-      color: var(--salon-navy);
-    }
-    .bar-col-label {
-      font-size: 9px;
-      color: var(--salon-muted);
-      font-weight: 600;
-      margin-top: 4px;
-    }
-
-    /* Expandable Row (Month to Week) */
-    .expand-btn {
-      cursor: pointer;
-      user-select: none;
-    }
-    .arr-icon {
-      display: inline-block;
-      margin-right: 5px;
-      font-size: 9px;
-      color: var(--salon-gold);
-      transition: transform 0.2s;
-    }
-    .arr-icon.open { transform: rotate(90deg); }
-    .nested-row td {
-      padding: 0 !important;
-      background: #fbfcfe;
-    }
-    .nested-wrap {
-      padding: 10px 14px 14px 28px;
-      border-left: 3px solid var(--salon-gold);
-    }
-
-    /* Sticky Bottom Mobile Bar */
-    .sticky-m-bar {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 1200;
-      background: #092342;
-      color: #ffffff;
-      padding: 9px 14px;
-      border-top: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.15);
-      align-items: center;
-      justify-content: space-between;
-    }
-    .sticky-m-left {
-      font-size: 11px;
-      font-weight: 800;
-      color: #f7d566;
-    }
-    .sticky-m-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-feature-settings: "tnum";
-    }
-    .sticky-chip {
-      text-align: right;
-    }
-    .sticky-chip small {
-      display: block;
-      font-size: 7px;
-      color: rgba(255, 255, 255, 0.65);
-      text-transform: uppercase;
-    }
-    .sticky-chip strong {
-      font-size: 11px;
-      font-weight: 800;
-      color: #ffffff;
-    }
-    .sticky-chip.gold strong {
-      color: #f7d566;
-    }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(9, 35, 66, 0.55);
-      backdrop-filter: blur(2px);
-      z-index: 1500;
-      display: none;
-      place-items: center;
-      padding: 14px;
-    }
-    .modal-overlay.open { display: grid; }
-    .modal-card {
-      background: #ffffff;
-      border-radius: var(--radius-lg);
-      width: min(600px, 100%);
-      max-height: 85vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-    .modal-top {
-      background: #092342;
-      color: #ffffff;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .modal-top h3 {
-      margin: 0;
-      font-size: 14px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-    .modal-close {
-      background: transparent;
-      border: 0;
-      color: #ffffff;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    .modal-content {
-      padding: 14px;
-      overflow-y: auto;
-    }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-      .cards-row-5 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-      .charts-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 650px) {
-      .report-wrap {
-        padding: 6px 8px 60px !important;
-      }
-      .banner-head {
-        padding: 11px 13px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-      .banner-pill {
-        width: 100%;
-        justify-content: space-between;
-      }
-      .cards-row-5 {
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-      }
-      .c-card:nth-child(5) {
-        grid-column: 1 / -1;
-      }
-      .c-card {
-        padding: 8px 10px;
-        min-height: 54px;
-      }
-      .c-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 13px;
-      }
-      .c-amt { font-size: 14px; }
-      .table-responsive { display: none !important; }
-      .mobile-cards-view { display: flex !important; }
-      .sticky-m-bar { display: flex !important; }
-      .charts-row { display: none !important; }
-    }
-  </style>
-</head>
-<body>
-<main class="report-wrap">
-
-  <!-- Compact Top Action Bar: Segmented Switcher + Export -->
-  <div class="top-action-bar">
-    <div class="pill-tabs">
-      <button class="pill-tab active" id="btnTabDaily" type="button">👥 Daily Matrix</button>
-      <button class="pill-tab" id="btnTabWeekly" type="button">📅 Weekly Summary</button>
-      <button class="pill-tab" id="btnTabMonthly" type="button">📊 Month-wise</button>
+/* Weekly Report & Accordion Styling */
+.weekly-report-container{margin-top:16px;}
+.weekly-nav-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px;padding:12px 16px;background:#fff;border:1px solid #e1e7ee;border-radius:12px;}
+.weekly-nav-info h2{margin:0;font-size:16px;font-weight:700;color:#1d2939;}
+.weekly-nav-info p{margin:3px 0 0;font-size:11px;color:#758397;}
+.weekly-view-toggle{display:flex;background:#f1f4f8;padding:3px;border-radius:8px;gap:4px;}
+.weekly-view-toggle button{border:none;background:transparent;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;color:#526176;cursor:pointer;transition:all .15s ease;}
+.weekly-view-toggle button.active{background:#fff;color:#c99a23;box-shadow:0 2px 6px rgba(0,0,0,0.08);}
+.weekly-table-wrap{overflow-x:auto;border:1px solid #e1e7ee;border-radius:12px;background:#fff;-webkit-overflow-scrolling:touch;}
+.weekly-table{width:100%;border-collapse:collapse;font-size:12px;}
+.weekly-table th{background:#f8fafc;color:#627187;font-size:11px;text-transform:uppercase;padding:10px 12px;border-bottom:1px solid #e1e7ee;white-space:nowrap;}
+.weekly-table th:first-child,.weekly-table td:first-child{text-align:left;}
+.weekly-table th,.weekly-table td{text-align:right;padding:9px 12px;border-bottom:1px solid #edf0f4;white-space:nowrap;}
+.weekly-table .week-expand-cell{cursor:pointer;user-select:none;transition:background .15s,color .15s;font-weight:600;color:#1d2939;}
+.weekly-table .week-expand-cell:hover{background:rgba(201,154,35,0.08);color:#b38318;}
+.weekly-table .week-arrow{display:inline-block;width:14px;font-size:10px;color:#c99a23;transition:transform .15s ease;}
+.weekly-table .week-arrow.open{transform:rotate(90deg);}
+.weekly-table .week-label-inner{display:inline-block;vertical-align:middle;text-align:left;}
+.weekly-table .week-sub{font-size:9px;color:#758397;font-weight:400;margin-top:1px;}
+.weekly-table .week-detail-row td{padding:0!important;background:#fafbfc!important;}
+.weekly-table .week-detail-wrap{padding:12px 14px 14px 28px;border-left:3px solid #c99a23;background:#fcfdfe;}
+.weekly-table .week-detail-table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border:1px solid #e1e7ee;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.03);}
+.weekly-table .week-detail-table th{padding:7px 10px;color:#627187;font-size:10px;text-transform:uppercase;background:#f0f4f8;border-bottom:1px solid #e1e7ee;text-align:right;}
+.weekly-table .week-detail-table th:first-child,.weekly-table .week-detail-table td:first-child{text-align:left;}
+.weekly-table .week-detail-table td{padding:7px 10px;border-bottom:1px solid #edf0f4;text-align:right;}
+.weekly-table .week-detail-table .date-cell{color:#b38318;font-weight:700;font-family:monospace,Arial;}
+.weekly-table .week-detail-table .detail-total td{font-weight:700;color:#1d2939;border-top:2px solid #c99a23;background:#fdfaf0;}
+.weekly-table .latest-date-row td{background:#fafbfc;color:#475467;font-size:11px;}
+.weekly-table .latest-date-label{font-weight:600;color:#344054;}
+.weekly-table .grand-total td{font-weight:700;border-top:2px solid #c99a23;color:#b38318;font-size:13px;background:#fefdf7;}
+</style><style>
+@media(max-width:700px){
+  body.mobile-employee .m-page .cards{grid-template-columns:1fr 1fr;gap:10px;margin-top:0}
+  body.mobile-employee .m-page .card{padding:15px;border-radius:16px;box-shadow:0 6px 18px #1b2a3b08}
+  body.mobile-employee .m-page .card span{font-size:9px;letter-spacing:.04em}
+  body.mobile-employee .m-page .card strong{margin-top:8px;font-size:17px;letter-spacing:-.02em}
+  body.mobile-employee .m-page .card:nth-child(1) strong{color:#138a4b}
+  body.mobile-employee .m-page .card:nth-child(2) strong{color:#9a5b0b}
+  body.mobile-employee .m-page .card:nth-child(3) strong{color:#2563c9}
+  body.mobile-employee .m-page .card:nth-child(5){background:#202b38;border-color:#202b38}
+  body.mobile-employee .m-page .card:nth-child(5) span{color:#cbd3dc}
+  body.mobile-employee .m-page .card:nth-child(5) strong{color:#f4c64d}
+  body.mobile-employee .m-page .heading>div:last-child{display:flex;gap:7px}
+  body.mobile-employee .m-page .heading>div:last-child button{min-height:38px;padding:8px 11px;font-size:11px}
+  body.mobile-employee .m-page .filters{display:none}
+  body.mobile-employee .m-page .filters.mobile-open{display:flex}
+  body.mobile-employee .m-page .table-wrap{display:none!important}
+  body.mobile-employee .m-page #standardTableWrap.weekly-show-transactions{display:block!important;overflow-x:auto!important}
+  body.mobile-employee .m-page #weeklyReportContainer{display:block!important}
+  body.mobile-employee .m-page #weeklyReportContainer.hide-weekly{display:none!important}
+  body.mobile-employee .m-page .weekly-table-wrap{display:block!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;width:100%!important;max-width:100%!important}
+  body.mobile-employee .m-mobile-report{display:block}
+}
+</style></head>
+<body><main class="wrap m-page"><section class="heading"><div><h1 id="reportTitle">Reports</h1><p id="range">Daily, weekly and monthly salon reports</p></div><div><button id="excel" class="secondary" type="button">Excel</button> <button id="pdf" class="secondary" type="button">PDF</button></div></section><div class="m-filter-bar" id="mobileReportFilterBar"><button id="mobileReportFilterButton" class="m-filter-button" type="button">Filter <span id="mobileReportFilterCount" class="m-filter-count">0</span></button><span id="mobileReportFilterChips" style="display:flex;gap:7px"></span></div><section class="filters" id="reportFilters"><div class="field"><label for="period">Period</label><select id="period"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option></select></div><div class="field"><label for="date">Anchor date</label><input id="date" type="date"></div><div class="field"><label for="employee">Employee</label><select id="employee"><option value="">All employees</option></select></div><button id="load" type="button">Load Report</button><button id="mobileReportFilterClose" class="secondary m-filter-close" type="button">Close</button></section><div id="mobileReportFilterOverlay" class="m-filter-overlay"></div><section class="cards"><div class="card"><span>COLLECTION</span><strong id="collection">INR 0</strong></div><div class="card"><span>EXPENSE</span><strong id="expense">INR 0</strong></div><div class="card"><span>SALARY</span><strong id="salary">INR 0</strong></div><div class="card"><span>COUNTER CASH</span><strong id="counter">INR 0</strong></div><div class="card"><span>NET</span><strong id="net">INR 0</strong></div></section><div id="status" class="status" role="status"></div><div id="mobileReport" class="m-mobile-report"></div><div id="weeklyReportContainer" class="weekly-report-container" style="display:none;">
+  <div class="weekly-nav-bar">
+    <div class="weekly-nav-info">
+      <h2 id="weeklyNavTitle">Weekly Summary</h2>
+      <p id="weeklyNavSubtitle">Click a week (e.g. Week 1) to view date-wise breakdown</p>
     </div>
-    <div class="export-btns">
-      <button class="btn-exp" id="expExcel" type="button">📥 Excel</button>
-      <button class="btn-exp" id="expPdf" type="button">📄 PDF</button>
+    <div class="weekly-view-toggle">
+      <button type="button" class="active" id="btnWeeklySummary">Weekly Summary</button>
+      <button type="button" id="btnWeeklyAll">All Transactions</button>
     </div>
   </div>
-
-  <!-- Deep Blue Banner Header -->
-  <header class="banner-head">
-    <div class="banner-left">
-      <div class="banner-icon" id="bannerIcon">👥</div>
-      <div class="banner-titles">
-        <h2 id="bannerTitle">Staff Matrix</h2>
-        <p id="bannerSubtitle">Totals per staff (2026-11-02)</p>
-      </div>
-    </div>
-
-    <!-- Date / Month / FY Control Pill -->
-    <div class="banner-pill" id="bannerPillBox">
-      <!-- Daily Controls -->
-      <span id="ctrlDaily" style="display:flex;align-items:center;gap:6px;">
-        <span>📅</span>
-        <input type="date" id="dateInput">
-        <button class="btn-today-quick" id="btnTodayQuick" type="button">Today</button>
-      </span>
-      <!-- Weekly Controls -->
-      <span id="ctrlWeekly" style="display:none;align-items:center;gap:6px;">
-        <span>📅</span>
-        <select id="monthSelect"></select>
-      </span>
-      <!-- Monthly Controls -->
-      <span id="ctrlMonthly" style="display:none;align-items:center;gap:6px;">
-        <span>📅</span>
-        <select id="yearSelect"></select>
-      </span>
-    </div>
-  </header>
-
-  <!-- 5 Modern Collection Dashboard Cards (Compact, Light Shades) -->
-  <section class="cards-row-5">
-    <div class="c-card c-blue">
-      <div class="c-icon">👥</div>
-      <div class="c-info">
-        <div class="c-title">Staff Collection</div>
-        <div class="c-amt" id="valStaffCol">₹0</div>
-        <div class="c-sub" id="subStaffCol">0 Staff Active</div>
-      </div>
-    </div>
-
-    <div class="c-card c-purple">
-      <div class="c-icon">🪙</div>
-      <div class="c-info">
-        <div class="c-title">Cost Cutting</div>
-        <div class="c-amt" id="valCost">₹0</div>
-        <div class="c-sub">Discounts & Cuts</div>
-      </div>
-    </div>
-
-    <div class="c-card c-green">
-      <div class="c-icon">💵</div>
-      <div class="c-info">
-        <div class="c-title">Cash Collection</div>
-        <div class="c-amt" id="valCash">₹0</div>
-        <div class="c-sub" id="subCash">₹0 Cost | 0 Cash</div>
-      </div>
-    </div>
-
-    <div class="c-card c-amber">
-      <div class="c-icon">💻</div>
-      <div class="c-info">
-        <div class="c-title">Online Collection</div>
-        <div class="c-amt" id="valOnline">₹0</div>
-        <div class="c-sub" id="subOnline">₹0 Cost | 0 Online</div>
-      </div>
-    </div>
-
-    <div class="c-card c-pink">
-      <div class="c-icon">📊</div>
-      <div class="c-info">
-        <div class="c-title">Total Collection</div>
-        <div class="c-amt" id="valTotal">₹0</div>
-        <div class="c-sub" id="subTotal">Staff + Cost</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================================================ -->
-  <!-- 1. DAILY VIEW (STAFF MATRIX) -->
-  <!-- ============================================================ -->
-  <section class="report-box" id="viewDailyBox">
-    <!-- Desktop Table -->
-    <div class="table-responsive">
-      <table class="rep-table" id="tableDaily">
-        <thead>
-          <tr>
-            <th style="width:50px;">#</th>
-            <th>Staff</th>
-            <th style="text-align:right;">📊 Collection</th>
-            <th style="text-align:right;">🪙 Cost</th>
-            <th style="text-align:right;" class="th-gold">🧮 Total</th>
-            <th style="text-align:right;">📅 Attend</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyDaily">
-          <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--salon-muted);">Loading staff matrix...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Mobile Staff Cards -->
-    <div class="mobile-cards-view" id="mDailyCards"></div>
-  </section>
-
-  <!-- ============================================================ -->
-  <!-- 2. WEEKLY VIEW (WEEKLY SUMMARY) -->
-  <!-- ============================================================ -->
-  <section class="report-box" id="viewWeeklyBox" style="display:none;">
-    <!-- Desktop Table -->
-    <div class="table-responsive">
-      <table class="rep-table" id="tableWeekly">
-        <thead id="theadWeekly"></thead>
-        <tbody id="tbodyWeekly">
-          <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--salon-muted);">Loading weekly summary...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Mobile Weekly Cards -->
-    <div class="mobile-cards-view" id="mWeeklyCards"></div>
-
-    <!-- Desktop Charts -->
-    <div class="charts-row" id="weeklyCharts">
-      <div class="chart-card">
-        <div class="chart-card-title"><span>📅</span> Staff-wise Collection</div>
-        <div class="donut-wrap">
-          <div class="donut-circle" id="weeklyDonutCircle">
-            <div class="donut-inner">
-              <strong id="weeklyDonutCenterAmt">₹0</strong>
-              <small>Total</small>
-            </div>
-          </div>
-          <div class="donut-legend" id="weeklyDonutLeg"></div>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-card-title"><span>📊</span> Weekly Total Collection</div>
-        <div class="bar-visual" id="weeklyBarChart"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================================================ -->
-  <!-- 3. MONTH-WISE VIEW (MONTHLY SUMMARY) -->
-  <!-- ============================================================ -->
-  <section class="report-box" id="viewMonthlyBox" style="display:none;">
-    <!-- Desktop Table -->
-    <div class="table-responsive">
-      <table class="rep-table" id="tableMonthly">
-        <thead id="theadMonthly"></thead>
-        <tbody id="tbodyMonthly">
-          <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--salon-muted);">Loading monthly summary...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Mobile Monthly Cards -->
-    <div class="mobile-cards-view" id="mMonthlyCards"></div>
-
-    <!-- Desktop Charts -->
-    <div class="charts-row" id="monthlyCharts">
-      <div class="chart-card">
-        <div class="chart-card-title"><span>📅</span> Collection vs Cost</div>
-        <div class="donut-wrap">
-          <div class="donut-circle" id="monthlyDonutCircle">
-            <div class="donut-inner">
-              <strong id="monthlyDonutCenterAmt">₹0</strong>
-              <small>Net Total</small>
-            </div>
-          </div>
-          <div class="donut-legend" id="monthlyDonutLeg"></div>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-card-title"><span>📊</span> Staff-wise Collection</div>
-        <div class="bar-visual" id="monthlyBarChart"></div>
-      </div>
-    </div>
-  </section>
-
-</main>
-
-<!-- Sticky Bottom Mobile Footer -->
-<div class="sticky-m-bar" id="stickyMobileBar">
-  <div class="sticky-m-left" id="mStickyTitle">Month Total</div>
-  <div class="sticky-m-right">
-    <div class="sticky-chip">
-      <small>Col</small>
-      <strong id="mStickyCol">₹0</strong>
-    </div>
-    <div class="sticky-chip">
-      <small>Cost</small>
-      <strong id="mStickyCost">₹0</strong>
-    </div>
-    <div class="sticky-chip gold">
-      <small>Total</small>
-      <strong id="mStickyTotal">₹0</strong>
-    </div>
+  <div class="weekly-table-wrap" id="weeklySummaryWrap">
+    <table class="weekly-table">
+      <thead id="weeklyThead"></thead>
+      <tbody id="weeklyTbody"></tbody>
+    </table>
   </div>
 </div>
+<div class="table-wrap" id="standardTableWrap"><table id="reportTable" data-table-view="local"><thead><tr><th>Date</th><th>Type</th><th>Employee</th><th>Details</th><th>Amount</th><th>Payment</th><th>Created By</th></tr></thead><tbody id="rows"><tr><td colspan="7" class="empty">Loading report...</td></tr></tbody></table></div></main>
+<script src="/auth-guard.js"></script><script src="/admin-nav.js?v=20261105_m4"></script><script src="/mobile.js?v=20261105_m4"></script><script src="/table-view.js"></script><script>
+const money = value => 'INR ' + Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+const inr = value => '₹' + Math.round(Number(value || 0)).toLocaleString('en-IN');
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-<!-- Modal for Staff Entries -->
-<div class="modal-overlay" id="staffEntriesModal">
-  <div class="modal-card">
-    <div class="modal-top">
-      <h3 id="mTitleStaff">Staff Entries</h3>
-      <button class="modal-close" id="btnModalClose" type="button">✕</button>
-    </div>
-    <div class="modal-content" id="mContentStaff"></div>
-  </div>
-</div>
+function formatShortDate(rawDate) {
+  if (!rawDate) return '';
+  const dStr = typeof rawDate === 'string' ? rawDate.slice(0, 10) : new Date(rawDate).toISOString().slice(0, 10);
+  const parts = dStr.split('-');
+  return parts.length === 3 ? `${parts[2]}/${parts[1]}` : dStr;
+}
 
-<script src="/auth-guard.js"></script>
-<script src="/admin-nav.js"></script>
-<script src="/mobile.js"></script>
-<script src="/table-view.js"></script>
+function getEntryDay(e) {
+  const dStr = typeof e.date === 'string' ? e.date.slice(0, 10) : new Date(e.date).toISOString().slice(0, 10);
+  const parts = dStr.split('-').map(Number);
+  return parts[2] || 0;
+}
 
-<script>
-(function() {
-  'use strict';
+function getEntryDateStr(e) {
+  return typeof e.date === 'string' ? e.date.slice(0, 10) : new Date(e.date).toISOString().slice(0, 10);
+}
 
-  const $ = id => document.getElementById(id);
-  const inr = n => '₹' + Math.round(Number(n) || 0).toLocaleString('en-IN');
-  const pad = n => String(n).padStart(2, '0');
-  const todayStr = () => {
-    const d = new Date();
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  };
-  const sanitize = str => {
-    const d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  };
-  const initials = name => name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
+let currentWeeklyViewMode = 'summary';
 
-  // State
-  let activePeriod = 'weekly';
-  const urlPeriod = new URLSearchParams(window.location.search).get('period');
-  if (['daily', 'weekly', 'monthly'].includes(urlPeriod)) {
-    activePeriod = urlPeriod;
-  }
+function setWeeklyViewMode(mode) {
+  currentWeeklyViewMode = mode;
+  const weeklyWrap = document.getElementById('weeklySummaryWrap');
+  const standardWrap = document.getElementById('standardTableWrap');
+  const mobileReport = document.getElementById('mobileReport');
+  const btnSummary = document.getElementById('btnWeeklySummary');
+  const btnAll = document.getElementById('btnWeeklyAll');
 
-  const state = {
-    date: todayStr(),
-    month: todayStr().slice(0, 7),
-    year: new Date().getFullYear(),
-    entries: [],
-    staffList: []
-  };
-
-  // Switch Period
-  function switchPeriod(p) {
-    activePeriod = p;
-    $('btnTabDaily').classList.toggle('active', p === 'daily');
-    $('btnTabWeekly').classList.toggle('active', p === 'weekly');
-    $('btnTabMonthly').classList.toggle('active', p === 'monthly');
-
-    $('viewDailyBox').style.display = p === 'daily' ? 'block' : 'none';
-    $('viewWeeklyBox').style.display = p === 'weekly' ? 'block' : 'none';
-    $('viewMonthlyBox').style.display = p === 'monthly' ? 'block' : 'none';
-
-    $('ctrlDaily').style.display = p === 'daily' ? 'flex' : 'none';
-    $('ctrlWeekly').style.display = p === 'weekly' ? 'flex' : 'none';
-    $('ctrlMonthly').style.display = p === 'monthly' ? 'flex' : 'none';
-
-    if (p === 'daily') {
-      $('bannerIcon').textContent = '👥';
-      $('bannerTitle').textContent = 'Staff Matrix';
-      $('bannerSubtitle').textContent = `Totals per staff (${state.date})`;
-    } else if (p === 'weekly') {
-      $('bannerIcon').textContent = '📅';
-      $('bannerTitle').textContent = 'Weekly Summary Report';
-      const [y, m] = state.month.split('-').map(Number);
-      const mName = new Date(y, m - 1, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-      $('bannerSubtitle').textContent = `Weekly staff-wise collection & cost cutting (${mName})`;
-    } else {
-      $('bannerIcon').textContent = '📊';
-      $('bannerTitle').textContent = 'Month-wise Summary';
-      $('bannerSubtitle').textContent = `Monthly staff-wise collection & cost cutting (FY ${state.year})`;
+  if (mode === 'summary') {
+    if (weeklyWrap) weeklyWrap.style.display = 'block';
+    if (standardWrap) {
+      standardWrap.style.display = 'none';
+      standardWrap.classList.remove('weekly-show-transactions');
     }
-
-    loadData();
-  }
-
-  // Load Data
-  async function loadData() {
-    try {
-      let q = `period=${activePeriod}`;
-      if (activePeriod === 'daily') q += `&date=${state.date}`;
-      else if (activePeriod === 'weekly') q += `&date=${state.month}-01`;
-      else q += `&year=${state.year}&allMonths=true`;
-
-      const data = await salonAuth.request(`/api/reports?${q}`);
-      state.entries = data.rows || [];
-
-      if (data.staffList && data.staffList.length) {
-        state.staffList = data.staffList.map(s => s.employeeName || s.name).filter(Boolean);
-      } else {
-        state.staffList = [...new Set(state.entries.map(e => e.employeeName).filter(Boolean))].sort();
-      }
-
-      render5Cards(state.entries);
-
-      if (activePeriod === 'daily') renderDaily(state.entries);
-      else if (activePeriod === 'weekly') renderWeekly(state.entries);
-      else renderMonthly(state.entries);
-    } catch (e) {
-      console.error(e);
+    if (mobileReport) mobileReport.style.display = 'none';
+    if (btnSummary) btnSummary.classList.add('active');
+    if (btnAll) btnAll.classList.remove('active');
+  } else {
+    if (weeklyWrap) weeklyWrap.style.display = 'none';
+    if (standardWrap) {
+      standardWrap.style.display = 'block';
+      standardWrap.classList.add('weekly-show-transactions');
     }
+    if (mobileReport) mobileReport.style.display = 'block';
+    if (btnSummary) btnSummary.classList.remove('active');
+    if (btnAll) btnAll.classList.add('active');
+  }
+}
+
+function renderWeeklySummary(data) {
+  const thead = document.getElementById('weeklyThead');
+  const tbody = document.getElementById('weeklyTbody');
+  if (!thead || !tbody) return;
+
+  const collections = (data.rows || []).filter(r => r.type === 'Collection');
+  
+  const anchorDateStr = dateInput.value || new Date().toISOString().slice(0, 10);
+  const [anchorY, anchorM, anchorD] = anchorDateStr.split('-').map(Number);
+  const year = anchorY;
+  const month = anchorM - 1;
+  const selectedDay = anchorD;
+  const lastDay = new Date(year, month + 1, 0).getDate();
+
+  // Subtitle with selected month
+  const monthName = new Date(year, month, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  const subEl = document.getElementById('weeklyNavSubtitle');
+  if (subEl) subEl.textContent = `Click a week (e.g. Week 1) to view date-wise breakdown · ${monthName}`;
+
+  // Active staff list
+  const activeStaff = (data.staffList || []).map(s => s.employeeName).filter(Boolean);
+  const entryStaff = collections.map(e => e.employeeName).filter(Boolean);
+  let staff = [...new Set([...activeStaff, ...entryStaff])].sort((a,b) => a.localeCompare(b));
+
+  if (employeeInput.value) {
+    const selectedText = employeeInput.options[employeeInput.selectedIndex]?.textContent?.split(' · ')[0]?.trim();
+    if (selectedText) staff = staff.filter(name => name.toLowerCase() === selectedText.toLowerCase());
   }
 
-  // 5 Top Cards
-  function render5Cards(rows) {
-    const col = rows.filter(e => e.type === 'Collection');
-    const totCol = col.reduce((s, e) => s + (Number(e.amount) || 0), 0);
-    const totCost = col.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
+  if (!staff.length) staff = ['Staff'];
 
-    const cash = col.filter(e => String(e.paymentMode || '').toLowerCase().includes('cash'));
-    const cashCol = cash.reduce((s, e) => s + (Number(e.amount) || 0), 0);
-    const cashCost = cash.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
+  // Weeks definition (Standard 4 weeks)
+  const weeks = [
+    { label: 'Week 1', start: 1, end: 7 },
+    { label: 'Week 2', start: 8, end: 14 },
+    { label: 'Week 3', start: 15, end: 21 },
+    { label: 'Week 4', start: 22, end: lastDay }
+  ];
 
-    const online = col.filter(e => {
-      const m = String(e.paymentMode || '').toLowerCase();
-      return m.includes('online') || m.includes('upi') || m.includes('card');
+  const today = new Date();
+  const isCurrentMonth = (year === today.getFullYear() && month === today.getMonth());
+  const activeWeeks = weeks.filter(w => {
+    const hasEntries = collections.some(e => {
+      const d = getEntryDay(e);
+      return d >= w.start && d <= w.end;
     });
-    const onCol = online.reduce((s, e) => s + (Number(e.amount) || 0), 0);
-    const onCost = online.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
+    if (hasEntries) return true;
+    if (!isCurrentMonth) return true;
+    return selectedDay >= w.start;
+  }).reverse();
 
-    const combined = totCol + totCost;
+  // Header row
+  let headHTML = '<tr><th>Week</th>';
+  staff.forEach(name => {
+    headHTML += `<th style="text-align:right">${escapeHtml(name)}</th>`;
+  });
+  headHTML += '<th style="text-align:right">Cost</th><th style="text-align:right">Total</th></tr>';
+  thead.innerHTML = headHTML;
 
-    $('valStaffCol').textContent = inr(totCol);
-    $('subStaffCol').textContent = `${[...new Set(col.map(e => e.employeeName))].length} Staff Active`;
-
-    $('valCost').textContent = inr(totCost);
-
-    $('valCash').textContent = inr(cashCol + cashCost);
-    $('subCash').textContent = `${inr(cashCost)} Cost | ${cash.length} Cash`;
-
-    $('valOnline').textContent = inr(onCol + onCost);
-    $('subOnline').textContent = `${inr(onCost)} Cost | ${online.length} Online`;
-
-    $('valTotal').textContent = inr(combined);
-    $('subTotal').textContent = `${inr(totCol)} + ${inr(totCost)}`;
+  if (!collections.length) {
+    tbody.innerHTML = `<tr><td colspan="${staff.length + 3}" class="empty">No collection data found for this month.</td></tr>`;
+    return;
   }
 
-  // 1. Daily View
-  function renderDaily(rows) {
-    const colRows = rows.filter(e => e.type === 'Collection');
-    let tCol = 0, tCost = 0, tTotal = 0, tAttend = 0;
-    let dHtml = '', mHtml = '';
+  let bodyHTML = '';
 
-    state.staffList.forEach((name, idx) => {
-      const staffRows = colRows.filter(e => e.employeeName === name);
-      const col = staffRows.reduce((s, e) => s + (Number(e.amount) || 0), 0);
-      const cost = staffRows.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
-      const total = col + cost;
-      const count = staffRows.length;
+  // Latest 2 Dates with data at top
+  const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+  const monthDatesWithData = [...new Set(collections.map(e => getEntryDateStr(e)))]
+    .filter(d => d.startsWith(monthPrefix))
+    .sort()
+    .slice(-2)
+    .reverse();
 
-      tCol += col; tCost += cost; tTotal += total; tAttend += count;
+  monthDatesWithData.forEach(dateStr => {
+    const dayEntries = collections.filter(e => getEntryDateStr(e) === dateStr);
+    let rowHTML = `<td class="latest-date-label">Date (${formatShortDate(dateStr)})</td>`;
+    let dayAmountTotal = 0;
+    let dayCostTotal = 0;
 
-      dHtml += `
-        <tr>
-          <td>${idx + 1}</td>
-          <td>
-            <div class="staff-row-cell">
-              <span class="staff-av av-${idx % 6}">${initials(name)}</span>
-              <span>${sanitize(name)}</span>
-            </div>
-          </td>
-          <td style="text-align:right;">${inr(col)}</td>
-          <td style="text-align:right;">${inr(cost)}</td>
-          <td style="text-align:right;" class="col-gold">${inr(total)}</td>
-          <td style="text-align:right;">
-            <span class="attend-badge" data-staff="${sanitize(name)}">${count}</span>
-          </td>
-        </tr>
-      `;
-
-      mHtml += `
-        <div class="m-card-staff">
-          <div class="m-card-staff-head">
-            <span class="staff-av av-${idx % 6}">${initials(name)}</span>
-            <span class="m-card-staff-name">${sanitize(name)}</span>
-          </div>
-          <div class="m-metrics-strip">
-            <div class="m-metric-box">
-              <small>Col</small>
-              <strong>${inr(col)}</strong>
-            </div>
-            <div class="m-metric-box">
-              <small>Cost</small>
-              <strong>${inr(cost)}</strong>
-            </div>
-            <div class="m-metric-box gold">
-              <small>Total</small>
-              <strong>${inr(total)}</strong>
-            </div>
-            <div class="m-metric-box">
-              <small>Attend</small>
-              <span class="attend-badge" data-staff="${sanitize(name)}">${count}</span>
-            </div>
-          </div>
-        </div>
-      `;
+    staff.forEach(name => {
+      const rows = dayEntries.filter(e => e.employeeName === name);
+      const amt = rows.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+      const cost = rows.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
+      dayAmountTotal += amt;
+      dayCostTotal += cost;
+      rowHTML += `<td>${amt > 0 ? inr(amt) : ''}</td>`;
     });
 
-    dHtml += `
-      <tr class="total-row">
-        <td>🏆</td>
-        <td>Grand Total</td>
-        <td style="text-align:right;" class="gold-txt">${inr(tCol)}</td>
-        <td style="text-align:right;" class="gold-txt">${inr(tCost)}</td>
-        <td style="text-align:right;" class="gold-txt">${inr(tTotal)}</td>
-        <td style="text-align:right;" class="gold-txt">${tAttend}</td>
-      </tr>
-    `;
+    const dayCombined = dayAmountTotal + dayCostTotal;
+    rowHTML += `<td>${dayCostTotal > 0 ? inr(dayCostTotal) : ''}</td>`;
+    rowHTML += `<td style="font-weight:700;color:#c99a23;">${dayCombined > 0 ? inr(dayCombined) : ''}</td>`;
+    bodyHTML += `<tr class="latest-date-row">${rowHTML}</tr>`;
+  });
 
-    $('tbodyDaily').innerHTML = dHtml;
-    $('mDailyCards').innerHTML = mHtml;
-
-    updateSticky('🏆 Grand Total', tCol, tCost, tTotal);
-    bindAttendModal();
-  }
-
-  // 2. Weekly View
-  function renderWeekly(rows) {
-    const colRows = rows.filter(e => e.type === 'Collection');
-    const [y, m] = state.month.split('-').map(Number);
-    const lastDay = new Date(y, m, 0).getDate();
-    const mShort = new Date(y, m - 1, 1).toLocaleDateString('en-IN', { month: 'short' });
-
-    const weeks = [
-      { name: 'Week 1', range: `1 – 7 ${mShort}`, s: 1, e: 7 },
-      { name: 'Week 2', range: `8 – 14 ${mShort}`, s: 8, e: 14 },
-      { name: 'Week 3', range: `15 – 21 ${mShort}`, s: 15, e: 21 },
-      { name: 'Week 4', range: `22 – ${lastDay} ${mShort}`, s: 22, e: lastDay }
-    ];
-
-    let headHtml = `<tr><th>📅 Week</th>`;
-    state.staffList.forEach(name => {
-      headHtml += `<th style="text-align:right;">👤 ${sanitize(name)}</th>`;
-    });
-    headHtml += `<th style="text-align:right;">🪙 Cost</th><th style="text-align:right;" class="th-gold">Total</th></tr>`;
-    $('theadWeekly').innerHTML = headHtml;
-
-    let dHtml = '', mHtml = '';
-    const staffTotals = {};
-    state.staffList.forEach(s => staffTotals[s] = 0);
-    let mCost = 0, mTotal = 0;
-    const barData = [];
-
-    weeks.forEach(w => {
-      const wRows = colRows.filter(e => {
-        const day = new Date(e.date).getUTCDate();
-        return day >= w.s && day <= w.e;
-      });
-
-      let r = `<td><strong>${w.name}</strong> <small style="color:var(--salon-muted);">(${w.range})</small></td>`;
-      let wCol = 0;
-
-      state.staffList.forEach(name => {
-        const amt = wRows.filter(e => e.employeeName === name).reduce((s, e) => s + (Number(e.amount) || 0), 0);
-        staffTotals[name] += amt;
-        wCol += amt;
-        r += `<td style="text-align:right;">${amt > 0 ? inr(amt) : '—'}</td>`;
-      });
-
-      const cost = wRows.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
-      const tot = wCol + cost;
-      mCost += cost;
-      mTotal += tot;
-      barData.push({ label: w.name, val: tot });
-
-      r += `<td style="text-align:right;">${cost > 0 ? inr(cost) : '—'}</td>`;
-      r += `<td style="text-align:right;" class="col-gold">${inr(tot)}</td>`;
-      dHtml += `<tr>${r}</tr>`;
-
-      mHtml += `
-        <div class="m-nav-card" onclick="openWeekDetail('${w.name}', '${w.range}')">
-          <div class="m-nav-card-left">
-            <span style="font-size:18px;">🗓️</span>
-            <div>
-              <div class="m-nav-card-title">${w.name}</div>
-              <div class="m-nav-card-sub">${w.range}</div>
-            </div>
-          </div>
-          <span class="m-gold-pill">${inr(tot)} ›</span>
-        </div>
-      `;
+  // Week Rows
+  activeWeeks.forEach(week => {
+    const weekEntries = collections.filter(e => {
+      const day = getEntryDay(e);
+      return day >= week.start && day <= week.end;
     });
 
-    let totRow = `<td><strong>Month Total</strong></td>`;
-    let allCol = 0;
-    state.staffList.forEach(name => {
-      allCol += staffTotals[name];
-      totRow += `<td style="text-align:right;" class="gold-txt">${inr(staffTotals[name])}</td>`;
-    });
-    totRow += `<td style="text-align:right;" class="gold-txt">${inr(mCost)}</td>`;
-    totRow += `<td style="text-align:right;" class="gold-txt">${inr(mTotal)}</td>`;
-    dHtml += `<tr class="total-row">${totRow}</tr>`;
+    let weekAmount = 0;
+    let weekCost = 0;
 
-    // Mobile staff breakdown progress card
-    let progHtml = `<div class="m-staff-summary-box"><div class="m-staff-summary-title"><span>👥</span> Staff-wise Collection</div>`;
-    state.staffList.forEach((name, idx) => {
-      const amt = staffTotals[name];
-      const pct = allCol > 0 ? Math.round((amt / allCol) * 100) : 0;
-      const colors = ['#0d6efd', '#a855f7', '#ec4899', '#10b981', '#f59e0b'];
-      progHtml += `
-        <div class="m-staff-prog-item">
-          <div class="m-prog-top">
-            <span>${sanitize(name)}</span>
-            <strong>${inr(amt)} (${pct}%)</strong>
-          </div>
-          <div class="m-prog-bar-bg"><div class="m-prog-bar-fill" style="width:${pct}%;background:${colors[idx % colors.length]};"></div></div>
-        </div>
-      `;
-    });
-    progHtml += `</div>`;
-    mHtml += progHtml;
-
-    $('tbodyWeekly').innerHTML = dHtml;
-    $('mWeeklyCards').innerHTML = mHtml;
-
-    updateSticky('Month Total', allCol, mCost, mTotal);
-    renderWeeklyCharts(staffTotals, allCol, barData);
-  }
-
-  function renderWeeklyCharts(staffTotals, totalAmt, barData) {
-    const donutEl = $('weeklyDonutCircle');
-    const legEl = $('weeklyDonutLeg');
-    $('weeklyDonutCenterAmt').textContent = inr(totalAmt);
-
-    let segs = [], curDeg = 0, legHtml = '';
-    const names = Object.keys(staffTotals);
-    const colors = ['#0d6efd', '#a855f7', '#ec4899', '#10b981', '#f59e0b', '#06b6d4'];
-
-    names.forEach((name, idx) => {
-      const amt = staffTotals[name];
-      const pct = totalAmt > 0 ? (amt / totalAmt) * 100 : 0;
-      const deg = (pct / 100) * 360;
-      const col = colors[idx % colors.length];
-
-      segs.push(`${col} ${curDeg}deg ${curDeg + deg}deg`);
-      curDeg += deg;
-
-      legHtml += `
-        <div class="leg-row">
-          <div class="leg-tag"><span class="leg-dot" style="background:${col};"></span> ${sanitize(name)}</div>
-          <strong>${inr(amt)} (${pct.toFixed(1)}%)</strong>
-        </div>
-      `;
-    });
-
-    donutEl.style.background = segs.length ? `conic-gradient(${segs.join(', ')})` : '#e4e7ec';
-    legEl.innerHTML = legHtml;
-
-    // Bar Visual
-    const max = Math.max(...barData.map(b => b.val), 1);
-    let barHtml = '';
-    barData.forEach((b, idx) => {
-      const h = (b.val / max) * 95;
-      barHtml += `
-        <div class="bar-col-box">
-          <span class="bar-col-val">${inr(b.val)}</span>
-          <div class="bar-col-pillar" style="height:${Math.max(h, 4)}%;background:${colors[idx % colors.length]};"></div>
-          <span class="bar-col-label">${b.label}</span>
-        </div>
-      `;
-    });
-    $('weeklyBarChart').innerHTML = barHtml;
-  }
-
-  // 3. Monthly View
-  function renderMonthly(rows) {
-    const colRows = rows.filter(e => e.type === 'Collection');
-    const monthMap = {};
-    colRows.forEach(e => {
-      const k = String(e.date).slice(0, 7);
-      (monthMap[k] ||= []).push(e);
-    });
-
-    const months = Object.keys(monthMap).sort().reverse();
-
-    let headHtml = `<tr><th>Month</th>`;
-    state.staffList.forEach(name => headHtml += `<th style="text-align:right;">👤 ${sanitize(name)}</th>`);
-    headHtml += `<th style="text-align:right;">🪙 Cost</th><th style="text-align:right;" class="th-gold">Total</th></tr>`;
-    $('theadMonthly').innerHTML = headHtml;
-
-    let dHtml = '', mHtml = '';
-    const staffTotals = {};
-    state.staffList.forEach(s => staffTotals[s] = 0);
-    let yCost = 0, yTotal = 0;
-
-    months.forEach(k => {
-      const mRows = monthMap[k];
-      const [y, m] = k.split('-').map(Number);
-      const label = new Date(y, m - 1, 1).toLocaleDateString('en-IN', { month: 'long', year: '2-digit' });
-
-      let r = `<td class="expand-btn" data-month="${k}"><span class="arr-icon" id="arr-${k}">▶</span><strong>${label}</strong></td>`;
-      let mCol = 0;
-
-      state.staffList.forEach(name => {
-        const amt = mRows.filter(e => e.employeeName === name).reduce((s, e) => s + (Number(e.amount) || 0), 0);
-        staffTotals[name] += amt;
-        mCol += amt;
-        r += `<td style="text-align:right;">${amt > 0 ? inr(amt) : '—'}</td>`;
-      });
-
-      const cost = mRows.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
-      const tot = mCol + cost;
-      yCost += cost;
-      yTotal += tot;
-
-      r += `<td style="text-align:right;">${cost > 0 ? inr(cost) : '—'}</td>`;
-      r += `<td style="text-align:right;" class="col-gold">${inr(tot)}</td>`;
-
-      dHtml += `
-        <tr>${r}</tr>
-        <tr class="nested-row" id="row-expand-${k}" style="display:none;">
-          <td colspan="${state.staffList.length + 3}">
-            <div class="nested-wrap" id="wrap-expand-${k}"></div>
-          </td>
-        </tr>
-      `;
-
-      mHtml += `
-        <div class="m-nav-card" onclick="toggleMobileMonth('${k}')">
-          <div class="m-nav-card-left">
-            <span style="font-size:18px;">🗓️</span>
-            <div>
-              <div class="m-nav-card-title">${label}</div>
-              <div class="m-nav-card-sub">👥 ${[...new Set(mRows.map(e => e.employeeName))].length} Staff · 🪙 ${inr(cost)}</div>
-            </div>
-          </div>
-          <span class="m-gold-pill">${inr(tot)} ›</span>
-        </div>
-        <div id="m-expand-${k}" style="display:none;padding:6px 10px;background:#f8fafc;border-radius:8px;margin-bottom:6px;"></div>
-      `;
-    });
-
-    let totRow = `<td><strong>Total</strong></td>`;
-    let allCol = 0;
-    state.staffList.forEach(name => {
-      allCol += staffTotals[name];
-      totRow += `<td style="text-align:right;" class="gold-txt">${inr(staffTotals[name])}</td>`;
-    });
-    totRow += `<td style="text-align:right;" class="gold-txt">${inr(yCost)}</td>`;
-    totRow += `<td style="text-align:right;" class="gold-txt">${inr(yTotal)}</td>`;
-    dHtml += `<tr class="total-row">${totRow}</tr>`;
-
-    $('tbodyMonthly').innerHTML = dHtml;
-    $('mMonthlyCards').innerHTML = mHtml;
-
-    updateSticky('Total', allCol, yCost, yTotal);
-
-    // Bind inline desktop expansion
-    document.querySelectorAll('.expand-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const k = this.dataset.month;
-        const row = $(`row-expand-${k}`);
-        const arr = $(`arr-${k}`);
-        const wrap = $(`wrap-expand-${k}`);
-        if (row.style.display === 'none') {
-          renderInlineWeeks(k, monthMap[k] || [], wrap);
-          row.style.display = 'table-row';
-          arr.classList.add('open');
-        } else {
-          row.style.display = 'none';
-          arr.classList.remove('open');
-        }
-      });
-    });
-
-    renderMonthlyCharts(yTotal, yCost, staffTotals);
-  }
-
-  function renderInlineWeeks(k, rows, wrap) {
-    const [y, m] = k.split('-').map(Number);
-    const lastDay = new Date(y, m, 0).getDate();
-    const weeks = [
-      { name: 'Week 1', s: 1, e: 7 },
-      { name: 'Week 2', s: 8, e: 14 },
-      { name: 'Week 3', s: 15, e: 21 },
-      { name: 'Week 4', s: 22, e: lastDay }
-    ];
-
-    let h = `<tr><th>Week</th>`;
-    state.staffList.forEach(name => h += `<th>${sanitize(name)}</th>`);
-    h += `<th>Cost</th><th>Total</th></tr>`;
-
-    let b = '';
-    weeks.forEach(w => {
-      const wRows = rows.filter(e => {
-        const day = new Date(e.date).getUTCDate();
-        return day >= w.s && day <= w.e;
-      });
-
-      let r = `<td>${w.name} <small>(${w.s}–${w.e})</small></td>`;
-      let wCol = 0;
-      state.staffList.forEach(name => {
-        const amt = wRows.filter(e => e.employeeName === name).reduce((s, e) => s + (Number(e.amount) || 0), 0);
-        wCol += amt;
-        r += `<td style="text-align:right;">${amt > 0 ? inr(amt) : '—'}</td>`;
-      });
-      const cost = wRows.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
-      r += `<td style="text-align:right;">${cost > 0 ? inr(cost) : '—'}</td>`;
-      r += `<td style="text-align:right;font-weight:700;color:var(--salon-gold);">${inr(wCol + cost)}</td>`;
-      b += `<tr>${r}</tr>`;
-    });
-
-    wrap.innerHTML = `<table class="rep-table" style="font-size:11px;"><thead>${h}</thead><tbody>${b}</tbody></table>`;
-  }
-
-  window.toggleMobileMonth = function(k) {
-    state.month = k;
-    switchPeriod('weekly');
-  };
-
-  window.openWeekDetail = function(name, range) {
-    alert(`${name} (${range}) Details`);
-  };
-
-  function renderMonthlyCharts(net, cost, staffTotals) {
-    const col = net - cost;
-    const donutEl = $('monthlyDonutCircle');
-    const legEl = $('monthlyDonutLeg');
-    $('monthlyDonutCenterAmt').textContent = inr(net);
-
-    const colPct = net > 0 ? (col / net) * 100 : 0;
-    const costPct = net > 0 ? (cost / net) * 100 : 0;
-    const deg = (colPct / 100) * 360;
-
-    donutEl.style.background = `conic-gradient(#0d6efd 0deg ${deg}deg, #f59e0b ${deg}deg 360deg)`;
-    legEl.innerHTML = `
-      <div class="leg-row">
-        <div class="leg-tag"><span class="leg-dot" style="background:#0d6efd;"></span> Total Collection</div>
-        <strong>${inr(col)} (${colPct.toFixed(1)}%)</strong>
+    let rowHTML = `<td class="week-expand-cell"
+      data-week-start="${week.start}"
+      data-week-end="${week.end}"
+      data-week-label="${week.label}">
+      <span class="week-arrow">▶</span>
+      <div class="week-label-inner">
+        <div>${week.label}</div>
+        <div class="week-sub">${week.start}–${week.end}</div>
       </div>
-      <div class="leg-row">
-        <div class="leg-tag"><span class="leg-dot" style="background:#f59e0b;"></span> Total Cost</div>
-        <strong>${inr(cost)} (${costPct.toFixed(1)}%)</strong>
-      </div>
-    `;
+    </td>`;
 
-    // Bar Visual
-    const max = Math.max(...Object.values(staffTotals), 1);
-    const colors = ['#0d6efd', '#a855f7', '#ec4899', '#10b981', '#f59e0b'];
-    let barHtml = '';
-    Object.keys(staffTotals).forEach((name, idx) => {
-      const amt = staffTotals[name];
-      const h = (amt / max) * 95;
-      barHtml += `
-        <div class="bar-col-box">
-          <span class="bar-col-val">${inr(amt)}</span>
-          <div class="bar-col-pillar" style="height:${Math.max(h, 4)}%;background:${colors[idx % colors.length]};"></div>
-          <span class="bar-col-label">${sanitize(name.split(' ')[0])}</span>
-        </div>
-      `;
+    staff.forEach(name => {
+      const rows = weekEntries.filter(e => e.employeeName === name);
+      const amt = rows.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+      const cost = rows.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
+      weekAmount += amt;
+      weekCost += cost;
+      rowHTML += `<td>${amt > 0 ? inr(amt) : ''}</td>`;
     });
-    $('monthlyBarChart').innerHTML = barHtml;
-  }
 
-  // Sticky Bar Updater
-  function updateSticky(title, col, cost, tot) {
-    $('mStickyTitle').textContent = title;
-    $('mStickyCol').textContent = inr(col);
-    $('mStickyCost').textContent = inr(cost);
-    $('mStickyTotal').textContent = inr(tot);
-  }
+    const weekTotal = weekAmount + weekCost;
+    rowHTML += `<td>${weekCost > 0 ? inr(weekCost) : ''}</td>`;
+    rowHTML += `<td style="font-weight:700;color:#c99a23;">${weekTotal > 0 ? inr(weekTotal) : ''}</td>`;
 
-  // Modal
-  function bindAttendModal() {
-    document.querySelectorAll('.attend-badge').forEach(b => {
-      b.onclick = () => {
-        const staff = b.dataset.staff;
-        const sRows = state.entries.filter(e => e.employeeName === staff && e.type === 'Collection');
-        $('mTitleStaff').textContent = `${staff} · Entries`;
+    bodyHTML += `<tr>${rowHTML}</tr>`;
 
-        if (!sRows.length) {
-          $('mContentStaff').innerHTML = '<div style="text-align:center;padding:20px;color:#667085;">No entries found.</div>';
-        } else {
-          let rowsHtml = '';
-          sRows.forEach(e => {
-            rowsHtml += `
-              <tr>
-                <td>#${e.entryNo || '—'}</td>
-                <td>${sanitize(e.detail || 'Service')}</td>
-                <td style="text-align:right;">${inr(e.amount)}</td>
-                <td style="text-align:right;">${inr(e.costCutting)}</td>
-                <td><span style="font-size:10px;background:#eef2f6;padding:2px 6px;border-radius:6px;">${sanitize(e.paymentMode || '—')}</span></td>
-              </tr>
-            `;
+    // Accordion detail row for date-wise breakdown inside this week
+    bodyHTML += `<tr class="week-detail-row" data-detail-for="${week.label}" style="display:none;">
+      <td colspan="${staff.length + 3}">
+        <div class="week-detail-wrap" id="detail-${week.label.replace(/\s+/g, '-').toLowerCase()}"></div>
+      </td>
+    </tr>`;
+  });
+
+  // Grant Total row
+  let grandAmount = 0;
+  let grandCost = 0;
+  let grandHTML = '<td style="font-weight:700;color:#c99a23;font-size:13px;">Grant Total</td>';
+
+  staff.forEach(name => {
+    const rows = collections.filter(e => e.employeeName === name);
+    const amt = rows.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+    const cost = rows.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
+    grandAmount += amt;
+    grandCost += cost;
+    grandHTML += `<td style="font-weight:700;color:#c99a23;font-size:13px;">${amt > 0 ? inr(amt) : ''}</td>`;
+  });
+
+  const grandCombined = grandAmount + grandCost;
+  grandHTML += `<td style="font-weight:700;color:#c99a23;font-size:13px;">${grandCost > 0 ? inr(grandCost) : ''}</td>`;
+  grandHTML += `<td style="font-weight:700;color:#c99a23;font-size:13px;">${grandCombined > 0 ? inr(grandCombined) : ''}</td>`;
+
+  bodyHTML += `<tr class="grand-total">${grandHTML}</tr>`;
+  tbody.innerHTML = bodyHTML;
+
+  // Bind click listener for expanding weeks (e.g. Week 1)
+  tbody.querySelectorAll('.week-expand-cell').forEach(cell => {
+    cell.addEventListener('click', function() {
+      const label = this.dataset.weekLabel;
+      const detailRow = tbody.querySelector(`.week-detail-row[data-detail-for="${label}"]`);
+      const wrap = tbody.querySelector(`.week-detail-row[data-detail-for="${label}"] .week-detail-wrap`);
+      const arrow = this.querySelector('.week-arrow');
+
+      if (!detailRow || !wrap) return;
+
+      if (detailRow.style.display === 'none') {
+        const startDay = Number(this.dataset.weekStart);
+        const endDay = Number(this.dataset.weekEnd);
+
+        const weekEntries = collections.filter(e => {
+          const d = getEntryDay(e);
+          return d >= startDay && d <= endDay;
+        });
+
+        const dates = [...new Set(weekEntries.map(e => getEntryDateStr(e)))].sort();
+
+        let head = '<th>Date</th>';
+        staff.forEach(name => head += `<th style="text-align:right">${escapeHtml(name)}</th>`);
+        head += '<th style="text-align:right">Cost</th><th style="text-align:right">Total</th>';
+
+        let bRows = '';
+        let totalAmount = 0;
+        let totalCost = 0;
+
+        dates.forEach(date => {
+          const entries = weekEntries.filter(e => getEntryDateStr(e) === date);
+          let dateAmount = 0;
+          let dateCost = 0;
+          let r = `<td class="date-cell">${formatShortDate(date)}</td>`;
+
+          staff.forEach(name => {
+            const rows = entries.filter(e => e.employeeName === name);
+            const amt = rows.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+            const cost = rows.reduce((s, e) => s + (Number(e.costCutting) || 0), 0);
+            dateAmount += amt;
+            dateCost += cost;
+            r += `<td>${amt > 0 ? inr(amt) : ''}</td>`;
           });
-          $('mContentStaff').innerHTML = `
-            <table class="rep-table" style="font-size:12px;">
-              <thead><tr><th>#</th><th>Service</th><th style="text-align:right;">Amount</th><th style="text-align:right;">Cost</th><th>Payment</th></tr></thead>
-              <tbody>${rowsHtml}</tbody>
-            </table>
-          `;
+
+          totalAmount += dateAmount;
+          totalCost += dateCost;
+          const dateCombined = dateAmount + dateCost;
+          r += `<td>${dateCost > 0 ? inr(dateCost) : ''}</td>`;
+          r += `<td style="font-weight:600;color:#1d2939;">${dateCombined > 0 ? inr(dateCombined) : ''}</td>`;
+          bRows += `<tr>${r}</tr>`;
+        });
+
+        if (!dates.length) {
+          bRows = `<tr><td colspan="${staff.length + 3}" style="text-align:center;color:#758397;padding:12px;">No date-wise entries available for this week.</td></tr>`;
+        } else {
+          let totalRow = '<td style="font-weight:700;">Week Total</td>';
+          staff.forEach(name => {
+            const amt = weekEntries.filter(e => e.employeeName === name)
+              .reduce((s, e) => s + (Number(e.amount) || 0), 0);
+            totalRow += `<td style="font-weight:700;">${amt > 0 ? inr(amt) : ''}</td>`;
+          });
+          totalRow += `<td style="font-weight:700;">${totalCost > 0 ? inr(totalCost) : ''}</td>`;
+          totalRow += `<td style="font-weight:700;color:#c99a23;">${totalAmount + totalCost > 0 ? inr(totalAmount + totalCost) : ''}</td>`;
+          bRows += `<tr class="detail-total">${totalRow}</tr>`;
         }
-        $('staffEntriesModal').classList.add('open');
-      };
+
+        wrap.innerHTML = `<table class="week-detail-table"><thead><tr>${head}</tr></thead><tbody>${bRows}</tbody></table>`;
+        detailRow.style.display = 'table-row';
+        if (arrow) arrow.classList.add('open');
+      } else {
+        detailRow.style.display = 'none';
+        if (arrow) arrow.classList.remove('open');
+      }
     });
-  }
+  });
+}
 
-  $('btnModalClose').onclick = () => $('staffEntriesModal').classList.remove('open');
-  $('staffEntriesModal').onclick = e => {
-    if (e.target === $('staffEntriesModal')) $('staffEntriesModal').classList.remove('open');
-  };
-
-  // Export
-  async function downloadExport(format) {
-    try {
-      const q = new URLSearchParams({ period: activePeriod, date: state.date, format });
-      const res = await fetch(`/api/reports/export?${q.toString()}`, { headers: salonAuth.headers() });
-      if (!res.ok) throw new Error('Export failed');
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `salon-report-${activePeriod}.${format}`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (e) {
-      alert(e.message);
+const dateInput=document.getElementById('date'),periodInput=document.getElementById('period'),employeeInput=document.getElementById('employee'),rows=document.getElementById('rows'),statusBox=document.getElementById('status');dateInput.value=new Date().toISOString().slice(0,10);function dateText(value){return new Date(value).toLocaleDateString('en-IN')}function params(){const value=new URLSearchParams({period:periodInput.value,date:dateInput.value});if(employeeInput.value)value.set('employeeId',employeeInput.value);return value}function render(data){
+  for(const key of ['collection','expense','salary','counter','net'])document.getElementById(key).textContent=money(data.summary[key]);
+  document.getElementById('range').textContent=`${data.from} to ${data.to}`;
+  
+  const isWeekly = periodInput.value === 'weekly';
+  const weeklyContainer = document.getElementById('weeklyReportContainer');
+  const standardWrap = document.getElementById('standardTableWrap');
+  
+  if (isWeekly) {
+    weeklyContainer.style.display = 'block';
+    weeklyContainer.classList.remove('hide-weekly');
+    setWeeklyViewMode(currentWeeklyViewMode || 'summary');
+    renderWeeklySummary(data);
+  } else {
+    weeklyContainer.style.display = 'none';
+    weeklyContainer.classList.add('hide-weekly');
+    if (standardWrap) {
+      standardWrap.style.display = 'block';
+      standardWrap.classList.remove('weekly-show-transactions');
     }
   }
 
-  $('expExcel').onclick = () => downloadExport('xlsx');
-  $('expPdf').onclick = () => downloadExport('pdf');
-
-  // Init Pickers
-  function initPickers() {
-    $('dateInput').value = state.date;
-    const now = new Date();
-    $('monthSelect').innerHTML = '';
-    for (let i = 0; i < 12; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const val = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
-      const opt = new Option(d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }), val);
-      if (val === state.month) opt.selected = true;
-      $('monthSelect').appendChild(opt);
-    }
-
-    $('yearSelect').innerHTML = '';
-    for (let y = now.getFullYear(); y >= now.getFullYear() - 3; y--) {
-      const opt = new Option(`FY ${y}`, y);
-      if (y === state.year) opt.selected = true;
-      $('yearSelect').appendChild(opt);
-    }
+  rows.replaceChildren();
+  if(!data.rows.length){
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td colspan="7" class="empty">No data found for this period.</td>';
+    rows.append(tr);
+    return;
   }
-
-  // Events
-  $('btnTabDaily').onclick = () => switchPeriod('daily');
-  $('btnTabWeekly').onclick = () => switchPeriod('weekly');
-  $('btnTabMonthly').onclick = () => switchPeriod('monthly');
-
-  $('dateInput').onchange = e => { state.date = e.target.value; loadData(); };
-  $('btnTodayQuick').onclick = () => { state.date = todayStr(); $('dateInput').value = state.date; loadData(); };
-  $('monthSelect').onchange = e => { state.month = e.target.value; loadData(); };
-  $('yearSelect').onchange = e => { state.year = Number(e.target.value); loadData(); };
-
-  initPickers();
-
-  (async () => {
-    try {
-      await window.salonReady;
-      switchPeriod(activePeriod);
-    } catch (e) {
-      console.error(e);
+  for(const item of data.rows){
+    const tr=document.createElement('tr');
+    for(const value of [dateText(item.date),item.type,item.employeeName,item.detail||'—',money(item.amount),item.paymentMode||'—',item.createdBy||'—']){
+      const td=document.createElement('td');
+      td.textContent=value;
+      tr.append(td);
     }
-  })();
-
+    rows.append(tr);
+  }
+}async function load(){statusBox.className='status';try{render(await salonAuth.request('/api/reports?'+params().toString()))}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}}async function download(format){try{const response=await fetch('/api/reports/export?'+new URLSearchParams({...Object.fromEntries(params()),format}),{headers:salonAuth.headers()});if(!response.ok){const result=await response.json();throw new Error(result.error||'Could not export report.')}const blob=await response.blob();const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`yours-salon-report.${format}`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}}document.getElementById('load').addEventListener('click',load);document.getElementById('excel').addEventListener('click',()=>download('xlsx'));document.getElementById('pdf').addEventListener('click',()=>download('pdf'));(async()=>{try{const session=await window.salonReady;if(!session)return;const canExport=session.employee?.role==='Admin'||session.actionAccess?.reports?.export===true;document.getElementById('excel').hidden=!canExport;document.getElementById('pdf').hidden=!canExport;const staff=await salonAuth.request('/api/staff');for(const item of staff)employeeInput.add(new Option(`${item.employeeName} · ${item.employeeId}`,item._id));await load()}catch(error){statusBox.textContent=error.message;statusBox.className='status show'}})();
+</script><script>
+(() => {
+  const period = document.getElementById('period');
+  const title = document.getElementById('reportTitle');
+  const periods = ['daily', 'weekly', 'monthly'];
+  const requested = new URLSearchParams(location.search).get('period');
+  if (periods.includes(requested)) period.value = requested;
+  function update() {
+    const label = period.value.charAt(0).toUpperCase() + period.value.slice(1);
+    title.textContent = `${label} Report`;
+    document.title = `${label} Report — YOURS SALON`;
+    if (window.salonNav?.refresh) window.salonNav.refresh();
+  }
+  period.addEventListener('change', () => {
+    const url = new URL(location.href);
+    url.searchParams.set('period', period.value);
+    history.replaceState(null, '', url);
+    update();
+    document.getElementById('load').click();
+  });
+  update();
 })();
 </script>
-</body>
-</html>
+<script>
+(() => {
+  const mobileReport = document.getElementById('mobileReport');
+  const filterButton = document.getElementById('mobileReportFilterButton');
+  const filterCount = document.getElementById('mobileReportFilterCount');
+  const filterChips = document.getElementById('mobileReportFilterChips');
+  const filters = document.getElementById('reportFilters');
+  const overlay = document.getElementById('mobileReportFilterOverlay');
+  const closeButton = document.getElementById('mobileReportFilterClose');
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+  }
+
+  function updateFilterBar() {
+    const chips = [
+      periodInput.value.charAt(0).toUpperCase() + periodInput.value.slice(1),
+      dateInput.value,
+      employeeInput.value ? employeeInput.options[employeeInput.selectedIndex]?.textContent : 'All employees'
+    ].filter(Boolean);
+    filterCount.textContent = String(chips.length);
+    filterChips.replaceChildren();
+    for (const text of chips) {
+      const chip = document.createElement('span');
+      chip.className = 'm-chip';
+      chip.textContent = text;
+      filterChips.append(chip);
+    }
+  }
+
+  function closeFilters() {
+    filters.classList.remove('mobile-open');
+    overlay.classList.remove('open');
+    document.documentElement.classList.remove('m-filter-locked');
+  }
+
+  function openFilters() {
+    filters.classList.add('mobile-open');
+    overlay.classList.add('open');
+    document.documentElement.classList.add('m-filter-locked');
+  }
+
+  function renderMobileReport(data) {
+    if (periodInput.value === 'weekly' && currentWeeklyViewMode === 'summary') {
+      mobileReport.style.display = 'none';
+      return;
+    }
+    mobileReport.style.display = 'block';
+    mobileReport.replaceChildren();
+    if (!data.rows.length) {
+      const empty = document.createElement('div');
+      empty.className = 'm-empty';
+      empty.textContent = 'No data found for this period.';
+      mobileReport.append(empty);
+      return;
+    }
+    let lastDate = '';
+    for (const item of data.rows) {
+      const day = dateText(item.date);
+      if (day !== lastDate) {
+        const label = document.createElement('div');
+        label.className = 'm-record-group';
+        label.textContent = day;
+        mobileReport.append(label);
+        lastDate = day;
+      }
+      const card = document.createElement('article');
+      card.className = 'm-record-card';
+      const summary = document.createElement('div');
+      summary.className = 'm-record-summary';
+      const main = document.createElement('div');
+      const title = document.createElement('div');
+      title.className = 'm-record-title';
+      const chip = document.createElement('span');
+      chip.className = 'm-entry-chip';
+      chip.textContent = item.type || 'Report';
+      const name = document.createElement('strong');
+      name.textContent = item.employeeName || 'Employee';
+      title.append(chip, name);
+      const sub = document.createElement('div');
+      sub.className = 'm-record-sub';
+      sub.textContent = `${item.detail || '—'}${item.paymentMode ? ` · ${item.paymentMode}` : ''}`;
+      main.append(title, sub);
+      const side = document.createElement('div');
+      side.style.textAlign = 'right';
+      const amount = document.createElement('div');
+      amount.className = 'm-record-amount' + (String(item.type).toLowerCase().includes('expense') ? ' expense' : String(item.type).toLowerCase().includes('salary') ? ' salary' : '');
+      amount.textContent = money(item.amount);
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'm-record-toggle';
+      toggle.setAttribute('aria-label', 'Show report details');
+      toggle.innerHTML = '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
+      side.append(amount, toggle);
+      summary.append(main, side);
+      const details = document.createElement('div');
+      details.className = 'm-record-details';
+      const created = document.createElement('div');
+      created.className = 'm-detail-row';
+      const term = document.createElement('span');
+      term.textContent = 'Created by';
+      const value = document.createElement('strong');
+      value.textContent = item.createdBy || '—';
+      created.append(term, value);
+      details.append(created);
+      toggle.addEventListener('click', () => {
+        card.classList.toggle('open');
+        toggle.setAttribute('aria-label', card.classList.contains('open') ? 'Hide report details' : 'Show report details');
+      });
+      card.append(summary, details);
+      mobileReport.append(card);
+    }
+  }
+
+  const baseRender = render;
+  render = function (data) {
+    baseRender(data);
+    renderMobileReport(data);
+    updateFilterBar();
+  };
+
+  filterButton.addEventListener('click', openFilters);
+  closeButton.addEventListener('click', closeFilters);
+  overlay.addEventListener('click', closeFilters);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeFilters(); });
+  document.getElementById('load').addEventListener('click', closeFilters);
+  periodInput.addEventListener('change', updateFilterBar);
+  dateInput.addEventListener('change', updateFilterBar);
+  employeeInput.addEventListener('change', updateFilterBar);
+  updateFilterBar();
+
+  document.getElementById('btnWeeklySummary')?.addEventListener('click', () => setWeeklyViewMode('summary'));
+  document.getElementById('btnWeeklyAll')?.addEventListener('click', () => setWeeklyViewMode('all'));
+})();
+</script></body></html>

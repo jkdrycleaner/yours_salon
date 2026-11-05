@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Add Employee - YOURS SALON</title>
-  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
   <style>
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
@@ -46,6 +46,7 @@
     @media(max-width:720px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:450px){.form-grid{grid-template-columns:1fr}.expense-type-field{grid-column:1}.container>header{align-items:flex-start;flex-direction:column}.actions>*{flex:1}}
   </style>
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
 </head>
 <body>
   <main class="container">
@@ -93,7 +94,7 @@
       <div id="status" role="status" aria-live="polite"></div>
     </section>
   </main>
-  <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script>
+  <script src="/auth-guard.js"></script><script src="/admin-nav.js?v=20261105_m4" defer></script>
   <script>
     const form=document.getElementById('employeeForm');
     form.hidden=true;
@@ -374,5 +375,6 @@
       }
     })();
   </script>
+  <script src="/mobile.js?v=20261105_m4" defer></script>
 </body>
 </html>

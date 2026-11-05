@@ -1,64 +1,2478 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <script src="/app-boot.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Admin Dashboard - YOURS SALON</title>
-  <link rel="stylesheet" href="/admin-nav.css">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <title>Admin Dashboard — YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
   <style>
-    *{box-sizing:border-box}
-    body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}
-    .wrap{width:min(1180px,100%);margin:auto;padding:28px 20px 40px}
-    .heading{margin-bottom:18px}
-    .heading h1{margin:0;font-size:27px}
-    .heading p{margin:6px 0 0;color:#758397;font-size:13px}
-    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-    .card{padding:17px;border:1px solid #e1e7ee;border-radius:14px;background:#fff;box-shadow:0 8px 22px #20334b08}
-    .card span{display:block;color:#758397;font-size:11px;font-weight:700}
-    .card strong{display:block;margin-top:10px;font-size:20px}
-    .card:nth-child(1){background:#edf9f4}.card:nth-child(2){background:#fff8e8}
-    .card:nth-child(3){background:#eff6ff}.card:nth-child(4){background:#f4efff}
-    .panel{margin-top:14px;padding:18px;border:1px solid #e1e7ee;border-radius:14px;background:#fff}
-    .panel h2{margin:0 0 12px;font-size:17px}
-    .quick-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
-    .quick-links a{padding:13px;border:1px solid #e2e8ef;border-radius:10px;background:#fafbfc;color:#344054;text-decoration:none;font-size:12px;font-weight:700}
-    .quick-links a:hover{border-color:#d2ad4c;background:#fffaf0}
-    @media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:520px){.wrap{padding:20px 12px 30px}.heading h1{font-size:23px}.card{padding:13px}.quick-links{grid-template-columns:1fr}}
+    :root {
+      --dash-bg: #f4f7fb;
+      --dash-card: #ffffff;
+      --dash-text: #1d2939;
+      --dash-muted: #667085;
+      --dash-border: #e3e8ef;
+      --dash-gold: #c99a23;
+      --dash-gold-dark: #a27514;
+      --dash-gold-soft: #fff8e8;
+      --dash-teal: #1f7f7a;
+      --dash-teal-dark: #16615e;
+      --dash-teal-soft: #edfbf7;
+      --dash-green: #0b7a43;
+      --dash-green-soft: #e6f8ee;
+      --dash-blue: #2f6fed;
+      --dash-blue-soft: #eff6ff;
+      --dash-amber: #b26a00;
+      --dash-amber-soft: #fff3dc;
+      --dash-red: #b42318;
+      --dash-red-soft: #fff0ef;
+      --dash-radius: 16px;
+      --dash-shadow: 0 4px 20px rgba(27, 42, 59, 0.04), 0 1px 3px rgba(27, 42, 59, 0.02);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--dash-bg);
+      color: var(--dash-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Desktop Sidebar Alignment (Screen >= 769px) */
+    @media (min-width: 769px) {
+      body.salon-layout > main.wrap,
+      body.salon-layout > .wrap,
+      .wrap {
+        width: calc(100% - 66px) !important;
+        max-width: 1380px !important;
+        margin-left: 66px !important;
+        margin-right: auto !important;
+        padding: 10px clamp(14px, 2.5vw, 28px) 50px !important;
+        box-sizing: border-box !important;
+      }
+    }
+    /* Mobile Alignment (Screen <= 768px): Full width, zero sidebar shift */
+    @media (max-width: 768px) {
+      body.salon-layout > main.wrap,
+      body.salon-layout > .wrap,
+      .wrap,
+      main {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 10px 10px calc(var(--m-nav, 56px) + env(safe-area-inset-bottom, 0px) + 20px) !important;
+        box-sizing: border-box !important;
+      }
+    }
+
+    /* Top Dashboard Header */
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding-top: 4px;
+    }
+
+    .dash-title-group h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--dash-text);
+      line-height: 1.15;
+    }
+
+    .dash-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 5px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #7b889b;
+    }
+
+    .dash-subtitle .salon-name {
+      color: var(--dash-gold-dark);
+      letter-spacing: 0.06em;
+    }
+
+    .dash-subtitle .sep {
+      color: #cbd5e1;
+    }
+
+    /* Header Controls */
+    .dash-controls {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .date-pill-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 38px;
+      padding: 8px 13px;
+      border: 1px solid var(--dash-border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--dash-text);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      transition: all 0.15s ease;
+    }
+
+    .date-pill-btn:hover {
+      border-color: #cbd5e1;
+      background: #fdfdfe;
+    }
+
+    .date-pill-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: #64748b;
+      fill: none;
+      stroke-width: 1.8;
+      flex-shrink: 0;
+    }
+
+    .date-pill-btn input[type="date"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .month-pill-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: #fff;
+      border: 1px solid var(--dash-border);
+      border-radius: 12px;
+      padding: 3px 5px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .month-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #556477;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .month-nav-btn:hover {
+      background: #f8fafc;
+      color: var(--dash-text);
+    }
+
+    .month-nav-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      fill: none;
+    }
+
+    .month-pill-btn {
+      border: 0 !important;
+      background: transparent !important;
+      padding: 4px 8px !important;
+      min-height: 32px !important;
+      box-shadow: none !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      cursor: pointer;
+    }
+
+    .date-pill-btn input[type="month"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 8px 14px;
+      border: 1px solid var(--dash-border);
+      border-radius: 10px;
+      background: #fff;
+      color: #334155;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      transition: all 0.15s ease;
+    }
+
+    .refresh-btn:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .refresh-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      transition: transform 0.4s ease;
+    }
+
+    .refresh-btn.spinning svg {
+      transform: rotate(360deg);
+    }
+
+    /* KPI Summary Cards Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 15px 14px 13px;
+      background: #fff;
+      border: 1px solid var(--dash-border);
+      border-radius: var(--dash-radius);
+      box-shadow: var(--dash-shadow);
+      min-width: 0;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(27, 42, 59, 0.08);
+      border-color: #cbd5e1;
+    }
+
+    .kpi-card::after {
+      content: "Details 👆";
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      pointer-events: none;
+    }
+
+    .kpi-card:hover::after {
+      opacity: 1;
+    }
+
+    .kpi-card-1 { background: linear-gradient(155deg, #edfbf5 0%, #ffffff 65%); border-color: #d1f2e2; }
+    .kpi-card-2 { background: linear-gradient(155deg, #fffbf2 0%, #ffffff 65%); border-color: #f7e9c8; }
+    .kpi-card-3 { background: linear-gradient(155deg, #f0f7ff 0%, #ffffff 65%); border-color: #dbeafe; }
+    .kpi-card-4 { background: linear-gradient(155deg, #fff8f0 0%, #ffffff 65%); border-color: #fce7d5; }
+    .kpi-card-5 { background: linear-gradient(155deg, #fff3f2 0%, #ffffff 65%); border-color: #fdd8d5; }
+    .kpi-card-6 { background: linear-gradient(155deg, #f0faf4 0%, #ffffff 65%); border-color: #d4f0df; }
+
+    .kpi-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .kpi-icon-box {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .kpi-icon-box svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .icon-teal   { background: #e0f6ef; color: #158a74; stroke: #158a74; }
+    .icon-amber  { background: #fff4db; color: #b8860b; stroke: #b8860b; }
+    .icon-blue   { background: #e3f1ff; color: #2072e5; stroke: #2072e5; }
+    .icon-orange { background: #ffeeda; color: #c86915; stroke: #c86915; }
+    .icon-red    { background: #ffe9e8; color: #cc392b; stroke: #cc392b; }
+    .icon-green  { background: #dff5e8; color: #0b8a4b; stroke: #0b8a4b; }
+
+    .kpi-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #4b586c;
+      line-height: 1.25;
+      margin-top: 1px;
+    }
+
+    .kpi-value {
+      margin-top: 10px;
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--dash-text);
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kpi-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 7px;
+      font-size: 11px;
+      color: #7b889b;
+    }
+
+    .kpi-subtext {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kpi-meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .kpi-meta-badge.trend-up {
+      color: #0b8a4b;
+    }
+
+    .kpi-meta-badge.trend-rose {
+      color: #b42318;
+    }
+
+    .kpi-meta-badge.staff-count {
+      color: #94a3b8;
+    }
+
+    .kpi-meta-badge svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    /* Main Content Grids */
+    .dash-main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-card {
+      background: var(--dash-card);
+      border: 1px solid var(--dash-border);
+      border-radius: var(--dash-radius);
+      box-shadow: var(--dash-shadow);
+      padding: 18px 20px;
+      min-width: 0;
+    }
+
+    .panel-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eef2f6;
+      margin-bottom: 12px;
+    }
+
+    .panel-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--dash-text);
+      margin: 0;
+    }
+
+    .panel-card-title svg {
+      width: 17px;
+      height: 17px;
+      stroke: #8b6b23;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .panel-card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #2563eb;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .panel-card-link:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    /* Custom Tables */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .dash-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    .dash-table th {
+      padding: 9px 8px;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: left;
+      border-bottom: 1px solid #edf2f7;
+      white-space: nowrap;
+    }
+
+    .dash-table th.num, .dash-table td.num {
+      text-align: right;
+    }
+
+    .dash-table td {
+      padding: 11px 8px;
+      border-bottom: 1px solid #f1f5f9;
+      color: var(--dash-text);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .dash-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .dash-table tbody tr.clickable-row {
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+
+    .dash-table tbody tr.clickable-row:hover td {
+      background: #f8fafc;
+    }
+
+    /* Share Progress Bar */
+    .share-bar-cell {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 120px;
+    }
+
+    .share-bar-track {
+      width: 76px;
+      height: 7px;
+      background: #e9eef4;
+      border-radius: 99px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .share-bar-fill {
+      height: 100%;
+      background: #b88636;
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .share-pct {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #475569;
+      width: 30px;
+      text-align: right;
+    }
+
+    /* Horizontal Bar Chart */
+    .bar-chart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      padding: 6px 0 4px;
+    }
+
+    .bar-chart-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 75px;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 8px;
+      transition: background 0.12s ease;
+    }
+
+    .bar-chart-row:hover {
+      background: #f8fafc;
+    }
+
+    .bar-chart-label {
+      font-weight: 600;
+      color: #334155;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bar-chart-track {
+      height: 16px;
+      background: #eef4f6;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .bar-chart-fill {
+      height: 100%;
+      background: #1f8a85;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .bar-chart-val {
+      font-weight: 700;
+      color: var(--dash-text);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* Staff Table Styling */
+    .staff-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .staff-avatar {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+      color: #714e08;
+      background: #fff0cf;
+      border: 1px solid #edd59f;
+    }
+
+    .staff-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .staff-name-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .staff-name {
+      font-weight: 700;
+      color: var(--dash-text);
+      line-height: 1.2;
+    }
+
+    .staff-role {
+      font-size: 10.5px;
+      color: #8391a3;
+      margin-top: 1px;
+    }
+
+    .payable-badge {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 7px;
+      background: #fff8e8;
+      border: 1px solid #f3e0b2;
+      color: #9a6f0f;
+      font-weight: 800;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    /* Donut Chart (Payment Split) */
+    .donut-layout {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 24px;
+      padding: 10px 10px;
+    }
+
+    .donut-chart-wrap {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      flex-shrink: 0;
+    }
+
+    .donut-chart-wrap svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .donut-center-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .donut-center-amt {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--dash-text);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .donut-center-sub {
+      font-size: 10.5px;
+      color: #64748b;
+      margin-top: 3px;
+      font-weight: 600;
+    }
+
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 180px;
+    }
+
+    .donut-legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12.5px;
+    }
+
+    .donut-legend-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .donut-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .donut-dot-cash { background: #1e5f63; }
+    .donut-dot-online { background: #caa257; }
+
+    .donut-legend-figures {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .donut-legend-val {
+      font-weight: 800;
+      color: var(--dash-text);
+    }
+
+    .donut-legend-pct {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #64748b;
+      width: 32px;
+      text-align: right;
+    }
+
+    /* Recent Transactions Bottom Card */
+    .recent-transactions-card {
+      background: var(--dash-card);
+      border: 1px solid var(--dash-border);
+      border-radius: var(--dash-radius);
+      box-shadow: var(--dash-shadow);
+      padding: 18px 20px;
+      margin-top: 16px;
+    }
+
+    .type-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .type-service { background: var(--dash-green-soft); color: var(--dash-green); }
+    .type-advance { background: var(--dash-amber-soft); color: var(--dash-amber); }
+    .type-salary  { background: var(--dash-blue-soft);  color: var(--dash-blue);  }
+    .type-expense { background: var(--dash-red-soft);   color: var(--dash-red);   }
+
+    /* Sample Preview Banner */
+    .sample-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 14px;
+      margin-bottom: 16px;
+      border-radius: 11px;
+      background: #fff8e8;
+      border: 1px solid #f2db9d;
+      color: #8c6307;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .sample-banner.show {
+      display: flex;
+    }
+
+    .sample-banner a {
+      color: #785200;
+      font-weight: 800;
+      text-decoration: underline;
+    }
+
+    /* =========================================================
+       MODAL DIALOG STYLES (Employee-Wise Breakdown & Details)
+       ========================================================= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: none;
+      place-items: center;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      overflow-y: auto;
+    }
+
+    .modal-overlay.open {
+      display: grid;
+    }
+
+    .modal-dialog {
+      width: min(840px, 100%);
+      max-height: calc(100vh - 36px);
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+      animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalPop {
+      0% { opacity: 0; transform: scale(0.96) translateY(8px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .modal-head-title h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+    }
+
+    .modal-head-title p {
+      margin: 3px 0 0;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .modal-close-btn {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.15s ease;
+    }
+
+    .modal-close-btn:hover {
+      background: #fee2e2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .modal-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid #edf2f7;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .modal-filter-pill {
+      min-height: 32px;
+      padding: 5px 13px;
+      border: 1px solid #e2e8f0;
+      border-radius: 99px;
+      background: #ffffff;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.14s ease;
+    }
+
+    .modal-filter-pill:hover:not(.active) {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .modal-filter-pill.active {
+      background: #b58332;
+      border-color: #b58332;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(181, 131, 50, 0.35);
+    }
+
+    .modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      max-height: 60vh;
+      scrollbar-width: thin;
+    }
+
+    .modal-summary-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .modal-sum-card {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .modal-sum-card span {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .modal-sum-card strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .emp-group-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: #ffffff;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .emp-group-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .emp-group-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .emp-group-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .emp-group-head strong {
+      font-size: 14px;
+      color: #0f172a;
+    }
+
+    .emp-group-head small {
+      display: block;
+      color: #64748b;
+      font-size: 11px;
+    }
+
+    .emp-group-total {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0b7a43;
+    }
+
+    .modal-foot {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 12px 20px;
+      background: #f8fafc;
+      border-top: 1px solid #edf2f7;
+    }
+
+    .modal-btn {
+      min-height: 36px;
+      padding: 7px 16px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .modal-btn-primary {
+      background: #b58332;
+      color: #ffffff;
+      border: 0;
+    }
+
+    .modal-btn-primary:hover {
+      background: #9d6f28;
+    }
+
+    .modal-btn-secondary {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      color: #334155;
+    }
+
+    .modal-btn-secondary:hover {
+      background: #f1f5f9;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1120px) {
+      .kpi-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 820px) {
+      .dash-main-grid {
+        grid-template-columns: 1fr;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .donut-layout {
+        flex-direction: column;
+      }
+      .modal-summary-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body.salon-layout > main.wrap,
+      body.salon-layout > .wrap,
+      body.mobile-employee > main.wrap,
+      body.mobile-employee > .wrap,
+      body.mobile-employee .wrap,
+      .wrap,
+      main {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 10px 10px calc(var(--m-nav, 56px) + env(safe-area-inset-bottom, 0px) + 20px) !important;
+        box-sizing: border-box !important;
+      }
+      .dash-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .dash-title-group h1 {
+        font-size: 22px;
+      }
+      .dash-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .date-pill-btn {
+        min-height: 36px;
+        padding: 6px 10px;
+        font-size: 11.5px;
+        flex: 1 1 auto;
+      }
+
+      .refresh-btn {
+        min-height: 36px;
+        padding: 6px 10px;
+        font-size: 11.5px;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+      }
+      .kpi-card {
+        padding: 12px 10px !important;
+        border-radius: 14px !important;
+      }
+      .kpi-value {
+        font-size: 19px !important;
+        margin: 3px 0 !important;
+      }
+      .kpi-icon-box {
+        width: 30px !important;
+        height: 30px !important;
+      }
+      .kpi-icon-box svg {
+        width: 15px !important;
+        height: 15px !important;
+      }
+      .bar-chart-row {
+        grid-template-columns: 95px 1fr 60px !important;
+        font-size: 11px !important;
+      }
+      .panel-card {
+        padding: 14px 12px !important;
+      }
+      .modal-dialog {
+        width: min(94vw, 840px) !important;
+        max-height: calc(100vh - 24px) !important;
+        border-radius: 16px !important;
+      }
+      .modal-summary-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+      }
+      .modal-summary-row .modal-sum-card:last-child {
+        grid-column: span 2;
+      }
+      .modal-sum-card strong {
+        font-size: 18px !important;
+      }
+    }
   </style>
 </head>
 <body>
   <main class="wrap">
-    <section class="heading">
-      <h1>Admin Dashboard</h1>
-      <p>Manage salon operations, records, employees and reports from one place.</p>
+    <!-- Header -->
+    <header class="dash-header">
+      <div class="dash-title-group">
+        <h1>Admin Dashboard</h1>
+        <div class="dash-subtitle">
+          <span class="salon-name" id="shopName">YOURS SALON</span>
+          <span class="sep">|</span>
+          <span>Operations Overview</span>
+        </div>
+      </div>
+
+      <div class="dash-controls">
+        <div class="month-pill-group">
+          <button type="button" class="month-nav-btn" id="prevMonthBtn" title="Previous Month" aria-label="Previous Month">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <label class="date-pill-btn month-pill-btn" title="Choose Month">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="monthDisplay">Nov 2026</span>
+            <svg viewBox="0 0 24 24" style="width:12px;height:12px"><polyline points="6 9 12 15 18 9"/></svg>
+            <input type="month" id="monthPicker" aria-label="Select Month">
+          </label>
+          <button type="button" class="month-nav-btn" id="nextMonthBtn" title="Next Month" aria-label="Next Month">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+        <button type="button" class="refresh-btn" id="refreshBtn" title="Refresh Dashboard">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sample Banner if demonstrating preview mode -->
+    <aside id="sampleBanner" class="sample-banner" role="status">
+      <span>💡 Showing preview data. Once you record salon services, real transactions will update here in real-time.</span>
+      <a href="/collection-entry">+ Add Entry</a>
+    </aside>
+
+    <!-- Top 6 KPI Summary Cards (Clickable for Employee Details) -->
+    <section class="kpi-grid" aria-label="Key Performance Indicators">
+      <!-- 1. Today's Collection -->
+      <article class="kpi-card kpi-card-1" id="cardCollection" title="Click to view employee-wise collection details">
+        <div class="kpi-top">
+          <div class="kpi-icon-box icon-teal">
+            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v6c0 1.66 3.13 3 7 3s7-1.34 7-3V7"/><path d="M5 13v4c0 1.66 3.13 3 7 3s7-1.34 7-3v-4"/></svg>
+          </div>
+          <div class="kpi-title" id="kpiCollectionLabel">This Month's Collection</div>
+        </div>
+        <div class="kpi-value" id="kpiCollection">₹42,850</div>
+        <div class="kpi-bottom">
+          <span class="kpi-subtext" id="kpiCollectionEntries">from 73 service entries</span>
+          <span class="kpi-meta-badge trend-up" id="kpiCollectionTrend">
+            <svg viewBox="0 0 24 24"><polyline points="17 7 7 17"/><polyline points="7 7 17 7"/></svg>
+          </span>
+        </div>
+      </article>
+
+      <!-- 2. Advances Paid -->
+      <article class="kpi-card kpi-card-2" id="cardAdvances" title="Click to view employee-wise advances">
+        <div class="kpi-top">
+          <div class="kpi-icon-box icon-amber">
+            <svg viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="18" cy="14" r="1"/></svg>
+          </div>
+          <div class="kpi-title">Advances Paid This Month</div>
+        </div>
+        <div class="kpi-value" id="kpiAdvance">₹8,500</div>
+        <div class="kpi-bottom">
+          <span class="kpi-subtext" id="kpiAdvanceCount">3 payments</span>
+          <span class="kpi-meta-badge staff-count">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+        </div>
+      </article>
+
+      <!-- 3. Salary Paid -->
+      <article class="kpi-card kpi-card-3" id="cardSalaryPaid" title="Click to view employee-wise salary paid">
+        <div class="kpi-top">
+          <div class="kpi-icon-box icon-blue">
+            <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <div class="kpi-title">Salary Paid This Month</div>
+        </div>
+        <div class="kpi-value" id="kpiSalaryPaid">₹24,000</div>
+        <div class="kpi-bottom">
+          <span class="kpi-subtext" id="kpiSalaryPaidCount">3 payments</span>
+          <span class="kpi-meta-badge staff-count">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+        </div>
+      </article>
+
+      <!-- 4. Salary Payable -->
+      <article class="kpi-card kpi-card-4" id="cardSalaryPayable" title="Click to view employee-wise salary payable breakdown">
+        <div class="kpi-top">
+          <div class="kpi-icon-box icon-orange">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="kpi-title">Salary Payable</div>
+        </div>
+        <div class="kpi-value" id="kpiSalaryPayable">₹18,400</div>
+        <div class="kpi-bottom">
+          <span class="kpi-subtext" id="kpiSalaryPayableCount">3 employees</span>
+          <span class="kpi-meta-badge staff-count">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+        </div>
+      </article>
+
+      <!-- 5. Expenses This Month -->
+      <article class="kpi-card kpi-card-5" id="cardExpenses" title="Click to view expense transactions">
+        <div class="kpi-top">
+          <div class="kpi-icon-box icon-red">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div class="kpi-title">Expenses This Month</div>
+        </div>
+        <div class="kpi-value" id="kpiExpenses">₹12,650</div>
+        <div class="kpi-bottom">
+          <span class="kpi-subtext" id="kpiExpensesCount">5 transactions</span>
+          <span class="kpi-meta-badge trend-rose">
+            <svg viewBox="0 0 24 24"><polyline points="17 7 7 17"/><polyline points="7 7 17 7"/></svg>
+          </span>
+        </div>
+      </article>
+
+      <!-- 6. Counter Cash -->
+      <article class="kpi-card kpi-card-6" id="cardCounterCash" title="Click to view counter cash entries">
+        <div class="kpi-top">
+          <div class="kpi-icon-box icon-green">
+            <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>
+          </div>
+          <div class="kpi-title">Counter Cash</div>
+        </div>
+        <div class="kpi-value" id="kpiCounterCash">₹15,200</div>
+        <div class="kpi-bottom">
+          <span class="kpi-subtext" id="kpiCounterDate">as on 30 Oct 2026</span>
+        </div>
+      </article>
     </section>
-    <section class="cards" aria-label="Admin areas">
-      <article class="card"><span>RECORDS</span><strong>Collection, expense and salary</strong></article>
-      <article class="card"><span>PEOPLE</span><strong>Employees and permissions</strong></article>
-      <article class="card"><span>REPORTS</span><strong>Reports and activity history</strong></article>
-      <article class="card"><span>SETTINGS</span><strong>Rates, shop and configuration</strong></article>
-    </section>
-    <section class="panel">
-      <h2>Quick access</h2>
-      <nav class="quick-links" aria-label="Admin quick access">
-        <a href="/collection-table">Collection Records</a>
-        <a href="/expense-table">Expense Records</a>
-        <a href="/salary-table">Salary Records</a>
-        <a href="/counter-table">Counter Cash Records</a>
-        <a href="/employees">Employee List</a>
-        <a href="/user-access">User Access</a>
-        <a href="/reports">Reports</a>
-        <a href="/activity-report">Activity Report</a>
-        <a href="/config">Configuration</a>
-        <a href="/shop-details">Shop Details</a>
-        <a href="/rate-list">Rate List</a>
-        <a href="/bulk-entry">Bulk Entry</a>
-      </nav>
+
+    <!-- Middle 2-Column Grid -->
+    <div class="dash-main-grid">
+      <!-- Left Column Top: Service Type Performance -->
+      <section class="panel-card">
+        <div class="panel-card-head">
+          <h2 class="panel-card-title">
+            <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            <span>Service Type Performance</span>
+          </h2>
+          <a href="/reports" class="panel-card-link">View Detailed Report &rarr;</a>
+        </div>
+        <div class="table-responsive">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th class="num">Entries</th>
+                <th class="num">Collection (₹)</th>
+                <th class="num">Avg Ticket (₹)</th>
+                <th class="num">Collection Share</th>
+              </tr>
+            </thead>
+            <tbody id="serviceTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Right Column Top: Staff Salary & Advances -->
+      <section class="panel-card">
+        <div class="panel-card-head">
+          <h2 class="panel-card-title">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Staff Salary &amp; Advances</span>
+          </h2>
+          <a href="/employees" class="panel-card-link">Manage Staff &rarr;</a>
+        </div>
+        <div class="table-responsive">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th class="num">Earned (₹)</th>
+                <th class="num">Advance (₹)</th>
+                <th class="num">Paid (₹)</th>
+                <th class="num">Payable (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="staffTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Left Column Bottom: Collection by Service Type (Bar Chart) -->
+      <section class="panel-card">
+        <div class="panel-card-head">
+          <h2 class="panel-card-title">
+            <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="10" width="12" height="4" rx="1"/></svg>
+            <span>Collection by Service Type</span>
+          </h2>
+          <a href="/rate-list" class="panel-card-link">View Services &rarr;</a>
+        </div>
+        <div class="bar-chart-list" id="barChartContainer">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- Right Column Bottom: Payment Split (Donut Chart) -->
+      <section class="panel-card">
+        <div class="panel-card-head">
+          <h2 class="panel-card-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10H12z"/></svg>
+            <span>Payment Split</span>
+          </h2>
+          <a href="/reports" class="panel-card-link">View Payment Report &rarr;</a>
+        </div>
+        <div class="donut-layout">
+          <div class="donut-chart-wrap">
+            <svg viewBox="0 0 100 100" id="donutSvg" aria-label="Payment split donut chart">
+              <!-- Rendered via JS -->
+            </svg>
+            <div class="donut-center-text">
+              <span class="donut-center-amt" id="donutTotalAmt">₹42,850</span>
+              <span class="donut-center-sub">Total Collection</span>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutLegendContainer">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Full-Width Bottom Card: Recent Transactions -->
+    <section class="recent-transactions-card">
+      <div class="panel-card-head">
+        <h2 class="panel-card-title">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Recent Transactions</span>
+        </h2>
+        <a href="/reports" class="panel-card-link">View All Transactions &rarr;</a>
+      </div>
+      <div class="table-responsive">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Date &amp; Time</th>
+              <th>Employee</th>
+              <th>Service / Category</th>
+              <th>Payment</th>
+              <th class="num">Amount (₹)</th>
+              <th style="text-align:center">Type</th>
+            </tr>
+          </thead>
+          <tbody id="recentTransactionsBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
     </section>
   </main>
+
+  <!-- =========================================================
+       MODAL DIALOG (Employee-Wise Breakdown & Details)
+       ========================================================= -->
+  <div class="modal-overlay" id="detailsModalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <div class="modal-head-title">
+          <h3 id="modalTitle">Details Breakdown</h3>
+          <p id="modalSubtitle">Employee-wise details</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="modalCloseBtn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <div class="modal-filter-bar" id="modalFilterBar">
+        <!-- Rendered via JS: [ All Staff ] [ Rahul Verma ] [ Aditi Sharma ] ... -->
+      </div>
+
+      <div class="modal-body" id="modalBody">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div class="modal-foot">
+        <a href="/collection-entry" id="modalActionLink" class="modal-btn modal-btn-primary">+ Add New Entry</a>
+        <button type="button" class="modal-btn modal-btn-secondary" id="modalCloseFootBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/auth-guard.js"></script>
-  <script src="/admin-nav.js"></script>
+  <script src="/admin-nav.js?v=20261105_m4"></script>
+  <script src="/mobile.js?v=20261105_m4"></script>
+  <script>
+    (() => {
+      const tokenKey = 'salon_google_credential';
+      const monthPicker = document.getElementById('monthPicker');
+      const monthDisplay = document.getElementById('monthDisplay');
+      const prevMonthBtn = document.getElementById('prevMonthBtn');
+      const nextMonthBtn = document.getElementById('nextMonthBtn');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const sampleBanner = document.getElementById('sampleBanner');
+
+      // Modal elements
+      const modalOverlay = document.getElementById('detailsModalOverlay');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalSubtitle = document.getElementById('modalSubtitle');
+      const modalFilterBar = document.getElementById('modalFilterBar');
+      const modalBody = document.getElementById('modalBody');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+      const modalCloseFootBtn = document.getElementById('modalCloseFootBtn');
+      const modalActionLink = document.getElementById('modalActionLink');
+
+      let currentMonth = getCurrentMonthString();
+      let activeDashboardData = null;
+      let activeModalType = 'collection';
+      let activeStaffFilter = 'all';
+
+      function getCurrentMonthString() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        return `${y}-${m}`;
+      }
+
+      function formatMoney(value) {
+        return '₹' + Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+      }
+
+      function escapeHtml(str) {
+        return String(str ?? '').replace(/[&<>"']/g, c => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[c]);
+      }
+
+      function formatMonthTitle(monthStr) {
+        try {
+          const parts = (monthStr || '').split('-');
+          if (parts.length >= 2) {
+            const y = Number(parts[0]);
+            const m = Number(parts[1]);
+            const d = new Date(y, m - 1, 1);
+            if (!Number.isNaN(d.getTime())) {
+              return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+            }
+          }
+        } catch {}
+        return monthStr;
+      }
+
+      async function fetchDashboardData() {
+        refreshBtn.classList.add('spinning');
+        try {
+          const token = localStorage.getItem(tokenKey);
+          const url = `/api/admin-dashboard-overview?month=${encodeURIComponent(currentMonth)}&period=monthly`;
+          const response = await fetch(url, {
+            headers: {
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.status === 401) {
+            localStorage.removeItem(tokenKey);
+            location.replace('/login');
+            return;
+          }
+
+          if (!response.ok) {
+            throw new Error('Failed to load dashboard data.');
+          }
+
+          const data = await response.json();
+          activeDashboardData = data;
+          renderDashboard(data);
+        } catch (error) {
+          console.warn('Dashboard fetch error, using local fallback:', error);
+          const fallback = getFallbackData();
+          activeDashboardData = fallback;
+          renderDashboard(fallback);
+        } finally {
+          setTimeout(() => refreshBtn.classList.remove('spinning'), 350);
+        }
+      }
+
+      function renderDashboard(data) {
+        // Shop name & sample status
+        if (data.shopName) {
+          document.getElementById('shopName').textContent = data.shopName;
+        }
+        if (data.isSample) {
+          sampleBanner.classList.add('show');
+        } else {
+          sampleBanner.classList.remove('show');
+        }
+
+        // KPIs
+        const kpis = data.kpis || {};
+        if (kpis.collection) {
+          document.getElementById('kpiCollectionLabel').textContent = kpis.collection.label || "Today's Collection";
+          document.getElementById('kpiCollection').textContent = formatMoney(kpis.collection.amount);
+          document.getElementById('kpiCollectionEntries').textContent = `from ${kpis.collection.entriesCount || 0} service entries`;
+        }
+
+        if (kpis.advancesPaid) {
+          document.getElementById('kpiAdvance').textContent = formatMoney(kpis.advancesPaid.amount);
+          document.getElementById('kpiAdvanceCount').textContent = `${kpis.advancesPaid.paymentsCount || 0} payments`;
+        }
+
+        if (kpis.salaryPaid) {
+          document.getElementById('kpiSalaryPaid').textContent = formatMoney(kpis.salaryPaid.amount);
+          document.getElementById('kpiSalaryPaidCount').textContent = `${kpis.salaryPaid.paymentsCount || 0} payments`;
+        }
+
+        if (kpis.salaryPayable) {
+          document.getElementById('kpiSalaryPayable').textContent = formatMoney(kpis.salaryPayable.amount);
+          document.getElementById('kpiSalaryPayableCount').textContent = `${kpis.salaryPayable.employeesCount || 0} employees`;
+        }
+
+        if (kpis.expenses) {
+          document.getElementById('kpiExpenses').textContent = formatMoney(kpis.expenses.amount);
+          document.getElementById('kpiExpensesCount').textContent = `${kpis.expenses.transactionsCount || 0} transactions`;
+        }
+
+        if (kpis.counterCash) {
+          document.getElementById('kpiCounterCash').textContent = formatMoney(kpis.counterCash.amount);
+          document.getElementById('kpiCounterDate').textContent = kpis.counterCash.asOn || `as on ${formatMonthTitle(currentMonth)}`;
+        }
+
+        // Service Type Performance Table
+        const serviceTableBody = document.getElementById('serviceTableBody');
+        serviceTableBody.innerHTML = '';
+        const services = data.servicePerformance || [];
+        if (!services.length) {
+          serviceTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:18px;color:#94a3b8">No service performance records found.</td></tr>';
+        } else {
+          services.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.className = 'clickable-row';
+            tr.title = `Click to view bills for ${item.service}`;
+            tr.innerHTML = `
+              <td style="font-weight:700;color:#1e293b">${escapeHtml(item.service)}</td>
+              <td class="num">${item.entries}</td>
+              <td class="num" style="font-weight:700">${formatMoney(item.collection)}</td>
+              <td class="num">${formatMoney(item.avgTicket)}</td>
+              <td class="num">
+                <div class="share-bar-cell">
+                  <div class="share-bar-track">
+                    <div class="share-bar-fill" style="width: ${Math.min(100, Math.max(4, item.share || 0))}%"></div>
+                  </div>
+                  <span class="share-pct">${item.share || 0}%</span>
+                </div>
+              </td>
+            `;
+            tr.addEventListener('click', () => openServiceDetails(item.service));
+            serviceTableBody.appendChild(tr);
+          });
+        }
+
+        // Collection by Service Type (Bar Chart)
+        const barChartContainer = document.getElementById('barChartContainer');
+        barChartContainer.innerHTML = '';
+        const barItems = data.collectionByService || [];
+        if (!barItems.length) {
+          barChartContainer.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8">No service collection data.</div>';
+        } else {
+          const maxVal = Math.max(...barItems.map(b => b.collection), 1);
+          barItems.forEach(item => {
+            const widthPct = Math.min(100, Math.max(3, (item.collection / maxVal) * 100));
+            const row = document.createElement('div');
+            row.className = 'bar-chart-row';
+            row.title = `Click to view bills for ${item.service}`;
+            row.innerHTML = `
+              <span class="bar-chart-label" title="${escapeHtml(item.service)}">${escapeHtml(item.service)}</span>
+              <div class="bar-chart-track">
+                <div class="bar-chart-fill" style="width: ${widthPct}%"></div>
+              </div>
+              <span class="bar-chart-val">${formatMoney(item.collection)}</span>
+            `;
+            row.addEventListener('click', () => openServiceDetails(item.service));
+            barChartContainer.appendChild(row);
+          });
+        }
+
+        // Staff Salary & Advances Table
+        const staffTableBody = document.getElementById('staffTableBody');
+        staffTableBody.innerHTML = '';
+        const staffList = data.staffSalary || [];
+        if (!staffList.length) {
+          staffTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:18px;color:#94a3b8">No active staff records.</td></tr>';
+        } else {
+          staffList.forEach(emp => {
+            const tr = document.createElement('tr');
+            tr.className = 'clickable-row';
+            tr.title = `Click to view statement for ${emp.name}`;
+            const avatarHtml = emp.photoUrl
+              ? `<img src="${escapeHtml(emp.photoUrl)}" alt="${escapeHtml(emp.name)}" onerror="this.remove()">`
+              : escapeHtml(emp.initials || 'ST');
+
+            tr.innerHTML = `
+              <td>
+                <div class="staff-cell">
+                  <div class="staff-avatar">${avatarHtml}</div>
+                  <div class="staff-name-col">
+                    <span class="staff-name">${escapeHtml(emp.name)}</span>
+                    <span class="staff-role">${escapeHtml(emp.role || 'Stylist')}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="num">${formatMoney(emp.earned)}</td>
+              <td class="num">${formatMoney(emp.advance)}</td>
+              <td class="num">${formatMoney(emp.paid)}</td>
+              <td class="num">
+                <span class="payable-badge">${formatMoney(emp.payable)}</span>
+              </td>
+            `;
+            tr.addEventListener('click', () => openStaffStatement(emp.name));
+            staffTableBody.appendChild(tr);
+          });
+        }
+
+        // Donut Chart (Payment Split)
+        renderDonut(data.paymentSplit);
+
+        // Recent Transactions Table
+        const recentBody = document.getElementById('recentTransactionsBody');
+        recentBody.innerHTML = '';
+        const transactions = data.recentTransactions || [];
+        if (!transactions.length) {
+          recentBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:18px;color:#94a3b8">No recent transactions recorded.</td></tr>';
+        } else {
+          transactions.forEach(tx => {
+            const tr = document.createElement('tr');
+            const typeClass = String(tx.type || 'service').toLowerCase();
+            tr.innerHTML = `
+              <td style="color:#64748b">${escapeHtml(tx.date)}</td>
+              <td style="font-weight:700">${escapeHtml(tx.employee || '—')}</td>
+              <td>${escapeHtml(tx.service || 'Service')}</td>
+              <td style="color:#475569">${escapeHtml(tx.payment || 'Cash')}</td>
+              <td class="num" style="font-weight:800">${formatMoney(tx.amount)}</td>
+              <td style="text-align:center">
+                <span class="type-pill type-${typeClass}">${escapeHtml(tx.type || 'Service')}</span>
+              </td>
+            `;
+            recentBody.appendChild(tr);
+          });
+        }
+      }
+
+      function renderDonut(split = {}) {
+        const total = Number(split.total || 0);
+        const cashAmt = Number(split.cash?.amount || 0);
+        const onlineAmt = Number(split.online?.amount || 0);
+        const cashPct = split.cash?.percent ?? (total > 0 ? Math.round((cashAmt / total) * 100) : 63);
+        const onlinePct = split.online?.percent ?? (100 - cashPct);
+
+        document.getElementById('donutTotalAmt').textContent = formatMoney(total || 42850);
+
+        const radius = 38;
+        const circ = 2 * Math.PI * radius;
+        const cashLength = (cashPct / 100) * circ;
+        const onlineLength = (onlinePct / 100) * circ;
+
+        const donutSvg = document.getElementById('donutSvg');
+        donutSvg.innerHTML = `
+          <circle cx="50" cy="50" r="${radius}" fill="none" stroke="#f1f5f9" stroke-width="14" />
+          <circle cx="50" cy="50" r="${radius}" fill="none" stroke="#1f6868" stroke-width="14"
+            stroke-dasharray="${cashLength} ${circ}"
+            stroke-dashoffset="0"
+          />
+          <circle cx="50" cy="50" r="${radius}" fill="none" stroke="#caa257" stroke-width="14"
+            stroke-dasharray="${onlineLength} ${circ}"
+            stroke-dashoffset="-${cashLength}"
+          />
+        `;
+
+        const legendContainer = document.getElementById('donutLegendContainer');
+        legendContainer.innerHTML = `
+          <div class="donut-legend-item">
+            <div class="donut-legend-title">
+              <span class="donut-dot donut-dot-cash"></span>
+              <span>Cash</span>
+            </div>
+            <div class="donut-legend-figures">
+              <span class="donut-legend-val">${formatMoney(cashAmt || 27000)}</span>
+              <span class="donut-legend-pct">${cashPct}%</span>
+            </div>
+          </div>
+          <div class="donut-legend-item">
+            <div class="donut-legend-title">
+              <span class="donut-dot donut-dot-online"></span>
+              <span>Online (UPI / Card)</span>
+            </div>
+            <div class="donut-legend-figures">
+              <span class="donut-legend-val">${formatMoney(onlineAmt || 15850)}</span>
+              <span class="donut-legend-pct">${onlinePct}%</span>
+            </div>
+          </div>
+        `;
+      }
+
+      /* =========================================================
+         MODAL DETAILS (Employee-Wise Breakdown Logic)
+         ========================================================= */
+      function openModal(type, targetStaff = 'all') {
+        activeModalType = type;
+        activeStaffFilter = targetStaff;
+        const data = activeDashboardData || getFallbackData();
+        const details = data.details || {};
+
+        modalFilterBar.style.display = 'flex';
+
+        if (type === 'collection') {
+          modalTitle.textContent = "Collection Details — Employee-wise Breakdown";
+          modalSubtitle.textContent = `Month: ${formatMonthTitle(currentMonth)}`;
+          modalActionLink.href = '/collection-entry';
+          modalActionLink.textContent = '+ Add Collection Entry';
+          renderEmployeeCollectionDetails(details.collection, targetStaff);
+        } else if (type === 'advancesPaid') {
+          modalTitle.textContent = "Advances Paid — Employee-wise Breakdown";
+          modalSubtitle.textContent = `Month: ${new Date(currentDate).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}`;
+          modalActionLink.href = '/expense-entry';
+          modalActionLink.textContent = '+ Add Advance Entry';
+          renderEmployeeAdvanceDetails(details.advancesPaid, targetStaff);
+        } else if (type === 'salaryPaid') {
+          modalTitle.textContent = "Salary Paid — Employee-wise Breakdown";
+          modalSubtitle.textContent = `Month: ${new Date(currentDate).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}`;
+          modalActionLink.href = '/salary-entry';
+          modalActionLink.textContent = '+ Add Salary Payment';
+          renderEmployeeSalaryPaidDetails(details.salaryPaid, targetStaff);
+        } else if (type === 'salaryPayable') {
+          modalTitle.textContent = "Salary Payable — Calculation Breakdown";
+          modalSubtitle.textContent = `Net Payable = Earned Salary - (Advances + Salary Paid)`;
+          modalActionLink.href = '/salary-entry';
+          modalActionLink.textContent = 'Pay Salary';
+          renderEmployeePayableDetails(details.salaryPayable, targetStaff);
+        } else if (type === 'expenses') {
+          modalTitle.textContent = "Expenses Details";
+          modalSubtitle.textContent = `All recorded salon and operating expenses`;
+          modalActionLink.href = '/expense-entry';
+          modalActionLink.textContent = '+ Add Expense Entry';
+          modalFilterBar.style.display = 'none';
+          renderExpensesDetails(details.expenses);
+        } else if (type === 'counterCash') {
+          modalTitle.textContent = "Counter Cash Records";
+          modalSubtitle.textContent = `Counter register balance details`;
+          modalActionLink.href = '/counter-entry';
+          modalActionLink.textContent = '+ Add Counter Cash Entry';
+          modalFilterBar.style.display = 'none';
+          renderCounterCashDetails(details.counterCash);
+        }
+
+        modalOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modalOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      function renderStaffFilterTabs(staffList, selectedName) {
+        modalFilterBar.innerHTML = '';
+        const allBtn = document.createElement('button');
+        allBtn.type = 'button';
+        allBtn.className = `modal-filter-pill ${selectedName === 'all' ? 'active' : ''}`;
+        allBtn.textContent = '👥 All Staff';
+        allBtn.addEventListener('click', () => {
+          activeStaffFilter = 'all';
+          openModal(activeModalType, 'all');
+        });
+        modalFilterBar.appendChild(allBtn);
+
+        staffList.forEach(staff => {
+          const sName = staff.employeeName || staff.name;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `modal-filter-pill ${selectedName === sName ? 'active' : ''}`;
+          btn.textContent = sName;
+          btn.addEventListener('click', () => {
+            activeStaffFilter = sName;
+            openModal(activeModalType, sName);
+          });
+          modalFilterBar.appendChild(btn);
+        });
+      }
+
+      // 1. Collection breakdown
+      function renderEmployeeCollectionDetails(colData = {}, filterStaff = 'all') {
+        const staffList = colData.byEmployee || [];
+        renderStaffFilterTabs(staffList, filterStaff);
+
+        const displayed = filterStaff === 'all'
+          ? staffList
+          : staffList.filter(s => s.employeeName === filterStaff);
+
+        const totalAmt = displayed.reduce((s, e) => s + (e.amount || 0), 0);
+        const totalBills = displayed.reduce((s, e) => s + (e.count || 0), 0);
+
+        let html = `
+          <div class="modal-summary-row">
+            <div class="modal-sum-card"><span>Total Collection</span><strong>${formatMoney(totalAmt)}</strong></div>
+            <div class="modal-sum-card"><span>Service Entries</span><strong>${totalBills} bills</strong></div>
+            <div class="modal-sum-card"><span>Staff Contributing</span><strong>${displayed.length} employees</strong></div>
+          </div>
+        `;
+
+        if (!displayed.length) {
+          html += `<div style="text-align:center;padding:30px;color:#94a3b8">No collection records found for this employee.</div>`;
+        } else {
+          displayed.forEach(emp => {
+            html += `
+              <div class="emp-group-card">
+                <div class="emp-group-head">
+                  <div class="emp-group-title">
+                    <div class="staff-avatar">${emp.employeeName.slice(0, 2).toUpperCase()}</div>
+                    <div>
+                      <strong>${escapeHtml(emp.employeeName)}</strong>
+                      <small>${escapeHtml(emp.role || 'Stylist')} • ${emp.count || 0} entries</small>
+                    </div>
+                  </div>
+                  <div class="emp-group-total">${formatMoney(emp.amount)}</div>
+                </div>
+                <div class="table-responsive">
+                  <table class="dash-table">
+                    <thead>
+                      <tr>
+                        <th>Date &amp; Time</th>
+                        <th>Service</th>
+                        <th>Payment</th>
+                        <th>Remark</th>
+                        <th class="num">Amount (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (!emp.entries || !emp.entries.length) {
+              html += `<tr><td colspan="5" style="text-align:center;padding:12px;color:#94a3b8">No individual entry details logged.</td></tr>`;
+            } else {
+              emp.entries.forEach(item => {
+                html += `
+                  <tr>
+                    <td style="color:#64748b">${escapeHtml(item.date)}</td>
+                    <td style="font-weight:700">${escapeHtml(item.service)}</td>
+                    <td><span class="type-pill ${item.paymentMode === 'Cash' ? 'type-service' : 'type-salary'}">${escapeHtml(item.paymentMode)}</span></td>
+                    <td style="color:#64748b">${escapeHtml(item.remark || '—')}</td>
+                    <td class="num" style="font-weight:800">${formatMoney(item.amount)}</td>
+                  </tr>
+                `;
+              });
+            }
+            html += `</tbody></table></div></div>`;
+          });
+        }
+        modalBody.innerHTML = html;
+      }
+
+      // 2. Advances breakdown
+      function renderEmployeeAdvanceDetails(advData = {}, filterStaff = 'all') {
+        const staffList = advData.byEmployee || [];
+        renderStaffFilterTabs(staffList, filterStaff);
+
+        const displayed = filterStaff === 'all'
+          ? staffList
+          : staffList.filter(s => s.employeeName === filterStaff);
+
+        const totalAmt = displayed.reduce((s, e) => s + (e.amount || 0), 0);
+        const totalPayments = displayed.reduce((s, e) => s + (e.count || 0), 0);
+
+        let html = `
+          <div class="modal-summary-row">
+            <div class="modal-sum-card"><span>Total Advance Paid</span><strong style="color:#b26a00">${formatMoney(totalAmt)}</strong></div>
+            <div class="modal-sum-card"><span>Advance Payments</span><strong>${totalPayments}</strong></div>
+            <div class="modal-sum-card"><span>Employees</span><strong>${displayed.length}</strong></div>
+          </div>
+        `;
+
+        if (!displayed.length) {
+          html += `<div style="text-align:center;padding:30px;color:#94a3b8">No advance payments recorded for this employee.</div>`;
+        } else {
+          displayed.forEach(emp => {
+            html += `
+              <div class="emp-group-card">
+                <div class="emp-group-head">
+                  <div class="emp-group-title">
+                    <div class="staff-avatar">${emp.employeeName.slice(0, 2).toUpperCase()}</div>
+                    <div>
+                      <strong>${escapeHtml(emp.employeeName)}</strong>
+                      <small>${escapeHtml(emp.role || 'Stylist')} • ${emp.count || 0} advance payments</small>
+                    </div>
+                  </div>
+                  <div class="emp-group-total" style="color:#b26a00">${formatMoney(emp.amount)}</div>
+                </div>
+                <div class="table-responsive">
+                  <table class="dash-table">
+                    <thead>
+                      <tr>
+                        <th>Date &amp; Time</th>
+                        <th>Voucher ID</th>
+                        <th>Payment Mode</th>
+                        <th>Remark</th>
+                        <th class="num">Amount (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (!emp.entries || !emp.entries.length) {
+              html += `<tr><td colspan="5" style="text-align:center;padding:12px;color:#94a3b8">No individual records.</td></tr>`;
+            } else {
+              emp.entries.forEach(item => {
+                html += `
+                  <tr>
+                    <td style="color:#64748b">${escapeHtml(item.date)}</td>
+                    <td style="font-weight:600">${escapeHtml(item.voucherId || 'ADV')}</td>
+                    <td><span class="type-pill type-advance">${escapeHtml(item.paymentMode || 'Cash')}</span></td>
+                    <td style="color:#64748b">${escapeHtml(item.remark || 'Advance taken')}</td>
+                    <td class="num" style="font-weight:800;color:#b26a00">${formatMoney(item.amount)}</td>
+                  </tr>
+                `;
+              });
+            }
+            html += `</tbody></table></div></div>`;
+          });
+        }
+        modalBody.innerHTML = html;
+      }
+
+      // 3. Salary paid breakdown
+      function renderEmployeeSalaryPaidDetails(salData = {}, filterStaff = 'all') {
+        const staffList = salData.byEmployee || [];
+        renderStaffFilterTabs(staffList, filterStaff);
+
+        const displayed = filterStaff === 'all'
+          ? staffList
+          : staffList.filter(s => s.employeeName === filterStaff);
+
+        const totalAmt = displayed.reduce((s, e) => s + (e.amount || 0), 0);
+        const totalPayments = displayed.reduce((s, e) => s + (e.count || 0), 0);
+
+        let html = `
+          <div class="modal-summary-row">
+            <div class="modal-sum-card"><span>Total Salary Paid</span><strong style="color:#2563eb">${formatMoney(totalAmt)}</strong></div>
+            <div class="modal-sum-card"><span>Disbursements</span><strong>${totalPayments} payments</strong></div>
+            <div class="modal-sum-card"><span>Employees</span><strong>${displayed.length}</strong></div>
+          </div>
+        `;
+
+        if (!displayed.length) {
+          html += `<div style="text-align:center;padding:30px;color:#94a3b8">No salary disbursements recorded for this employee.</div>`;
+        } else {
+          displayed.forEach(emp => {
+            html += `
+              <div class="emp-group-card">
+                <div class="emp-group-head">
+                  <div class="emp-group-title">
+                    <div class="staff-avatar">${emp.employeeName.slice(0, 2).toUpperCase()}</div>
+                    <div>
+                      <strong>${escapeHtml(emp.employeeName)}</strong>
+                      <small>${escapeHtml(emp.role || 'Stylist')}</small>
+                    </div>
+                  </div>
+                  <div class="emp-group-total" style="color:#2563eb">${formatMoney(emp.amount)}</div>
+                </div>
+                <div class="table-responsive">
+                  <table class="dash-table">
+                    <thead>
+                      <tr>
+                        <th>Date &amp; Time</th>
+                        <th>Month</th>
+                        <th>Payment Mode</th>
+                        <th>Remark</th>
+                        <th class="num">Amount (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (!emp.entries || !emp.entries.length) {
+              html += `<tr><td colspan="5" style="text-align:center;padding:12px;color:#94a3b8">No individual records.</td></tr>`;
+            } else {
+              emp.entries.forEach(item => {
+                html += `
+                  <tr>
+                    <td style="color:#64748b">${escapeHtml(item.date)}</td>
+                    <td style="font-weight:600">${escapeHtml(item.salaryMonth || 'This Month')}</td>
+                    <td><span class="type-pill type-salary">${escapeHtml(item.paymentMode || 'Bank')}</span></td>
+                    <td style="color:#64748b">${escapeHtml(item.remark || 'Salary')}</td>
+                    <td class="num" style="font-weight:800;color:#2563eb">${formatMoney(item.amount)}</td>
+                  </tr>
+                `;
+              });
+            }
+            html += `</tbody></table></div></div>`;
+          });
+        }
+        modalBody.innerHTML = html;
+      }
+
+      // 4. Salary payable calculation breakdown
+      function renderEmployeePayableDetails(payData = {}, filterStaff = 'all') {
+        const staffList = payData.byEmployee || [];
+        renderStaffFilterTabs(staffList, filterStaff);
+
+        const displayed = filterStaff === 'all'
+          ? staffList
+          : staffList.filter(s => s.employeeName === filterStaff);
+
+        const totalPayable = displayed.reduce((s, e) => s + (e.payable || 0), 0);
+        const totalEarned = displayed.reduce((s, e) => s + (e.earned || 0), 0);
+        const totalDeducted = displayed.reduce((s, e) => s + ((e.advance || 0) + (e.paid || 0)), 0);
+
+        let html = `
+          <div class="modal-summary-row">
+            <div class="modal-sum-card"><span>Total Payable</span><strong style="color:#b26a00">${formatMoney(totalPayable)}</strong></div>
+            <div class="modal-sum-card"><span>Earned Salary</span><strong style="color:#0b7a43">${formatMoney(totalEarned)}</strong></div>
+            <div class="modal-sum-card"><span>Total Taken (Adv + Paid)</span><strong style="color:#64748b">${formatMoney(totalDeducted)}</strong></div>
+          </div>
+          <div class="table-responsive">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th class="num">Earned (₹)</th>
+                  <th class="num">Advance Taken (-)</th>
+                  <th class="num">Salary Paid (-)</th>
+                  <th class="num">Net Balance Payable</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        if (!displayed.length) {
+          html += `<tr><td colspan="5" style="text-align:center;padding:24px;color:#94a3b8">No payable calculation data.</td></tr>`;
+        } else {
+          displayed.forEach(emp => {
+            html += `
+              <tr>
+                <td>
+                  <div class="staff-cell">
+                    <div class="staff-avatar">${emp.employeeName.slice(0, 2).toUpperCase()}</div>
+                    <div class="staff-name-col">
+                      <span class="staff-name">${escapeHtml(emp.employeeName)}</span>
+                      <span class="staff-role">${escapeHtml(emp.rule || emp.role || 'Stylist')}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="num" style="color:#0b7a43;font-weight:700">${formatMoney(emp.earned)}</td>
+                <td class="num" style="color:#b26a00">${formatMoney(emp.advance)}</td>
+                <td class="num" style="color:#2563eb">${formatMoney(emp.paid)}</td>
+                <td class="num"><span class="payable-badge" style="font-size:13px">${formatMoney(emp.payable)}</span></td>
+              </tr>
+            `;
+          });
+        }
+        html += `</tbody></table></div>`;
+        modalBody.innerHTML = html;
+      }
+
+      // 5. Expenses details
+      function renderExpensesDetails(expData = {}) {
+        const entries = expData.entries || [];
+        const totalAmt = Number(expData.total || 0);
+
+        let html = `
+          <div class="modal-summary-row">
+            <div class="modal-sum-card"><span>Total Expenses</span><strong style="color:#b42318">${formatMoney(totalAmt)}</strong></div>
+            <div class="modal-sum-card"><span>Transactions</span><strong>${entries.length}</strong></div>
+            <div class="modal-sum-card"><span>Period</span><strong>This Month</strong></div>
+          </div>
+          <div class="table-responsive">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Date &amp; Time</th>
+                  <th>Expense Type</th>
+                  <th>Vendor / Beneficiary</th>
+                  <th>Payment</th>
+                  <th>Remark</th>
+                  <th class="num">Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        if (!entries.length) {
+          html += `<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8">No expenses recorded for this period.</td></tr>`;
+        } else {
+          entries.forEach(e => {
+            html += `
+              <tr>
+                <td style="color:#64748b">${escapeHtml(e.date)}</td>
+                <td style="font-weight:700">${escapeHtml(e.type)}</td>
+                <td>${escapeHtml(e.vendor || e.employee || '—')}</td>
+                <td><span class="type-pill type-expense">${escapeHtml(e.paymentMode || 'Cash')}</span></td>
+                <td style="color:#64748b">${escapeHtml(e.remark || '—')}</td>
+                <td class="num" style="font-weight:800;color:#b42318">${formatMoney(e.amount)}</td>
+              </tr>
+            `;
+          });
+        }
+        html += `</tbody></table></div>`;
+        modalBody.innerHTML = html;
+      }
+
+      // 6. Counter cash details
+      function renderCounterCashDetails(counterData = {}) {
+        const entries = counterData.entries || [];
+        const totalAmt = Number(counterData.total || 0);
+
+        let html = `
+          <div class="modal-summary-row">
+            <div class="modal-sum-card"><span>Current Cash at Counter</span><strong style="color:#0b7a43">${formatMoney(totalAmt)}</strong></div>
+            <div class="modal-sum-card"><span>Status</span><strong>${counterData.asOn || 'Active'}</strong></div>
+            <div class="modal-sum-card"><span>Logs</span><strong>${entries.length} records</strong></div>
+          </div>
+          <div class="table-responsive">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Date &amp; Time</th>
+                  <th>Recorded By / Staff</th>
+                  <th>Mode</th>
+                  <th>Remark</th>
+                  <th class="num">Balance (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        if (!entries.length) {
+          html += `<tr><td colspan="5" style="text-align:center;padding:24px;color:#94a3b8">No counter cash records logged.</td></tr>`;
+        } else {
+          entries.forEach(c => {
+            html += `
+              <tr>
+                <td style="color:#64748b">${escapeHtml(c.date)}</td>
+                <td style="font-weight:700">${escapeHtml(c.employee || 'Admin')}</td>
+                <td><span class="type-pill type-service">${escapeHtml(c.paymentMode || 'Cash')}</span></td>
+                <td style="color:#64748b">${escapeHtml(c.remark || 'Counter log')}</td>
+                <td class="num" style="font-weight:800;color:#0b7a43">${formatMoney(c.amount)}</td>
+              </tr>
+            `;
+          });
+        }
+        html += `</tbody></table></div>`;
+        modalBody.innerHTML = html;
+      }
+
+      // Open specific employee statement directly from Staff Table row click
+      function openStaffStatement(staffName) {
+        openModal('salaryPayable', staffName);
+      }
+
+      // Open specific service breakdown
+      function openServiceDetails(serviceName) {
+        modalTitle.textContent = `Service Breakdown: ${serviceName}`;
+        modalSubtitle.textContent = `Staff contributions for ${serviceName}`;
+        modalActionLink.href = '/collection-table';
+        modalActionLink.textContent = 'View All Bills';
+        modalFilterBar.style.display = 'none';
+
+        const data = activeDashboardData || getFallbackData();
+        const allStaffCollections = data.details?.collection?.byEmployee || [];
+        
+        let matchingEntries = [];
+        allStaffCollections.forEach(emp => {
+          (emp.entries || []).forEach(e => {
+            if (e.service && e.service.toLowerCase().includes(serviceName.toLowerCase())) {
+              matchingEntries.push({ ...e, employee: emp.employeeName });
+            }
+          });
+        });
+
+        const totalAmt = matchingEntries.reduce((s, e) => s + (e.amount || 0), 0);
+
+        let html = `
+          <div class="modal-summary-row">
+            <div class="modal-sum-card"><span>Total ${escapeHtml(serviceName)}</span><strong style="color:#1f7f7a">${formatMoney(totalAmt)}</strong></div>
+            <div class="modal-sum-card"><span>Total Entries</span><strong>${matchingEntries.length} bills</strong></div>
+            <div class="modal-sum-card"><span>Period</span><strong>${formatMonthTitle(currentMonth)}</strong></div>
+          </div>
+          <div class="table-responsive">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Date &amp; Time</th>
+                  <th>Stylist / Employee</th>
+                  <th>Service</th>
+                  <th>Payment</th>
+                  <th class="num">Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        if (!matchingEntries.length) {
+          html += `<tr><td colspan="5" style="text-align:center;padding:24px;color:#94a3b8">No individual records logged for ${escapeHtml(serviceName)}.</td></tr>`;
+        } else {
+          matchingEntries.forEach(item => {
+            html += `
+              <tr>
+                <td style="color:#64748b">${escapeHtml(item.date)}</td>
+                <td style="font-weight:700">${escapeHtml(item.employee)}</td>
+                <td>${escapeHtml(item.service)}</td>
+                <td><span class="type-pill ${item.paymentMode === 'Cash' ? 'type-service' : 'type-salary'}">${escapeHtml(item.paymentMode || 'Cash')}</span></td>
+                <td class="num" style="font-weight:800">${formatMoney(item.amount)}</td>
+              </tr>
+            `;
+          });
+        }
+        html += `</tbody></table></div>`;
+        modalBody.innerHTML = html;
+        modalOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function getFallbackData() {
+        return {
+          isSample: true,
+          shopName: 'YOURS SALON',
+          kpis: {
+            collection: { label: "This Month's Collection", amount: 42850, entriesCount: 73, trendPercent: 14, trendDirection: 'up' },
+            advancesPaid: { label: 'Advances Paid This Month', amount: 8500, paymentsCount: 3 },
+            salaryPaid: { label: 'Salary Paid This Month', amount: 24000, paymentsCount: 3 },
+            salaryPayable: { label: 'Salary Payable', amount: 18400, employeesCount: 3 },
+            expenses: { label: 'Expenses This Month', amount: 12650, transactionsCount: 5, trendPercent: 5, trendDirection: 'up' },
+            counterCash: { label: 'Counter Cash', amount: 15200, asOn: `as on ${formatMonthTitle(currentMonth)}` }
+          },
+          servicePerformance: [
+            { service: 'Hair Cut', entries: 32, collection: 18400, avgTicket: 575, share: 32 },
+            { service: 'Hair Color', entries: 14, collection: 24500, avgTicket: 1750, share: 43 },
+            { service: 'Hair Spa', entries: 11, collection: 12100, avgTicket: 1100, share: 21 },
+            { service: 'Facial', entries: 9, collection: 8600, avgTicket: 956, share: 15 },
+            { service: 'Manicure & Pedicure', entries: 7, collection: 5250, avgTicket: 750, share: 9 }
+          ],
+          collectionByService: [
+            { service: 'Hair Color', collection: 24500 },
+            { service: 'Hair Cut', collection: 18400 },
+            { service: 'Hair Spa', collection: 12100 },
+            { service: 'Facial', collection: 8600 },
+            { service: 'Manicure & Pedicure', collection: 5250 }
+          ],
+          staffSalary: [
+            { initials: 'AS', name: 'Aditi Sharma', role: 'Senior Stylist', earned: 26000, advance: 3000, paid: 15000, payable: 11000 },
+            { initials: 'RM', name: 'Rohan Mehta', role: 'Hair Specialist', earned: 22500, advance: 2500, paid: 8000, payable: 12000 },
+            { initials: 'NK', name: 'Neha Kapoor', role: 'Beauty Therapist', earned: 14000, advance: 3000, paid: 1000, payable: 3000 }
+          ],
+          paymentSplit: {
+            total: 42850,
+            cash: { amount: 27000, percent: 63 },
+            online: { amount: 15850, percent: 37 }
+          },
+          recentTransactions: [
+            { date: '30 Oct 2026, 07:12 PM', employee: 'Aditi Sharma', service: 'Hair Cut', payment: 'UPI (PhonePe)', amount: 1200, type: 'Service' },
+            { date: '30 Oct 2026, 06:45 PM', employee: 'Rohan Mehta', service: 'Advance Payment', payment: 'Cash', amount: 2500, type: 'Advance' },
+            { date: '30 Oct 2026, 05:20 PM', employee: 'Neha Kapoor', service: 'Facial', payment: 'Card (HDFC)', amount: 3200, type: 'Service' },
+            { date: '30 Oct 2026, 04:10 PM', employee: 'Aditi Sharma', service: 'Salary Payment', payment: 'Bank Transfer', amount: 15000, type: 'Salary' },
+            { date: '30 Oct 2026, 02:35 PM', employee: '—', service: 'Salon Supplies (Products)', payment: 'Cash', amount: 3850, type: 'Expense' }
+          ],
+          details: {
+            collection: {
+              total: 42850, count: 73,
+              byEmployee: [
+                {
+                  employeeName: 'Aditi Sharma', role: 'Senior Stylist', amount: 21200, count: 34,
+                  entries: [
+                    { date: '30 Oct 2026, 07:12 PM', service: 'Hair Cut', paymentMode: 'UPI (PhonePe)', amount: 1200, remark: 'Regular Styling' },
+                    { date: '30 Oct 2026, 05:40 PM', service: 'Hair Color Highlights', paymentMode: 'Card (HDFC)', amount: 3500, remark: 'Full Highlights' },
+                    { date: '30 Oct 2026, 03:15 PM', service: 'Hair Spa', paymentMode: 'Cash', amount: 1500, remark: 'Loreal Keratin Spa' }
+                  ]
+                },
+                {
+                  employeeName: 'Rohan Mehta', role: 'Hair Specialist', amount: 13900, count: 24,
+                  entries: [
+                    { date: '30 Oct 2026, 06:30 PM', service: 'Hair Color & Keratin', paymentMode: 'UPI', amount: 5500, remark: 'Complete Treatment' },
+                    { date: '30 Oct 2026, 04:00 PM', service: 'Hair Cut', paymentMode: 'Cash', amount: 600, remark: 'Fade Cut' }
+                  ]
+                },
+                {
+                  employeeName: 'Neha Kapoor', role: 'Beauty Therapist', amount: 7750, count: 15,
+                  entries: [
+                    { date: '30 Oct 2026, 05:20 PM', service: 'Facial', paymentMode: 'Card (HDFC)', amount: 3200, remark: 'O3+ Diamond Facial' },
+                    { date: '30 Oct 2026, 02:10 PM', service: 'Manicure & Pedicure', paymentMode: 'Cash', amount: 1400, remark: 'Deluxe Mani-Pedi' }
+                  ]
+                }
+              ]
+            },
+            advancesPaid: {
+              total: 8500, count: 3,
+              byEmployee: [
+                {
+                  employeeName: 'Aditi Sharma', role: 'Senior Stylist', amount: 3000, count: 1,
+                  entries: [{ date: '30 Oct 2026, 11:00 AM', amount: 3000, paymentMode: 'Cash', remark: 'Festival advance', voucherId: 'ADV-101' }]
+                },
+                {
+                  employeeName: 'Rohan Mehta', role: 'Hair Specialist', amount: 2500, count: 1,
+                  entries: [{ date: '30 Oct 2026, 06:45 PM', amount: 2500, paymentMode: 'Cash', remark: 'Personal advance', voucherId: 'ADV-102' }]
+                },
+                {
+                  employeeName: 'Neha Kapoor', role: 'Beauty Therapist', amount: 3000, count: 1,
+                  entries: [{ date: '30 Oct 2026, 02:00 PM', amount: 3000, paymentMode: 'Bank Transfer', remark: 'Mid-month advance', voucherId: 'ADV-103' }]
+                }
+              ]
+            },
+            salaryPaid: {
+              total: 24000, count: 3,
+              byEmployee: [
+                {
+                  employeeName: 'Aditi Sharma', role: 'Senior Stylist', amount: 15000, count: 1,
+                  entries: [{ date: '30 Oct 2026, 04:10 PM', amount: 15000, paymentMode: 'Bank Transfer', remark: 'Salary advance payment', salaryMonth: '2026-10' }]
+                },
+                {
+                  employeeName: 'Rohan Mehta', role: 'Hair Specialist', amount: 8000, count: 1,
+                  entries: [{ date: '30 Oct 2026, 03:30 PM', amount: 8000, paymentMode: 'Bank Transfer', remark: 'Salary settlement', salaryMonth: '2026-10' }]
+                },
+                {
+                  employeeName: 'Neha Kapoor', role: 'Beauty Therapist', amount: 1000, count: 1,
+                  entries: [{ date: '30 Oct 2026, 01:00 PM', amount: 1000, paymentMode: 'Cash', remark: 'Salary token', salaryMonth: '2026-10' }]
+                }
+              ]
+            },
+            salaryPayable: {
+              total: 18400, count: 3,
+              byEmployee: [
+                { employeeName: 'Aditi Sharma', role: 'Senior Stylist', earned: 26000, advance: 3000, paid: 15000, payable: 11000, rule: '50% of Collection' },
+                { employeeName: 'Rohan Mehta', role: 'Hair Specialist', earned: 22500, advance: 2500, paid: 8000, payable: 12000, rule: '50% of Collection' },
+                { employeeName: 'Neha Kapoor', role: 'Beauty Therapist', earned: 14000, advance: 3000, paid: 1000, payable: 3000, rule: '50% of Collection' }
+              ]
+            },
+            expenses: {
+              total: 12650, count: 5,
+              entries: [
+                { date: '30 Oct 2026, 02:35 PM', type: 'Salon Supplies (Products)', amount: 3850, paymentMode: 'Cash', vendor: 'Matrix Beauty Supply', remark: 'Shampoo & conditioner stock' },
+                { date: '30 Oct 2026, 12:40 PM', type: 'Electricity Bill', amount: 4200, paymentMode: 'UPI', vendor: 'State Electricity Board', remark: 'Shop electricity bill' },
+                { date: '30 Oct 2026, 11:15 AM', type: 'Tea & Refreshments', amount: 350, paymentMode: 'Cash', vendor: 'Local Vendor', remark: 'Staff tea & snacks' },
+                { date: '30 Oct 2026, 10:20 AM', type: 'Laundry & Towel Wash', amount: 1250, paymentMode: 'Cash', vendor: 'Quick Clean Drycleaners', remark: 'Weekly laundry' },
+                { date: '30 Oct 2026, 09:45 AM', type: 'Equipment Maintenance', amount: 3000, paymentMode: 'Bank Transfer', vendor: 'Service Pro Care', remark: 'Hair dryer and steamer repair' }
+              ]
+            },
+            counterCash: {
+              total: 15200, asOn: 'as on 30 Oct 2026',
+              entries: [
+                { date: '30 Oct 2026, 08:00 PM', amount: 15200, paymentMode: 'Cash', remark: 'Closing balance at counter' },
+                { date: '30 Oct 2026, 10:00 AM', amount: 5000, paymentMode: 'Cash', remark: 'Opening cash float' }
+              ]
+            }
+          }
+        };
+      }
+
+      // Event listeners for KPI card clicks
+      document.getElementById('cardCollection').addEventListener('click', () => openModal('collection'));
+      document.getElementById('cardAdvances').addEventListener('click', () => openModal('advancesPaid'));
+      document.getElementById('cardSalaryPaid').addEventListener('click', () => openModal('salaryPaid'));
+      document.getElementById('cardSalaryPayable').addEventListener('click', () => openModal('salaryPayable'));
+      document.getElementById('cardExpenses').addEventListener('click', () => openModal('expenses'));
+      document.getElementById('cardCounterCash').addEventListener('click', () => openModal('counterCash'));
+
+      modalCloseBtn.addEventListener('click', closeModal);
+      modalCloseFootBtn.addEventListener('click', closeModal);
+      modalOverlay.addEventListener('click', e => {
+        if (e.target === modalOverlay) closeModal();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
+      });
+
+      // Month Navigation & Controls
+      function shiftMonth(offset) {
+        try {
+          const parts = currentMonth.split('-').map(Number);
+          const d = new Date(parts[0], parts[1] - 1 + offset, 1);
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          currentMonth = `${y}-${m}`;
+          monthPicker.value = currentMonth;
+          monthDisplay.textContent = formatMonthTitle(currentMonth);
+          fetchDashboardData();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      monthPicker.value = currentMonth;
+      monthDisplay.textContent = formatMonthTitle(currentMonth);
+
+      monthPicker.addEventListener('change', () => {
+        if (monthPicker.value) {
+          currentMonth = monthPicker.value;
+          monthDisplay.textContent = formatMonthTitle(currentMonth);
+          fetchDashboardData();
+        }
+      });
+
+      prevMonthBtn.addEventListener('click', () => shiftMonth(-1));
+      nextMonthBtn.addEventListener('click', () => shiftMonth(1));
+      refreshBtn.addEventListener('click', fetchDashboardData);
+
+      // Initial load
+      fetchDashboardData();
+    })();
+  </script>
 </body>
 </html>

@@ -576,6 +576,26 @@
     });
     document.body.classList.add('salon-layout');
     document.body.prepend(header, pageBar, overlay, sidebar);
+    function checkSidebarState() {
+      const isMobile = window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches;
+      if (isMobile) {
+        sidebar.style.setProperty('display', 'none', 'important');
+        sidebar.style.setProperty('visibility', 'hidden', 'important');
+        sidebar.style.setProperty('left', '-9999px', 'important');
+        overlay.style.setProperty('display', 'none', 'important');
+        pageBar.style.setProperty('display', 'none', 'important');
+        header.style.setProperty('display', 'none', 'important');
+      } else {
+        sidebar.style.removeProperty('display');
+        sidebar.style.removeProperty('visibility');
+        sidebar.style.removeProperty('left');
+        overlay.style.removeProperty('display');
+        pageBar.style.removeProperty('display');
+        header.style.removeProperty('display');
+      }
+    }
+    checkSidebarState();
+    window.addEventListener('resize', checkSidebarState);
     function syncHeaderHeight() {
       const height = Math.ceil(header.getBoundingClientRect().height);
       if (height > 0) document.documentElement.style.setProperty('--salon-header-height', `${height}px`);
@@ -584,6 +604,21 @@
     if (window.ResizeObserver) new ResizeObserver(syncHeaderHeight).observe(header);
     window.addEventListener('resize', syncHeaderHeight);
     window.addEventListener('load', syncHeaderHeight);
+    // Auto-inject mobile support across all pages on small screens
+    if (!document.querySelector('link[href*="mobile.css"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/mobile.css';
+      document.head.appendChild(link);
+    }
+    if (!window.salonMobile && !document.querySelector('script[src*="mobile.js"]')) {
+      const script = document.createElement('script');
+      script.src = '/mobile.js';
+      script.defer = true;
+      document.body.appendChild(script);
+    } else if (window.salonMobile?.build) {
+      window.salonMobile.build(employee ? { employee } : null);
+    }
     if (!window.salonApplyButtonTheme) {
       const buttonThemeScript = document.createElement('script');
       buttonThemeScript.src = '/btn-theme.js';

@@ -521,6 +521,7 @@ const rateListSchema = new mongoose.Schema({
     serviceType: { type: String, required: true, unique: true, trim: true, maxlength: 150 },
     shortName: { type: String, trim: true, default: '', maxlength: 60 },
     serviceCategory: { type: String, trim: true, default: '', maxlength: 100 },
+    voiceKeywords: { type: String, trim: true, default: '', maxlength: 500 },
     rate: { type: Number, required: true, min: 0, max: 100000000 },
     category: { type: String, enum: ['Main', 'Other'], default: 'Main' },
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
@@ -1640,7 +1641,16 @@ app.get('/api/tenant/verify/:code', async (req, res) => {
     }
 });
 
-app.use(express.static(PUBLIC_DIR, { index: false }));
+app.use(express.static(PUBLIC_DIR, { 
+    index: false,
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.css') || filePath.endsWith('.js') || filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        }
+    }
+}));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
@@ -3252,6 +3262,563 @@ app.get('/api/admin-data', requireSecureAuth, verifyEmployee, requireAdmin, asyn
         return res.status(500).json({ error: 'Could not load admin data.' });
     }
 });
+
+app.get('/api/admin-dashboard-overview', requireSecureAuth, verifyEmployee, requireAdmin, async (req, res) => {
+    try {
+        let monthStr = String(req.query.month || '').trim();
+        if (!monthStr && req.query.date) {
+            monthStr = String(req.query.date).trim().substring(0, 7);
+        }
+        if (!/^\d{4}-\d{2}$/.test(monthStr)) {
+            monthStr = getTodayDate().substring(0, 7);
+        }
+
+        const [mYear, mMonth] = monthStr.split('-').map(Number);
+        const start = new Date(Date.UTC(mYear, mMonth - 1, 1));
+        const end = new Date(Date.UTC(mYear, mMonth, 1));
+        const prevStart = new Date(Date.UTC(mYear, mMonth - 2, 1));
+        const prevEnd = start;
+        const monthStart = start;
+        const monthEnd = end;
+
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthLabel = `${monthNames[mMonth - 1]} ${mYear}`;
+
+        const [
+            collectionsPeriod,
+            collectionsPrev,
+            collectionsMonth,
+            recordsMonth,
+            activeEmployees,
+            latestCounter,
+            recentCollections,
+            recentRecords,
+            shopDetails
+        ] = await Promise.all([
+            CollectionEntry.find({ entryDate: { $gte: start, $lt: end }, status: 'Active' }).sort({ entryDate: -1, createdAt: -1 }).lean(),
+            CollectionEntry.find({ entryDate: { $gte: prevStart, $lt: prevEnd }, status: 'Active' }).lean(),
+            CollectionEntry.find({ entryDate: { $gte: monthStart, $lt: monthEnd }, status: 'Active' }).lean(),
+            EmployeeRecord.find({ entryDate: { $gte: monthStart, $lt: monthEnd }, status: 'Active' }).sort({ entryDate: -1, createdAt: -1 }).lean(),
+            Employee.find({ status: 'Active' }).sort({ sr: 1, employeeName: 1 }).lean(),
+            EmployeeRecord.findOne({ recordType: 'counter', status: 'Active' }).sort({ entryDate: -1, createdAt: -1 }).lean(),
+            CollectionEntry.find({ status: 'Active' }).sort({ entryDate: -1, createdAt: -1 }).limit(10).lean(),
+            EmployeeRecord.find({ status: 'Active' }).sort({ entryDate: -1, createdAt: -1 }).limit(10).lean(),
+            ShopDetails.findOne({ key: 'primary' }).lean()
+        ]);
+
+        const hasRealData = (collectionsPeriod.length > 0 || collectionsMonth.length > 0 || recordsMonth.length > 0);
+
+        if (!hasRealData && req.query.mock !== 'false') {
+            return res.json({
+                isSample: true,
+                date: monthStr, month: monthStr, period: 'monthly', monthLabel,
+                shopName: shopDetails?.settings?.['Brand Name'] || 'YOURS SALON',
+                kpis: {
+                    collection: {
+                        label: "This Month's Collection",
+                        amount: 42850,
+                        entriesCount: 73,
+                        trendPercent: 14,
+                        trendDirection: 'up'
+                    },
+                    advancesPaid: {
+                        label: 'Advances Paid This Month',
+                        amount: 8500,
+                        paymentsCount: 3
+                    },
+                    salaryPaid: {
+                        label: 'Salary Paid This Month',
+                        amount: 24000,
+                        paymentsCount: 3
+                    },
+                    salaryPayable: {
+                        label: 'Salary Payable',
+                        amount: 18400,
+                        employeesCount: 3
+                    },
+                    expenses: {
+                        label: 'Expenses This Month',
+                        amount: 12650,
+                        transactionsCount: 5,
+                        trendPercent: 5,
+                        trendDirection: 'up'
+                    },
+                    counterCash: {
+                        label: 'Counter Cash',
+                        amount: 15200,
+                        asOn: `as on ${monthLabel}`
+                    }
+                },
+                servicePerformance: [
+                    { service: 'Hair Cut', entries: 32, collection: 18400, avgTicket: 575, share: 32 },
+                    { service: 'Hair Color', entries: 14, collection: 24500, avgTicket: 1750, share: 43 },
+                    { service: 'Hair Spa', entries: 11, collection: 12100, avgTicket: 1100, share: 21 },
+                    { service: 'Facial', entries: 9, collection: 8600, avgTicket: 956, share: 15 },
+                    { service: 'Manicure & Pedicure', entries: 7, collection: 5250, avgTicket: 750, share: 9 }
+                ],
+                collectionByService: [
+                    { service: 'Hair Color', collection: 24500, max: 24500 },
+                    { service: 'Hair Cut', collection: 18400, max: 24500 },
+                    { service: 'Hair Spa', collection: 12100, max: 24500 },
+                    { service: 'Facial', collection: 8600, max: 24500 },
+                    { service: 'Manicure & Pedicure', collection: 5250, max: 24500 }
+                ],
+                staffSalary: [
+                    { initials: 'AS', name: 'Aditi Sharma', role: 'Senior Stylist', earned: 26000, advance: 3000, paid: 15000, payable: 11000 },
+                    { initials: 'RM', name: 'Rohan Mehta', role: 'Hair Specialist', earned: 22500, advance: 2500, paid: 8000, payable: 12000 },
+                    { initials: 'NK', name: 'Neha Kapoor', role: 'Beauty Therapist', earned: 14000, advance: 3000, paid: 1000, payable: 3000 }
+                ],
+                paymentSplit: {
+                    total: 42850,
+                    cash: { amount: 27000, percent: 63 },
+                    online: { amount: 15850, percent: 37 }
+                },
+                recentTransactions: [
+                    { date: `${anchorDateStr}, 07:12 PM`, employee: 'Aditi Sharma', service: 'Hair Cut', payment: 'UPI (PhonePe)', amount: 1200, type: 'Service' },
+                    { date: `${anchorDateStr}, 06:45 PM`, employee: 'Rohan Mehta', service: 'Advance Payment', payment: 'Cash', amount: 2500, type: 'Advance' },
+                    { date: `${anchorDateStr}, 05:20 PM`, employee: 'Neha Kapoor', service: 'Facial', payment: 'Card (HDFC)', amount: 3200, type: 'Service' },
+                    { date: `${anchorDateStr}, 04:10 PM`, employee: 'Aditi Sharma', service: 'Salary Payment', payment: 'Bank Transfer', amount: 15000, type: 'Salary' },
+                    { date: `${anchorDateStr}, 02:35 PM`, employee: '—', service: 'Salon Supplies (Products)', payment: 'Cash', amount: 3850, type: 'Expense' }
+                ],
+                details: {
+                    collection: {
+                        total: 42850,
+                        count: 73,
+                        byEmployee: [
+                            {
+                                employeeName: 'Aditi Sharma', role: 'Senior Stylist', amount: 21200, count: 34,
+                                entries: [
+                                    { date: `${anchorDateStr}, 07:12 PM`, service: 'Hair Cut', paymentMode: 'UPI (PhonePe)', amount: 1200, remark: 'Customer: Priya' },
+                                    { date: `${anchorDateStr}, 05:40 PM`, service: 'Hair Color', paymentMode: 'Card (HDFC)', amount: 3500, remark: 'Highlights' },
+                                    { date: `${anchorDateStr}, 03:15 PM`, service: 'Hair Spa', paymentMode: 'Cash', amount: 1500, remark: 'Loreal Spa' },
+                                    { date: `${anchorDateStr}, 01:20 PM`, service: 'Hair Cut + Beard', paymentMode: 'Cash', amount: 800, remark: 'Styling' }
+                                ]
+                            },
+                            {
+                                employeeName: 'Rohan Mehta', role: 'Hair Specialist', amount: 13900, count: 24,
+                                entries: [
+                                    { date: `${anchorDateStr}, 06:30 PM`, service: 'Hair Color & Keratin', paymentMode: 'UPI', amount: 5500, remark: 'Full treatment' },
+                                    { date: `${anchorDateStr}, 04:00 PM`, service: 'Hair Cut', paymentMode: 'Cash', amount: 600, remark: 'Regular cut' },
+                                    { date: `${anchorDateStr}, 11:30 AM`, service: 'Hair Spa', paymentMode: 'Online', amount: 1200, remark: 'Deep conditioning' }
+                                ]
+                            },
+                            {
+                                employeeName: 'Neha Kapoor', role: 'Beauty Therapist', amount: 7750, count: 15,
+                                entries: [
+                                    { date: `${anchorDateStr}, 05:20 PM`, service: 'Facial', paymentMode: 'Card (HDFC)', amount: 3200, remark: 'O3+ Facial' },
+                                    { date: `${anchorDateStr}, 02:10 PM`, service: 'Manicure & Pedicure', paymentMode: 'Cash', amount: 1400, remark: 'Spa Mani-Pedi' },
+                                    { date: `${anchorDateStr}, 12:15 PM`, service: 'Cleanup & Bleach', paymentMode: 'UPI', amount: 950, remark: 'Bridal glow' }
+                                ]
+                            }
+                        ]
+                    },
+                    advancesPaid: {
+                        total: 8500,
+                        count: 3,
+                        byEmployee: [
+                            {
+                                employeeName: 'Aditi Sharma', role: 'Senior Stylist', amount: 3000, count: 1,
+                                entries: [
+                                    { date: `${anchorDateStr}, 11:00 AM`, amount: 3000, paymentMode: 'Cash', remark: 'Festival advance', voucherId: 'ADV-101' }
+                                ]
+                            },
+                            {
+                                employeeName: 'Rohan Mehta', role: 'Hair Specialist', amount: 2500, count: 1,
+                                entries: [
+                                    { date: `${anchorDateStr}, 06:45 PM`, amount: 2500, paymentMode: 'Cash', remark: 'Personal expense advance', voucherId: 'ADV-102' }
+                                ]
+                            },
+                            {
+                                employeeName: 'Neha Kapoor', role: 'Beauty Therapist', amount: 3000, count: 1,
+                                entries: [
+                                    { date: `${anchorDateStr}, 02:00 PM`, amount: 3000, paymentMode: 'Bank Transfer', remark: 'Mid-month advance', voucherId: 'ADV-103' }
+                                ]
+                            }
+                        ]
+                    },
+                    salaryPaid: {
+                        total: 24000,
+                        count: 3,
+                        byEmployee: [
+                            {
+                                employeeName: 'Aditi Sharma', role: 'Senior Stylist', amount: 15000, count: 1,
+                                entries: [
+                                    { date: `${anchorDateStr}, 04:10 PM`, amount: 15000, paymentMode: 'Bank Transfer', remark: 'Part payment for October', salaryMonth: '2026-10' }
+                                ]
+                            },
+                            {
+                                employeeName: 'Rohan Mehta', role: 'Hair Specialist', amount: 8000, count: 1,
+                                entries: [
+                                    { date: `${anchorDateStr}, 03:30 PM`, amount: 8000, paymentMode: 'Bank Transfer', remark: 'Salary part settlement', salaryMonth: '2026-10' }
+                                ]
+                            },
+                            {
+                                employeeName: 'Neha Kapoor', role: 'Beauty Therapist', amount: 1000, count: 1,
+                                entries: [
+                                    { date: `${anchorDateStr}, 01:00 PM`, amount: 1000, paymentMode: 'Cash', remark: 'Salary cash token', salaryMonth: '2026-10' }
+                                ]
+                            }
+                        ]
+                    },
+                    salaryPayable: {
+                        total: 18400,
+                        count: 3,
+                        byEmployee: [
+                            { employeeName: 'Aditi Sharma', role: 'Senior Stylist', earned: 26000, advance: 3000, paid: 15000, payable: 11000, rule: '50% of Collection' },
+                            { employeeName: 'Rohan Mehta', role: 'Hair Specialist', earned: 22500, advance: 2500, paid: 8000, payable: 12000, rule: '50% of Collection' },
+                            { employeeName: 'Neha Kapoor', role: 'Beauty Therapist', earned: 14000, advance: 3000, paid: 1000, payable: 3000, rule: '50% of Collection' }
+                        ]
+                    },
+                    expenses: {
+                        total: 12650,
+                        count: 5,
+                        entries: [
+                            { date: `${anchorDateStr}, 02:35 PM`, type: 'Salon Supplies (Products)', amount: 3850, paymentMode: 'Cash', vendor: 'Matrix Beauty Supply', remark: 'Shampoo & conditioner stock' },
+                            { date: `${anchorDateStr}, 12:40 PM`, type: 'Electricity Bill', amount: 4200, paymentMode: 'UPI', vendor: 'State Electricity Board', remark: 'Shop electricity bill' },
+                            { date: `${anchorDateStr}, 11:15 AM`, type: 'Tea & Refreshments', amount: 350, paymentMode: 'Cash', vendor: 'Local Vendor', remark: 'Staff tea & snacks' },
+                            { date: `${anchorDateStr}, 10:20 AM`, type: 'Laundry & Towel Wash', amount: 1250, paymentMode: 'Cash', vendor: 'Quick Clean Drycleaners', remark: 'Weekly laundry' },
+                            { date: `${anchorDateStr}, 09:45 AM`, type: 'Equipment Maintenance', amount: 3000, paymentMode: 'Bank Transfer', vendor: 'Service Pro Care', remark: 'Hair dryer and steamer repair' }
+                        ]
+                    },
+                    counterCash: {
+                        total: 15200,
+                        asOn: `as on ${monthLabel}`,
+                        entries: [
+                            { date: `${anchorDateStr}, 08:00 PM`, amount: 15200, paymentMode: 'Cash', remark: 'Closing balance at counter cash drawer' },
+                            { date: `${anchorDateStr}, 10:00 AM`, amount: 5000, paymentMode: 'Cash', remark: 'Opening float balance' }
+                        ]
+                    }
+                }
+            });
+        }
+
+        const periodTotal = collectionsPeriod.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+        const prevTotal = collectionsPrev.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+        const periodTrend = prevTotal > 0 ? Math.round(((periodTotal - prevTotal) / prevTotal) * 100) : (periodTotal > 0 ? 100 : 0);
+
+        const advances = recordsMonth.filter(r => r.recordType === 'expense' && (r.advanceCategory === 'Advance' || /advance/i.test(r.expenseType || '')));
+        const advancesTotal = advances.reduce((s, r) => s + Number(r.amount || 0), 0);
+
+        const salaryRecords = recordsMonth.filter(r => r.recordType === 'salary' || r.advanceCategory === 'Salary');
+        const salaryTotal = salaryRecords.reduce((s, r) => s + Number(r.amount || 0), 0);
+
+        const expenses = recordsMonth.filter(r => r.recordType === 'expense' && r.advanceCategory !== 'Advance' && !/advance/i.test(r.expenseType || ''));
+        const expensesTotal = expenses.reduce((s, r) => s + Number(r.amount || 0), 0);
+
+        const nonAdminStaff = activeEmployees.filter(e => !isAdmin(e));
+        const staffList = (nonAdminStaff.length ? nonAdminStaff : activeEmployees).map(emp => {
+            const empIdStr = String(emp._id);
+            const empCollections = collectionsMonth.filter(c => String(c.staffId) === empIdStr || c.staff === emp.employeeName);
+            const empWork = empCollections.reduce((s, c) => s + Number(c.amount || 0), 0);
+            const earned = emp.salaryMode === 'fixed'
+                ? Number(emp.fixedMonthlySalary || 0)
+                : Math.round((empWork * Number(emp.salaryPercentage ?? 50)) / 100);
+
+            const empAdvances = recordsMonth.filter(r => (String(r.employeeId) === empIdStr || r.employeeName === emp.employeeName) &&
+                (r.advanceCategory === 'Advance' || (r.recordType === 'expense' && /advance/i.test(r.expenseType || ''))));
+            const advTotal = empAdvances.reduce((s, r) => s + Number(r.amount || 0), 0);
+
+            const empSalaries = recordsMonth.filter(r => (String(r.employeeId) === empIdStr || r.employeeName === emp.employeeName) &&
+                (r.recordType === 'salary' || r.advanceCategory === 'Salary'));
+            const salTotal = empSalaries.reduce((s, r) => s + Number(r.amount || 0), 0);
+
+            const payable = Math.max(0, earned - advTotal - salTotal);
+            const parts = String(emp.employeeName || 'Staff').trim().split(/\s+/);
+            const initials = (parts.slice(0, 2).map(p => p[0]).join('') || 'U').toUpperCase();
+
+            return {
+                initials,
+                name: emp.employeeName,
+                role: emp.role || 'Stylist',
+                photoUrl: emp.photoUrl || '',
+                earned,
+                advance: advTotal,
+                paid: salTotal,
+                payable
+            };
+        });
+
+        const totalPayable = staffList.reduce((s, e) => s + e.payable, 0);
+        const payableEmpCount = staffList.filter(e => e.payable > 0).length;
+
+        const serviceMap = new Map();
+        const srcCollections = collectionsPeriod.length ? collectionsPeriod : collectionsMonth;
+        for (const entry of srcCollections) {
+            if (Array.isArray(entry.items) && entry.items.length) {
+                for (const it of entry.items) {
+                    const sName = it.shortName || it.serviceType || 'Other';
+                    const cur = serviceMap.get(sName) || { entries: 0, collection: 0 };
+                    cur.entries += Number(it.quantity || 1);
+                    cur.collection += Number(it.amount || 0);
+                    serviceMap.set(sName, cur);
+                }
+            } else {
+                const sName = entry.serviceType || 'Other';
+                const cur = serviceMap.get(sName) || { entries: 0, collection: 0 };
+                cur.entries += 1;
+                cur.collection += Number(entry.amount || 0);
+                serviceMap.set(sName, cur);
+            }
+        }
+
+        const baseCollection = periodTotal || 1;
+        const servicePerformance = Array.from(serviceMap.entries()).map(([service, data]) => ({
+            service,
+            entries: data.entries,
+            collection: data.collection,
+            avgTicket: data.entries > 0 ? Math.round(data.collection / data.entries) : data.collection,
+            share: Math.min(100, Math.round((data.collection / baseCollection) * 100))
+        })).sort((a, b) => b.collection - a.collection);
+
+        const maxServiceVal = servicePerformance[0]?.collection || 1;
+        const collectionByService = servicePerformance.slice(0, 6).map(s => ({
+            service: s.service,
+            collection: s.collection,
+            max: maxServiceVal
+        }));
+
+        const cashEntries = srcCollections.filter(c => c.paymentMode === 'Cash');
+        const onlineEntries = srcCollections.filter(c => c.paymentMode !== 'Cash');
+        const cashAmount = cashEntries.reduce((s, c) => s + Number(c.amount || 0), 0);
+        const onlineAmount = onlineEntries.reduce((s, c) => s + Number(c.amount || 0), 0);
+        const splitTotal = cashAmount + onlineAmount || 1;
+
+        const allRecent = [
+            ...recentCollections.map(c => ({
+                rawDate: new Date(c.createdAt || c.entryDate),
+                employee: c.staff || '—',
+                service: c.serviceType || 'Service',
+                payment: c.paymentMode || 'Cash',
+                amount: Number(c.amount || 0),
+                type: 'Service'
+            })),
+            ...recentRecords.map(r => {
+                const isAdv = r.advanceCategory === 'Advance' || (r.recordType === 'expense' && /advance/i.test(r.expenseType || ''));
+                const isSal = r.recordType === 'salary' || r.advanceCategory === 'Salary';
+                return {
+                    rawDate: new Date(r.createdAt || r.entryDate),
+                    employee: r.employeeName || '—',
+                    service: r.expenseType || r.remark || (isSal ? 'Salary Payment' : isAdv ? 'Advance Payment' : 'Expense'),
+                    payment: r.paymentMode || 'Cash',
+                    amount: Number(r.amount || 0),
+                    type: isAdv ? 'Advance' : isSal ? 'Salary' : 'Expense'
+                };
+            })
+        ].sort((a, b) => b.rawDate - a.rawDate).slice(0, 8).map(item => ({
+            date: item.rawDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' +
+                  item.rawDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+            employee: item.employee,
+            service: item.service,
+            payment: item.payment,
+            amount: item.amount,
+            type: item.type
+        }));
+
+        // Detailed Employee-Wise Breakdowns for modals:
+        const employeeCollectionMap = new Map();
+        for (const entry of srcCollections) {
+            const staffName = entry.staff || 'Other';
+            const cur = employeeCollectionMap.get(staffName) || {
+                employeeName: staffName,
+                role: staffList.find(s => s.name === staffName)?.role || 'Stylist',
+                amount: 0,
+                count: 0,
+                entries: []
+            };
+            const entryAmt = Number(entry.amount || 0);
+            cur.amount += entryAmt;
+            cur.count += 1;
+            const d = new Date(entry.createdAt || entry.entryDate);
+            cur.entries.push({
+                id: String(entry._id || ''),
+                entryNo: entry.entryNo,
+                date: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' +
+                      d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                service: entry.serviceType || 'Service',
+                paymentMode: entry.paymentMode || 'Cash',
+                amount: entryAmt,
+                remark: entry.remark || ''
+            });
+            employeeCollectionMap.set(staffName, cur);
+        }
+
+        const employeeAdvanceMap = new Map();
+        for (const adv of advances) {
+            const staffName = adv.employeeName || 'Other';
+            const cur = employeeAdvanceMap.get(staffName) || {
+                employeeName: staffName,
+                role: staffList.find(s => s.name === staffName)?.role || 'Stylist',
+                amount: 0,
+                count: 0,
+                entries: []
+            };
+            const advAmt = Number(adv.amount || 0);
+            cur.amount += advAmt;
+            cur.count += 1;
+            const d = new Date(adv.createdAt || adv.entryDate);
+            cur.entries.push({
+                id: String(adv._id || ''),
+                date: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' +
+                      d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                amount: advAmt,
+                paymentMode: adv.paymentMode || 'Cash',
+                remark: adv.expenseType || adv.remark || 'Advance',
+                voucherId: adv.voucherId || ''
+            });
+            employeeAdvanceMap.set(staffName, cur);
+        }
+
+        const employeeSalaryPaidMap = new Map();
+        for (const sal of salaryRecords) {
+            const staffName = sal.employeeName || 'Other';
+            const cur = employeeSalaryPaidMap.get(staffName) || {
+                employeeName: staffName,
+                role: staffList.find(s => s.name === staffName)?.role || 'Stylist',
+                amount: 0,
+                count: 0,
+                entries: []
+            };
+            const salAmt = Number(sal.amount || 0);
+            cur.amount += salAmt;
+            cur.count += 1;
+            const d = new Date(sal.createdAt || sal.entryDate);
+            cur.entries.push({
+                id: String(sal._id || ''),
+                date: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' +
+                      d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                amount: salAmt,
+                paymentMode: sal.paymentMode || 'Cash',
+                remark: sal.remark || 'Salary Payment',
+                salaryMonth: sal.salaryMonth || ''
+            });
+            employeeSalaryPaidMap.set(staffName, cur);
+        }
+
+        const counterRecordsList = await EmployeeRecord.find({ recordType: 'counter', status: 'Active' })
+            .sort({ entryDate: -1, createdAt: -1 }).limit(10).lean();
+
+        const details = {
+            collection: {
+                total: periodTotal,
+                count: srcCollections.length,
+                byEmployee: Array.from(employeeCollectionMap.values()).sort((a, b) => b.amount - a.amount)
+            },
+            advancesPaid: {
+                total: advancesTotal,
+                count: advances.length,
+                byEmployee: Array.from(employeeAdvanceMap.values()).sort((a, b) => b.amount - a.amount)
+            },
+            salaryPaid: {
+                total: salaryTotal,
+                count: salaryRecords.length,
+                byEmployee: Array.from(employeeSalaryPaidMap.values()).sort((a, b) => b.amount - a.amount)
+            },
+            salaryPayable: {
+                total: totalPayable,
+                count: payableEmpCount,
+                byEmployee: staffList.map(s => ({
+                    employeeName: s.name,
+                    role: s.role,
+                    earned: s.earned,
+                    advance: s.advance,
+                    paid: s.paid,
+                    payable: s.payable,
+                    rule: 'Salary Calculation'
+                })).sort((a, b) => b.payable - a.payable)
+            },
+            expenses: {
+                total: expensesTotal,
+                count: expenses.length,
+                entries: expenses.map(e => {
+                    const d = new Date(e.createdAt || e.entryDate);
+                    return {
+                        id: String(e._id || ''),
+                        date: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' +
+                              d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                        type: e.expenseType || e.category || 'General',
+                        amount: Number(e.amount || 0),
+                        paymentMode: e.paymentMode || 'Cash',
+                        employee: e.employeeName || '—',
+                        vendor: e.vendor || '',
+                        remark: e.remark || ''
+                    };
+                })
+            },
+            counterCash: {
+                total: Number(latestCounter?.amount || 0),
+                asOn: `as on ${monthLabel}`,
+                entries: counterRecordsList.map(c => {
+                    const d = new Date(c.createdAt || c.entryDate);
+                    return {
+                        id: String(c._id || ''),
+                        date: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' +
+                              d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                        amount: Number(c.amount || 0),
+                        paymentMode: c.paymentMode || 'Cash',
+                        employee: c.employeeName || '—',
+                        remark: c.remark || 'Counter cash record'
+                    };
+                })
+            }
+        };
+
+        return res.json({
+            isSample: false,
+            date: monthStr, month: monthStr, period: 'monthly', monthLabel,
+            shopName: shopDetails?.settings?.['Brand Name'] || 'YOURS SALON',
+            kpis: {
+                collection: {
+                    label: "This Month's Collection",
+                    amount: periodTotal,
+                    entriesCount: srcCollections.length,
+                    trendPercent: Math.abs(periodTrend),
+                    trendDirection: periodTrend >= 0 ? 'up' : 'down'
+                },
+                advancesPaid: {
+                    label: 'Advances Paid This Month',
+                    amount: advancesTotal,
+                    paymentsCount: advances.length
+                },
+                salaryPaid: {
+                    label: 'Salary Paid This Month',
+                    amount: salaryTotal,
+                    paymentsCount: salaryRecords.length
+                },
+                salaryPayable: {
+                    label: 'Salary Payable',
+                    amount: totalPayable,
+                    employeesCount: payableEmpCount
+                },
+                expenses: {
+                    label: 'Expenses This Month',
+                    amount: expensesTotal,
+                    transactionsCount: expenses.length,
+                    trendPercent: 5,
+                    trendDirection: 'up'
+                },
+                counterCash: {
+                    label: 'Counter Cash',
+                    amount: Number(latestCounter?.amount || 0),
+                    asOn: `as on ${monthLabel}`
+                }
+            },
+            servicePerformance: servicePerformance.slice(0, 6),
+            collectionByService,
+            staffSalary: staffList.slice(0, 6),
+            paymentSplit: {
+                total: splitTotal,
+                cash: { amount: cashAmount, percent: Math.round((cashAmount / splitTotal) * 100) },
+                online: { amount: onlineAmount, percent: Math.round((onlineAmount / splitTotal) * 100) }
+            },
+            recentTransactions: allRecent,
+            details
+        });
+    } catch (error) {
+        console.error('Admin dashboard data error:', error);
+        return res.status(500).json({ error: error.message || 'Could not load admin dashboard data.' });
+    }
+});
+
 
 app.get('/api/staff', requireSecureAuth, verifyEmployee, async (req, res) => {
     try {

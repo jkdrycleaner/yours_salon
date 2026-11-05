@@ -7,6 +7,34 @@
   style.id = 'appBootStyles';
   style.textContent = `
     html.app-booting,html.app-booting body{background:#f4f6f9!important}
+    @media (max-width: 768px) {
+      #salon-sidebar,
+      .salon-sidebar,
+      .salon-sidebar-overlay,
+      .salon-page-bar,
+      .salon-header {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        left: -9999px !important;
+        position: fixed !important;
+        pointer-events: none !important;
+      }
+      .salon-layout > main,
+      .salon-layout > .wrap,
+      .salon-layout > .container,
+      .wrap,
+      main,
+      .exp-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+      }
+    }
     html.app-booting body{overflow:hidden!important}
     html.app-booting body>*:not(#appBootOverlay){visibility:hidden!important}
     #appBootOverlay{position:fixed;z-index:3000;inset:0;display:grid;place-items:center;padding:24px;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif;opacity:1;transition:opacity .18s ease}
@@ -154,7 +182,8 @@
     if (ready) {
       try { session = await ready; } catch {}
     }
-    const mobileEmployee = window.matchMedia('(max-width:700px)').matches && session?.employee?.role !== 'Admin';
+    const isMobile = window.matchMedia('(max-width:768px)').matches;
+    const mobileEmployee = isMobile;
     const shell = await waitForProperty(mobileEmployee ? 'salonMobileShellReady' : 'salonShellReady');
     if (shell) await Promise.race([Promise.resolve(shell).catch(() => {}), delay(1500)]);
     await whenLoaded();

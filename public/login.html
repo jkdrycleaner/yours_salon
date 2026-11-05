@@ -157,6 +157,7 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
  .help{display:none}
 }
 </style>
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
 </head>
 <body>
 <div class="page"><div class="shell">
@@ -194,7 +195,7 @@ body.dark .setup-note{background:#2a241c;border-color:#4a3f2a;color:#e3c987}
 </div>
 
 <!-- STEP 2: Sign In with User ID & Password -->
-<div id="stepCredentials">
+<div id="stepCredentials" hidden>
   <div class="active-salon-badge" id="activeSalonBadge">
     <div style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
       <span style="font-size:13px;">🏢</span>
@@ -420,7 +421,9 @@ async function verifyAndProceedSalon(code, isSilent = false) {
     await loadBranding(currentSalonCode);
 
     stepSalonCode.hidden = true;
+    stepSalonCode.style.display = 'none';
     stepCredentials.hidden = false;
+    stepCredentials.style.display = 'block';
     document.getElementById('loginTitle').textContent = 'Welcome Back';
     document.getElementById('loginSubtitle').textContent = 'Sign in to continue to your account';
     if (!isSilent) showStatus('');
@@ -439,7 +442,9 @@ async function verifyAndProceedSalon(code, isSilent = false) {
 
 function switchToSalonCodeStep() {
   stepCredentials.hidden = true;
+  stepCredentials.style.display = 'none';
   stepSalonCode.hidden = false;
+  stepSalonCode.style.display = 'block';
   forgotForm.hidden = true;
   document.getElementById('loginTitle').textContent = 'Welcome';
   document.getElementById('loginSubtitle').textContent = 'Enter your salon\'s code to get started';
@@ -450,8 +455,15 @@ function switchToSalonCodeStep() {
   showStatus('');
 }
 
-btnSwitchSalon?.addEventListener('click', () => {
+btnSwitchSalon?.addEventListener('click', (e) => {
+  if (e) e.preventDefault();
   localStorage.removeItem('salon_code');
+  localStorage.removeItem(tokenKey);
+  localStorage.removeItem('salon_user_email');
+  localStorage.removeItem('salon_last_session');
+  document.cookie = 'salon_code=; path=/; max-age=0';
+  currentSalonCode = '';
+  try { history.replaceState(null, '', location.pathname); } catch {}
   switchToSalonCodeStep();
 });
 
@@ -861,6 +873,7 @@ async function loadSetupStatus(){
 }
 async function checkExistingSession(){
   const params = new URLSearchParams(window.location.search);
+  const qCode = (params.get('salonCode') || params.get('code') || '').trim().toLowerCase();
   if (params.get('logout')) {
     localStorage.removeItem(tokenKey);
     localStorage.removeItem('salon_user_email');
@@ -873,6 +886,13 @@ async function checkExistingSession(){
   try {
     const session = await request('/api/session', { headers: authHeaders() });
     if (session && session.employee) {
+      const activeCode = (session.shopCode || localStorage.getItem('salon_code') || '').trim().toLowerCase();
+      if (qCode && activeCode && qCode !== activeCode) {
+        localStorage.removeItem(tokenKey);
+        localStorage.removeItem('salon_last_session');
+        return false;
+      }
+      if (qCode && !activeCode) return false;
       localStorage.setItem('salon_last_session', JSON.stringify(session));
       const pPath = await portalPath(session.employee, session);
       location.replace(pPath);
@@ -917,5 +937,6 @@ async function checkExistingSession(){
 })();
 
 </script>
+  <script src="/mobile.js?v=20261105_m4" defer></script>
 </body>
 </html>

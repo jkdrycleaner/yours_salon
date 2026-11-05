@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Expense — Compact & Streamlined Mobile UI</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    .cat-pill-active {
+      border-color: #10b981 !important;
+      background-color: #ecfdf5 !important;
+      color: #065f46 !important;
+      font-weight: 800 !important;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+    }
+    .modal-backdrop {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(3px);
+    }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+  </style>
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
+</head>
+<body class="bg-slate-100 text-slate-800 p-2 sm:p-5 font-sans antialiased min-h-screen">
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Explainer Header -->
+    <div class="mb-3 text-center">
+      <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300 uppercase tracking-wider">
+        Ultra Compact & Space-Optimized
+      </span>
+      <h1 class="text-lg sm:text-xl font-black text-slate-900 mt-1.5">
+        Compact Categories + Streamlined Entry
+      </h1>
+      <p class="text-xs text-slate-600 mt-0.5 max-w-xl mx-auto">
+        &bull; <b>Icon Left, Name Right</b> (Sleek 3x2 grid).<br>
+        &bull; <b>+ New Item</b> button shifted contextually to Item Header (no wasted banner space).<br>
+        &bull; <b>Active Entry Card</b> ko 45% chota aur sleek kar diya hai.
+      </p>
+    </div>
+
+    <!-- Phone Simulator Frame -->
+    <div class="flex justify-center">
+      <div class="w-[390px] bg-[#f8fafc] rounded-3xl shadow-2xl border-4 border-slate-800 overflow-hidden flex flex-col relative select-none min-h-[790px]">
+        
+        <!-- App Top Bar -->
+        <div class="px-4 py-2.5 bg-white border-b border-slate-200 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-slate-900 flex items-center justify-center text-white text-[9px] font-bold">YS</div>
+            <div>
+              <span class="font-bold text-xs tracking-wide text-amber-700 block leading-tight">YOURS SALON</span>
+              <span class="text-[9px] text-slate-400 font-semibold uppercase">Admin Expense Voucher</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.2 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold border border-emerald-200">
+            Admin
+          </span>
+        </div>
+
+        <!-- Scrollable Form Area -->
+        <div class="p-3 space-y-2.5 flex-1 overflow-y-auto">
+          
+          <!-- ========================================== -->
+          <!-- 1. DATE & PAYMENT MODE (Compact)           -->
+          <!-- ========================================== -->
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+              <div>
+                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">DATE</span>
+                <span class="font-black text-xs text-slate-800">4 Nov 2026</span>
+              </div>
+              <span class="text-sm">📅</span>
+            </div>
+
+            <div class="bg-white p-1 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+              <button id="btnCash" onclick="setPaymentMode('Cash')" class="flex-1 py-1 text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-500 rounded-lg flex items-center justify-center gap-1 shadow-xs transition">
+                <span>💵 Cash</span>
+              </button>
+              <button id="btnOnline" onclick="setPaymentMode('Online')" class="flex-1 py-1 text-[11px] font-bold text-slate-500 hover:bg-slate-50 rounded-lg flex items-center justify-center gap-1 transition">
+                <span>💳 Online</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ========================================================= -->
+          <!-- 2. CATEGORY CARDS: ICON LEFT, NAME RIGHT (COMPACT 3x2)    -->
+          <!-- ========================================================= -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Category
+              </span>
+              <span id="selectedCatBadge" class="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.2 rounded-full border border-emerald-200">
+                Supplies & Products
+              </span>
+            </div>
+
+            <!-- 2-column Grid displaying FULL Category Names -->
+            <div class="grid grid-cols-2 gap-2">
+              
+              <!-- 1. Staff / Advance -->
+              <div id="cardStaff" onclick="selectCat('staff')" class="border border-slate-200 bg-white px-2.5 py-2 rounded-xl cursor-pointer hover:border-slate-300 flex items-center gap-2 transition">
+                <span class="text-base shrink-0">👤</span>
+                <span class="text-xs font-bold text-slate-800 leading-tight">Staff / Advance</span>
+              </div>
+
+              <!-- 2. Supplies & Products -->
+              <div id="cardSupplies" onclick="selectCat('supplies')" class="cat-pill-active border-1.5 border-emerald-500 bg-emerald-50 px-2.5 py-2 rounded-xl cursor-pointer flex items-center gap-2 transition">
+                <span class="text-base shrink-0">🧴</span>
+                <span class="text-xs font-black text-slate-900 leading-tight">Supplies & Products</span>
+              </div>
+
+              <!-- 3. Repair & Maintenance -->
+              <div id="cardRepair" onclick="selectCat('repair')" class="border border-slate-200 bg-white px-2.5 py-2 rounded-xl cursor-pointer hover:border-slate-300 flex items-center gap-2 transition">
+                <span class="text-base shrink-0">⚙️</span>
+                <span class="text-xs font-bold text-slate-800 leading-tight">Repair & Maintenance</span>
+              </div>
+
+              <!-- 4. Utilities & Bills -->
+              <div id="cardBills" onclick="selectCat('bills')" class="border border-slate-200 bg-white px-2.5 py-2 rounded-xl cursor-pointer hover:border-slate-300 flex items-center gap-2 transition">
+                <span class="text-base shrink-0">🏢</span>
+                <span class="text-xs font-bold text-slate-800 leading-tight">Utilities & Bills</span>
+              </div>
+
+              <!-- 5. Marketing & Misc -->
+              <div id="cardDaily" onclick="selectCat('daily')" class="border border-slate-200 bg-white px-2.5 py-2 rounded-xl cursor-pointer hover:border-slate-300 flex items-center gap-2 transition">
+                <span class="text-base shrink-0">📢</span>
+                <span class="text-xs font-bold text-slate-800 leading-tight">Marketing & Misc</span>
+              </div>
+
+              <!-- 6. Other -->
+              <div id="cardOther" onclick="selectCat('other')" class="border border-slate-200 bg-white px-2.5 py-2 rounded-xl cursor-pointer hover:border-slate-300 flex items-center gap-2 transition">
+                <span class="text-base shrink-0">➕</span>
+                <span class="text-xs font-bold text-slate-800 leading-tight">Other</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ========================================================================= -->
+          <!-- 3. COMPACT ACTIVE ENTRY CARD WITH SHIFTED '+ ADD ITEM' IN HEADER          -->
+          <!-- ========================================================================= -->
+          <div class="bg-white p-2.5 rounded-2xl border-1.5 border-emerald-500 shadow-sm space-y-2 relative bg-gradient-to-b from-emerald-50/20 to-white">
+            
+            <!-- Sleek Header with Shifted '+ New Item' Button -->
+            <div class="flex justify-between items-center pb-1 border-b border-slate-100">
+              <span class="text-[10px] font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Select Item to Add
+              </span>
+              
+              <!-- ★ SHIFTED '+ ADD ITEM' BUTTON (COMPACT & SLEEK) ★ -->
+              <button onclick="openMasterModal()" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-800 border border-emerald-300 rounded-lg text-[10px] font-black flex items-center gap-1 transition shadow-2xs">
+                <span class="text-xs font-black text-emerald-600 leading-none">+</span>
+                <span>New Item (Master)</span>
+              </button>
+            </div>
+
+            <!-- ROW 1: ITEM NAME FULL WIDTH (100% VISIBLE, NO TRUNCATION) -->
+            <div class="relative">
+              <select id="activeItemSelect" onchange="onItemSelectionChange()" class="w-full h-9 px-2.5 text-xs font-bold text-slate-900 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500 shadow-2xs appearance-none pr-7">
+                <!-- Dynamically populated -->
+              </select>
+              <div class="absolute right-2.5 top-2.5 pointer-events-none text-slate-400 text-[10px]">
+                ▼
+              </div>
+            </div>
+
+            <!-- ROW 2: (QTY - MEASUREMENT) + (₹ AMOUNT) + (THE ONLY '+' BUTTON) -->
+            <div class="grid grid-cols-[1.3fr_1.1fr_40px] gap-2 items-end">
+              
+              <!-- QTY - MEASUREMENT -->
+              <div class="flex flex-col gap-0.5">
+                <label class="text-[9px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                  <span>QTY</span>
+                  <span class="text-slate-300">&ndash;</span>
+                  <span id="unitBadgeTop" class="text-emerald-800 bg-emerald-100 px-1 py-0.2 rounded font-black text-[8px] border border-emerald-300 uppercase">
+                    BOX
+                  </span>
+                </label>
+                <div class="flex items-center h-9 bg-slate-50 border border-slate-300 rounded-xl px-2 shadow-2xs focus-within:border-emerald-500">
+                  <input type="number" id="activeQty" value="1" min="1" oninput="onQtyPriceChange()" class="w-full text-xs font-black text-slate-900 text-center bg-transparent focus:outline-none">
+                  <span id="unitInlineTag" class="text-[9px] font-extrabold text-slate-500 pl-1 border-l border-slate-200 uppercase">
+                    BOX
+                  </span>
+                </div>
+              </div>
+
+              <!-- ₹ AMOUNT -->
+              <div class="flex flex-col gap-0.5">
+                <label class="text-[9px] font-black text-slate-500 uppercase tracking-wider">
+                  ₹ AMOUNT
+                </label>
+                <div class="flex items-center h-9 bg-slate-50 border border-slate-300 rounded-xl px-2 shadow-2xs focus-within:border-emerald-500">
+                  <span class="text-xs font-black text-slate-400 mr-0.5">₹</span>
+                  <input type="number" id="activeAmount" value="80" oninput="onDirectAmountChange()" class="w-full text-xs font-black text-slate-900 bg-transparent focus:outline-none">
+                </div>
+              </div>
+
+              <!-- THE ONLY '+' BUTTON (COMPACT & ALIGNED) -->
+              <div class="flex flex-col gap-0.5">
+                <button onclick="pushActiveEntryDown()" class="w-full h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white flex items-center justify-center font-black text-xl shadow-sm transition" title="Add to List">
+                  +
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- ========================================== -->
+          <!-- 4. DOWNWARD STACK: ADDED ITEMS LIST        -->
+          <!-- ========================================== -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between items-center px-1">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                Added Items (<span id="itemsCountBadge">2</span>)
+              </span>
+              <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.2 rounded-full border border-emerald-200">
+                Subtotal: <span id="subtotalDisplay">₹1,000</span>
+              </span>
+            </div>
+
+            <!-- List of items pushed down -->
+            <div id="addedItemsContainer" class="space-y-1.5">
+              
+              <!-- Item Row 1 -->
+              <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs transition">
+                <div class="flex items-center gap-2">
+                  <span class="w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[9px] font-bold shrink-0">1</span>
+                  <div>
+                    <div class="font-black text-slate-800 leading-tight">Bleach Cream (500g Jar) Gold Glow</div>
+                    <div class="text-[9px] text-slate-500 mt-0.5 flex items-center gap-1.5">
+                      <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1 py-0.2 rounded font-black text-[8px]">JAR</span>
+                      <span>Qty: <b>2</b></span>
+                      <span>&bull;</span>
+                      <span>Rate: ₹300/Jar</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="font-black text-xs text-slate-900">₹600</span>
+                  <button onclick="removeAddedItem(this, 600)" class="w-5 h-5 rounded-full bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center font-black text-xs transition">
+                    &times;
+                  </button>
+                </div>
+              </div>
+
+              <!-- Item Row 2 -->
+              <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs transition">
+                <div class="flex items-center gap-2">
+                  <span class="w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[9px] font-bold shrink-0">2</span>
+                  <div>
+                    <div class="font-black text-slate-800 leading-tight">Laser Blade (Box of 100 Pcs) Platinum</div>
+                    <div class="text-[9px] text-slate-500 mt-0.5 flex items-center gap-1.5">
+                      <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1 py-0.2 rounded font-black text-[8px]">BOX</span>
+                      <span>Qty: <b>5</b></span>
+                      <span>&bull;</span>
+                      <span>Rate: ₹80/Box</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="font-black text-xs text-slate-900">₹400</span>
+                  <button onclick="removeAddedItem(this, 400)" class="w-5 h-5 rounded-full bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center font-black text-xs transition">
+                    &times;
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ========================================== -->
+          <!-- 5. VENDOR & UNIVERSAL REMARK (Compact)     -->
+          <!-- ========================================== -->
+          <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
+            <input type="text" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none" placeholder="Vendor / Shop (e.g. Gupta Beauty Store)">
+            <input type="text" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none placeholder:text-slate-400" placeholder="Universal Remark (e.g. Monthly salon stock)">
+          </div>
+
+          <!-- ========================================== -->
+          <!-- 6. GRAND TOTAL BAR & SAVE BUTTON           -->
+          <!-- ========================================== -->
+          <div class="bg-slate-900 text-white p-3 rounded-2xl flex items-center justify-between shadow-lg sticky bottom-0">
+            <div>
+              <span class="text-[8px] uppercase tracking-wider text-slate-400 font-bold block">Bill Total</span>
+              <div id="grandTotalDisplay" class="text-lg font-black text-amber-400 leading-tight">₹1,000</div>
+            </div>
+            
+            <button onclick="saveFullExpense()" class="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-black rounded-xl text-xs shadow-md transition flex items-center gap-1.5">
+              <span>💾</span>
+              <span>Save Expense</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- POPUP MODAL: ADD NEW ITEM TO MASTER                 -->
+        <!-- ==================================================== -->
+        <div id="newItemModal" class="hidden absolute inset-0 z-50 modal-backdrop flex items-end justify-center">
+          <div class="w-full bg-white rounded-t-3xl p-4 shadow-2xl border-t border-slate-200 space-y-3">
+            
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold">🧴</div>
+                <div>
+                  <h3 class="text-xs font-black text-slate-900 leading-tight">Add New Item to Master</h3>
+                  <p class="text-[10px] text-slate-500" id="modalCategoryLabel">Category: Supplies (सामान)</p>
+                </div>
+              </div>
+              <button onclick="closeMasterModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 font-bold text-sm flex items-center justify-center">&times;</button>
+            </div>
+
+            <!-- Item Name -->
+            <div>
+              <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Product / Item Name *</label>
+              <input id="modalItemName" type="text" class="w-full text-xs font-bold text-slate-900 bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:outline-none focus:border-emerald-500" placeholder="e.g. Lotus WhiteGlow D-Tan Pack">
+            </div>
+
+            <!-- Unit / Measurement & Default Price -->
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Measurement Unit (इकाई)</label>
+                <select id="modalItemUnit" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                  <option value="BOX">BOX (Box of 100/50)</option>
+                  <option value="LTR">LTR (Litre)</option>
+                  <option value="PCS">PCS (Pieces)</option>
+                  <option value="JAR">JAR (Dabba)</option>
+                  <option value="CAN">CAN (Can / Galon)</option>
+                  <option value="BOTTLE">BOTTLE</option>
+                  <option value="KG">KG (Kilogram)</option>
+                  <option value="GM">GM (Gram)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-[9px] font-bold text-slate-500 uppercase block mb-1">Default Approx Rate</label>
+                <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl px-2 py-1.5">
+                  <span class="text-slate-400 font-bold mr-1">₹</span>
+                  <input id="modalItemRate" type="number" class="w-full text-xs font-bold text-slate-900 focus:outline-none" placeholder="350">
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex gap-2 pt-1">
+              <button onclick="closeMasterModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">
+                Cancel
+              </button>
+              <button onclick="saveItemToMaster()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-md flex items-center justify-center gap-1.5">
+                <span>✓</span>
+                <span>Save to Master</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeCat = 'supplies';
+    let paymentMode = 'Cash';
+    let runningGrandTotal = 1000;
+
+    const catalogData = {
+      supplies: [
+        { name: "Laser Blade (Box of 100 Pcs) Platinum", unit: "BOX", defaultPrice: 80 },
+        { name: "Bleach Cream (500g Jar) Gold Glow", unit: "JAR", defaultPrice: 300 },
+        { name: "Hair Shampoo Can (5 Litres Professional)", unit: "LTR", defaultPrice: 650 },
+        { name: "Strip Wax Honey Tin (1kg Net)", unit: "JAR", defaultPrice: 220 },
+        { name: "L'Oreal Professional Serie Color Tube", unit: "PCS", defaultPrice: 320 },
+        { name: "Hand Sanitizer Pump (500ml)", unit: "BOTTLE", defaultPrice: 150 }
+      ],
+      repair: [
+        { name: "Professional Hair Dryer Motor Service", unit: "JOB", defaultPrice: 350 },
+        { name: "Hydraulic Styling Chair Pump Repair", unit: "JOB", defaultPrice: 1200 },
+        { name: "Split AC Gas Refill & Coil Service", unit: "JOB", defaultPrice: 1800 },
+        { name: "Water Heater Geyser Coil Replacement", unit: "PCS", defaultPrice: 550 }
+      ],
+      bills: [
+        { name: "Electricity Shop Bill (Commercial)", unit: "MONTH", defaultPrice: 4500 },
+        { name: "Shop Monthly Rent", unit: "MONTH", defaultPrice: 18000 },
+        { name: "Bisleri Drinking 20L Water Cans", unit: "CAN", defaultPrice: 300 },
+        { name: "Airtel Fiber Broadband Wi-Fi", unit: "MONTH", defaultPrice: 799 }
+      ],
+      staff: [
+        { name: "Rahul (Stylist) - Salary Advance", unit: "MONTH", defaultPrice: 2000 },
+        { name: "Sameer (Barber) - Salary Advance", unit: "MONTH", defaultPrice: 1500 },
+        { name: "Pooja (Beautician) - Salary Advance", unit: "MONTH", defaultPrice: 2500 },
+        { name: "Staff Lunch / Refreshment Conveyance", unit: "DAY", defaultPrice: 200 }
+      ],
+      daily: [
+        { name: "Daily Tea & Rusk / Biscuits (Chai)", unit: "DAY", defaultPrice: 150 },
+        { name: "Shop Cleaning Broom & Pocha (Mop)", unit: "PCS", defaultPrice: 180 },
+        { name: "Garbage Municipal Daily Waste Fee", unit: "MONTH", defaultPrice: 300 },
+        { name: "Handwash Liquid Pouch (1 Ltr)", unit: "LTR", defaultPrice: 120 }
+      ],
+      other: [
+        { name: "Shop Municipal / Trade License Fee", unit: "JOB", defaultPrice: 1500 },
+        { name: "Diwali / Festive Decoration Lights", unit: "PCS", defaultPrice: 800 },
+        { name: "Stationery / Bill Book Printing", unit: "BOX", defaultPrice: 450 },
+        { name: "Miscellaneous Shop Maintenance", unit: "JOB", defaultPrice: 500 }
+      ]
+    };
+
+    function setPaymentMode(mode) {
+      paymentMode = mode;
+      const bCash = document.getElementById('btnCash');
+      const bOnline = document.getElementById('btnOnline');
+      if (mode === 'Cash') {
+        bCash.className = "flex-1 py-1 text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-500 rounded-lg flex items-center justify-center gap-1 shadow-xs transition";
+        bOnline.className = "flex-1 py-1 text-[11px] font-bold text-slate-500 hover:bg-slate-50 rounded-lg flex items-center justify-center gap-1 transition";
+      } else {
+        bOnline.className = "flex-1 py-1 text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-500 rounded-lg flex items-center justify-center gap-1 shadow-xs transition";
+        bCash.className = "flex-1 py-1 text-[11px] font-bold text-slate-500 hover:bg-slate-50 rounded-lg flex items-center justify-center gap-1 transition";
+      }
+    }
+
+    function selectCat(cat) {
+      activeCat = cat;
+      const allCats = ['supplies', 'repair', 'bills', 'staff', 'daily', 'other'];
+      allCats.forEach(k => {
+        const card = document.getElementById(`card${k.charAt(0).toUpperCase() + k.slice(1)}`);
+        if (card) {
+          if (k === cat) {
+            card.className = "cat-pill-active border-1.5 border-emerald-500 bg-emerald-50 px-2 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5 transition";
+          } else {
+            card.className = "border border-slate-200 bg-white px-2 py-1.5 rounded-xl cursor-pointer hover:border-slate-300 flex items-center gap-1.5 transition";
+          }
+        }
+      });
+
+      const labelMap = { 
+        supplies: "Supplies (सामान)", 
+        repair: "Repair (मरम्मत)", 
+        bills: "Bills (बिल)",
+        staff: "Staff (एडवांस)",
+        daily: "Daily (दैनिक)",
+        other: "Other (अन्य)"
+      };
+      document.getElementById('selectedCatBadge').textContent = labelMap[cat] || cat;
+      document.getElementById('modalCategoryLabel').textContent = `Category: ${labelMap[cat] || cat}`;
+
+      populateActiveDropdown();
+    }
+
+    function populateActiveDropdown() {
+      const sel = document.getElementById('activeItemSelect');
+      const items = catalogData[activeCat] || [];
+      sel.innerHTML = items.map((item) => `
+        <option value="${item.name}" data-price="${item.defaultPrice}" data-unit="${item.unit}">
+          ${item.name}
+        </option>
+      `).join('');
+
+      onItemSelectionChange();
+    }
+
+    function onItemSelectionChange() {
+      const sel = document.getElementById('activeItemSelect');
+      const opt = sel.options[sel.selectedIndex];
+      if (!opt) return;
+
+      const unit = opt.getAttribute('data-unit') || 'PCS';
+      const price = Number(opt.getAttribute('data-price')) || 0;
+      const qty = Number(document.getElementById('activeQty').value) || 1;
+
+      document.getElementById('unitBadgeTop').textContent = unit;
+      document.getElementById('unitInlineTag').textContent = unit;
+      document.getElementById('activeAmount').value = price * qty;
+    }
+
+    function onQtyPriceChange() {
+      const sel = document.getElementById('activeItemSelect');
+      const opt = sel.options[sel.selectedIndex];
+      if (!opt) return;
+
+      const price = Number(opt.getAttribute('data-price')) || 0;
+      const qty = Number(document.getElementById('activeQty').value) || 1;
+      document.getElementById('activeAmount').value = price * qty;
+    }
+
+    function onDirectAmountChange() {
+      // User manual override
+    }
+
+    function pushActiveEntryDown() {
+      const sel = document.getElementById('activeItemSelect');
+      const opt = sel.options[sel.selectedIndex];
+      if (!opt) return;
+
+      const itemName = sel.value;
+      const unit = opt.getAttribute('data-unit') || 'PCS';
+      const qty = Number(document.getElementById('activeQty').value) || 1;
+      const amount = Number(document.getElementById('activeAmount').value) || 0;
+
+      if (amount <= 0) {
+        alert("Kripya valid amount dalein!");
+        return;
+      }
+
+      const container = document.getElementById('addedItemsContainer');
+      const currentCount = container.children.length + 1;
+
+      const row = document.createElement('div');
+      row.className = "bg-white p-2 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between text-xs transition animate-fade-in";
+      row.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[9px] font-bold shrink-0">${currentCount}</span>
+          <div>
+            <div class="font-black text-slate-800 leading-tight">${itemName}</div>
+            <div class="text-[9px] text-slate-500 mt-0.5 flex items-center gap-1.5">
+              <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1 py-0.2 rounded font-black text-[8px]">${unit}</span>
+              <span>Qty: <b>${qty}</b></span>
+              <span>&bull;</span>
+              <span>Total: ₹${amount}</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-black text-xs text-slate-900">₹${amount}</span>
+          <button onclick="removeAddedItem(this, ${amount})" class="w-5 h-5 rounded-full bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center font-black text-xs transition">
+            &times;
+          </button>
+        </div>
+      `;
+
+      container.prepend(row);
+      runningGrandTotal += amount;
+      updateTotals();
+
+      document.getElementById('activeQty').value = 1;
+      if (sel.options.length > 1) {
+        sel.selectedIndex = (sel.selectedIndex + 1) % sel.options.length;
+      }
+      onItemSelectionChange();
+    }
+
+    function removeAddedItem(btn, amount) {
+      btn.closest('.bg-white').remove();
+      runningGrandTotal -= amount;
+      updateTotals();
+    }
+
+    function updateTotals() {
+      const count = document.getElementById('addedItemsContainer').children.length;
+      document.getElementById('itemsCountBadge').textContent = count;
+      document.getElementById('subtotalDisplay').textContent = `₹${runningGrandTotal.toLocaleString('en-IN')}`;
+      document.getElementById('grandTotalDisplay').textContent = `₹${runningGrandTotal.toLocaleString('en-IN')}`;
+    }
+
+    function openMasterModal() {
+      document.getElementById('modalItemName').value = '';
+      document.getElementById('modalItemRate').value = '';
+      document.getElementById('newItemModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('modalItemName').focus(), 100);
+    }
+
+    function closeMasterModal() {
+      document.getElementById('newItemModal').classList.add('hidden');
+    }
+
+    function saveItemToMaster() {
+      const name = document.getElementById('modalItemName').value.trim();
+      const unit = document.getElementById('modalItemUnit').value.toUpperCase();
+      const rate = Number(document.getElementById('modalItemRate').value) || 250;
+
+      if (!name) {
+        alert("Kripya naye item ka naam dalein!");
+        return;
+      }
+
+      catalogData[activeCat].unshift({
+        name: name,
+        unit: unit,
+        defaultPrice: rate
+      });
+
+      populateActiveDropdown();
+      document.getElementById('activeItemSelect').selectedIndex = 0;
+      onItemSelectionChange();
+
+      closeMasterModal();
+    }
+
+    function saveFullExpense() {
+      alert(`🎉 Expense voucher of ₹${runningGrandTotal.toLocaleString('en-IN')} (${paymentMode}) saved successfully!`);
+    }
+
+    populateActiveDropdown();
+  </script>
+  <script src="/mobile.js?v=20261105_m4" defer></script>
+</body>
+</html>

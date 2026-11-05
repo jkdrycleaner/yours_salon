@@ -17,6 +17,7 @@
     .empty{padding:20px;border:1px dashed #d4dce5;border-radius:12px;color:#718096;font-size:13px;background:#fff}
     @media(max-width:650px){.wrap{padding:12px}.top{align-items:flex-start;padding:12px}.brandName{font-size:14px}.actions{justify-content:flex-end}.actions button,.actions a{min-height:35px;padding:8px;font-size:11px}.fields{grid-template-columns:1fr}.wide{grid-column:auto}.panel{padding:15px}.module{min-height:110px;padding:14px}h1{font-size:22px}}
   </style>
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
 </head>
 <body>
   <main class="wrap">
@@ -149,5 +150,6 @@
     document.getElementById('logout').addEventListener('click',()=>{localStorage.removeItem(tokenKey);location.replace('/login')});
     initialize();
   </script>
+  <script src="/mobile.js?v=20261105_m4" defer></script>
 </body>
 </html>

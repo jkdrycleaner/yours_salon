@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>YOURS SALON — Shop Details</title>
-  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
   <style>
     *{box-sizing:border-box}
      body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
@@ -33,6 +33,7 @@
     .note{padding:12px;background:#FFF9E9;border:1px solid #E9D9AA;border-radius:8px;color:#765B14;font-size:12px;line-height:1.5}
     @media(max-width:600px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.form-grid{grid-template-columns:1fr}.actions{position:sticky;bottom:0;margin:16px -18px -18px;padding:12px 18px;background:rgba(255,255,255,.96);border-top:1px solid #ECEDEF}.actions button{width:100%}}
   </style>
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
 </head>
 <body>
   <main class="container">
@@ -70,7 +71,7 @@
     </div>
     <div id="status" role="status" aria-live="polite"></div>
   </main>
-  <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script><script src="/btn-theme.js"></script>
+  <script src="/auth-guard.js"></script><script src="/admin-nav.js?v=20261105_m4" defer></script><script src="/btn-theme.js"></script>
   <script>
     const groups={
       identity:['Brand Name','Brand Description','Tagline','Logo URL','Favicon URL'],
@@ -131,7 +132,11 @@
         input.type='text';
         input.maxLength=2000;
       }
-      input.value=String(value??'');
+      if(key==='Show Mobile Login'||key==='Show Face Login'){
+        input.value=value==='Yes'?'Yes':'No';
+      }else{
+        input.value=String(value??'');
+      }
       input.disabled=!canEdit;
       wrapper.append(label,input);
       container.append(wrapper);
@@ -195,5 +200,6 @@
       await loadDetails();
     })().catch(error=>showStatus(error.message||'Could not load shop details.','error'));
   </script>
+  <script src="/mobile.js?v=20261105_m4" defer></script>
 </body>
 </html>
