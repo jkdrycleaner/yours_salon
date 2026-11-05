@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/app-boot.js"></script>
+  <script src="/btn-theme.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Admin Expense Voucher — YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <style>
+    * { box-sizing: border-box; }
+    
+    /* Clean Top Header - Hide any breadcrumb bars */
+    .salon-page-bar,
+    .salon-breadcrumb,
+    .salon-page-nav {
+      display: none !important;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f6f9;
+      color: #111827;
+      font-family: Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --salon-green: #09AA1C;
+      --salon-green-dark: #078516;
+      --salon-green-light: #ecfdf5;
+      --salon-gold: #c99a23;
+      --salon-gold-light: #fff8e8;
+      --salon-gold-border: #ead9ac;
+      --salon-line: #e2e8f0;
+      --salon-card-border: #f0ece3;
+    }
+
+    .exp-container {
+      max-width: 480px;
+      margin: 8px auto;
+      padding: 0 12px 140px;
+    }
+
+    @media (max-width: 520px) {
+      .exp-container {
+        margin: 4px auto;
+        padding: 0 10px 135px;
+      }
+    }
+
+    /* 1. Capsule Segmented Tabs like Collection Entry */
+    .sal-portal-tabs.aw-segmented-tabs {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 3px 4px;
+      background: #ffffff;
+      border: 1px solid var(--salon-line);
+      border-radius: 9999px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      margin-bottom: 12px;
+      width: 100%;
+    }
+    .aw-tab {
+      flex: 1 1 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 36px;
+      padding: 0 12px;
+      border: none;
+      outline: none;
+      border-radius: 9999px;
+      background: transparent;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .sal-portal-tabs .aw-tab.active,
+    .aw-segmented-tabs .aw-tab.active,
+    .aw-tab.active {
+      background: var(--salon-btn-bg, #09AA1C) !important;
+      background-image: none !important;
+      color: var(--salon-btn-text, #ffffff) !important;
+      font-weight: 700 !important;
+      border-radius: 9999px !important;
+      border: none !important;
+      box-shadow: 0 2px 5px rgba(9, 170, 28, 0.25) !important;
+    }
+    .aw-tab-icon {
+      font-size: 14px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      color: #64748b;
+    }
+    .sal-portal-tabs .aw-tab.active .aw-tab-icon,
+    .aw-segmented-tabs .aw-tab.active .aw-tab-icon,
+    .aw-tab.active .aw-tab-icon {
+      color: var(--salon-btn-text, #ffffff) !important;
+    }
+
+    /* 2. Main Form Card like Collection Entry (.aw-main-card) */
+    .aw-main-card {
+      padding: 16px 14px 18px;
+      border: 1px solid var(--salon-card-border);
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 8px 22px rgba(107, 90, 47, 0.05);
+      margin-bottom: 14px;
+    }
+
+    /* Date & Payment Mode Row (Collection Page Proportion & Style) */
+    .aw-date-row {
+      display: grid;
+      grid-template-columns: 130px minmax(0, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+      align-items: flex-end;
+    }
+    .aw-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+    .aw-field label {
+      color: #64748b;
+      font-size: 11.5px;
+      font-weight: 500;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    /* Date Control - Entire Card Clickable */
+    .aw-date-control {
+      position: relative;
+      display: flex;
+      align-items: center;
+      height: 42px;
+      min-height: 42px;
+      border: 1px solid var(--salon-line, #e2e8f0);
+      border-radius: 11px;
+      background: #ffffff;
+      padding: 0 8px;
+      cursor: pointer;
+      transition: border-color .15s ease;
+      user-select: none;
+      box-sizing: border-box;
+    }
+    .aw-date-control:hover {
+      border-color: #94a3b8;
+    }
+    .aw-date-control:focus-within {
+      border-color: #0f172a;
+    }
+    .aw-date-control input[type="date"] {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #0f172a;
+      font: 500 13px Arial, sans-serif;
+      cursor: pointer;
+      padding-right: 22px;
+    }
+    /* Invisible indicator expanding across the full card so any click opens calendar */
+    .aw-date-control input[type="date"]::-webkit-calendar-picker-indicator {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .aw-date-control svg {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      width: 16px;
+      height: 16px;
+      transform: translateY(-50%);
+      fill: none;
+      stroke: #94a3b8;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      pointer-events: none;
+    }
+
+    /* Payment Mode Control - Matching Collection View (#mobileAddWork .aw-pay) */
+    .aw-pay {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 42px;
+      min-height: 42px;
+      gap: 4px;
+      padding: 3px;
+      border: 1px solid var(--salon-line, #e2e8f0);
+      border-radius: 11px;
+      background: #f8fafc;
+      box-sizing: border-box;
+      transition: border-color .15s ease;
+    }
+    .aw-pay:hover {
+      border-color: #94a3b8;
+    }
+    .aw-pay label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 100%;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s ease;
+      user-select: none;
+      white-space: nowrap;
+      background: transparent;
+      padding: 0 4px;
+    }
+    .aw-pay label:hover,
+    .aw-pay label:active {
+      border-color: #0f172a;
+    }
+    .aw-pay label:has(input:checked),
+    .aw-pay label.active {
+      border: 1.5px solid #0f172a;
+      background: #ffffff !important;
+      color: #0f172a;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .aw-pay input[type="radio"] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: 0;
+      padding: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Category Selector (Full Names in 2-column Grid) */
+    .exp-sec-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      padding: 0 2px;
+    }
+    .exp-sec-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .exp-cur-badge {
+      font-size: 10px;
+      font-weight: 800;
+      background: #fff8e8;
+      color: #9b7a2b;
+      border: 1px solid #ead9ac;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+
+    .exp-cat-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .aw-service-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 6px 10px;
+      border: 1px solid var(--salon-border-light, #e2e8f0);
+      border-radius: 12px;
+      background: #ffffff !important;
+      cursor: pointer;
+      transition: border-color .15s ease, box-shadow .15s ease;
+      text-align: left;
+    }
+    .aw-service-card:hover,
+    .aw-service-card:active {
+      border-color: var(--salon-border-dark, #0f172a);
+    }
+    .aw-service-card.selected {
+      border: 1.5px solid var(--salon-border-dark, #0f172a) !important;
+      background: #ffffff !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+    .aw-service-card .icon {
+      font-size: 17px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .aw-service-card .title {
+      font-size: 12.5px;
+      font-weight: 400; /* Regular - Not bold */
+      color: #0f172a;
+      line-height: 1.25;
+    }
+    .aw-service-card.selected .title {
+      color: var(--salon-border-dark, #0f172a);
+      font-weight: 500;
+    }
+
+    /* Staff dropdown container */
+    #staffWrap {
+      margin-bottom: 12px;
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #e2e8f0);
+      border-radius: 12px;
+      padding: 8px 10px;
+      transition: border-color .15s ease;
+    }
+    #staffWrap:focus-within {
+      border-color: var(--salon-border-dark, #0f172a);
+    }
+    #staffWrap select {
+      width: 100%;
+      height: 38px;
+      border: 1px solid var(--salon-border-light, #e2e8f0);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font: 400 13px Arial, sans-serif;
+      color: #0f172a;
+      background: #fff;
+    }
+
+    /* Other Sub-category dropdown */
+    #otherCatWrap {
+      margin-bottom: 12px;
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #e2e8f0);
+      border-radius: 12px;
+      padding: 8px 10px;
+      transition: border-color .15s ease;
+    }
+    #otherCatWrap:focus-within {
+      border-color: var(--salon-border-dark, #0f172a);
+    }
+    #otherCatWrap select {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--salon-border-light, #e2e8f0);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font: 400 12.5px Arial, sans-serif;
+      color: #0f172a;
+      background: #fff;
+    }
+
+    /* 4. Active Entry Card */
+    .aw-active-item-card {
+      border: 1px solid var(--salon-border-light, #e2e8f0);
+      border-radius: 16px;
+      background: #ffffff;
+      padding: 12px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      transition: border-color .15s ease;
+    }
+    .aw-active-item-card:hover,
+    .aw-active-item-card:focus-within {
+      border-color: var(--salon-border-dark, #0f172a);
+    }
+    .aw-active-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #f0ece3;
+      margin-bottom: 8px;
+    }
+    .aw-active-lbl {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 500; /* Regular - Not bold */
+      color: #64748b;
+      letter-spacing: 0.02em;
+    }
+    .aw-active-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--salon-border-dark, #0f172a);
+    }
+    .btn-master-add {
+      background: #f8fafc !important;
+      background-image: none !important;
+      color: #0f172a !important;
+      border: 1px solid var(--salon-border-light, #e2e8f0) !important;
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 500; /* Regular - Not bold */
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      box-shadow: none !important;
+      transition: all 0.15s ease;
+    }
+    .btn-master-add:hover {
+      background: #ffffff !important;
+      border-color: var(--salon-border-dark, #0f172a) !important;
+    }
+
+    /* Item dropdown */
+    .aw-item-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 10px;
+      border: 1px solid var(--salon-border-light, #e2e8f0);
+      border-radius: 11px;
+      font: 400 13px Arial, sans-serif; /* Regular - Not bold */
+      color: #0f172a;
+      background: #fff;
+      outline: none;
+      margin-bottom: 8px;
+      transition: border-color .15s ease;
+    }
+    .aw-item-select:hover {
+      border-color: var(--salon-border-hover, #94a3b8);
+    }
+    .aw-item-select:focus {
+      border-color: var(--salon-border-dark, #0f172a);
+      box-shadow: 0 0 0 1px var(--salon-border-dark, #0f172a);
+    }
+
+    /* Controls: QTY + AMOUNT + (+) BUTTON */
+    .aw-controls-row {
+      display: grid;
+      grid-template-columns: 1.25fr 1.15fr 44px;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .aw-ctrl-col label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9px;
+      font-weight: 800;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .badge-unit {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-size: 8.5px;
+      font-weight: 800;
+    }
+    .aw-input-box {
+      display: flex;
+      align-items: center;
+      height: 42px;
+      background: #fff;
+      border: 1px solid #d9e0e7;
+      border-radius: 11px;
+      padding: 0 8px;
+    }
+    .aw-input-box:focus-within {
+      border-color: var(--salon-green);
+      box-shadow: 0 0 0 3px rgba(9, 170, 28, 0.12);
+    }
+    .aw-input-box input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      font: 800 13px Arial, sans-serif;
+      color: #111827;
+      text-align: center;
+      background: transparent;
+    }
+    .aw-input-box .unit-tag {
+      font-size: 9px;
+      font-weight: 800;
+      color: #64748b;
+      padding-left: 4px;
+      border-left: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+    .aw-input-box .currency {
+      font-size: 13px;
+      font-weight: 800;
+      color: #b8860b;
+      margin-right: 3px;
+    }
+    .btn-plus-add {
+      width: 44px;
+      height: 42px;
+      background: var(--salon-btn-bg, #09AA1C) !important;
+      background-image: none !important;
+      color: var(--salon-btn-text, #ffffff) !important;
+      border: 0 !important;
+      border-radius: 11px;
+      font-size: 24px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transition: transform 0.1s;
+      line-height: 1;
+    }
+    .btn-plus-add:active {
+      transform: scale(0.95);
+    }
+
+    /* 5. Added Items List (Downward Stack) */
+    .aw-added-wrap {
+      margin-top: 10px;
+    }
+    .aw-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #e2e8f0);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      transition: border-color .15s ease;
+    }
+    .aw-item-row:hover {
+      border-color: var(--salon-border-hover, #94a3b8);
+    }
+    .aw-item-name {
+      font-size: 13px;
+      font-weight: 400; /* Regular - Not bold */
+      color: #0f172a;
+      margin: 0 0 2px;
+    }
+    .aw-item-sub {
+      font-size: 11px;
+      font-weight: 400; /* Regular - Not bold */
+      color: #64748b;
+    }
+    .aw-item-val {
+      font-size: 15px;
+      font-weight: 800; /* Keep amount bold as requested */
+      color: #138a4b;
+      margin-right: 10px;
+    }
+    .btn-del-row {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      border: 1px solid #fecaca;
+      background: #fef2f2;
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Vendor & Remarks */
+    .aw-extra-inputs {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .aw-text-input {
+      width: 100%;
+      height: 40px;
+      background: #fff;
+      border: 1px solid #d9e0e7;
+      border-radius: 11px;
+      padding: 0 12px;
+      font: 500 13px Arial, sans-serif;
+      color: #111827;
+      outline: none;
+    }
+    .aw-text-input:focus {
+      border-color: var(--salon-green);
+    }
+
+    /* 6. Bottom Bar & Total Box (.aw-bottom-bar) - Positioned above Mobile Bottom Nav */
+    .aw-bottom-bar {
+      position: fixed;
+      z-index: 1650 !important;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 8px 14px;
+      background: #ffffff;
+      border-top: 1px solid var(--salon-border-light, #e2e8f0);
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+      box-sizing: border-box;
+    }
+
+    body.mobile-employee .aw-bottom-bar {
+      bottom: calc(var(--m-nav, 54px) + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    @media (max-width: 768px) {
+      .aw-bottom-bar {
+        bottom: calc(var(--m-nav, 54px) + env(safe-area-inset-bottom, 0px)) !important;
+      }
+    }
+
+    .aw-bottom-content {
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .aw-total-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 120px;
+      height: 44px;
+      padding: 2px 12px;
+      border: 1.5px solid var(--salon-btn-bg, #09AA1C) !important;
+      border-radius: 13px;
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+    .aw-total-box span {
+      color: #9b7a2b;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .aw-total-box strong {
+      margin-top: 1px;
+      color: var(--salon-border-dark, #138a4b);
+      font-size: 19px;
+      font-weight: 800;
+      line-height: 1.05;
+    }
+    .aw-save-btn {
+      flex: 1;
+      height: 44px;
+      padding: 0 18px;
+      background: var(--salon-btn-bg, #09AA1C);
+      color: var(--salon-btn-text, #ffffff);
+      border: 0;
+      border-radius: 13px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .aw-save-btn:active {
+      transform: scale(0.97);
+    }
+    .aw-save-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Modal for + New Item (Master) */
+    .exp-modal-overlay {
+      display: none !important;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+    .exp-modal-overlay.open {
+      display: flex !important;
+    }
+    .exp-modal-card {
+      width: 100%;
+      max-width: 360px;
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.2);
+    }
+    .exp-modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .btn-modal-x {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: 0;
+      font-size: 13px;
+      font-weight: 800;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-field {
+      margin-bottom: 10px;
+    }
+    .modal-field label {
+      display: block;
+      font-size: 10px;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .modal-field input, .modal-field select {
+      width: 100%;
+      height: 38px;
+      border: 1px solid #d9e0e7;
+      border-radius: 9px;
+      padding: 6px 10px;
+      font: 500 13px Arial, sans-serif;
+      color: #111827;
+      outline: none;
+      background: #fff;
+    }
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .btn-modal-cancel {
+      height: 38px;
+      border: 1px solid #d9e0e7;
+      background: #f8fafc;
+      color: #475569;
+      font: 700 12.5px Arial;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+    .btn-modal-save {
+      height: 38px;
+      border: 0;
+      background: var(--salon-green);
+      color: #fff;
+      font: 800 12.5px Arial;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+  </style>
+  <link rel="stylesheet" href="/mobile.css">
+</head>
+<body>
+
+  <div class="exp-container">
+    
+    <!-- 1. Capsule Segmented Tabs (like Collection Entry) -->
+    <div class="sal-portal-tabs aw-segmented-tabs">
+      <div class="aw-tab active">
+        <span class="aw-tab-icon">+</span>
+        <span>Add Expense</span>
+      </div>
+      <a class="aw-tab" href="/expense-table">
+        <span class="aw-tab-icon">📄</span>
+        <span>Expense Records</span>
+      </a>
+    </div>
+
+    <!-- 2. Main Card Style (.aw-main-card) -->
+    <div class="aw-main-card">
+      
+      <!-- Date & Payment Mode Row (Clicking anywhere on date opens calendar, Payment mode collection style) -->
+      <div class="aw-date-row">
+        <div class="aw-field aw-date-field" onclick="openDateCalendar()">
+          <label for="expDateInput">Date</label>
+          <div class="aw-date-control" id="dateCardWrap">
+            <input type="date" id="expDateInput">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9.5h17"/></svg>
+          </div>
+        </div>
+
+        <div class="aw-field aw-pay-field">
+          <label>Payment Mode</label>
+          <div class="aw-pay">
+            <label class="active" id="payCashLabel" onclick="setPaymentMode('Cash')">
+              <input type="radio" name="paymentMode" value="Cash" checked>
+              <span>💵 Cash</span>
+            </label>
+            <label id="payOnlineLabel" onclick="setPaymentMode('Online')">
+              <input type="radio" name="paymentMode" value="Online">
+              <span>💳 Online</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Selector Section (Full Names in 2 Columns) -->
+      <div class="exp-sec-header">
+        <span class="exp-sec-title">Select Expense Category</span>
+      </div>
+
+      <div id="catCardsGrid" class="exp-cat-grid-2col">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Staff dropdown (shown only for 'Staff / Advance') -->
+      <div id="staffWrap" style="display:none;">
+        <label style="display:block;font-size:10px;font-weight:800;color:#065f46;text-transform:uppercase;margin-bottom:4px;">
+          Select Staff / Employee *
+        </label>
+        <select id="staffSelect">
+          <option value="">Loading staff...</option>
+        </select>
+      </div>
+
+      <!-- Other sub-category dropdown (shown only for 'Other') -->
+      <div id="otherCatWrap" style="display:none;">
+        <label style="display:block;font-size:10px;font-weight:800;color:#1e3a8a;text-transform:uppercase;margin-bottom:4px;">
+          Select Other Category:
+        </label>
+        <select id="otherCatSelect" onchange="onOtherCatChange()">
+        </select>
+      </div>
+
+      <!-- 4. Active Entry Card -->
+      <div class="aw-active-item-card">
+        <div class="aw-active-head">
+          <div class="aw-active-lbl">
+            <span class="aw-active-dot"></span>
+            <span>Select Item to Add</span>
+          </div>
+          <button type="button" class="btn-master-add no-btn-theme" onclick="openMasterModal()">
+            <span>+</span><span>New Item (Master)</span>
+          </button>
+        </div>
+
+        <!-- Full-width Product Dropdown -->
+        <select id="itemSelect" class="aw-item-select" onchange="onItemChange()">
+          <!-- Options populated dynamically -->
+        </select>
+
+        <!-- (QTY - UNIT) + (AMOUNT) + (+) BUTTON -->
+        <div class="aw-controls-row">
+          <div class="aw-ctrl-col">
+            <label>
+              <span>QTY</span>
+              <span id="unitBadge" class="badge-unit">PCS</span>
+            </label>
+            <div class="aw-input-box">
+              <input type="number" id="qtyInput" value="1" min="1" step="1" oninput="onQtyChange()">
+              <span id="unitInline" class="unit-tag">PCS</span>
+            </div>
+          </div>
+
+          <div class="aw-ctrl-col">
+            <label>Amount (₹)</label>
+            <div class="aw-input-box">
+              <span class="currency">₹</span>
+              <input type="number" id="amountInput" value="0" min="0">
+            </div>
+          </div>
+
+          <button type="button" class="btn-plus-add no-btn-theme" onclick="addItemToVoucher()" title="Add to List">
+            +
+          </button>
+        </div>
+      </div>
+
+      <!-- 5. Added Items List (Downward Stack) -->
+      <div class="aw-added-wrap">
+        <div class="exp-sec-header">
+          <span class="exp-sec-title">
+            Added Items (<span id="itemsCountBadge">0</span>)
+          </span>
+          <span id="subtotalBadge" class="exp-cur-badge">Subtotal: ₹0</span>
+        </div>
+
+        <div id="addedItemsContainer">
+          <div id="noItemsBox" style="background:#fff;border:1px dashed #cbd5e1;border-radius:12px;padding:14px;text-align:center;font-size:12px;font-weight:600;color:#64748b;">
+            No items added yet. Select an item above and tap <b>+</b>.
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Extra Inputs: Vendor & Remark -->
+      <div class="aw-extra-inputs">
+        <input type="text" id="vendorInput" class="aw-text-input" placeholder="Vendor / Shop Name (Optional)">
+        <input type="text" id="remarkInput" class="aw-text-input" placeholder="Remark / Notes (Optional)">
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- 7. Sticky Bottom Bar (.aw-bottom-bar) -->
+  <div class="aw-bottom-bar">
+    <div class="aw-bottom-content">
+      <div class="aw-total-box">
+        <span id="totalItemsLabel">TOTAL · 0 ITEMS</span>
+        <strong id="grandTotalVal">₹0</strong>
+      </div>
+      <button type="button" id="saveVoucherBtn" class="aw-save-btn" data-salon-btn-theme onclick="saveVoucher()">
+        <svg style="width:18px;height:18px;fill:currentColor" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21" style="fill:none;stroke:#fff;stroke-width:2"/><polyline points="7 3 7 8 15 8" style="fill:none;stroke:#fff;stroke-width:2"/></svg>
+        <span>Save Expense</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Popup Modal: + New Item (Master) -->
+  <div id="masterModal" class="exp-modal-overlay">
+    <div class="exp-modal-card">
+      <div class="exp-modal-top">
+        <div>
+          <span style="font-size:9px;font-weight:800;color:#065f46;background:#ecfdf5;padding:1px 6px;border-radius:99px;border:1px solid #a7f3d0;text-transform:uppercase;">Master Record</span>
+          <h3 style="margin:4px 0 0;font-size:14px;font-weight:800;color:#111827;">Add New Item</h3>
+          <p id="modalCatLabel" style="margin:2px 0 0;font-size:11px;font-weight:700;color:#64748b;">Supplies &amp; Products</p>
+        </div>
+        <button type="button" class="btn-modal-x no-btn-theme" onclick="closeMasterModal()">✕</button>
+      </div>
+
+      <div class="modal-field">
+        <label for="newItemName">Item / Product Name *</label>
+        <input type="text" id="newItemName" placeholder="e.g. Shaving Gel" maxlength="100">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
+        <div class="modal-field">
+          <label for="newItemUnit">Unit</label>
+          <select id="newItemUnit">
+            <option value="PCS">PCS</option>
+            <option value="LTR">LTR</option>
+            <option value="KG">KG</option>
+            <option value="PKT">PKT</option>
+            <option value="BOX">BOX</option>
+            <option value="CAN">CAN</option>
+            <option value="BTL">BTL</option>
+            <option value="JAR">JAR</option>
+            <option value="SET">SET</option>
+            <option value="TUBE">TUBE</option>
+            <option value="GM">GM</option>
+            <option value="ML">ML</option>
+            <option value="PAIR">PAIR</option>
+            <option value="MTR">MTR</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label for="newItemRate">Default Rate (₹)</label>
+          <input type="number" id="newItemRate" placeholder="0" min="0" step="1">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-cancel no-btn-theme" onclick="closeMasterModal()">Cancel</button>
+        <button type="button" id="saveMasterBtn" class="btn-modal-save" data-salon-btn-theme onclick="saveNewMasterItem()">Save to Master</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js" defer></script>
+  <script>
+    let activePaymentMode = 'Cash';
+    let activeCategoryName = 'Supplies & Products';
+    let categories = [];
+    let otherCategories = [];
+    let allExpenseItems = [];
+    let staffList = [];
+    let addedItems = [];
+
+    const iconMap = {
+      'Staff / Advance': '👤',
+      'Supplies & Products': '🧴',
+      'Repair & Maintenance': '⚙️',
+      'Utilities & Bills': '🏢',
+      'Marketing & Misc': '📢',
+      'Other': '➕'
+    };
+
+    function authHeaders(json = true) {
+      const headers = {};
+      if (json) headers['Content-Type'] = 'application/json';
+      const token = localStorage.getItem('salon_google_credential');
+      if (token) headers.Authorization = 'Bearer ' + token;
+      return headers;
+    }
+
+    function setPaymentMode(mode) {
+      activePaymentMode = mode;
+      const cashLabel = document.getElementById('payCashLabel');
+      const onlineLabel = document.getElementById('payOnlineLabel');
+      const cashRadio = cashLabel ? cashLabel.querySelector('input') : null;
+      const onlineRadio = onlineLabel ? onlineLabel.querySelector('input') : null;
+
+      if (mode === 'Cash') {
+        if (cashLabel) cashLabel.classList.add('active');
+        if (onlineLabel) onlineLabel.classList.remove('active');
+        if (cashRadio) cashRadio.checked = true;
+        if (onlineRadio) onlineRadio.checked = false;
+      } else {
+        if (onlineLabel) onlineLabel.classList.add('active');
+        if (cashLabel) cashLabel.classList.remove('active');
+        if (onlineRadio) onlineRadio.checked = true;
+        if (cashRadio) cashRadio.checked = false;
+      }
+    }
+
+    function openDateCalendar() {
+      const el = document.getElementById('expDateInput');
+      if (!el) return;
+      if (typeof el.showPicker === 'function') {
+        try {
+          el.showPicker();
+          return;
+        } catch (e) {
+          // ignore
+        }
+      }
+      el.focus();
+    }
+
+    // Render Category Cards (Full Names in 2 Columns)
+    function renderCategoryCards() {
+      const container = document.getElementById('catCardsGrid');
+      container.replaceChildren();
+
+      const mainCats = categories.filter(c => c.categoryType === 'Main' && c.status === 'Active');
+      const defaultMains = [
+        'Staff / Advance',
+        'Supplies & Products',
+        'Repair & Maintenance',
+        'Utilities & Bills',
+        'Marketing & Misc'
+      ];
+
+      const displayList = mainCats.length > 0 ? mainCats.map(c => c.name) : defaultMains;
+
+      displayList.forEach(catName => {
+        const card = document.createElement('div');
+        const isSelected = (catName === activeCategoryName);
+        card.className = 'aw-service-card' + (isSelected ? ' selected' : '');
+        card.onclick = () => selectCategory(catName);
+
+        const icon = iconMap[catName] || '🏷️';
+        card.innerHTML = `
+          <span class="icon">${icon}</span>
+          <span class="title">${catName}</span>
+        `;
+        container.append(card);
+      });
+
+      // 6th Card: Other
+      const otherCard = document.createElement('div');
+      const isOtherActive = (activeCategoryName === 'Other' || otherCategories.some(c => c.name === activeCategoryName));
+      otherCard.className = 'aw-service-card' + (isOtherActive ? ' selected' : '');
+      otherCard.onclick = () => selectCategory('Other');
+      otherCard.innerHTML = `
+        <span class="icon">➕</span>
+        <span class="title">Other</span>
+      `;
+      container.append(otherCard);
+    }
+
+    function selectCategory(catName) {
+      activeCategoryName = catName;
+      const modalLabel = document.getElementById('modalCatLabel');
+      if (modalLabel) modalLabel.textContent = catName;
+
+      // Update card styles
+      const cards = document.querySelectorAll('.aw-service-card');
+      cards.forEach(card => {
+        const titleEl = card.querySelector('.title');
+        if (!titleEl) return;
+        const text = titleEl.textContent.trim();
+        if (text === catName || (catName === 'Other' && text === 'Other')) {
+          card.classList.add('selected');
+        } else {
+          card.classList.remove('selected');
+        }
+      });
+
+      // Toggle Staff dropdown
+      const isStaff = (catName === 'Staff / Advance');
+      document.getElementById('staffWrap').style.display = isStaff ? 'block' : 'none';
+
+      // Toggle Other categories
+      const isOther = (catName === 'Other');
+      const otherWrap = document.getElementById('otherCatWrap');
+      if (isOther && otherCategories.length > 0) {
+        otherWrap.style.display = 'block';
+        populateOtherCatSelect();
+      } else {
+        otherWrap.style.display = 'none';
+      }
+
+      populateItemsDropdown();
+    }
+
+    function populateOtherCatSelect() {
+      const select = document.getElementById('otherCatSelect');
+      select.replaceChildren();
+      otherCategories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.name;
+        opt.textContent = cat.name;
+        select.append(opt);
+      });
+      if (otherCategories.length > 0) {
+        activeCategoryName = otherCategories[0].name;
+        const modalLabel = document.getElementById('modalCatLabel');
+        if (modalLabel) modalLabel.textContent = activeCategoryName;
+      }
+    }
+
+    function onOtherCatChange() {
+      const select = document.getElementById('otherCatSelect');
+      activeCategoryName = select.value;
+      const modalLabel = document.getElementById('modalCatLabel');
+      if (modalLabel) modalLabel.textContent = activeCategoryName;
+      populateItemsDropdown();
+    }
+
+    function populateItemsDropdown() {
+      const select = document.getElementById('itemSelect');
+      select.replaceChildren();
+
+      let filtered = allExpenseItems.filter(item => {
+        if (item.status === 'Inactive') return false;
+        if (activeCategoryName === 'Other') return item.category === 'Other' || !item.category;
+        return item.category === activeCategoryName;
+      });
+
+      if (!filtered.length) {
+        filtered = allExpenseItems.filter(item => item.status === 'Active');
+      }
+
+      filtered.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.name;
+        opt.textContent = item.name;
+        opt.dataset.unit = item.measurementUnit || 'PCS';
+        opt.dataset.rate = item.defaultRate || 0;
+        select.append(opt);
+      });
+
+      onItemChange();
+    }
+
+    function onItemChange() {
+      const select = document.getElementById('itemSelect');
+      const opt = select.options[select.selectedIndex];
+      if (!opt) return;
+
+      const unit = opt.dataset.unit || 'PCS';
+      const rate = Number(opt.dataset.rate) || 0;
+      const qty = Math.max(1, Number(document.getElementById('qtyInput').value) || 1);
+
+      document.getElementById('unitBadge').textContent = unit;
+      document.getElementById('unitInline').textContent = unit;
+      document.getElementById('newItemUnit').value = unit;
+
+      document.getElementById('amountInput').value = rate * qty;
+    }
+
+    function onQtyChange() {
+      const select = document.getElementById('itemSelect');
+      const opt = select.options[select.selectedIndex];
+      if (!opt) return;
+      const rate = Number(opt.dataset.rate) || 0;
+      const qty = Math.max(1, Number(document.getElementById('qtyInput').value) || 1);
+      if (rate > 0) {
+        document.getElementById('amountInput').value = rate * qty;
+      }
+    }
+
+    function addItemToVoucher() {
+      const select = document.getElementById('itemSelect');
+      const opt = select.options[select.selectedIndex];
+      if (!opt) {
+        alert('Please select an item.');
+        return;
+      }
+
+      const itemName = select.value;
+      const unit = opt.dataset.unit || 'PCS';
+      const qty = Math.max(1, Number(document.getElementById('qtyInput').value) || 1);
+      const amount = Math.max(0, Number(document.getElementById('amountInput').value) || 0);
+      const rate = qty > 0 ? (amount / qty) : amount;
+
+      let employeeId = null;
+      let employeeName = '';
+      if (activeCategoryName === 'Staff / Advance') {
+        const staffSel = document.getElementById('staffSelect');
+        employeeId = staffSel.value;
+        employeeName = staffSel.options[staffSel.selectedIndex]?.text || '';
+        if (!employeeId) {
+          alert('Please select a Staff member for Advance.');
+          return;
+        }
+      }
+
+      addedItems.push({
+        id: Date.now() + Math.random(),
+        category: activeCategoryName,
+        name: itemName,
+        expenseType: itemName,
+        quantity: qty,
+        measurementUnit: unit,
+        rate: rate,
+        amount: amount,
+        employeeId: employeeId,
+        employeeName: employeeName
+      });
+
+      renderAddedItems();
+      document.getElementById('qtyInput').value = 1;
+      onQtyChange();
+    }
+
+    function removeItem(idx) {
+      addedItems.splice(idx, 1);
+      renderAddedItems();
+    }
+
+    function renderAddedItems() {
+      const container = document.getElementById('addedItemsContainer');
+      const placeholder = document.getElementById('noItemsBox');
+      container.replaceChildren();
+
+      if (!addedItems.length) {
+        if (placeholder) container.append(placeholder);
+        document.getElementById('itemsCountBadge').textContent = '0';
+        document.getElementById('subtotalBadge').textContent = 'Subtotal: ₹0';
+        document.getElementById('totalItemsLabel').textContent = 'TOTAL · 0 ITEMS';
+        document.getElementById('grandTotalVal').textContent = '₹0';
+        return;
+      }
+
+      let grandTotal = 0;
+      addedItems.forEach((item, idx) => {
+        grandTotal += Number(item.amount) || 0;
+        const row = document.createElement('div');
+        row.className = 'aw-item-row';
+
+        const extraStaff = item.employeeName ? ` · <b style="color:#0284c7">👤 ${item.employeeName}</b>` : '';
+        row.innerHTML = `
+          <div>
+            <div class="aw-item-name">${item.name}</div>
+            <div class="aw-item-sub">
+              <span style="background:#f1f5f9;color:#475569;padding:1px 5px;border-radius:4px;border:1px solid #cbd5e1">${item.category}</span>
+              <span>${item.quantity} ${item.measurementUnit}</span>
+              ${extraStaff}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <span class="aw-item-val">₹${Number(item.amount).toLocaleString('en-IN')}</span>
+            <button type="button" class="btn-del-row no-btn-theme" onclick="removeItem(${idx})" title="Remove item">✕</button>
+          </div>
+        `;
+        container.append(row);
+      });
+
+      document.getElementById('itemsCountBadge').textContent = String(addedItems.length);
+      document.getElementById('subtotalBadge').textContent = `Subtotal: ₹${grandTotal.toLocaleString('en-IN')}`;
+      document.getElementById('totalItemsLabel').textContent = `TOTAL · ${addedItems.length} ITEMS`;
+      document.getElementById('grandTotalVal').textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
+    }
+
+    async function saveVoucher() {
+      if (!addedItems.length) {
+        alert('Please add at least one expense item.');
+        return;
+      }
+
+      const date = document.getElementById('expDateInput').value;
+      const vendor = document.getElementById('vendorInput').value.trim();
+      const remark = document.getElementById('remarkInput').value.trim();
+      const saveBtn = document.getElementById('saveVoucherBtn');
+
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span>Saving...</span>';
+
+      try {
+        const payload = {
+          entryDate: date,
+          paymentMode: activePaymentMode,
+          vendor: vendor,
+          remark: remark,
+          items: addedItems
+        };
+
+        const res = await fetch('/api/expense-voucher', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to save voucher');
+
+        if (window.salonUi?.showSuccess) {
+          await window.salonUi.showSuccess(data.message || 'Expense voucher saved successfully!');
+        } else {
+          alert(data.message || 'Expense voucher saved successfully!');
+        }
+
+        addedItems = [];
+        renderAddedItems();
+        document.getElementById('vendorInput').value = '';
+        document.getElementById('remarkInput').value = '';
+      } catch (err) {
+        alert(err.message || 'Error saving voucher');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<svg style="width:18px;height:18px;fill:currentColor" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21" style="fill:none;stroke:#fff;stroke-width:2"/><polyline points="7 3 7 8 15 8" style="fill:none;stroke:#fff;stroke-width:2"/></svg><span>Save Expense</span>';
+      }
+    }
+
+    // Modal logic
+    function openMasterModal() {
+      document.getElementById('newItemName').value = '';
+      document.getElementById('newItemRate').value = '';
+      const modal = document.getElementById('masterModal');
+      modal.classList.add('open');
+      setTimeout(() => document.getElementById('newItemName').focus(), 100);
+    }
+
+    function closeMasterModal() {
+      document.getElementById('masterModal').classList.remove('open');
+    }
+
+    async function saveNewMasterItem() {
+      const name = document.getElementById('newItemName').value.trim();
+      const unit = document.getElementById('newItemUnit').value;
+      const rate = Number(document.getElementById('newItemRate').value) || 0;
+
+      if (!name) {
+        alert('Please enter an item name.');
+        return;
+      }
+
+      const saveBtn = document.getElementById('saveMasterBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        const maxSr = allExpenseItems.reduce((m, item) => Math.max(m, Number(item.sr) || 0), 0);
+        const res = await fetch('/api/expense-types', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({
+            sr: maxSr + 1,
+            name: name,
+            category: activeCategoryName,
+            measurementUnit: unit,
+            defaultRate: rate,
+            status: 'Active'
+          })
+        });
+        const newItem = await res.json();
+        if (!res.ok) throw new Error(newItem.error || 'Could not save item');
+
+        allExpenseItems.push(newItem);
+        closeMasterModal();
+        populateItemsDropdown();
+
+        document.getElementById('itemSelect').value = name;
+        onItemChange();
+      } catch (err) {
+        alert(err.message || 'Error creating master item');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save to Master';
+      }
+    }
+
+    // Initialize Page
+    (async () => {
+      const session = await window.salonReady;
+
+      // Today's date for entry
+      const today = new Date().toISOString().slice(0, 10);
+      const dateInp = document.getElementById('expDateInput');
+      if (dateInp) {
+        dateInp.value = today;
+        dateInp.addEventListener('click', openDateCalendar);
+      }
+      const dateWrap = document.getElementById('dateCardWrap');
+      if (dateWrap) {
+        dateWrap.addEventListener('click', openDateCalendar);
+      }
+
+      // Load Categories
+      try {
+        const catRes = await fetch('/api/expense-categories', { headers: authHeaders(false) });
+        if (catRes.ok) {
+          categories = await catRes.json();
+          otherCategories = categories.filter(c => c.categoryType === 'Other' && c.status === 'Active');
+        }
+      } catch (e) {
+        console.error('Error loading categories:', e);
+      }
+      renderCategoryCards();
+
+      // Load Expense Items
+      try {
+        const itemRes = await fetch('/api/expense-types', { headers: authHeaders(false) });
+        if (itemRes.ok) {
+          allExpenseItems = await itemRes.json();
+        }
+      } catch (e) {
+        console.error('Error loading expense items:', e);
+      }
+
+      // Load Staff
+      try {
+        const staffRes = await fetch('/api/staff', { headers: authHeaders(false) });
+        if (staffRes.ok) {
+          staffList = await staffRes.json();
+          const staffSel = document.getElementById('staffSelect');
+          staffSel.replaceChildren();
+          staffSel.append(new Option('Select Staff *', ''));
+          staffList.forEach(st => {
+            staffSel.append(new Option(st.employeeName, st._id));
+          });
+        }
+      } catch (e) {
+        console.error('Error loading staff:', e);
+      }
+
+      selectCategory('Supplies & Products');
+      renderAddedItems();
+    })();
+  </script>
+  <script src="/mobile.js" defer></script>
+</body>
+</html>

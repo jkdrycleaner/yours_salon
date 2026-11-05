@@ -112,6 +112,7 @@
           '/employees': 'employee-list',
           '/employee-entry': 'employee-entry',
           '/config': 'configuration',
+          '/expense-categories': 'expense-categories',
           '/expense-types': 'expense-types',
           '/rate-list': 'rate-list',
           '/bulk-entry': 'bulk-entry',

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/app-boot.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>YOURS SALON — Expense Category</title>
+  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/table-view.css">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
+    .container{width:100%;max-width:960px;margin:20px auto 40px;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
+    .header-area{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid #ECEDEF;padding-bottom:16px;margin-bottom:20px}
+    h1{font-size:22px;margin:0;font-weight:700;color:#1A1C1E}
+    .sub{color:#64748B;font-size:13px;line-height:1.5;margin:6px 0 0}
+    .panel{padding:18px;margin-bottom:18px;background:#FAFAFB;border:1px solid #E2E8F0;border-radius:12px}
+    .form-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .form-header h2{font-size:15px;margin:0;font-weight:700;color:#334155}
+    .form-grid{display:grid;grid-template-columns:90px minmax(200px,2fr) 180px 140px auto auto;align-items:end;gap:12px}
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.03em}
+    .field input,.field select{width:100%;height:38px;padding:7px 10px;border:1px solid #CBD5E1;border-radius:8px;background:#FFF;color:#1E293B;font-size:13px}
+    .field input:focus,.field select:focus{outline:0;border-color:#C49A32;box-shadow:0 0 0 3px rgba(196,154,50,.15)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:8px 14px;border:0;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s ease}
+    .btn-primary{background:#C49A32;color:#FFF}
+    .btn-primary:hover{background:#B38927}
+    .btn-secondary{background:#F1F5F9;color:#475569}
+    .btn-secondary:hover{background:#E2E8F0}
+    .btn-danger{background:#FEE2E2;color:#DC2626}
+    .btn-danger:hover{background:#FECACA}
+    .btn:disabled{opacity:0.55;cursor:not-allowed}
+    .table-wrap{overflow:auto;border:1px solid #E2E8F0;border-radius:10px;background:#FFF}
+    table{border-collapse:collapse;width:100%;min-width:650px;font-size:13px}
+    th,td{text-align:left;padding:12px 14px;border-bottom:1px solid #F1F5F9}
+    th{background:#F8FAFC;color:#64748B;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em}
+    tbody tr:hover{background:#F8FAFC}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700}
+    .badge-main{background:#ECFDF5;color:#047857;border:1px solid #A7F3D0}
+    .badge-other{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+    .badge-active{background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0}
+    .badge-inactive{background:#F1F5F9;color:#64748B;border:1px solid #CBD5E1}
+    .row-actions{display:flex;gap:6px}
+    .row-actions button{min-height:28px;padding:4px 8px;font-size:11px;border-radius:6px}
+    #statusBox{display:none;margin-top:14px;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600}
+    #statusBox.success{display:block;background:#ECFDF5;border:1px solid #A7F3D0;color:#047857}
+    #statusBox.error{display:block;background:#FEF2F2;border:1px solid #FECACA;color:#DC2626}
+    .empty-state{padding:30px;text-align:center;color:#64748B;font-size:13px}
+    @media(max-width:850px){
+      .form-grid{grid-template-columns:1fr 1fr}
+      .form-grid button{grid-column:1/-1}
+    }
+    @media(max-width:600px){
+      .container{margin:0;border:0;border-radius:0;padding:16px}
+      .form-grid{grid-template-columns:1fr}
+    }
+  </style>
+  <link rel="stylesheet" href="/mobile.css">
+</head>
+<body>
+  <main class="container">
+    <header class="header-area">
+      <div>
+        <h1>Expense Category</h1>
+        <p class="sub">Manage expense categories, serial ordering, and <strong>Main vs Other</strong> grouping. "Main" categories appear directly on the outside mobile cards; "Other" categories are grouped under the 6th Other card.</p>
+      </div>
+      <div>
+        <button id="addToggleBtn" class="btn btn-primary" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Category</span>
+        </button>
+      </div>
+    </header>
+
+    <section id="formPanel" class="panel" hidden>
+      <div class="form-header">
+        <h2 id="formTitle">Add New Expense Category</h2>
+      </div>
+      <form id="categoryForm" class="form-grid">
+        <div class="field">
+          <label for="sr">SR No *</label>
+          <input id="sr" name="sr" type="number" min="1" step="1" required>
+        </div>
+        <div class="field">
+          <label for="name">Category Name *</label>
+          <input id="name" name="name" maxlength="100" placeholder="e.g. Staff / Advance" required>
+        </div>
+        <div class="field">
+          <label for="categoryType">Category Type *</label>
+          <select id="categoryType" name="categoryType">
+            <option value="Main">Main (Direct Card)</option>
+            <option value="Other">Other (Clubbed in Other)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+        <button id="saveBtn" class="btn btn-primary" type="submit">Save Category</button>
+        <button id="cancelBtn" class="btn btn-secondary" type="button">Cancel</button>
+      </form>
+    </section>
+
+    <div id="statusBox" role="status" aria-live="polite"></div>
+
+    <section class="panel" style="background:#FFF;padding:14px">
+      <div class="form-header">
+        <h2>Expense Category List</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px">SR</th>
+              <th>Category Name</th>
+              <th>Mapping (Main / Other)</th>
+              <th>Status</th>
+              <th style="width:120px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="categoryRows">
+            <tr><td colspan="5" class="empty-state">Loading categories...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js" defer></script>
+  <script>
+    const formPanel = document.getElementById('formPanel');
+    const form = document.getElementById('categoryForm');
+    const formTitle = document.getElementById('formTitle');
+    const srInput = document.getElementById('sr');
+    const nameInput = document.getElementById('name');
+    const categoryTypeSelect = document.getElementById('categoryType');
+    const statusSelect = document.getElementById('status');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const addToggleBtn = document.getElementById('addToggleBtn');
+    const rowsEl = document.getElementById('categoryRows');
+    const statusBox = document.getElementById('statusBox');
+
+    let categories = [];
+    let editingId = '';
+    let canAdd = false;
+    let canEdit = false;
+    let canDelete = false;
+
+    function authHeaders(json = true) {
+      const headers = {};
+      if (json) headers['Content-Type'] = 'application/json';
+      const token = localStorage.getItem('salon_google_credential');
+      if (token) headers.Authorization = 'Bearer ' + token;
+      return headers;
+    }
+
+    function showStatus(msg, type = 'success') {
+      statusBox.textContent = msg;
+      statusBox.className = type;
+      statusBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => {
+        if (statusBox.textContent === msg) {
+          statusBox.style.display = 'none';
+        }
+      }, 5000);
+    }
+
+    function nextSr() {
+      return categories.reduce((max, c) => Math.max(max, Number(c.sr || 0)), 0) + 1;
+    }
+
+    function openAddForm() {
+      editingId = '';
+      form.reset();
+      srInput.value = nextSr();
+      categoryTypeSelect.value = 'Main';
+      statusSelect.value = 'Active';
+      formTitle.textContent = 'Add New Expense Category';
+      saveBtn.textContent = 'Save Category';
+      formPanel.hidden = false;
+      nameInput.focus();
+    }
+
+    function openEditForm(cat) {
+      editingId = cat._id;
+      srInput.value = cat.sr || 1;
+      nameInput.value = cat.name || '';
+      categoryTypeSelect.value = cat.categoryType || 'Main';
+      statusSelect.value = cat.status || 'Active';
+      formTitle.textContent = 'Edit Expense Category';
+      saveBtn.textContent = 'Update Category';
+      formPanel.hidden = false;
+      nameInput.focus();
+      formPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function closeForm() {
+      formPanel.hidden = true;
+      form.reset();
+      editingId = '';
+    }
+
+    function render() {
+      rowsEl.replaceChildren();
+      if (!categories.length) {
+        rowsEl.innerHTML = '<tr><td colspan="5" class="empty-state">No categories found. Click Add Category to create one.</td></tr>';
+        return;
+      }
+
+      for (const cat of categories) {
+        const tr = document.createElement('tr');
+
+        // SR
+        const tdSr = document.createElement('td');
+        tdSr.innerHTML = `<strong>${cat.sr}</strong>`;
+        tr.append(tdSr);
+
+        // Name
+        const tdName = document.createElement('td');
+        tdName.innerHTML = `<span style="font-weight:600;color:#1E293B">${cat.name}</span>`;
+        tr.append(tdName);
+
+        // Type (Main / Other)
+        const tdType = document.createElement('td');
+        const isMain = cat.categoryType === 'Main';
+        tdType.innerHTML = `<span class="badge ${isMain ? 'badge-main' : 'badge-other'}">
+          ${isMain ? '● Main Card' : '○ Other Group'}
+        </span>`;
+        tr.append(tdType);
+
+        // Status
+        const tdStatus = document.createElement('td');
+        const isActive = cat.status === 'Active';
+        tdStatus.innerHTML = `<span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${cat.status}</span>`;
+        tr.append(tdStatus);
+
+        // Actions
+        const tdActions = document.createElement('td');
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'row-actions';
+
+        if (canEdit) {
+          const editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'btn btn-secondary';
+          editBtn.textContent = 'Edit';
+          editBtn.onclick = () => openEditForm(cat);
+          actionsDiv.append(editBtn);
+        }
+
+        if (canDelete) {
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn btn-danger';
+          delBtn.textContent = 'Delete';
+          delBtn.onclick = () => deleteCategory(cat);
+          actionsDiv.append(delBtn);
+        }
+
+        tdActions.append(actionsDiv);
+        tr.append(tdActions);
+
+        rowsEl.append(tr);
+      }
+    }
+
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/expense-categories', { headers: authHeaders(false) });
+        if (!res.ok) throw new Error('Failed to load categories');
+        categories = await res.json();
+        render();
+      } catch (err) {
+        console.error(err);
+        showStatus(err.message || 'Error loading categories', 'error');
+      }
+    }
+
+    async function deleteCategory(cat) {
+      if (!confirm(`Are you sure you want to delete category "${cat.name}"?`)) return;
+      try {
+        const res = await fetch(`/api/expense-categories/${cat._id}`, {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Delete failed');
+        showStatus('Category deleted successfully.', 'success');
+        await loadCategories();
+      } catch (err) {
+        showStatus(err.message, 'error');
+      }
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const sr = Number(srInput.value);
+      const name = nameInput.value.trim();
+      const categoryType = categoryTypeSelect.value;
+      const status = statusSelect.value;
+
+      if (!sr || !name) {
+        showStatus('Please enter valid SR and Name', 'error');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      try {
+        const url = editingId ? `/api/expense-categories/${editingId}` : '/api/expense-categories';
+        const method = editingId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: authHeaders(),
+          body: JSON.stringify({ sr, name, categoryType, status })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Save failed');
+
+        showStatus(editingId ? 'Category updated successfully.' : 'Category added successfully.', 'success');
+        closeForm();
+        await loadCategories();
+      } catch (err) {
+        showStatus(err.message, 'error');
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    addToggleBtn.onclick = () => {
+      if (formPanel.hidden) openAddForm();
+      else closeForm();
+    };
+
+    cancelBtn.onclick = closeForm;
+
+    (async () => {
+      const session = await window.salonReady;
+      const role = session?.employee?.role;
+      const cfg = session?.actionAccess?.configuration;
+      canAdd = role === 'Admin' || cfg?.add === true;
+      canEdit = role === 'Admin' || cfg?.edit === true;
+      canDelete = role === 'Admin' || cfg?.delete === true;
+
+      if (!canAdd) addToggleBtn.style.display = 'none';
+
+      await loadCategories();
+    })().catch(err => {
+      showStatus(err.message, 'error');
+    });
+  </script>
+  <script src="/mobile.js" defer></script>
+</body>
+</html>

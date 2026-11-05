@@ -53,8 +53,8 @@ const accessGroupDefinitions = [
     {
         key: 'configuration',
         label: 'Configuration',
-        description: 'General Configuration, Shop Details, Expense Types, Rate List, Bulk Entry and Import Validation.',
-        pages: ['configuration', 'shop-information', 'expense-types', 'rate-list', 'bulk-entry', 'import-validation'],
+        description: 'General Configuration, Shop Details, Expense Category, Expense Name, Rate List, Bulk Entry and Import Validation.',
+        pages: ['configuration', 'shop-information', 'expense-categories', 'expense-types', 'rate-list', 'bulk-entry', 'import-validation'],
         actions: ['add', 'view', 'edit', 'delete']
     },
     {
@@ -92,7 +92,8 @@ const accessPageDefinitions = [
     { key: 'reports', label: 'Reports', path: '/reports', group: 'reports' },
     { key: 'activity-report', label: 'Activity Report', path: '/activity-report', group: 'reports' },
     { key: 'configuration', label: 'General Configuration', path: '/config', group: 'configuration' },
-    { key: 'expense-types', label: 'Expense Types', path: '/expense-types', group: 'configuration' },
+    { key: 'expense-categories', label: 'Expense Category', path: '/expense-categories', group: 'configuration' },
+    { key: 'expense-types', label: 'Expense Name', path: '/expense-types', group: 'configuration' },
     { key: 'rate-list', label: 'Rate List', path: '/rate-list', group: 'configuration' },
     { key: 'bulk-entry', label: 'Bulk Entry', path: '/bulk-entry', group: 'configuration' },
     { key: 'import-validation', label: 'Import Validation', path: '/import-validation', group: 'configuration' },
@@ -225,10 +226,25 @@ const defaultShopDetails = {
     'Show Password Login': 'Yes'
 };
 
+const expenseCategorySchema = new mongoose.Schema({
+    sr: { type: Number, required: true, min: 1 },
+    name: { type: String, required: true, unique: true, trim: true, maxlength: 100 },
+    categoryType: { type: String, enum: ['Main', 'Other'], default: 'Main' },
+    status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }
+}, { timestamps: true });
+const ExpenseCategory = createTenantModelProxy('ExpenseCategory', expenseCategorySchema);
+
 const expenseTypeSchema = new mongoose.Schema({
     sr: { type: Number, required: true, unique: true, min: 1 },
     name: { type: String, required: true, unique: true, trim: true, maxlength: 100 },
-    advanceCategory: { type: String, enum: ['Advance', 'Salary', 'None', ''], default: 'Advance' },
+    category: {
+        type: String,
+        trim: true,
+        default: 'Supplies & Products'
+    },
+    measurementUnit: { type: String, trim: true, uppercase: true, default: 'PCS' },
+    defaultRate: { type: Number, min: 0, default: 0 },
+    advanceCategory: { type: String, enum: ['Advance', 'Salary', 'None', ''], default: 'None' },
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }
 }, { timestamps: true });
 const ExpenseType = createTenantModelProxy('ExpenseType', expenseTypeSchema);
@@ -326,13 +342,18 @@ const CollectionEntry = createTenantModelProxy('Collection', collectionSchema);
 
 const employeeRecordSchema = new mongoose.Schema({
     recordType: { type: String, enum: ['expense', 'salary', 'counter'], required: true },
-    employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true },
+    employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: false },
     employeeName: { type: String, required: true, trim: true },
     entryDate: { type: Date, required: true },
     expenseTypeSr: { type: Number, min: 1 },
     expenseType: { type: String, trim: true, default: '' },
     advanceCategory: { type: String, enum: ['Advance', 'Salary', 'None', ''], default: '' },
     salaryMonth: { type: String, match: /^\d{4}-\d{2}$/ },
+    category: { type: String, trim: true, default: '' },
+    quantity: { type: Number, min: 0, default: 1 },
+    measurementUnit: { type: String, trim: true, default: '' },
+    vendor: { type: String, trim: true, default: '', maxlength: 200 },
+    voucherId: { type: String, trim: true, default: '', maxlength: 100 },
     paymentMode: { type: String, enum: ['Cash', 'Online'], default: 'Cash' },
     amount: { type: Number, required: true, min: 0.01 },
     remark: { type: String, trim: true, default: '', maxlength: 1000 },
@@ -606,21 +627,44 @@ const AuditLog = createTenantModelProxy('AuditLog', auditLogSchema);
 
 class EmployeeInputError extends Error {}
 
+const defaultExpenseCategories = [
+    { sr: 1, name: 'Staff / Advance', categoryType: 'Main', status: 'Active' },
+    { sr: 2, name: 'Supplies & Products', categoryType: 'Main', status: 'Active' },
+    { sr: 3, name: 'Repair & Maintenance', categoryType: 'Main', status: 'Active' },
+    { sr: 4, name: 'Utilities & Bills', categoryType: 'Main', status: 'Active' },
+    { sr: 5, name: 'Marketing & Misc', categoryType: 'Main', status: 'Active' }
+];
+
+async function ensureDefaultExpenseCategories() {
+    if (await ExpenseCategory.estimatedDocumentCount() > 0) return;
+    await ExpenseCategory.bulkWrite(defaultExpenseCategories.map(cat => ({
+        updateOne: {
+            filter: { name: cat.name },
+            update: { $setOnInsert: cat },
+            upsert: true
+        }
+    })));
+}
+
 const defaultExpenseTypes = [
-    { sr: 2, name: 'Daily Expense List', advanceCategory: 'Advance', status: 'Active' },
-    { sr: 3, name: 'Salon Supplies', advanceCategory: 'Advance', status: 'Active' },
-    { sr: 4, name: 'Rent', advanceCategory: 'Advance', status: 'Active' },
-    { sr: 5, name: 'Electric Bill', advanceCategory: 'Advance', status: 'Active' },
-    { sr: 6, name: 'EMI', advanceCategory: 'Advance', status: 'Inactive' },
-    { sr: 7, name: 'Home', advanceCategory: 'Advance', status: 'Active' },
-    { sr: 8, name: 'Shop', advanceCategory: 'Advance', status: 'Active' },
-    { sr: 9, name: 'Water', advanceCategory: 'Advance', status: 'Active' },
-    { sr: 10, name: 'Other', advanceCategory: 'Advance', status: 'Active' },
-    { sr: 1, name: 'Advance Amount', advanceCategory: 'Advance', status: 'Active' }
+    { sr: 2, name: 'Daily Expense List', category: 'Supplies & Products', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
+    { sr: 3, name: 'Salon Supplies', category: 'Supplies & Products', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
+    { sr: 4, name: 'Rent', category: 'Utilities & Bills', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
+    { sr: 5, name: 'Electric Bill', category: 'Utilities & Bills', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
+    { sr: 6, name: 'EMI', category: 'Utilities & Bills', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Inactive' },
+    { sr: 7, name: 'Home', category: 'Marketing & Misc', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
+    { sr: 8, name: 'Shop', category: 'Repair & Maintenance', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
+    { sr: 9, name: 'Water', category: 'Utilities & Bills', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
+    { sr: 10, name: 'Other', category: 'Marketing & Misc', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
+    { sr: 1, name: 'Advance Amount', category: 'Staff / Advance', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'Advance', status: 'Active' }
 ];
 
 async function ensureDefaultExpenseTypes() {
-    if (await ExpenseType.estimatedDocumentCount() > 0) return;
+    if (await ExpenseType.estimatedDocumentCount() > 0) {
+        await ExpenseType.updateMany({ category: { $exists: false } }, { $set: { category: 'Supplies & Products', measurementUnit: 'PCS', defaultRate: 0 } });
+        await ExpenseType.updateMany({ name: 'Advance Amount', category: { $ne: 'Staff / Advance' } }, { $set: { category: 'Staff / Advance' } });
+        return;
+    }
     await ExpenseType.bulkWrite(defaultExpenseTypes.map(expenseType => ({
         updateOne: {
             filter: { sr: expenseType.sr },
@@ -1663,7 +1707,7 @@ app.get('/collection-entry', (req, res) => {
 });
 
 app.get('/expense-entry', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'module-entry.html'));
+    res.sendFile(path.join(__dirname, 'public', 'expense-entry.html'));
 });
 
 app.get('/salary-entry', (req, res) => {
@@ -1729,6 +1773,10 @@ app.get('/import-validation', (req, res) => {
 
 app.get('/employees', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'employees.html'));
+});
+
+app.get('/expense-categories', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'expense-categories.html'));
 });
 
 app.get('/expense-types', (req, res) => {
@@ -3241,6 +3289,115 @@ app.get('/api/staff', requireSecureAuth, verifyEmployee, async (req, res) => {
     }
 });
 
+app.get('/api/expense-categories', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration', 'employee-list', 'expense-entry', 'expense-records'), async (req, res) => {
+    try {
+        await ensureDefaultExpenseCategories();
+        const categories = await ExpenseCategory.find().sort({ sr: 1 }).lean();
+        return res.json(categories);
+    } catch (error) {
+        console.error('Expense categories read error:', error);
+        return res.status(500).json({ error: 'Could not load expense categories.' });
+    }
+});
+
+app.post('/api/expense-categories', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'add'), async (req, res) => {
+    try {
+        const sr = Number(req.body.sr);
+        const name = String(req.body.name ?? '').trim();
+        const categoryType = ['Main', 'Other'].includes(req.body.categoryType) ? req.body.categoryType : 'Main';
+        const status = ['Active', 'Inactive'].includes(req.body.status) ? req.body.status : 'Active';
+
+        if (!Number.isSafeInteger(sr) || sr < 1 || !name || name.length > 100) {
+            return res.status(400).json({ error: 'Enter a valid serial number and category name.' });
+        }
+
+        const category = await ExpenseCategory.create({ sr, name, categoryType, status });
+        await recordAudit(req, {
+            action: 'CREATE', page: 'Expense Category', module: 'Expense Category', recordType: 'ExpenseCategory',
+            recordId: String(category._id), newValue: category
+        });
+        return res.status(201).json(category);
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ error: 'That serial number or category name is already in use.' });
+        }
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
+        console.error('Expense category create error:', error);
+        return res.status(500).json({ error: 'Could not create expense category.' });
+    }
+});
+
+app.put('/api/expense-categories/:id', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'edit'), async (req, res) => {
+    try {
+        if (!mongoose.isValidObjectId(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid expense category ID.' });
+        }
+        const before = await ExpenseCategory.findById(req.params.id).lean();
+        if (!before) return res.status(404).json({ error: 'Expense category not found.' });
+
+        const sr = req.body.sr === undefined || req.body.sr === '' ? Number(before.sr || 1) : Number(req.body.sr);
+        const name = String(req.body.name ?? before.name).trim();
+        const categoryType = ['Main', 'Other'].includes(req.body.categoryType) ? req.body.categoryType : before.categoryType;
+        const status = ['Active', 'Inactive'].includes(req.body.status) ? req.body.status : before.status;
+
+        if (!Number.isSafeInteger(sr) || sr < 1 || !name || name.length > 100) {
+            return res.status(400).json({ error: 'Enter a valid serial number and category name.' });
+        }
+
+        const category = await ExpenseCategory.findByIdAndUpdate(
+            req.params.id,
+            { $set: { sr, name, categoryType, status } },
+            { returnDocument: 'after', runValidators: true }
+        ).lean();
+
+        if (before.name !== name) {
+            await ExpenseType.updateMany({ category: before.name }, { $set: { category: name } });
+        }
+
+        await recordAudit(req, {
+            action: 'UPDATE', page: 'Expense Category', module: 'Expense Category', recordType: 'ExpenseCategory',
+            recordId: String(category._id), oldValue: before, newValue: category
+        });
+        return res.json(category);
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ error: 'That serial number or category name is already in use.' });
+        }
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
+        console.error('Expense category update error:', error);
+        return res.status(500).json({ error: 'Could not update expense category.' });
+    }
+});
+
+app.delete('/api/expense-categories/:id', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'delete'), async (req, res) => {
+    try {
+        if (!mongoose.isValidObjectId(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid expense category ID.' });
+        }
+        const category = await ExpenseCategory.findById(req.params.id).lean();
+        if (!category) return res.status(404).json({ error: 'Expense category not found.' });
+
+        const usedCount = await ExpenseType.countDocuments({ category: category.name });
+        if (usedCount > 0) {
+            return res.status(409).json({ error: `Cannot delete "${category.name}" because it is mapped to ${usedCount} expense item(s). Set status to Inactive instead.` });
+        }
+
+        await ExpenseCategory.findByIdAndDelete(req.params.id);
+        await recordAudit(req, {
+            action: 'DELETE', page: 'Expense Category', module: 'Expense Category', recordType: 'ExpenseCategory',
+            recordId: String(category._id), oldValue: category
+        });
+        return res.json({ message: 'Category deleted successfully.' });
+    } catch (error) {
+        console.error('Expense category delete error:', error);
+        return res.status(500).json({ error: 'Could not delete expense category.' });
+    }
+});
+
 app.get('/api/expense-types', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration', 'employee-list'), async (req, res) => {
     try {
         await ensureDefaultExpenseTypes();
@@ -3256,13 +3413,16 @@ app.post('/api/expense-types', requireSecureAuth, verifyEmployee, requireAnyPage
     try {
         const sr = Number(req.body.sr);
         const name = String(req.body.name ?? '').trim();
-        const advanceCategory = ['Advance', 'Salary'].includes(req.body.advanceCategory) ? req.body.advanceCategory : 'Advance';
+        const category = String(req.body.category || 'Supplies & Products').trim();
+        const measurementUnit = String(req.body.measurementUnit || 'PCS').trim().toUpperCase().slice(0, 20);
+        const defaultRate = Math.max(0, Number(req.body.defaultRate) || 0);
+        const advanceCategory = category === 'Staff / Advance' ? 'Advance' : 'None';
         const status = String(req.body.status ?? 'Active').trim();
         if (!Number.isSafeInteger(sr) || sr < 1 || !name || name.length > 100 ||
             !['Active', 'Inactive'].includes(status)) {
             return res.status(400).json({ error: 'Enter a valid serial number, expense type name, and status.' });
         }
-        const expenseType = await ExpenseType.create({ sr, name, advanceCategory, status });
+        const expenseType = await ExpenseType.create({ sr, name, category, measurementUnit, defaultRate, advanceCategory, status });
         await recordAudit(req, {
             action: 'CREATE', page: 'Expense Type', module: 'Expense Type', recordType: 'ExpenseType',
             recordId: String(expenseType._id), newValue: expenseType
@@ -3287,7 +3447,10 @@ app.put('/api/expense-types/:id', requireSecureAuth, verifyEmployee, requireAnyP
         }
         const sr = Number(req.body.sr);
         const name = String(req.body.name ?? '').trim();
-        const advanceCategory = ['Advance', 'Salary'].includes(req.body.advanceCategory) ? req.body.advanceCategory : 'Advance';
+        const category = String(req.body.category || 'Supplies & Products').trim();
+        const measurementUnit = String(req.body.measurementUnit || 'PCS').trim().toUpperCase().slice(0, 20);
+        const defaultRate = Math.max(0, Number(req.body.defaultRate) || 0);
+        const advanceCategory = category === 'Staff / Advance' ? 'Advance' : 'None';
         const status = String(req.body.status ?? '').trim();
         if (!Number.isSafeInteger(sr) || sr < 1 || !name || name.length > 100 ||
             !['Active', 'Inactive'].includes(status)) {
@@ -3307,7 +3470,7 @@ app.put('/api/expense-types/:id', requireSecureAuth, verifyEmployee, requireAnyP
         }
         const expenseType = await ExpenseType.findByIdAndUpdate(
             req.params.id,
-            { $set: { sr, name, advanceCategory, status } },
+            { $set: { sr, name, category, measurementUnit, defaultRate, advanceCategory, status } },
             { returnDocument: 'after', runValidators: true }
         );
         if (previousType.name !== name) {
@@ -5562,6 +5725,102 @@ async function prepareEmployeeRecordInput(req, recordType, employeeId = req.body
         remark: String(req.body.remark || '').trim().slice(0, 1000)
     };
 }
+
+app.post('/api/expense-voucher', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        if (!isAdmin(req.employee)) {
+            return res.status(403).json({ error: 'Only admin can record expense vouchers.' });
+        }
+        const entryDate = String(req.body.entryDate || getTodayDate());
+        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(entryDate);
+        const date = match ? new Date(`${entryDate}T00:00:00.000Z`) : null;
+        if (!date || Number.isNaN(date.getTime())) {
+            return res.status(400).json({ error: 'Select a valid entry date.' });
+        }
+        const paymentMode = String(req.body.paymentMode || 'Cash');
+        if (!['Cash', 'Online'].includes(paymentMode)) {
+            return res.status(400).json({ error: 'Select Cash or Online as payment mode.' });
+        }
+        const vendor = String(req.body.vendor || '').trim().slice(0, 200);
+        const remark = String(req.body.remark || '').trim().slice(0, 1000);
+        const items = Array.isArray(req.body.items) ? req.body.items : [];
+        if (items.length === 0) {
+            return res.status(400).json({ error: 'Please add at least one expense item.' });
+        }
+
+        const voucherId = `VCH-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const adminEmp = req.employee;
+        const defaultAdminEmp = await Employee.findOne({ role: 'Admin', status: 'Active' }).lean() || await Employee.findOne({ status: 'Active' }).lean();
+        const fallbackId = (adminEmp?._id && mongoose.isValidObjectId(adminEmp._id)) ? adminEmp._id : defaultAdminEmp?._id;
+        const fallbackName = adminEmp?.employeeName || defaultAdminEmp?.employeeName || 'Admin';
+        const createdRecords = [];
+
+        for (const item of items) {
+            const amount = Number(item.amount);
+            if (!Number.isFinite(amount) || amount <= 0) {
+                return res.status(400).json({ error: `Invalid amount for item ${item.name || item.expenseType || ''}` });
+            }
+            const qty = Math.max(1, Number(item.quantity) || 1);
+            const unit = String(item.measurementUnit || 'PCS').trim().toUpperCase();
+            const expenseType = String(item.name || item.expenseType || '').trim();
+            const category = String(item.category || req.body.category || 'Supplies & Products').trim();
+            const expenseTypeSr = Number(item.expenseTypeSr) || 1;
+
+            let targetEmpId = fallbackId;
+            let targetEmpName = fallbackName;
+            let advCat = 'None';
+
+            if (category === 'Staff / Advance') {
+                advCat = 'Advance';
+                if (item.employeeId && mongoose.isValidObjectId(item.employeeId)) {
+                    const emp = await Employee.findById(item.employeeId).lean();
+                    if (emp) {
+                        targetEmpId = emp._id;
+                        targetEmpName = emp.employeeName;
+                    }
+                }
+            }
+
+            const rec = await EmployeeRecord.create({
+                recordType: 'expense',
+                employeeId: targetEmpId,
+                employeeName: targetEmpName,
+                entryDate: date,
+                expenseTypeSr,
+                expenseType,
+                advanceCategory: advCat,
+                category,
+                quantity: qty,
+                measurementUnit: unit,
+                vendor,
+                voucherId,
+                paymentMode,
+                amount,
+                remark,
+                createdBy: adminEmp.employeeName || 'Admin'
+            });
+            createdRecords.push(rec);
+        }
+
+        await recordAudit(req, {
+            action: 'CREATE',
+            page: 'Expense Entry',
+            module: 'Daily Expense',
+            recordType: 'ExpenseVoucher',
+            recordId: voucherId,
+            newValue: { voucherId, count: createdRecords.length, vendor, amount: items.reduce((s, i) => s + Number(i.amount || 0), 0) }
+        });
+
+        return res.status(201).json({
+            message: `Expense voucher saved successfully (${createdRecords.length} items).`,
+            voucherId,
+            count: createdRecords.length
+        });
+    } catch (error) {
+        console.error('Expense voucher save error:', error);
+        return res.status(500).json({ error: error.message || 'Could not save expense voucher.' });
+    }
+});
 
 app.post('/api/employee-records', requireSecureAuth, verifyEmployee, async (req, res) => {
     try {

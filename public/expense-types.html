@@ -4,243 +4,384 @@
   <script src="/app-boot.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>YOURS SALON — Expense Types</title>
+  <title>YOURS SALON — Expense Name</title>
   <link rel="stylesheet" href="/admin-nav.css">
   <link rel="stylesheet" href="/table-view.css">
   <style>
     *{box-sizing:border-box}
-     body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
-     .container{width:100%;max-width:920px;margin:18px auto 0;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
-    .logo{font-size:24px;font-weight:700;color:#A77B12;margin-bottom:18px;border-bottom:1px solid #ECEDEF;padding-bottom:12px}
-    .logo span{color:#C49A32}
-    .container>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    h1{font-size:21px;margin:0}
-    h2{font-size:16px;margin:0 0 13px}
-    .sub,.help{color:#737780;font-size:13px;line-height:1.5}
-    .sub{margin:7px 0 18px}
-    .panel{padding:16px;margin:14px 0;background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px}
-    .actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
-    button,.link{display:inline-flex;align-items:center;justify-content:center;min-height:39px;border:0;border-radius:8px;padding:9px 13px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
-    button{background:#C49A32;color:#211A0B}
-    button.secondary,.link{background:#F0F1F3;color:#34383E}
-    button:disabled{opacity:.55;cursor:not-allowed}
-    .help{font-size:12px;margin:10px 0 0}
-    .form-grid{display:grid;grid-template-columns:120px minmax(180px,1fr) 160px auto;align-items:end;gap:10px}
+    body{margin:0;min-height:100vh;background:#F4F5F7;color:#242424;font-family:Arial,sans-serif;padding:0}
+    .container{width:100%;max-width:1050px;margin:20px auto 40px;background:#FFF;border:1px solid #E5E7EB;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(28,35,45,.08)}
+    .header-area{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid #ECEDEF;padding-bottom:16px;margin-bottom:20px}
+    h1{font-size:22px;margin:0;font-weight:700;color:#1A1C1E}
+    .sub{color:#64748B;font-size:13px;line-height:1.5;margin:6px 0 0}
+    .panel{padding:18px;margin-bottom:18px;background:#FAFAFB;border:1px solid #E2E8F0;border-radius:12px}
+    .form-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .form-header h2{font-size:15px;margin:0;font-weight:700;color:#334155}
+    .form-grid{display:grid;grid-template-columns:80px minmax(180px,1.8fr) minmax(160px,1.4fr) 110px 110px 110px auto auto;align-items:end;gap:10px}
     .field{display:flex;flex-direction:column;gap:5px}
-    .field label{font-size:11px;font-weight:700;color:#656B74}
-    .field input,.field select{width:100%;height:39px;padding:7px 10px;border:1px solid #D9DDE3;border-radius:8px;background:#FFF;color:#242424;font:inherit}
-    .field input:focus,.field select:focus{outline:0;border-color:#C49A32;box-shadow:0 0 0 3px rgba(196,154,50,.14)}
-    .table-wrap{overflow:auto;border:1px solid #E5E7EB;border-radius:9px;background:#FFF}
-    table{border-collapse:collapse;width:100%;min-width:520px;font-size:13px}
-    th,td{text-align:left;padding:11px;border-bottom:1px solid #ECEDEF}
-    th{background:#F7F8FA;color:#555B64;font-size:11px}
-    tbody tr:last-child td{border-bottom:0}
-    .badge{display:inline-block;padding:4px 8px;border-radius:99px;background:#E9F6F1;color:#286B53;font-weight:700}
-    .badge.inactive{background:#F0F1F3;color:#656B74}
+    .field label{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.03em}
+    .field input,.field select{width:100%;height:38px;padding:7px 10px;border:1px solid #CBD5E1;border-radius:8px;background:#FFF;color:#1E293B;font-size:13px}
+    .field input:focus,.field select:focus{outline:0;border-color:#C49A32;box-shadow:0 0 0 3px rgba(196,154,50,.15)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:8px 14px;border:0;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s ease}
+    .btn-primary{background:#C49A32;color:#FFF}
+    .btn-primary:hover{background:#B38927}
+    .btn-secondary{background:#F1F5F9;color:#475569}
+    .btn-secondary:hover{background:#E2E8F0}
+    .btn:disabled{opacity:0.55;cursor:not-allowed}
+    .table-wrap{overflow:auto;border:1px solid #E2E8F0;border-radius:10px;background:#FFF}
+    table{border-collapse:collapse;width:100%;min-width:760px;font-size:13px}
+    th,td{text-align:left;padding:12px 14px;border-bottom:1px solid #F1F5F9}
+    th{background:#F8FAFC;color:#64748B;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em}
+    tbody tr:hover{background:#F8FAFC}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700}
+    .badge-cat{background:#EFF6FF;color:#1E40AF;border:1px solid #DBEAFE}
+    .badge-unit{background:#F8FAFC;color:#475569;border:1px solid #E2E8F0;font-weight:700}
+    .badge-active{background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0}
+    .badge-inactive{background:#F1F5F9;color:#64748B;border:1px solid #CBD5E1}
     .row-actions{display:flex;gap:6px}
-    .row-actions button{min-height:30px;padding:5px 9px;font-size:11px}
-    #status{display:none;margin-top:12px;padding:10px;border-radius:7px;font-size:13px;white-space:pre-line}
-    #status.success{display:block;background:#E9F6F1;border:1px solid #A8D8C6;color:#286B53}
-    #status.error{display:block;background:#FCEDEC;border:1px solid #EDBCB8;color:#9E3933}
-    #emptyState{padding:18px;text-align:center;color:#737780;font-size:13px}
-    [hidden]{display:none!important}
-    @media(max-width:720px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:18px}.form-grid{grid-template-columns:1fr 1fr}.form-grid button{grid-column:1/-1}}
-    @media(max-width:440px){.container>header{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}}
+    .row-actions button{min-height:28px;padding:4px 8px;font-size:11px;border-radius:6px}
+    #statusBox{display:none;margin-top:14px;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600}
+    #statusBox.success{display:block;background:#ECFDF5;border:1px solid #A7F3D0;color:#047857}
+    #statusBox.error{display:block;background:#FEF2F2;border:1px solid #FECACA;color:#DC2626}
+    .empty-state{padding:30px;text-align:center;color:#64748B;font-size:13px}
+    @media(max-width:950px){
+      .form-grid{grid-template-columns:1fr 1fr}
+      .form-grid button{grid-column:1/-1}
+    }
+    @media(max-width:600px){
+      .container{margin:0;border:0;border-radius:0;padding:16px}
+      .form-grid{grid-template-columns:1fr}
+    }
   </style>
+  <link rel="stylesheet" href="/mobile.css">
 </head>
 <body>
   <main class="container">
-     <h1>Expense Types</h1>
-    <p class="sub">Manage expense type names, serial numbers, and active status. Active types appear in the Employee form, ordered by SR.</p>
-
-    <section class="panel">
-      <div class="actions" style="justify-content:space-between;margin-bottom:12px">
-        <h2 id="formTitle" style="margin:0">Expense Type</h2>
-        <button id="addTypeButton" type="button" aria-label="Add expense type">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span>
+    <header class="header-area">
+      <div>
+        <h1>Expense Name</h1>
+        <p class="sub">Manage expense items/products, map them to an <strong>Expense Category</strong>, configure measurement units, and set default rates.</p>
+      </div>
+      <div>
+        <button id="addToggleBtn" class="btn btn-primary" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Expense Name</span>
         </button>
       </div>
-      <div id="expenseTypeFormPanel" hidden>
-      <form id="expenseTypeForm" class="form-grid">
-        <div class="field"><label for="sr">SR *</label><input id="sr" name="sr" type="number" min="1" step="1" required></div>
-        <div class="field"><label for="name">Expense Type *</label><input id="name" name="name" maxlength="100" required></div>
-        <div class="field"><label for="advanceCategory">Advance Category</label><select id="advanceCategory" name="advanceCategory"><option value="Advance">Advance</option><option value="Salary">Salary</option></select></div>
-        <div class="field"><label for="statusSelect">Status</label><select id="statusSelect" name="status"><option>Active</option><option>Inactive</option></select></div>
-        <button id="saveButton" type="submit">Save type</button>
+    </header>
+
+    <section id="formPanel" class="panel" hidden>
+      <div class="form-header">
+        <h2 id="formTitle">Add Expense Name</h2>
+      </div>
+      <form id="expenseNameForm" class="form-grid">
+        <div class="field">
+          <label for="sr">SR *</label>
+          <input id="sr" name="sr" type="number" min="1" step="1" required>
+        </div>
+        <div class="field">
+          <label for="name">Expense Name / Item *</label>
+          <input id="name" name="name" maxlength="100" placeholder="e.g. Shaving Cream" required>
+        </div>
+        <div class="field">
+          <label for="category">Category *</label>
+          <select id="category" name="category" required>
+            <option value="">Loading categories...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="measurementUnit">Unit</label>
+          <select id="measurementUnit" name="measurementUnit">
+            <option value="PCS">PCS</option>
+            <option value="LTR">LTR</option>
+            <option value="KG">KG</option>
+            <option value="PKT">PKT</option>
+            <option value="BOX">BOX</option>
+            <option value="CAN">CAN</option>
+            <option value="BTL">BTL</option>
+            <option value="JAR">JAR</option>
+            <option value="SET">SET</option>
+            <option value="TUBE">TUBE</option>
+            <option value="GM">GM</option>
+            <option value="ML">ML</option>
+            <option value="PAIR">PAIR</option>
+            <option value="MTR">MTR</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="defaultRate">Default Rate (₹)</label>
+          <input id="defaultRate" name="defaultRate" type="number" min="0" step="1" placeholder="0">
+        </div>
+        <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+        <button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
+        <button id="cancelBtn" class="btn btn-secondary" type="button">Cancel</button>
       </form>
-      </div>
     </section>
 
-    <section class="panel">
-      <h2>Expense type list</h2>
+    <div id="statusBox" role="status" aria-live="polite"></div>
+
+    <section class="panel" style="background:#FFF;padding:14px">
+      <div class="form-header">
+        <h2>Expense Name List</h2>
+      </div>
       <div class="table-wrap">
-        <table id="expenseTypeTable" data-table-view>
-          <thead><tr><th>SR</th><th>Expense Type</th><th>Advance Category</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="typeRows"></tbody>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px">SR</th>
+              <th>Expense Name / Item</th>
+              <th>Category</th>
+              <th>Unit</th>
+              <th>Default Rate</th>
+              <th>Status</th>
+              <th style="width:100px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rowsEl">
+            <tr><td colspan="7" class="empty-state">Loading expense names...</td></tr>
+          </tbody>
         </table>
-        <div id="emptyState">Loading expense types...</div>
       </div>
     </section>
-    <div id="status" role="status" aria-live="polite"></div>
   </main>
-  <script src="/auth-guard.js"></script><script src="/admin-nav.js" defer></script>
-  <script>
-    const form=document.getElementById('expenseTypeForm');
-    const rowsElement=document.getElementById('typeRows');
-    const emptyState=document.getElementById('emptyState');
-    const statusBox=document.getElementById('status');
-    let expenseTypes=[];
-    let editingId='';
-    let canAddType=false;
-    let canEditType=false;
 
-    function authHeaders(json=true){
-      const headers={};
-      if(json)headers['Content-Type']='application/json';
-      const token=localStorage.getItem('salon_google_credential');
-      if(token)headers.Authorization='Bearer '+token;
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js" defer></script>
+  <script>
+    const formPanel = document.getElementById('formPanel');
+    const form = document.getElementById('expenseNameForm');
+    const formTitle = document.getElementById('formTitle');
+    const srInput = document.getElementById('sr');
+    const nameInput = document.getElementById('name');
+    const categorySelect = document.getElementById('category');
+    const unitSelect = document.getElementById('measurementUnit');
+    const defaultRateInput = document.getElementById('defaultRate');
+    const statusSelect = document.getElementById('status');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const addToggleBtn = document.getElementById('addToggleBtn');
+    const rowsEl = document.getElementById('rowsEl');
+    const statusBox = document.getElementById('statusBox');
+
+    let expenseTypes = [];
+    let categoriesList = [];
+    let editingId = '';
+    let canAdd = false;
+    let canEdit = false;
+
+    function authHeaders(json = true) {
+      const headers = {};
+      if (json) headers['Content-Type'] = 'application/json';
+      const token = localStorage.getItem('salon_google_credential');
+      if (token) headers.Authorization = 'Bearer ' + token;
       return headers;
     }
 
-    function showStatus(message,type){
-      statusBox.textContent=message;
-      statusBox.className=type;
+    function showStatus(msg, type = 'success') {
+      statusBox.textContent = msg;
+      statusBox.className = type;
+      statusBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => {
+        if (statusBox.textContent === msg) {
+          statusBox.style.display = 'none';
+        }
+      }, 5000);
     }
 
-    function setAddTypeButton(isOpen){
-      const button=document.getElementById('addTypeButton');
-      button.setAttribute('aria-label',isOpen?'Close expense type form':'Add expense type');
-      button.innerHTML=isOpen
-        ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg><span>Close</span>'
-        :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span>';
+    function nextSr() {
+      return expenseTypes.reduce((max, c) => Math.max(max, Number(c.sr || 0)), 0) + 1;
     }
 
-    function renderTypes(){
-      rowsElement.replaceChildren();
-      emptyState.hidden=expenseTypes.length>0;
-      emptyState.textContent='No expense types found.';
-      for(const expenseType of expenseTypes){
-        const row=document.createElement('tr');
-        for(const value of [expenseType.sr,expenseType.name]){
-          const cell=document.createElement('td');
-          cell.textContent=String(value);
-          row.append(cell);
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/expense-categories', { headers: authHeaders(false) });
+        if (res.ok) {
+          categoriesList = await res.json();
+          categorySelect.innerHTML = categoriesList
+            .filter(c => c.status === 'Active')
+            .map(c => `<option value="${c.name}">${c.name}</option>`)
+            .join('');
+          if (!categorySelect.value && categoriesList.length) {
+            categorySelect.value = categoriesList[0].name;
+          }
         }
-        const catCell=document.createElement('td');
-        const catBadge=document.createElement('span');
-        const isSalary=(expenseType.advanceCategory==='Salary');
-        catBadge.className='badge';
-        catBadge.style.cssText=isSalary
-          ?'background:#e0f2fe;color:#0284c7;font-weight:700;border:1px solid #bae6fd;padding:2px 8px;border-radius:6px;'
-          :'background:#fff7ed;color:#ea580c;font-weight:700;border:1px solid #fed7aa;padding:2px 8px;border-radius:6px;';
-        catBadge.textContent=expenseType.advanceCategory||'Advance';
-        catCell.append(catBadge);
-        row.append(catCell);
-        const statusCell=document.createElement('td');
-        const badge=document.createElement('span');
-        badge.className='badge'+(expenseType.status==='Active'?'':' inactive');
-        badge.textContent=expenseType.status;
-        statusCell.append(badge);
-        row.append(statusCell);
-        const actionsCell=document.createElement('td');
-        const actions=document.createElement('div');
-        actions.className='row-actions';
-        if(canEditType){
-          const edit=document.createElement('button');
-          edit.type='button';
-          edit.className='secondary';
-          edit.textContent='Edit';
-          edit.addEventListener('click',()=>editType(expenseType));
-          actions.append(edit);
-        }
-        actionsCell.append(actions);
-        row.append(actionsCell);
-        rowsElement.append(row);
+      } catch (err) {
+        console.error('Error loading categories:', err);
       }
     }
 
-    async function loadTypes(){
-      const response=await fetch('/api/expense-types',{headers:authHeaders(false)});
-      const result=await response.json();
-      if(!response.ok)throw new Error(result.error||'Could not load expense types.');
-      expenseTypes=result;
-      renderTypes();
-    }
-
-    function resetForm(){
+    function openAddForm() {
+      editingId = '';
       form.reset();
-      document.getElementById('expenseTypeFormPanel').hidden=true;
-      editingId='';
-      document.getElementById('formTitle').textContent='Expense Type';
-      document.getElementById('advanceCategory').value='Advance';
-      document.getElementById('saveButton').textContent='Save type';
-      setAddTypeButton(false);
+      srInput.value = nextSr();
+      if (categoriesList.length) categorySelect.value = categoriesList[0].name;
+      unitSelect.value = 'PCS';
+      defaultRateInput.value = '';
+      statusSelect.value = 'Active';
+      formTitle.textContent = 'Add Expense Name';
+      saveBtn.textContent = 'Save';
+      formPanel.hidden = false;
+      nameInput.focus();
     }
 
-    function editType(expenseType){
-      if(!canEditType)return;
-      document.getElementById('expenseTypeFormPanel').hidden=false;
-      editingId=expenseType._id;
-      document.getElementById('sr').value=expenseType.sr;
-      document.getElementById('name').value=expenseType.name;
-      document.getElementById('advanceCategory').value=expenseType.advanceCategory||'Advance';
-      document.getElementById('statusSelect').value=expenseType.status;
-      document.getElementById('formTitle').textContent='Edit expense type';
-      document.getElementById('saveButton').textContent='Update type';
-      setAddTypeButton(true);
-      document.getElementById('formTitle').scrollIntoView({behavior:'smooth',block:'center'});
+    function openEditForm(item) {
+      editingId = item._id;
+      srInput.value = item.sr || 1;
+      nameInput.value = item.name || '';
+      categorySelect.value = item.category || (categoriesList[0]?.name || 'Supplies & Products');
+      unitSelect.value = item.measurementUnit || 'PCS';
+      defaultRateInput.value = item.defaultRate || '';
+      statusSelect.value = item.status || 'Active';
+      formTitle.textContent = 'Edit Expense Name';
+      saveBtn.textContent = 'Update';
+      formPanel.hidden = false;
+      nameInput.focus();
+      formPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    document.getElementById('addTypeButton').addEventListener('click',()=>{
-      if(!canAddType)return;
-      const panel=document.getElementById('expenseTypeFormPanel');
-      if(!panel.hidden){
-        resetForm();
+    function closeForm() {
+      formPanel.hidden = true;
+      form.reset();
+      editingId = '';
+    }
+
+    function render() {
+      rowsEl.replaceChildren();
+      if (!expenseTypes.length) {
+        rowsEl.innerHTML = '<tr><td colspan="7" class="empty-state">No expense names found. Click Add Expense Name to create one.</td></tr>';
         return;
       }
-      resetForm();
-      panel.hidden=false;
-      document.getElementById('formTitle').textContent='Add expense type';
-      setAddTypeButton(true);
-      document.getElementById('formTitle').scrollIntoView({behavior:'smooth',block:'center'});
-    });
 
-    form.addEventListener('submit',async event=>{
-      event.preventDefault();
-      if(editingId?!canEditType:!canAddType)return;
-      const button=document.getElementById('saveButton');
-      const wasEditing=Boolean(editingId);
-      button.disabled=true;
-      try{
-        const response=await fetch(editingId?`/api/expense-types/${encodeURIComponent(editingId)}`:'/api/expense-types',{
-          method:editingId?'PUT':'POST',
-          headers:authHeaders(),
-          body:JSON.stringify(Object.fromEntries(new FormData(form).entries()))
+      for (const item of expenseTypes) {
+        const tr = document.createElement('tr');
+
+        // SR
+        const tdSr = document.createElement('td');
+        tdSr.innerHTML = `<strong>${item.sr}</strong>`;
+        tr.append(tdSr);
+
+        // Name
+        const tdName = document.createElement('td');
+        tdName.innerHTML = `<span style="font-weight:600;color:#1E293B">${item.name}</span>`;
+        tr.append(tdName);
+
+        // Category
+        const tdCat = document.createElement('td');
+        tdCat.innerHTML = `<span class="badge badge-cat">${item.category || 'Supplies & Products'}</span>`;
+        tr.append(tdCat);
+
+        // Unit
+        const tdUnit = document.createElement('td');
+        tdUnit.innerHTML = `<span class="badge badge-unit">${item.measurementUnit || 'PCS'}</span>`;
+        tr.append(tdUnit);
+
+        // Default Rate
+        const tdRate = document.createElement('td');
+        tdRate.textContent = item.defaultRate ? '₹' + item.defaultRate : '—';
+        tr.append(tdRate);
+
+        // Status
+        const tdStatus = document.createElement('td');
+        const isActive = item.status === 'Active';
+        tdStatus.innerHTML = `<span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${item.status}</span>`;
+        tr.append(tdStatus);
+
+        // Actions
+        const tdActions = document.createElement('td');
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'row-actions';
+
+        if (canEdit) {
+          const editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'btn btn-secondary';
+          editBtn.textContent = 'Edit';
+          editBtn.onclick = () => openEditForm(item);
+          actionsDiv.append(editBtn);
+        }
+
+        tdActions.append(actionsDiv);
+        tr.append(tdActions);
+
+        rowsEl.append(tr);
+      }
+    }
+
+    async function loadExpenseTypes() {
+      try {
+        const res = await fetch('/api/expense-types', { headers: authHeaders(false) });
+        if (!res.ok) throw new Error('Failed to load expense names');
+        expenseTypes = await res.json();
+        render();
+      } catch (err) {
+        console.error(err);
+        showStatus(err.message || 'Error loading expense names', 'error');
+      }
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const sr = Number(srInput.value);
+      const name = nameInput.value.trim();
+      const category = categorySelect.value;
+      const measurementUnit = unitSelect.value;
+      const defaultRate = Number(defaultRateInput.value) || 0;
+      const status = statusSelect.value;
+
+      if (!sr || !name) {
+        showStatus('Please enter valid SR and Name', 'error');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      try {
+        const url = editingId ? `/api/expense-types/${editingId}` : '/api/expense-types';
+        const method = editingId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: authHeaders(),
+          body: JSON.stringify({ sr, name, category, measurementUnit, defaultRate, status })
         });
-        const result=await response.json();
-        if(!response.ok)throw new Error(result.error||'Could not save expense type.');
-        resetForm();
-        await loadTypes();
-        showStatus(wasEditing?'Expense type updated.':'Expense type added.','success');
-      }catch(error){
-        showStatus(error.message||'Could not save expense type.','error');
-      }finally{
-        button.disabled=false;
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Save failed');
+
+        showStatus(editingId ? 'Expense Name updated.' : 'Expense Name added.', 'success');
+        closeForm();
+        await loadExpenseTypes();
+      } catch (err) {
+        showStatus(err.message, 'error');
+      } finally {
+        saveBtn.disabled = false;
       }
     });
 
-    (async()=>{
-      const session=await window.salonReady;
-      canAddType=session?.employee?.role==='Admin'||session?.actionAccess?.configuration?.add===true;
-      canEditType=session?.employee?.role==='Admin'||session?.actionAccess?.configuration?.edit===true;
-      document.getElementById('addTypeButton').hidden=!canAddType;
-      await loadTypes();
-    })().catch(error=>{
-      emptyState.hidden=false;
-      emptyState.textContent='Could not load expense types.';
-      showStatus(error.message||'Could not load expense types.','error');
+    addToggleBtn.onclick = () => {
+      if (formPanel.hidden) openAddForm();
+      else closeForm();
+    };
+
+    cancelBtn.onclick = closeForm;
+
+    (async () => {
+      const session = await window.salonReady;
+      const role = session?.employee?.role;
+      const cfg = session?.actionAccess?.configuration;
+      canAdd = role === 'Admin' || cfg?.add === true;
+      canEdit = role === 'Admin' || cfg?.edit === true;
+
+      if (!canAdd) addToggleBtn.style.display = 'none';
+
+      await Promise.all([loadCategories(), loadExpenseTypes()]);
+    })().catch(err => {
+      showStatus(err.message, 'error');
     });
   </script>
-  <script src="/table-view.js"></script>
+  <script src="/mobile.js" defer></script>
 </body>
 </html>
