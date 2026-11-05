@@ -648,24 +648,20 @@ async function ensureDefaultExpenseCategories() {
 }
 
 const defaultExpenseTypes = [
-    { sr: 2, name: 'Daily Expense List', category: 'Supplies & Products', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
-    { sr: 3, name: 'Salon Supplies', category: 'Supplies & Products', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
-    { sr: 4, name: 'Rent', category: 'Utilities & Bills', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
-    { sr: 5, name: 'Electric Bill', category: 'Utilities & Bills', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
-    { sr: 6, name: 'EMI', category: 'Utilities & Bills', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Inactive' },
-    { sr: 7, name: 'Home', category: 'Marketing & Misc', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
-    { sr: 8, name: 'Shop', category: 'Repair & Maintenance', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
-    { sr: 9, name: 'Water', category: 'Utilities & Bills', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
-    { sr: 10, name: 'Other', category: 'Marketing & Misc', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'None', status: 'Active' },
-    { sr: 1, name: 'Advance Amount', category: 'Staff / Advance', measurementUnit: 'PCS', defaultRate: 0, advanceCategory: 'Advance', status: 'Active' }
+    { sr: 2, name: 'Daily Expense List', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 3, name: 'Salon Supplies', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 4, name: 'Rent', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 5, name: 'Electric Bill', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 6, name: 'EMI', advanceCategory: 'Advance', status: 'Inactive' },
+    { sr: 7, name: 'Home', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 8, name: 'Shop', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 9, name: 'Water', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 10, name: 'Other', advanceCategory: 'Advance', status: 'Active' },
+    { sr: 1, name: 'Advance Amount', advanceCategory: 'Advance', status: 'Active' }
 ];
 
 async function ensureDefaultExpenseTypes() {
-    if (await ExpenseType.estimatedDocumentCount() > 0) {
-        await ExpenseType.updateMany({ category: { $exists: false } }, { $set: { category: 'Supplies & Products', measurementUnit: 'PCS', defaultRate: 0 } });
-        await ExpenseType.updateMany({ name: 'Advance Amount', category: { $ne: 'Staff / Advance' } }, { $set: { category: 'Staff / Advance' } });
-        return;
-    }
+    if (await ExpenseType.estimatedDocumentCount() > 0) return;
     await ExpenseType.bulkWrite(defaultExpenseTypes.map(expenseType => ({
         updateOne: {
             filter: { sr: expenseType.sr },
@@ -2273,7 +2269,7 @@ app.post('/api/super-admin/request-otp', async (req, res) => {
         return res.json({
             success: true,
             sessionId,
-            otp,
+            otp, // Displayed directly on screen/view as requested!
             message: 'Gmail confirmed! OTP generated on screen.'
         });
     } catch (err) {
@@ -3819,7 +3815,6 @@ app.get('/api/admin-dashboard-overview', requireSecureAuth, verifyEmployee, requ
     }
 });
 
-
 app.get('/api/staff', requireSecureAuth, verifyEmployee, async (req, res) => {
     try {
         const filter = { status: 'Active' };
@@ -4183,6 +4178,7 @@ app.post('/api/rate-list', requireSecureAuth, verifyEmployee, requireAnyPageAcce
         const serviceType = String(req.body.serviceType || '').trim();
         const shortName = String(req.body.shortName || '').trim().slice(0, 60) || serviceType.slice(0, 60);
         const serviceCategory = String(req.body.serviceCategory || '').trim().slice(0, 100);
+        const voiceKeywords = String(req.body.voiceKeywords || '').trim().slice(0, 500);
         const rate = Number(req.body.rate);
         const category = String(req.body.category || 'Main').trim();
         const status = String(req.body.status || 'Active').trim();
@@ -4193,7 +4189,7 @@ app.post('/api/rate-list', requireSecureAuth, verifyEmployee, requireAnyPageAcce
             return res.status(400).json({ error: 'Enter a valid SR No, service type, short name, rate, category, and status.' });
         }
         const item = await RateList.create({
-            sr, serviceType, shortName, serviceCategory, rate, category, status,
+            sr, serviceType, shortName, serviceCategory, voiceKeywords, rate, category, status,
             createdBy: req.employee?.employeeName || ''
         });
         await recordAudit(req, {
@@ -4217,6 +4213,7 @@ app.put('/api/rate-list/:id', requireSecureAuth, verifyEmployee, requireAnyPageA
         const serviceType = String(req.body.serviceType || '').trim();
         const shortName = String(req.body.shortName || '').trim().slice(0, 60) || serviceType.slice(0, 60);
         const serviceCategory = String(req.body.serviceCategory !== undefined ? req.body.serviceCategory : (before.serviceCategory || '')).trim().slice(0, 100);
+        const voiceKeywords = String(req.body.voiceKeywords !== undefined ? req.body.voiceKeywords : (before.voiceKeywords || '')).trim().slice(0, 500);
         const rate = Number(req.body.rate);
         const category = String(req.body.category || before.category || 'Main').trim();
         const status = String(req.body.status || '').trim();
@@ -4228,7 +4225,7 @@ app.put('/api/rate-list/:id', requireSecureAuth, verifyEmployee, requireAnyPageA
         }
         const item = await RateList.findByIdAndUpdate(
             req.params.id,
-            { $set: { sr, serviceType, shortName, serviceCategory, rate, category, status } },
+            { $set: { sr, serviceType, shortName, serviceCategory, voiceKeywords, rate, category, status } },
             { returnDocument: 'after', runValidators: true }
         ).lean();
         await recordAudit(req, {
@@ -4374,6 +4371,7 @@ app.get('/api/collection-entry-meta', requireSecureAuth, verifyEmployee, verifyC
                 serviceType: item.serviceType,
                 shortName: item.shortName || item.serviceType,
                 serviceCategory: item.serviceCategory || '',
+                voiceKeywords: item.voiceKeywords || '',
                 rate: Number(item.rate || 0),
                 category: item.category || 'Main',
                 status: item.status || 'Active'
@@ -4701,7 +4699,7 @@ app.get('/api/user-access', requireSecureAuth, verifyEmployee, requireAdmin, asy
             AppConfig.findOne({ key: 'collection' }).lean(),
             Employee.find({ status: 'Active' }).select('employeeId employeeName role status').sort({ employeeName: 1 }).lean()
         ]);
-        const employees = activeEmployees.filter(employee => !isAdmin(employee));
+        const employees = activeEmployees;
         return res.json({
             pages: accessPageDefinitions,
             groups: accessGroupDefinitions,
@@ -5852,16 +5850,16 @@ app.post('/api/super-admin/shops', requireSecureAuth, verifyEmployee, async (req
 
         // 5. Seed Starter Rate List
         const starterRates = [
-            { sr: 1, serviceType: 'Hair Cut (Men)', shortName: 'Haircut', serviceCategory: 'Hair', rate: 150, status: 'Active' },
-            { sr: 2, serviceType: 'Hair Cut & Wash (Men)', shortName: 'Hair+Wash', serviceCategory: 'Hair', rate: 250, status: 'Active' },
-            { sr: 3, serviceType: 'Hair Cut (Women)', shortName: 'Haircut-W', serviceCategory: 'Hair', rate: 400, status: 'Active' },
-            { sr: 4, serviceType: 'Beard Trim & Styling', shortName: 'Beard', serviceCategory: 'Beard', rate: 100, status: 'Active' },
-            { sr: 5, serviceType: 'Shave & Face Massage', shortName: 'Shave', serviceCategory: 'Face', rate: 120, status: 'Active' },
-            { sr: 6, serviceType: 'Facial (Gold)', shortName: 'Gold Facial', serviceCategory: 'Facial', rate: 800, status: 'Active' },
-            { sr: 7, serviceType: 'Hair Spa', shortName: 'Spa', serviceCategory: 'Treatment', rate: 600, status: 'Active' },
-            { sr: 8, serviceType: 'Head Massage', shortName: 'Massage', serviceCategory: 'Massage', rate: 150, status: 'Active' },
-            { sr: 9, serviceType: 'Hair Color / Dye', shortName: 'Color', serviceCategory: 'Color', rate: 1000, status: 'Active' },
-            { sr: 10, serviceType: 'D-Tan Pack', shortName: 'D-Tan', serviceCategory: 'Face', rate: 350, status: 'Active' }
+            { sr: 1, serviceType: 'Hair Cut (Men)', shortName: 'Haircut', serviceCategory: 'Hair', rate: 150, status: 'Active', voiceKeywords: 'कटिंग, cutting, haircut, baal cutting, hair cut' },
+            { sr: 2, serviceType: 'Hair Cut & Wash (Men)', shortName: 'Hair+Wash', serviceCategory: 'Hair', rate: 250, status: 'Active', voiceKeywords: 'कटिंग वॉश, haircut wash, baal wash, हेयर वॉश' },
+            { sr: 3, serviceType: 'Hair Cut (Women)', shortName: 'Haircut-W', serviceCategory: 'Hair', rate: 400, status: 'Active', voiceKeywords: 'लेडीज हेयरकट, ladies haircut, female haircut, women haircut' },
+            { sr: 4, serviceType: 'Beard Trim & Styling', shortName: 'Beard', serviceCategory: 'Beard', rate: 100, status: 'Active', voiceKeywords: 'दाढ़ी, beard, dadhi, daadhi, बियर्ड, beard setting, beard trim' },
+            { sr: 5, serviceType: 'Shave & Face Massage', shortName: 'Shave', serviceCategory: 'Face', rate: 120, status: 'Active', voiceKeywords: 'शेविंग, shaving, shave, शेव, clean shave, क्लीन शेव' },
+            { sr: 6, serviceType: 'Facial (Gold)', shortName: 'Gold Facial', serviceCategory: 'Facial', rate: 800, status: 'Active', voiceKeywords: 'गोल्ड फेशियल, gold facial, gold face, फेशियल' },
+            { sr: 7, serviceType: 'Hair Spa', shortName: 'Spa', serviceCategory: 'Treatment', rate: 600, status: 'Active', voiceKeywords: 'हेयर स्पा, hair spa, spa, स्पा' },
+            { sr: 8, serviceType: 'Head Massage', shortName: 'Massage', serviceCategory: 'Massage', rate: 150, status: 'Active', voiceKeywords: 'हेड मसाज, head massage, champi, चम्पी, सिर मालिश' },
+            { sr: 9, serviceType: 'Hair Color / Dye', shortName: 'Color', serviceCategory: 'Color', rate: 1000, status: 'Active', voiceKeywords: 'हेयर कलर, hair color, hair colour, baal color, डाई, hair dye' },
+            { sr: 10, serviceType: 'D-Tan Pack', shortName: 'D-Tan', serviceCategory: 'Face', rate: 350, status: 'Active', voiceKeywords: 'डीटेन, detan, dtan, de-tan pack, डीटेन पैक' }
         ];
         await tenantDb.collection('ratelists').deleteMany({});
         await tenantDb.collection('ratelists').insertMany(starterRates);
@@ -6293,6 +6291,7 @@ async function prepareEmployeeRecordInput(req, recordType, employeeId = req.body
     };
 }
 
+
 app.post('/api/expense-voucher', requireSecureAuth, verifyEmployee, async (req, res) => {
     try {
         if (!isAdmin(req.employee)) {
@@ -6308,6 +6307,7 @@ app.post('/api/expense-voucher', requireSecureAuth, verifyEmployee, async (req, 
         if (!['Cash', 'Online'].includes(paymentMode)) {
             return res.status(400).json({ error: 'Select Cash or Online as payment mode.' });
         }
+        const category = String(req.body.category || 'Supplies & Products').trim();
         const vendor = String(req.body.vendor || '').trim().slice(0, 200);
         const remark = String(req.body.remark || '').trim().slice(0, 1000);
         const items = Array.isArray(req.body.items) ? req.body.items : [];
@@ -6325,12 +6325,11 @@ app.post('/api/expense-voucher', requireSecureAuth, verifyEmployee, async (req, 
         for (const item of items) {
             const amount = Number(item.amount);
             if (!Number.isFinite(amount) || amount <= 0) {
-                return res.status(400).json({ error: `Invalid amount for item ${item.name || item.expenseType || ''}` });
+                return res.status(400).json({ error: `Invalid amount for item ${item.expenseType || ''}` });
             }
             const qty = Math.max(1, Number(item.quantity) || 1);
             const unit = String(item.measurementUnit || 'PCS').trim().toUpperCase();
-            const expenseType = String(item.name || item.expenseType || '').trim();
-            const category = String(item.category || req.body.category || 'Supplies & Products').trim();
+            const expenseType = String(item.expenseType || '').trim();
             const expenseTypeSr = Number(item.expenseTypeSr) || 1;
 
             let targetEmpId = fallbackId;
@@ -6375,7 +6374,7 @@ app.post('/api/expense-voucher', requireSecureAuth, verifyEmployee, async (req, 
             module: 'Daily Expense',
             recordType: 'ExpenseVoucher',
             recordId: voucherId,
-            newValue: { voucherId, count: createdRecords.length, vendor, amount: items.reduce((s, i) => s + Number(i.amount || 0), 0) }
+            newValue: { voucherId, count: createdRecords.length, category, vendor, amount: items.reduce((s, i) => s + Number(i.amount || 0), 0) }
         });
 
         return res.status(201).json({

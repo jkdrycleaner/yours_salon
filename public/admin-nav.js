@@ -111,60 +111,7 @@
     });
   }
 
-  function showError(message = 'An error occurred.', title = 'Notice') {
-    return new Promise(resolve => {
-      document.querySelectorAll('.salon-error-overlay').forEach(el => el.remove());
-      const overlay = document.createElement('div');
-      overlay.className = 'salon-success-overlay salon-error-overlay';
-      overlay.innerHTML = '<div class="salon-success-card salon-error-card" role="alert" aria-live="assertive"><div class="salon-success-check salon-error-icon" aria-hidden="true">&#10007;</div><strong></strong><p></p><button type="button" class="salon-modal-close-btn">OK</button></div>';
-      overlay.querySelector('strong').textContent = title;
-      overlay.querySelector('p').textContent = message;
-      const closeBtn = overlay.querySelector('.salon-modal-close-btn');
-      const close = () => {
-        overlay.classList.remove('open');
-        window.setTimeout(() => { overlay.remove(); resolve(); }, 160);
-      };
-      closeBtn.addEventListener('click', close);
-      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-      document.body.append(overlay);
-      requestAnimationFrame(() => {
-        overlay.classList.add('open');
-        closeBtn.focus();
-      });
-    });
-  }
-
-  function showAlert(message, type = 'error', title = '') {
-    if (type === 'success') return showSuccess(message);
-    return showError(message, title || 'Notice');
-  }
-
-  function setupStatusObserver() {
-    const statusEl = document.getElementById('status') || document.querySelector('.status') || document.getElementById('awStatus');
-    if (!statusEl) return;
-    let lastText = '';
-    const checkAndShow = () => {
-      const text = (statusEl.textContent || '').trim();
-      if (!text || text === lastText) return;
-      if (/^(saving|loading|preparing)/i.test(text)) return;
-      lastText = text;
-      const isError = statusEl.classList.contains('error') || /(error|failed|invalid|not found|cannot|already exists)/i.test(text);
-      if (isError) {
-        showError(text);
-      } else if (statusEl.classList.contains('show') || statusEl.classList.contains('success') || /(saved|updated|created|restored|deleted|success)/i.test(text)) {
-        showSuccess(text);
-      }
-    };
-    const observer = new MutationObserver(checkAndShow);
-    observer.observe(statusEl, { childList: true, characterData: true, subtree: true, attributes: true });
-  }
-
-  window.salonUi = { showSuccess, showError, showAlert };
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupStatusObserver);
-  } else {
-    setupStatusObserver();
-  }
+  window.salonUi = { showSuccess };
 
   function authHeaders() {
     const token = localStorage.getItem(tokenKey);
@@ -619,6 +566,7 @@
     } else if (window.salonMobile?.build) {
       window.salonMobile.build(employee ? { employee } : null);
     }
+
     if (!window.salonApplyButtonTheme) {
       const buttonThemeScript = document.createElement('script');
       buttonThemeScript.src = '/btn-theme.js';

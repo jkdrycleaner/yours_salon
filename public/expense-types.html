@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>YOURS SALON — Expense Name</title>
-  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
   <link rel="stylesheet" href="/table-view.css">
   <style>
     *{box-sizing:border-box}
@@ -53,7 +53,7 @@
       .form-grid{grid-template-columns:1fr}
     }
   </style>
-  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
 </head>
 <body>
   <main class="container">
@@ -93,15 +93,10 @@
           <label for="measurementUnit">Unit</label>
           <select id="measurementUnit" name="measurementUnit">
             <option value="PCS">PCS</option>
-            <option value="LTR">LTR</option>
             <option value="KG">KG</option>
+            <option value="LTR">LTR</option>
             <option value="PKT">PKT</option>
             <option value="BOX">BOX</option>
-            <option value="CAN">CAN</option>
-            <option value="BTL">BTL</option>
-            <option value="JAR">JAR</option>
-            <option value="SET">SET</option>
-            <option value="TUBE">TUBE</option>
             <option value="GM">GM</option>
             <option value="ML">ML</option>
             <option value="PAIR">PAIR</option>
@@ -152,7 +147,7 @@
   </main>
 
   <script src="/auth-guard.js"></script>
-  <script src="/admin-nav.js" defer></script>
+  <script src="/admin-nav.js?v=20261105_m4" defer></script>
   <script>
     const formPanel = document.getElementById('formPanel');
     const form = document.getElementById('expenseNameForm');
@@ -382,6 +377,6 @@
       showStatus(err.message, 'error');
     });
   </script>
-  <script src="/mobile.js" defer></script>
+  <script src="/mobile.js?v=20261105_m4" defer></script>
 </body>
 </html>

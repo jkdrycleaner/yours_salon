@@ -6,11 +6,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Admin Expense Voucher — YOURS SALON</title>
-  <link rel="stylesheet" href="/admin-nav.css">
+  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
   <style>
     * { box-sizing: border-box; }
     
-    /* Clean Top Header - Hide any breadcrumb bars */
+    /* Hide the breadcrumb bar marked by user */
     .salon-page-bar,
     .salon-breadcrumb,
     .salon-page-nav {
@@ -252,7 +252,7 @@
       pointer-events: none;
     }
 
-    /* Category Selector (Full Names in 2-column Grid) */
+    /* 4. Category Selector (Full Names in 2-column Grid) */
     .exp-sec-header {
       display: flex;
       justify-content: space-between;
@@ -368,7 +368,7 @@
       background: #fff;
     }
 
-    /* 4. Active Entry Card */
+    /* 5. Streamlined Active Entry Card */
     .aw-active-item-card {
       border: 1px solid var(--salon-border-light, #e2e8f0);
       border-radius: 16px;
@@ -532,7 +532,7 @@
       transform: scale(0.95);
     }
 
-    /* 5. Added Items List (Downward Stack) */
+    /* 6. Added Items List (Downward Stack) */
     .aw-added-wrap {
       margin-top: 10px;
     }
@@ -596,7 +596,7 @@
       border: 1px solid #d9e0e7;
       border-radius: 11px;
       padding: 0 12px;
-      font: 500 13px Arial, sans-serif;
+      font: 600 13px Arial, sans-serif;
       color: #111827;
       outline: none;
     }
@@ -604,7 +604,7 @@
       border-color: var(--salon-green);
     }
 
-    /* 6. Bottom Bar & Total Box (.aw-bottom-bar) - Positioned above Mobile Bottom Nav */
+    /* 7. Bottom Bar & Total Box (.aw-bottom-bar) - Positioned above Mobile Bottom Nav */
     .aw-bottom-bar {
       position: fixed;
       z-index: 1650 !important;
@@ -756,7 +756,7 @@
       border: 1px solid #d9e0e7;
       border-radius: 9px;
       padding: 6px 10px;
-      font: 500 13px Arial, sans-serif;
+      font: 700 13px Arial, sans-serif;
       color: #111827;
       outline: none;
       background: #fff;
@@ -786,7 +786,7 @@
       cursor: pointer;
     }
   </style>
-  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
 </head>
 <body>
 
@@ -965,20 +965,15 @@
         <div class="modal-field">
           <label for="newItemUnit">Unit</label>
           <select id="newItemUnit">
-            <option value="PCS">PCS</option>
-            <option value="LTR">LTR</option>
-            <option value="KG">KG</option>
-            <option value="PKT">PKT</option>
-            <option value="BOX">BOX</option>
-            <option value="CAN">CAN</option>
-            <option value="BTL">BTL</option>
-            <option value="JAR">JAR</option>
-            <option value="SET">SET</option>
-            <option value="TUBE">TUBE</option>
-            <option value="GM">GM</option>
-            <option value="ML">ML</option>
-            <option value="PAIR">PAIR</option>
-            <option value="MTR">MTR</option>
+            <option value="PCS">PCS (Pieces)</option>
+            <option value="KG">KG (Kilogram)</option>
+            <option value="LTR">LTR (Liter)</option>
+            <option value="PKT">PKT (Packet)</option>
+            <option value="BOX">BOX (Box)</option>
+            <option value="GM">GM (Gram)</option>
+            <option value="ML">ML (Milliliter)</option>
+            <option value="PAIR">PAIR (Pair)</option>
+            <option value="MTR">MTR (Meter)</option>
           </select>
         </div>
         <div class="modal-field">
@@ -995,7 +990,7 @@
   </div>
 
   <script src="/auth-guard.js"></script>
-  <script src="/admin-nav.js" defer></script>
+  <script src="/admin-nav.js?v=20261105_m4" defer></script>
   <script>
     let activePaymentMode = 'Cash';
     let activeCategoryName = 'Supplies & Products';
@@ -1100,6 +1095,8 @@
 
     function selectCategory(catName) {
       activeCategoryName = catName;
+      const badge = document.getElementById('activeCatBadge');
+      if (badge) badge.textContent = catName;
       const modalLabel = document.getElementById('modalCatLabel');
       if (modalLabel) modalLabel.textContent = catName;
 
@@ -1144,14 +1141,16 @@
       });
       if (otherCategories.length > 0) {
         activeCategoryName = otherCategories[0].name;
-        const modalLabel = document.getElementById('modalCatLabel');
-        if (modalLabel) modalLabel.textContent = activeCategoryName;
+        const badge = document.getElementById('activeCatBadge');
+        if (badge) badge.textContent = activeCategoryName;
       }
     }
 
     function onOtherCatChange() {
       const select = document.getElementById('otherCatSelect');
       activeCategoryName = select.value;
+      const badge = document.getElementById('activeCatBadge');
+      if (badge) badge.textContent = activeCategoryName;
       const modalLabel = document.getElementById('modalCatLabel');
       if (modalLabel) modalLabel.textContent = activeCategoryName;
       populateItemsDropdown();
@@ -1240,7 +1239,6 @@
         id: Date.now() + Math.random(),
         category: activeCategoryName,
         name: itemName,
-        expenseType: itemName,
         quantity: qty,
         measurementUnit: unit,
         rate: rate,
@@ -1291,7 +1289,7 @@
           </div>
           <div style="display:flex;align-items:center;">
             <span class="aw-item-val">₹${Number(item.amount).toLocaleString('en-IN')}</span>
-            <button type="button" class="btn-del-row no-btn-theme" onclick="removeItem(${idx})" title="Remove item">✕</button>
+            <button type="button" class="btn-del-row" onclick="removeItem(${idx})" title="Remove item">✕</button>
           </div>
         `;
         container.append(row);
@@ -1468,6 +1466,6 @@
       renderAddedItems();
     })();
   </script>
-  <script src="/mobile.js" defer></script>
+  <script src="/mobile.js?v=20261105_m4" defer></script>
 </body>
 </html>

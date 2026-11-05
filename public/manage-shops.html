@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Manage Shops & Provisioning — SUPER ADMIN</title>
-  <link rel="stylesheet" href="/admin-nav.css">
-  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
   <style>
     * { box-sizing: border-box; }
     body {
@@ -242,6 +242,96 @@
       background: #f0fbf5;
       border-color: #5fd38d;
     }
+    .pill-atlas {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 99px;
+      background: #e6f6ee;
+      color: #0b7c4a;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid #bcead4;
+    }
+    .pill-shared {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 99px;
+      background: #eef2f6;
+      color: #3b5066;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid #d4deec;
+    }
+    .pill-exp-ok {
+      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px;
+      background: #dcfce7; color: #15803d; font-size: 10.5px; font-weight: 700;
+    }
+    .pill-exp-warn {
+      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px;
+      background: #ffedd5; color: #c2410c; font-size: 10.5px; font-weight: 700; animation: pulse 1s infinite alternate;
+    }
+    .pill-exp-danger {
+      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px;
+      background: #fee2e2; color: #b91c1c; font-size: 10.5px; font-weight: 700;
+    }
+    .modal-wrap {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .modal-card {
+      background: #fff; border-radius: 14px; padding: 22px; width: min(480px, 100%);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.2);
+    }
+    .modal-head {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--line);
+    }
+    .modal-head h3 { margin: 0; font-size: 16px; font-weight: 800; color: var(--ink); }
+    .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--mut); line-height: 1; }
+    .pkg-btn {
+      padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc;
+      text-align: left; cursor: pointer; transition: all 0.15s;
+    }
+    .pkg-btn:hover { border-color: var(--primary); background: #f0fdf7; }
+    .pkg-btn strong { display: block; font-size: 12px; color: var(--ink); }
+    .pkg-btn span { font-size: 11px; color: #10b981; font-weight: 700; }
+    .progress-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #f0fdf7;
+      border: 1px solid #b7eedc;
+      font-size: 12px;
+      display: none;
+    }
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+      color: #1e5e3a;
+      font-weight: 600;
+      font-size: 11.5px;
+    }
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #1fb87a;
+      animation: pulse 1s infinite alternate;
+      flex-shrink: 0;
+    }
+    @keyframes pulse {
+      from { transform: scale(0.8); opacity: 0.5; }
+      to { transform: scale(1.3); opacity: 1; }
+    }
     .spinner {
       display: inline-block;
       width: 14px;
@@ -271,9 +361,10 @@
 
     <!-- Stats strip -->
     <div class="stats" id="provisionStats">
-      <div class="stat s1"><i>🏢</i><div><small>Total Registered</small><b id="statTotalShops">0</b></div></div>
+      <div class="stat s1"><i>🏢</i><div><small>Total Salons</small><b id="statTotalShops">0</b></div></div>
       <div class="stat s2"><i>⚡</i><div><small>Active Salons</small><b id="statActiveShops">0</b></div></div>
-      <div class="stat s4"><i>🗄️</i><div><small>Isolated DBs</small><b id="statTotalDbs">0</b></div></div>
+      <div class="stat s3"><i>☁️</i><div><small>Dedicated Atlas M0</small><b id="statDedicatedShops">0</b></div></div>
+      <div class="stat s4"><i>🗄️</i><div><small>Shared Clusters</small><b id="statSharedShops">0</b></div></div>
     </div>
 
     <div class="grid2">
@@ -320,6 +411,26 @@
           </div>
 
           <div class="field">
+            <label>MongoDB Cluster Infrastructure *</label>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <label class="template-card" style="border-color:#1fb87a;background:#f0fcf6;">
+                <input type="radio" name="clusterProvisioning" value="auto_atlas" checked>
+                <div class="template-info">
+                  <strong style="color:#0f6b44;">⚡ Dedicated MongoDB Atlas Cluster (Free M0 on AWS Mumbai)</strong>
+                  <small>Automated 1-click cloud provisioning via Atlas Admin API. 100% data & RAM isolation (~15-20s).</small>
+                </div>
+              </label>
+              <label class="template-card">
+                <input type="radio" name="clusterProvisioning" value="shared">
+                <div class="template-info">
+                  <strong>🌐 Shared Master Cluster</strong>
+                  <small>Creates an isolated database on the shared master server (instant 2s setup).</small>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
             <label>Starter Package / Template</label>
             <label class="template-card">
               <input type="radio" name="plan" value="Standard" checked>
@@ -333,6 +444,11 @@
           <button id="btnSubmitShop" type="submit" class="btn" style="width:100%;min-height:42px;margin-top:4px;">
             <span>Create & Provision Shop ⚡</span>
           </button>
+
+          <div id="progressBox" class="progress-box">
+            <div id="progressStatus" style="font-weight:700;color:#0f6b44;margin-bottom:6px;">🚀 Provisioning in progress...</div>
+            <div class="progress-step"><span class="step-dot"></span><span id="progressStepText">Initializing provisioning request...</span></div>
+          </div>
 
           <div id="statusBox" class="status-msg"></div>
         </form>
@@ -351,14 +467,15 @@
               <tr>
                 <th>Salon Name</th>
                 <th>Salon Code</th>
-                <th>Tenant Database</th>
-                <th>Owner / Mobile</th>
+                <th>Infrastructure</th>
+                <th>Registered On</th>
+                <th>Package & Expiry</th>
                 <th>Status</th>
-                <th>Action</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="shopsTableBody">
-              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--mut);">Loading shops list...</td></tr>
+              <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--mut);">Loading shops list...</td></tr>
             </tbody>
           </table>
         </div>
@@ -366,9 +483,86 @@
     </div>
   </main>
 
+  <!-- Extend Package Modal -->
+  <div id="extendModal" class="modal-wrap" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>⚡ Extend Package / Add Days</h3>
+        <button type="button" class="close-btn" onclick="closeExtendModal()">✕</button>
+      </div>
+      <div style="font-size:12.5px;color:var(--mut);margin-bottom:14px;background:#f8fafc;padding:10px;border-radius:8px;">
+        Salon: <strong id="modalShopName" style="color:var(--ink);"></strong> (<span id="modalShopCode" style="font-family:monospace;color:#10b981;"></span>)<br>
+        Current Expiry: <strong id="modalCurrentExpiry" style="color:#0f6b44;"></strong> &nbsp;|&nbsp; <span id="modalCurrentDaysLeft"></span>
+      </div>
+
+      <label style="font-size:11.5px;font-weight:700;display:block;margin-bottom:6px;color:#334155;">Quick Recharge Package</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <button type="button" class="pkg-btn" onclick="selectPkg(999, 30)">
+          <strong>1 Month (30 Days)</strong>
+          <span>₹999</span>
+        </button>
+        <button type="button" class="pkg-btn" onclick="selectPkg(2499, 90)">
+          <strong>3 Months (90 Days)</strong>
+          <span>₹2,499</span>
+        </button>
+        <button type="button" class="pkg-btn" onclick="selectPkg(4499, 180)">
+          <strong>6 Months (180 Days)</strong>
+          <span>₹4,499</span>
+        </button>
+        <button type="button" class="pkg-btn" onclick="selectPkg(7999, 365)">
+          <strong>1 Year (365 Days)</strong>
+          <span>₹7,999</span>
+        </button>
+      </div>
+
+      <form id="extendForm" class="form-col" onsubmit="event.preventDefault(); submitExtendPackage();">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="field">
+            <label for="extendAmount">Amount Collected (₹) *</label>
+            <input id="extendAmount" type="number" min="0" placeholder="999" required oninput="calcNewExpiry()">
+          </div>
+          <div class="field">
+            <label for="extendDays">Days to Add *</label>
+            <input id="extendDays" type="number" min="1" placeholder="30" required oninput="calcNewExpiry()">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="extendNotes">Payment Note / Reference</label>
+          <input id="extendNotes" type="text" placeholder="e.g. UPI / Cash / Online Transfer">
+        </div>
+
+        <div style="background:#f0fdf7;border:1px dashed #10b981;border-radius:8px;padding:10px;font-size:12px;margin:4px 0 10px;">
+          📅 New Expiry Date: <strong id="modalNewExpiry" style="color:#065f46;">Select or enter days above</strong>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button type="button" class="action-btn" style="flex:1;height:40px;justify-content:center;" onclick="closeExtendModal()">Cancel</button>
+          <button type="submit" id="btnConfirmExtend" class="btn" style="flex:1;height:40px;background:#1fb87a;color:#fff;justify-content:center;">Confirm & Extend ⚡</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recharge History Modal -->
+  <div id="historyModal" class="modal-wrap" style="display:none;">
+    <div class="modal-card" style="max-width:540px;">
+      <div class="modal-head">
+        <h3>📜 Recharge & Extension History</h3>
+        <button type="button" class="close-btn" onclick="closeHistoryModal()">✕</button>
+      </div>
+      <div style="font-size:12.5px;color:var(--mut);margin-bottom:12px;">
+        Salon: <strong id="histShopName" style="color:var(--ink);"></strong>
+      </div>
+      <div id="histContent" style="max-height:280px;overflow-y:auto;">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
   <script src="/auth-guard.js"></script>
-  <script src="/admin-nav.js"></script>
-  <script src="/mobile.js"></script>
+  <script src="/admin-nav.js?v=20261105_m4"></script>
+  <script src="/mobile.js?v=20261105_m4"></script>
   <script>
     function autoGenerateSlug(name) {
       const codeInput = document.getElementById('shopCode');
@@ -389,39 +583,77 @@
       try {
         const res = await salonAuth.request('/api/super-admin/shops');
         const shops = res.shops || [];
+        const dedicatedCount = shops.filter(s => s.clusterType && s.clusterType.includes('Dedicated')).length;
         document.getElementById('shopCount').textContent = shops.length;
         document.getElementById('statTotalShops').textContent = shops.length;
         document.getElementById('statActiveShops').textContent = shops.filter(s => s.status === 'Active').length;
-        document.getElementById('statTotalDbs').textContent = shops.length;
+        document.getElementById('statDedicatedShops').textContent = dedicatedCount;
+        document.getElementById('statSharedShops').textContent = shops.length - dedicatedCount;
 
         if (shops.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--mut);">No shops registered yet. Use the form on the left to create your first shop!</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--mut);">No shops registered yet. Use the form on the left to create your first shop!</td></tr>';
           return;
         }
 
         tbody.innerHTML = shops.map(shop => {
           const isActive = shop.status === 'Active';
+          const regDate = shop.createdAt ? new Date(shop.createdAt).toLocaleDateString('en-IN') : '—';
+          const expDate = shop.expiryDate ? new Date(shop.expiryDate) : null;
+          const expDateStr = expDate ? expDate.toLocaleDateString('en-IN') : 'No Expiry';
+          const daysLeft = shop.daysLeft;
+
+          let badgeHtml = '';
+          if (daysLeft === null || daysLeft === undefined) {
+            badgeHtml = '<span class="pill-exp-ok">Unlimited</span>';
+          } else if (daysLeft < 0) {
+            badgeHtml = `<span class="pill-exp-danger">⛔ Expired (${Math.abs(daysLeft)}d ago)</span>`;
+          } else if (daysLeft <= 7) {
+            badgeHtml = `<span class="pill-exp-warn">⚠️ ${daysLeft === 0 ? 'Today!' : daysLeft + ' days left'}</span>`;
+          } else {
+            badgeHtml = `<span class="pill-exp-ok">✓ ${daysLeft} days left</span>`;
+          }
+
           return `
             <tr>
               <td>
                 <strong style="color:var(--ink);">${escapeHtml(shop.shopName || 'Salon')}</strong>
-                <small style="display:block;color:var(--mut);font-size:10px;">Created: ${new Date(shop.createdAt || Date.now()).toLocaleDateString('en-IN')}</small>
+                <small style="display:block;color:var(--mut);font-size:10px;">Owner: ${escapeHtml(shop.ownerName || '—')} (${escapeHtml(shop.mobileNumber || '—')})</small>
               </td>
               <td><span class="code-badge">#${escapeHtml(shop.shopCode)}</span></td>
-              <td><span class="db-badge">${escapeHtml(shop.dbName)}</span></td>
               <td>
-                <div style="font-weight:600;">${escapeHtml(shop.ownerName || '—')}</div>
-                <small style="color:var(--mut);font-size:10.5px;">${escapeHtml(shop.mobileNumber || shop.email || '—')}</small>
+                ${shop.clusterType && shop.clusterType.includes('Dedicated')
+                  ? `<span class="pill-atlas">☁️ Dedicated M0</span>
+                     <div style="font-size:10px;color:var(--mut);font-family:monospace;margin-top:2px;">${escapeHtml(shop.atlasClusterName || shop.clusterHost || 'AWS Mumbai')}</div>`
+                  : `<span class="pill-shared">🗄️ Shared Master</span>`
+                }
               </td>
               <td>
-                <span class="${isActive ? 'pill-active' : 'pill-suspended'}">${isActive ? '● Active' : '● Suspended'}</span>
+                <span style="font-weight:600;font-size:11.5px;color:#334155;">${regDate}</span>
               </td>
               <td>
-                <div style="display:flex;gap:6px;">
+                <div><strong style="font-size:12px;color:var(--ink);">${expDateStr}</strong></div>
+                <div style="margin-top:2px;">${badgeHtml}</div>
+              </td>
+              <td>
+                <span class="${isActive ? 'pill-active' : 'pill-suspended'}">${isActive ? '● Active' : '● Inactive'}</span>
+              </td>
+              <td>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
                   <a class="action-btn" href="/login?salonCode=${encodeURIComponent(shop.shopCode)}" target="_blank" title="Test login for this salon">
                     🚀 Open
                   </a>
-                  <button class="action-btn" type="button" onclick="toggleStatus('${escapeHtml(shop.shopCode)}', '${isActive ? 'Suspended' : 'Active'}')">
+                  <button class="action-btn" type="button" style="background:#e8f9f4;color:#128353;border-color:#b7eedc;" onclick="openExtendModal('${escapeHtml(shop.shopCode)}', '${escapeHtml(shop.shopName)}', '${shop.expiryDate || ''}', ${daysLeft ?? 'null'})" title="Extend subscription package">
+                    ⚡ Renew
+                  </button>
+                  <button class="action-btn" type="button" onclick="openHistoryModal('${escapeHtml(shop.shopCode)}', '${escapeHtml(shop.shopName)}')" title="View recharge history">
+                    📜 History
+                  </button>
+                  ${shop.clusterType !== 'Dedicated (Atlas M0)' ? `
+                    <button class="action-btn" type="button" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;" onclick="provisionAtlasCluster('${escapeHtml(shop.shopCode)}', '${escapeHtml(shop.shopName)}')" title="Provision Dedicated MongoDB Atlas Cluster for this subscribed shop">
+                      🚀 Atlas Cluster
+                    </button>
+                  ` : ''}
+                  <button class="action-btn" type="button" onclick="toggleStatus('${escapeHtml(shop.shopCode)}', '${isActive ? 'Inactive' : 'Active'}')">
                     ${isActive ? '⏸️ Suspend' : '▶️ Activate'}
                   </button>
                 </div>
@@ -430,7 +662,7 @@
           `;
         }).join('');
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#c9184a;">Error loading shops: ${escapeHtml(err.message)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:#c9184a;">Error loading shops: ${escapeHtml(err.message)}</td></tr>`;
       }
     }
 
@@ -444,12 +676,40 @@
       const adminUserId = document.getElementById('adminUserId').value.trim();
       const password = document.getElementById('password').value.trim();
       const plan = document.querySelector('input[name="plan"]:checked')?.value || 'Standard';
+      const clusterProvisioning = document.querySelector('input[name="clusterProvisioning"]:checked')?.value || 'auto_atlas';
+      const progressBox = document.getElementById('progressBox');
+      const progressStatus = document.getElementById('progressStatus');
+      const progressStepText = document.getElementById('progressStepText');
 
       statusBox.className = 'status-msg';
       statusBox.style.display = 'none';
 
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> <span>Provisioning Database & Seeding...</span>';
+
+      let progressTimer = null;
+      let secondsElapsed = 0;
+
+      if (clusterProvisioning === 'auto_atlas') {
+        progressBox.style.display = 'block';
+        btn.innerHTML = '<span class="spinner"></span> <span>Auto-Provisioning Atlas Cluster...</span>';
+        progressStatus.innerHTML = '⚡ Auto-Provisioning MongoDB Atlas Cluster on AWS Mumbai...';
+        progressStepText.textContent = '1/5 Contacting Atlas Admin API (Digest Auth)... (0s)';
+
+        progressTimer = setInterval(() => {
+          secondsElapsed += 1;
+          if (secondsElapsed === 2) {
+            progressStepText.textContent = `2/5 Whitelisting IP Access (0.0.0.0/0)... (${secondsElapsed}s)`;
+          } else if (secondsElapsed === 5) {
+            progressStepText.textContent = `3/5 Generating dedicated DB credentials & Ordering M0 cluster... (${secondsElapsed}s)`;
+          } else if (secondsElapsed >= 8 && secondsElapsed < 16) {
+            progressStepText.textContent = `4/5 Cloud cluster deploying on AWS Mumbai... Polling IDLE state... (${secondsElapsed}s)`;
+          } else if (secondsElapsed >= 16) {
+            progressStepText.textContent = `5/5 Cluster ready! Initializing database & seeding starter data... (${secondsElapsed}s)`;
+          }
+        }, 1000);
+      } else {
+        btn.innerHTML = '<span class="spinner"></span> <span>Provisioning Database & Seeding...</span>';
+      }
 
       try {
         const result = await salonAuth.request('/api/super-admin/shops', {
@@ -461,16 +721,26 @@
             mobile,
             adminUserId,
             password,
-            plan
+            plan,
+            clusterProvisioning
           })
         });
+
+        if (progressTimer) clearInterval(progressTimer);
+        progressBox.style.display = 'none';
 
         statusBox.className = 'status-msg success';
         statusBox.innerHTML = `
           🎉 <strong>Success!</strong> ${escapeHtml(result.message)}<br>
-          <div style="margin-top:6px;font-size:11.5px;">
-            Salon Code: <strong>${escapeHtml(shopCode)}</strong> | User: <strong>${escapeHtml(adminUserId)}</strong> | Password: <strong>${escapeHtml(password)}</strong><br>
-            <a href="/login?salonCode=${encodeURIComponent(shopCode)}" target="_blank" style="color:#128353;text-decoration:underline;font-weight:700;">Click here to open this new salon in a new tab ↗</a>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #b7eedc;font-size:12px;">
+            Salon Code: <strong style="color:#0f6b44;">#${escapeHtml(shopCode)}</strong> &nbsp;|&nbsp;
+            User: <strong>${escapeHtml(adminUserId)}</strong> &nbsp;|&nbsp;
+            Password: <strong>${escapeHtml(password)}</strong><br>
+            <div style="margin-top:6px;">
+              <a href="/login?salonCode=${encodeURIComponent(shopCode)}" target="_blank" style="color:#128353;text-decoration:underline;font-weight:700;">
+                🚀 Click here to open and test this new salon in a new tab ↗
+              </a>
+            </div>
           </div>
         `;
         document.getElementById('createShopForm').reset();
@@ -480,6 +750,8 @@
 
         await loadShops();
       } catch (err) {
+        if (progressTimer) clearInterval(progressTimer);
+        progressBox.style.display = 'none';
         statusBox.className = 'status-msg error';
         statusBox.textContent = err.message || 'Could not provision shop.';
       } finally {
@@ -498,6 +770,145 @@
         await loadShops();
       } catch (err) {
         alert('Failed to update status: ' + err.message);
+      }
+    }
+
+    let currentModalShop = null;
+
+    function openExtendModal(shopCode, shopName, expiryDate, daysLeft) {
+      currentModalShop = { shopCode, shopName, expiryDate, daysLeft };
+      document.getElementById('modalShopName').textContent = shopName;
+      document.getElementById('modalShopCode').textContent = '#' + shopCode;
+      
+      const expDate = expiryDate ? new Date(expiryDate) : null;
+      document.getElementById('modalCurrentExpiry').textContent = expDate ? expDate.toLocaleDateString('en-IN') : 'No Expiry Set';
+      
+      let daysText = '';
+      if (daysLeft === null || daysLeft === undefined || isNaN(daysLeft)) daysText = 'Unlimited';
+      else if (daysLeft < 0) daysText = `<span style="color:#dc2626;font-weight:700;">⛔ Expired (${Math.abs(daysLeft)}d ago)</span>`;
+      else if (daysLeft <= 7) daysText = `<span style="color:#ea580c;font-weight:700;">⚠️ ${daysLeft} days left</span>`;
+      else daysText = `<span style="color:#16a34a;font-weight:700;">✓ ${daysLeft} days left</span>`;
+      document.getElementById('modalCurrentDaysLeft').innerHTML = daysText;
+
+      document.getElementById('extendAmount').value = '999';
+      document.getElementById('extendDays').value = '30';
+      document.getElementById('extendNotes').value = '';
+      calcNewExpiry();
+      document.getElementById('extendModal').style.display = 'flex';
+    }
+
+    function closeExtendModal() {
+      document.getElementById('extendModal').style.display = 'none';
+      currentModalShop = null;
+    }
+
+    function selectPkg(amount, days) {
+      document.getElementById('extendAmount').value = amount;
+      document.getElementById('extendDays').value = days;
+      calcNewExpiry();
+    }
+
+    function calcNewExpiry() {
+      const days = Number(document.getElementById('extendDays').value || 0);
+      const out = document.getElementById('modalNewExpiry');
+      if (days <= 0) {
+        out.textContent = 'Please enter valid days';
+        return;
+      }
+      const now = new Date();
+      let baseDate = now;
+      if (currentModalShop?.expiryDate) {
+        const curExp = new Date(currentModalShop.expiryDate);
+        if (curExp > now) baseDate = curExp;
+      }
+      const newDate = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000);
+      out.textContent = newDate.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    async function submitExtendPackage() {
+      if (!currentModalShop) return;
+      const amount = Number(document.getElementById('extendAmount').value || 0);
+      const daysToAdd = Number(document.getElementById('extendDays').value || 0);
+      const notes = document.getElementById('extendNotes').value.trim();
+      const btn = document.getElementById('btnConfirmExtend');
+
+      btn.disabled = true;
+      btn.textContent = 'Extending...';
+
+      try {
+        const res = await salonAuth.request(`/api/super-admin/shops/${encodeURIComponent(currentModalShop.shopCode)}/extend-package`, {
+          method: 'PATCH',
+          body: JSON.stringify({ amount, daysToAdd, notes })
+        });
+        alert('🎉 ' + res.message);
+        closeExtendModal();
+        await loadShops();
+      } catch (err) {
+        alert('Failed to extend package: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Confirm & Extend ⚡';
+      }
+    }
+
+    async function openHistoryModal(shopCode, shopName) {
+      document.getElementById('histShopName').textContent = shopName + ' (#' + shopCode + ')';
+      const container = document.getElementById('histContent');
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mut);">Loading history...</div>';
+      document.getElementById('historyModal').style.display = 'flex';
+
+      try {
+        const res = await salonAuth.request(`/api/super-admin/shops/${encodeURIComponent(shopCode)}/history`);
+        const list = res.history || [];
+        if (list.length === 0) {
+          container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--mut);">No payment / extension transactions recorded yet.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+            <thead>
+              <tr style="background:#f1f5f9;color:#334155;text-align:left;">
+                <th style="padding:6px 8px;">Date</th>
+                <th style="padding:6px 8px;">Amount</th>
+                <th style="padding:6px 8px;">Days</th>
+                <th style="padding:6px 8px;">New Expiry</th>
+                <th style="padding:6px 8px;">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(item => `
+                <tr style="border-top:1px solid #e2e8f0;">
+                  <td style="padding:8px;">${new Date(item.renewedAt || Date.now()).toLocaleDateString('en-IN')}</td>
+                  <td style="padding:8px;font-weight:700;color:#10b981;">₹${item.amount || 0}</td>
+                  <td style="padding:8px;font-weight:600;">+${item.daysAdded || 0}d</td>
+                  <td style="padding:8px;">${item.newExpiry ? new Date(item.newExpiry).toLocaleDateString('en-IN') : '—'}</td>
+                  <td style="padding:8px;color:var(--mut);">${escapeHtml(item.notes || '—')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (err) {
+        container.innerHTML = `<div style="color:#c9184a;padding:12px;">Error: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    function closeHistoryModal() {
+      document.getElementById('historyModal').style.display = 'none';
+    }
+
+    async function provisionAtlasCluster(shopCode, shopName) {
+      if (!confirm(`Are you sure you want to provision a dedicated MongoDB Atlas Cluster on AWS Mumbai for subscribed salon "${shopName}"?\n\n(Make sure your current IP is added in Atlas API Key Access List)`)) return;
+      showStatusBox(`Contacting MongoDB Atlas to provision dedicated M0 cluster for ${shopName}... (Takes about 15-30s)`, 'success');
+      try {
+        const res = await salonAuth.request(`/api/super-admin/shops/${encodeURIComponent(shopCode)}/provision-atlas-cluster`, {
+          method: 'POST'
+        });
+        alert(`🎉 Success!\n\n${res.message}`);
+        await loadShops();
+      } catch (err) {
+        alert(`❌ Provisioning Failed:\n\n${err.message}`);
       }
     }
 

@@ -5,99 +5,871 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Entry — YOURS SALON</title>
-  <link rel="stylesheet" href="/admin-nav.css">
-  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
   <link rel="stylesheet" href="/my-work.css?v=20261029_v3">
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#1d2939;font-family:Arial,sans-serif}.wrap{width:min(920px,100%);margin:auto;padding:28px 20px 40px}.panel{padding:20px;background:#fff;border:1px solid #e1e7ee;border-radius:15px;box-shadow:0 8px 24px #1b2a3b08}.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:16px}.heading h1{margin:0;font-size:25px}.heading p{margin:6px 0 0;color:#758397;font-size:13px}.links{display:flex;flex-wrap:wrap;gap:8px}.links a{min-height:38px;padding:9px 12px;border-radius:9px;background:#eff2f5;color:#344054;text-decoration:none;font-size:12px;font-weight:700}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.wide{grid-column:1/-1}.field label{color:#526176;font-size:11px;font-weight:700}.field input,.field select,.field textarea{width:100%;min-height:42px;padding:9px 11px;border:1px solid #d9e0e7;border-radius:9px;background:#fff;color:#243244;font:14px Arial}.field textarea{min-height:90px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:#d1a228;box-shadow:0 0 0 3px #f8f0d7}.actions{display:flex;align-items:center;gap:10px;margin-top:18px}.actions button{min-height:42px;padding:10px 16px;border:0;border-radius:9px;background:#c99a23;color:#fff;font:700 13px Arial;cursor:pointer}.actions button:disabled{opacity:.6;cursor:wait}.status{display:none;margin-top:14px;padding:11px;border-radius:9px;font-size:13px;line-height:1.45}.status.show{display:block;background:#eaf8f1;color:#22694d}.status.error{display:block;background:#fff0ef;color:#9a352f}.empty{padding:22px;text-align:center;color:#718096;background:#fff;border:1px dashed #d4dce5;border-radius:12px}@media(max-width:600px){.wrap{padding:18px 12px 30px}.heading{flex-direction:column}.grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.panel{padding:15px}.actions button{width:100%}}
-  </style>
-  <style id="p1p2InlineFix">
-    /* Point 1: Total Box Dark Theme Border */
-    .aw-total-box,
-    #mobileAddWork .aw-total-box {
-      border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;
+  
+    /* Modern Admin Expense Portal Styles */
+    .exp-page {
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 10px 12px 90px;
+      font-family: inherit;
     }
-    /* Point 1: Save Work Button Spacing & Icon */
-    .aw-save,
-    button.aw-save,
-    #awSave {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      gap: 8px !important;
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 4px 12px;
     }
-    .aw-save svg,
-    .aw-save .sal-btn-icon,
-    #awSave svg,
-    #awSave .sal-btn-icon {
-      margin-right: 8px !important;
-      display: inline-block !important;
-      vertical-align: middle !important;
-      flex-shrink: 0 !important;
+    .exp-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    /* Point 2: Advance Style Capsule Tabs */
-    .sal-portal-tabs,
-    .aw-segmented-tabs,
-    #mobileAddWork .aw-segmented-tabs,
-    #mobileAllWork .aw-segmented-tabs {
+    .exp-avatar {
+      width: 28px;
+      height: 28px;
+      background: #0f172a;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .exp-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #b45309;
+      line-height: 1.1;
+    }
+    .exp-subtitle {
+      font-size: 9px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .exp-role-badge {
+      font-size: 10px;
+      font-weight: 800;
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .exp-tabs {
+      display: flex;
+      background: #e2e8f0;
+      border-radius: 99px;
+      padding: 3px;
+      margin-bottom: 12px;
+      gap: 4px;
+    }
+    .exp-tab {
+      flex: 1;
+      text-align: center;
+      padding: 7px 0;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 99px;
+      color: #64748b;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .exp-tab.active {
+      background: #09aa1c;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(9, 170, 28, 0.25);
+    }
+    .exp-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .exp-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 8px 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .exp-card-label {
+      font-size: 9px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .exp-pay-btn-group {
+      display: flex;
+      gap: 4px;
+    }
+    .exp-pay-btn {
+      flex: 1;
+      padding: 6px 0;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .exp-pay-btn.active {
+      border-color: #09aa1c;
+      background: #ecfdf5;
+      color: #065f46;
+      box-shadow: 0 0 0 1px #09aa1c;
+    }
+    .exp-cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .exp-cat-pill {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .exp-cat-pill.active {
+      border-color: #09aa1c;
+      background: #ecfdf5;
+      box-shadow: 0 2px 6px rgba(9, 170, 28, 0.15);
+    }
+    .exp-cat-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .exp-cat-text {
+      min-width: 0;
+      line-height: 1.1;
+    }
+    .exp-cat-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: #1e293b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .exp-cat-sub {
+      font-size: 8px;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .exp-active-entry-box {
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+      border: 1.5px solid #09aa1c;
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(9, 170, 28, 0.08);
+    }
+    .exp-active-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #d1fae5;
+      margin-bottom: 8px;
+    }
+    .exp-active-title {
+      font-size: 10px;
+      font-weight: 900;
+      color: #065f46;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .exp-active-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #09aa1c;
+    }
+    .exp-btn-new-item {
+      font-size: 10px;
+      font-weight: 800;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 2px 7px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .exp-item-select {
+      width: 100%;
+      height: 38px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f172a;
+      background: #f8fafc;
+      outline: none;
+      margin-bottom: 8px;
+    }
+    .exp-item-select:focus {
+      border-color: #09aa1c;
+    }
+    .exp-entry-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1.1fr 40px;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .exp-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .exp-col-lbl {
+      font-size: 9px;
+      font-weight: 900;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .exp-unit-badge {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      font-size: 8px;
+      font-weight: 900;
+      padding: 1px 4px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .exp-input-box {
+      display: flex;
+      align-items: center;
+      height: 38px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      background: #fff;
+      padding: 0 8px;
+    }
+    .exp-input-box:focus-within {
+      border-color: #09aa1c;
+    }
+    .exp-input-box input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+    }
+    .exp-input-unit-tag {
+      font-size: 9px;
+      font-weight: 800;
+      color: #64748b;
+      padding-left: 5px;
+      border-left: 1px solid #e2e8f0;
+      text-transform: uppercase;
+    }
+    .exp-btn-push {
+      width: 40px;
+      height: 38px;
+      border: 0;
+      background: #09aa1c;
+      color: #fff;
+      border-radius: 10px;
+      font-size: 22px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(9, 170, 28, 0.3);
+      transition: transform 0.1s;
+    }
+    .exp-btn-push:active {
+      transform: scale(0.95);
+    }
+    .exp-list-card {
+      margin-bottom: 12px;
+    }
+    .exp-list-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      padding: 0 2px;
+    }
+    .exp-list-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .exp-list-subtotal {
+      font-size: 10px;
+      font-weight: 800;
+      color: #065f46;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      padding: 1px 6px;
+      border-radius: 99px;
+    }
+    .exp-rows-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .exp-row-item {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .exp-row-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .exp-row-idx {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: #64748b;
+      font-size: 9px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .exp-row-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: #1e293b;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .exp-row-meta {
+      font-size: 9px;
+      color: #64748b;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .exp-row-meta .unit-pill {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 0 3px;
+      border-radius: 3px;
+      font-weight: 800;
+      font-size: 8px;
+    }
+    .exp-row-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .exp-row-amt {
+      font-size: 13px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .exp-row-del {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .exp-row-del:hover {
+      background: #fee2e2;
+      color: #ef4444;
+      border-color: #fca5a5;
+    }
+    .exp-inputs-misc {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 10px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .exp-misc-input {
+      width: 100%;
+      height: 35px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 11px;
+      color: #1e293b;
+      background: #f8fafc;
+      outline: none;
+    }
+    .exp-misc-input:focus {
+      border-color: #09aa1c;
+      background: #fff;
+    }
+    .exp-bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.15);
+      z-index: 40;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .exp-total-block {
+      display: flex;
+      flex-direction: column;
+    }
+    .exp-total-lbl {
+      font-size: 8px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .exp-total-val {
+      font-size: 18px;
+      font-weight: 900;
+      color: #fbbf24;
+      line-height: 1.1;
+    }
+    .exp-btn-save {
+      background: #09aa1c;
+      color: #fff;
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(9, 170, 28, 0.4);
+    }
+    .exp-btn-save:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    /* Modal */
+    .exp-modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(2px);
+      z-index: 1000;
+      display: none !important;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .exp-modal-bg.open {
       display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      gap: 4px !important;
-      padding: 3px 4px !important;
-      background: #ffffff !important;
-      border: 1px solid var(--salon-border-light, #e2e8f0) !important;
-      border-radius: 9999px !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-      box-sizing: border-box !important;
-      width: 100% !important;
     }
-    .sal-portal-tabs .aw-tab,
-    .aw-segmented-tabs .aw-tab,
-    .aw-segmented-tabs a.aw-tab,
-    #mobileAddWork .aw-segmented-tabs .aw-tab,
-    #mobileAllWork .aw-segmented-tabs .aw-tab {
-      flex: 1 1 0 !important;
+    .exp-modal-card {
+      background: #fff;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .exp-modal-card button {
+      background-image: none !important;
+    }
+    .exp-btn-cancel-modal {
+      flex: 1;
+      height: 40px;
+      border: 1px solid #cbd5e1 !important;
+      background: #f1f5f9 !important;
+      color: #334155 !important;
+      border-radius: 10px !important;
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      cursor: pointer;
+    }
+    .exp-btn-save-modal {
+      flex: 1;
+      height: 40px;
+      border: 0 !important;
+      background: #09aa1c !important;
+      color: #ffffff !important;
+      border-radius: 10px !important;
+      font-size: 12px !important;
+      font-weight: 900 !important;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(9, 170, 28, 0.3);
+    }
+
+  /* Voice Mic Button in Add Work Mobile View */
+    .aw-mic-btn {
+      flex: 0 0 45px !important;
+      width: 45px !important;
+      height: 45px !important;
+      border-radius: 13px !important;
+      border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;
+      background: #ffffff !important;
+      color: var(--salon-btn-bg, #09AA1C) !important;
+      cursor: pointer !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      gap: 6px !important;
-      height: 36px !important;
-      min-height: 36px !important;
-      padding: 0 12px !important;
-      border: none !important;
-      outline: none !important;
-      border-radius: 9999px !important;
-      background: transparent !important;
-      color: #475569 !important;
-      font-size: 13px !important;
-      font-weight: 600 !important;
-      text-decoration: none !important;
+      transition: all 0.2s ease !important;
+      padding: 0 !important;
       box-sizing: border-box !important;
-      transition: all 0.15s ease !important;
-      white-space: nowrap !important;
     }
-    .sal-portal-tabs .aw-tab.active,
-    .aw-segmented-tabs .aw-tab.active,
-    .aw-segmented-tabs a.aw-tab.active,
-    #mobileAddWork .aw-segmented-tabs .aw-tab.active,
-    #mobileAllWork .aw-segmented-tabs .aw-tab.active {
-      background: var(--salon-btn-bg, #09AA1C) !important;
-      background-image: none !important;
+    .aw-mic-btn:active {
+      transform: scale(0.92);
+    }
+    .aw-mic-btn.listening {
+      background: #ef4444 !important;
+      border-color: #dc2626 !important;
       color: #ffffff !important;
-      font-weight: 700 !important;
-      border-radius: 9999px !important;
-      border: none !important;
-      box-shadow: 0 2px 5px rgba(9, 170, 28, 0.25) !important;
+      animation: aw-mic-pulse 1.3s infinite !important;
     }
-    .sal-portal-tabs .aw-tab .aw-tab-icon,
-    .aw-segmented-tabs .aw-tab .aw-tab-icon {
-      font-size: 14px !important;
-      color: #64748b !important;
+    @keyframes aw-mic-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
-    .sal-portal-tabs .aw-tab.active .aw-tab-icon,
-    .aw-segmented-tabs .aw-tab.active .aw-tab-icon {
+
+    /* Google-Style Center Voice Modal */
+    .aw-voice-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2500;
+      background: rgba(15, 23, 42, 0.62);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.22s ease, visibility 0.22s ease;
+    }
+    .aw-voice-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .aw-voice-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 290px;
+      border-radius: 24px;
+      padding: 24px 20px 18px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0,0,0,0.05);
+      text-align: center;
+      position: relative;
+      transform: scale(0.90);
+      transition: transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-sizing: border-box;
+    }
+    .aw-voice-overlay.active .aw-voice-card {
+      transform: scale(1);
+    }
+    .aw-voice-close-x {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #f1f5f9;
+      border-radius: 50%;
+      color: #64748b;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+      padding: 0;
+    }
+    .aw-voice-close-x:active {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    .aw-voice-mic-container {
+      width: 76px;
+      height: 76px;
+      margin: 4px auto 12px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .aw-voice-wave {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(9, 170, 28, 0.22);
+      pointer-events: none;
+    }
+    .aw-voice-overlay.active .aw-voice-wave.wave-1 {
+      animation: aw-gmic-pulse 1.8s infinite cubic-bezier(0.2, 0, 0, 1);
+    }
+    .aw-voice-overlay.active .aw-voice-wave.wave-2 {
+      animation: aw-gmic-pulse 1.8s infinite cubic-bezier(0.2, 0, 0, 1) 0.6s;
+    }
+    @keyframes aw-gmic-pulse {
+      0% { transform: scale(0.85); opacity: 0.9; }
+      100% { transform: scale(1.65); opacity: 0; }
+    }
+    .aw-voice-mic-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #09AA1C 0%, #067e15 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(9, 170, 28, 0.38);
+      position: relative;
+      z-index: 2;
+    }
+    .aw-voice-svg {
+      width: 28px;
+      height: 28px;
+    }
+    .aw-voice-status {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #09AA1C;
+      margin-bottom: 6px;
+    }
+    .aw-voice-prompt {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      line-height: 1.4;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+    .aw-voice-cancel-btn {
+      margin-top: 14px;
+      width: 100%;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+    }
+    .aw-voice-cancel-btn:active {
+      background: #f1f5f9;
+      color: #0f172a;
+      transform: scale(0.98);
+    }
+    .aw-voice-primary-btn {
+      margin-top: 10px;
+      width: 100%;
+      height: 40px;
+      border-radius: 12px;
+      border: none;
+      background: #09AA1C;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+      box-shadow: 0 4px 12px rgba(9, 170, 28, 0.28);
+    }
+    .aw-voice-primary-btn:active {
+      transform: scale(0.98);
+      background: #067e15;
+    }
+    .aw-voice-sound-btn {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      line-height: 1.2;
+      transition: all 0.15s ease;
+    }
+    .aw-voice-sound-btn.muted {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #dc2626;
+    }
+    .aw-voice-live-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #09AA1C;
+      background: #f0fdf4;
+      border: 1px dashed #86efac;
+      border-radius: 10px;
+      padding: 6px 10px;
+      margin-top: 8px;
+      min-height: 20px;
+      word-break: break-word;
+    }
+  /* Voice Mic Button in Add Work Mobile View */
+    .aw-mic-btn {
+      flex: 0 0 45px !important;
+      width: 45px !important;
+      height: 45px !important;
+      border-radius: 13px !important;
+      border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;
+      background: #ffffff !important;
+      color: var(--salon-btn-bg, #09AA1C) !important;
+      cursor: pointer !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.2s ease !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+    }
+    .aw-mic-btn:active {
+      transform: scale(0.92);
+    }
+    .aw-mic-btn.listening {
+      background: #ef4444 !important;
+      border-color: #dc2626 !important;
       color: #ffffff !important;
+      animation: aw-mic-pulse 1.3s infinite !important;
+    }
+    @keyframes aw-mic-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .aw-voice-badge {
+      position: fixed;
+      bottom: calc(var(--m-nav, 66px) + 84px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1560;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      max-width: 90%;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .aw-voice-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      display: inline-block;
+      animation: aw-dot-pulse 0.9s infinite alternate;
+    }
+    @keyframes aw-dot-pulse {
+      from { opacity: 0.3; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1.15); }
+    }
+    .aw-voice-badge button {
+      background: none;
+      border: none;
+      color: #cbd5e1;
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 0 0 4px;
     }
   </style>
 </head>
@@ -110,6 +882,250 @@
       <div id="status" class="status" role="status" aria-live="polite"></div>
     </section>
   </main>
+
+  <!-- ============================================== -->
+  <!-- DEDICATED ADMIN EXPENSE PORTAL MOBILE VIEW     -->
+  <!-- ============================================== -->
+  <section id="mobileAdminExpense" class="exp-page" hidden>
+    
+    <!-- Top Brand & Header -->
+    <div class="exp-header">
+      <div class="exp-brand">
+        <div class="exp-avatar">YS</div>
+        <div>
+          <span class="exp-title">YOURS SALON</span>
+          <span class="exp-subtitle">Admin Expense Voucher</span>
+        </div>
+      </div>
+      <span class="exp-role-badge">Admin</span>
+    </div>
+
+    <!-- Segmented Tabs: Add Expense vs Expense Records -->
+    <div class="exp-tabs">
+      <div class="exp-tab active">
+        <span>+</span>
+        <span>Add Expense</span>
+      </div>
+      <a class="exp-tab" href="/expense-table">
+        <span>📄</span>
+        <span>Expense Records</span>
+      </a>
+    </div>
+
+    <!-- Step 1: Date & Payment Mode -->
+    <div class="exp-grid-2">
+      <div class="exp-card">
+        <span class="exp-card-label">Entry Date</span>
+        <input type="date" id="expDateInput" style="width:100%;border:0;outline:0;font-size:12px;font-weight:800;color:#0f172a;background:transparent;">
+      </div>
+
+      <div class="exp-card" style="padding:5px;">
+        <span class="exp-card-label" style="padding-left:4px;">Payment Mode</span>
+        <div class="exp-pay-btn-group">
+          <button type="button" id="expPayCash" class="exp-pay-btn active" onclick="setExpPaymentMode('Cash')">
+            <span>💵</span>
+            <span>Cash</span>
+          </button>
+          <button type="button" id="expPayOnline" class="exp-pay-btn" onclick="setExpPaymentMode('Online')">
+            <span>💳</span>
+            <span>Online</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: 6 Compact Category Cards (3x2 Grid) -->
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;padding:0 2px;">
+        <span style="font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Select Category</span>
+        <span id="expCategoryBadge" style="font-size:10px;font-weight:800;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:1px 6px;border-radius:99px;">Supplies &amp; Products</span>
+      </div>
+
+      <div class="exp-cat-grid">
+        <div id="catSupplies" class="exp-cat-pill active" onclick="selectExpCategory('Supplies & Products')">
+          <span class="exp-cat-icon">🧴</span>
+          <div class="exp-cat-text">
+            <div class="exp-cat-name">Supplies</div>
+            <div class="exp-cat-sub">सामान</div>
+          </div>
+        </div>
+
+        <div id="catRepair" class="exp-cat-pill" onclick="selectExpCategory('Repair & Maintenance')">
+          <span class="exp-cat-icon">⚙️</span>
+          <div class="exp-cat-text">
+            <div class="exp-cat-name">Repair</div>
+            <div class="exp-cat-sub">मरम्मत</div>
+          </div>
+        </div>
+
+        <div id="catBills" class="exp-cat-pill" onclick="selectExpCategory('Utilities & Bills')">
+          <span class="exp-cat-icon">🏢</span>
+          <div class="exp-cat-text">
+            <div class="exp-cat-name">Bills</div>
+            <div class="exp-cat-sub">दुकान बिल</div>
+          </div>
+        </div>
+
+        <div id="catStaff" class="exp-cat-pill" onclick="selectExpCategory('Staff / Advance')">
+          <span class="exp-cat-icon">👤</span>
+          <div class="exp-cat-text">
+            <div class="exp-cat-name">Staff</div>
+            <div class="exp-cat-sub">एडवांस</div>
+          </div>
+        </div>
+
+        <div id="catMarketing" class="exp-cat-pill" onclick="selectExpCategory('Marketing & Misc')">
+          <span class="exp-cat-icon">📢</span>
+          <div class="exp-cat-text">
+            <div class="exp-cat-name">Marketing</div>
+            <div class="exp-cat-sub">प्रचार/दवा</div>
+          </div>
+        </div>
+
+        <div id="catOther" class="exp-cat-pill" onclick="selectExpCategory('Other')">
+          <span class="exp-cat-icon">➕</span>
+          <div class="exp-cat-text">
+            <div class="exp-cat-name">Other</div>
+            <div class="exp-cat-sub">अन्य खर्च</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Active Entry Card (Compact & Streamlined) -->
+    <div class="exp-active-entry-box">
+      <div class="exp-active-header">
+        <div class="exp-active-title">
+          <span class="exp-active-dot"></span>
+          <span>Active Entry (आइटम भरें)</span>
+        </div>
+        <button type="button" class="exp-btn-new-item" onclick="openExpNewItemModal()">
+          <span style="font-size:12px;font-weight:900;line-height:1;">+</span>
+          <span>New Item (Master)</span>
+        </button>
+      </div>
+
+      <!-- Line 1: Item Dropdown (100% Full Width) -->
+      <select id="expItemSelect" class="exp-item-select" onchange="onExpItemChange()">
+        <!-- Filled dynamically -->
+      </select>
+
+      <!-- Optional Staff Select (Only for Staff / Advance) -->
+      <div id="expStaffSelectWrap" style="margin-bottom:8px;" hidden>
+        <label style="font-size:9px;font-weight:900;color:#475569;text-transform:uppercase;margin-bottom:3px;display:block;">Select Employee / Staff *</label>
+        <select id="expStaffSelect" class="exp-item-select" style="margin-bottom:0;">
+          <!-- Filled with staff -->
+        </select>
+      </div>
+
+      <!-- Line 2: QTY - UNIT + AMOUNT + '+' BUTTON -->
+      <div class="exp-entry-row">
+        <div class="exp-col">
+          <div class="exp-col-lbl">
+            <span>QTY</span>
+            <span style="color:#cbd5e1;">&ndash;</span>
+            <span id="expUnitBadge" class="exp-unit-badge">PCS</span>
+          </div>
+          <div class="exp-input-box">
+            <input type="number" id="expQtyInput" value="1" min="1" oninput="onExpQtyChange()">
+            <span id="expUnitInline" class="exp-input-unit-tag">PCS</span>
+          </div>
+        </div>
+
+        <div class="exp-col">
+          <div class="exp-col-lbl">₹ AMOUNT</div>
+          <div class="exp-input-box">
+            <span style="font-size:11px;font-weight:800;color:#94a3b8;margin-right:2px;">₹</span>
+            <input type="number" id="expAmountInput" value="0" min="0">
+          </div>
+        </div>
+
+        <div>
+          <button type="button" class="exp-btn-push" onclick="pushExpEntryDown()" title="Add to list">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Downward Stack (Added Items List) -->
+    <div class="exp-list-card">
+      <div class="exp-list-head">
+        <span class="exp-list-title">Added Items List (<span id="expItemsCount">0</span>)</span>
+        <span class="exp-list-subtotal">Subtotal: <span id="expSubtotal">₹0</span></span>
+      </div>
+
+      <div id="expRowsContainer" class="exp-rows-wrap">
+        <div id="expEmptyListMsg" style="background:#fff;border:1px dashed #cbd5e1;border-radius:12px;padding:12px;text-align:center;font-size:11px;color:#94a3b8;font-weight:700;">
+          Tap '+' above to add items to this voucher
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Vendor & Universal Remark -->
+    <div class="exp-inputs-misc">
+      <input type="text" id="expVendorInput" class="exp-misc-input" placeholder="Vendor / Shop Name (e.g. Gupta Beauty Store)">
+      <input type="text" id="expRemarkInput" class="exp-misc-input" placeholder="Universal Remark (e.g. Monthly salon stock purchase)">
+    </div>
+
+    <!-- Step 6: Sticky Grand Total Bar -->
+    <div class="exp-bottom-bar">
+      <div class="exp-total-block">
+        <span class="exp-total-lbl">Bill Total</span>
+        <span id="expGrandTotal" class="exp-total-val">₹0</span>
+      </div>
+      <button type="button" id="expSaveBtn" class="exp-btn-save" onclick="submitExpVoucher()">
+        <span>💾</span>
+        <span>Save Expense</span>
+      </button>
+    </div>
+
+    <!-- Step 7: Modal for '+ New Item (Master)' -->
+    <div id="expNewItemModal" class="exp-modal-bg" hidden>
+      <div class="exp-modal-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #e2e8f0;margin-bottom:10px;">
+          <div>
+            <span style="font-size:9px;font-weight:800;text-transform:uppercase;color:#065f46;background:#d1fae5;padding:1px 5px;border-radius:4px;">Master Record</span>
+            <h3 style="font-size:12px;font-weight:900;color:#0f172a;margin:3px 0 0;">Add Item to <span id="expModalCatLabel">Supplies &amp; Products</span></h3>
+          </div>
+          <button type="button" onclick="closeExpNewItemModal()" style="border:0;background:#f1f5f9;width:24px;height:24px;border-radius:50%;font-weight:900;cursor:pointer;">&times;</button>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <label style="font-size:9px;font-weight:800;color:#64748b;display:block;margin-bottom:3px;">Product / Item Name *</label>
+          <input type="text" id="expNewItemName" class="exp-misc-input" placeholder="e.g. Lotus WhiteGlow D-Tan Pack">
+        </div>
+
+        <div class="exp-grid-2">
+          <div>
+            <label style="font-size:9px;font-weight:800;color:#64748b;display:block;margin-bottom:3px;">Measurement Unit</label>
+            <select id="expNewItemUnit" class="exp-misc-input" style="padding:0 6px;">
+              <option value="PCS">PCS (Pieces)</option>
+              <option value="BOX">BOX (Box of 100/50)</option>
+              <option value="LTR">LTR (Litre)</option>
+              <option value="JAR">JAR (Dabba / Tin)</option>
+              <option value="CAN">CAN (Can / Galon)</option>
+              <option value="BOTTLE">BOTTLE</option>
+              <option value="KG">KG (Kilogram)</option>
+              <option value="GM">GM (Gram)</option>
+              <option value="JOB">JOB (Repair)</option>
+              <option value="MONTH">MONTH (Bill)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size:9px;font-weight:800;color:#64748b;display:block;margin-bottom:3px;">Approx Default Rate (₹)</label>
+            <input type="number" id="expNewItemRate" class="exp-misc-input" placeholder="0">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button type="button" class="exp-btn-cancel-modal" onclick="closeExpNewItemModal()">Cancel</button>
+          <button type="button" id="expSaveMasterBtn" class="exp-btn-save-modal" onclick="saveExpNewMasterItem()">✓ Save to Master</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
   <section id="mobileAddWork" class="aw-page" hidden>
     <div class="aw-greeting" hidden style="display:none !important">
       <div>
@@ -175,8 +1191,32 @@
         <div id="awStatus" class="aw-status" role="status" aria-live="polite"></div>
       </div>
     </form>
+    <div id="awVoiceModalOverlay" class="aw-voice-overlay" hidden>
+      <div class="aw-voice-card" role="dialog" aria-modal="true" aria-label="Voice Assistant">
+        <button id="awVoiceSoundToggle" type="button" class="aw-voice-sound-btn" title="Toggle audio prompts">🔊 Aawaz: ON</button>
+        <button id="awVoiceCloseBtn" type="button" class="aw-voice-close-x" aria-label="Cancel">&times;</button>
+        <div class="aw-voice-mic-container">
+          <div class="aw-voice-wave wave-1"></div>
+          <div class="aw-voice-wave wave-2"></div>
+          <div class="aw-voice-mic-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" class="aw-voice-svg">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+              <line x1="8" y1="22" x2="16" y2="22"/>
+            </svg>
+          </div>
+        </div>
+        <div id="awVoiceStatus" class="aw-voice-status">Listening...</div>
+        <div id="awVoiceMsg" class="aw-voice-prompt">Boliye Entry No.</div>
+        <div id="awVoiceTranscript" class="aw-voice-live-text" style="display:none;"></div>
+        <button id="awVoiceActionBtn" type="button" class="aw-voice-primary-btn" style="display:none;">Microphone Allow Karein</button>
+        <button id="awVoiceStop" type="button" class="aw-voice-cancel-btn">Cancel</button>
+      </div>
+    </div>
     <div class="aw-bottom-bar">
       <div class="aw-total-box" style="border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;"><span>TOTAL &middot; <b id="awItemCount">0</b> ITEMS</span><label class="aw-total-edit"><span>₹</span><input id="awTotal" type="number" min="0" step="0.01" inputmode="decimal" value="0" aria-label="Total amount"></label></div>
+      <button id="awMicBtn" class="aw-mic-btn no-btn-theme" type="button" title="Voice Entry" aria-label="Voice Entry" style="display:inline-flex !important; align-items:center !important; justify-content:center !important;"><svg class="aw-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
       <button id="awSave" class="aw-save" data-salon-btn-theme type="submit" form="awForm" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important;"><svg class="sal-btn-icon" style="margin-right:8px !important; display:inline-block !important; vertical-align:middle !important; flex-shrink:0 !important;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> <span id="awSaveText" style="display:inline-block !important;">Save Work</span></button>
     </div>
   </section>
@@ -210,8 +1250,8 @@
     </section>
   </div>
   <script src="/auth-guard.js"></script>
-  <script src="/admin-nav.js"></script>
-  <script src="/mobile.js"></script>
+  <script src="/admin-nav.js?v=20261105_m4"></script>
+  <script src="/mobile.js?v=20261105_m4"></script>
   <script>
     const routePath=location.pathname.replace(/\/+$/,'')||'/';
     const moduleKey=routePath.split('/').pop().replace('-entry','');
@@ -253,7 +1293,7 @@
       const select=document.createElement('select');select.id='entryDate';select.name='entryDate';select.required=true;
       wrap.append(label,select);fields.append(wrap);return select;
     }
-    function showStatus(message,error=false){statusBox.textContent=message;statusBox.className='status show'+(error?' error':'');if(message){if(error){if(window.salonUi?.showError)window.salonUi.showError(message);else alert(message);}else{if(window.salonUi?.showSuccess)window.salonUi.showSuccess(message);}}}
+    function showStatus(message,error=false){statusBox.textContent=message;statusBox.className='status show'+(error?' error':'')}
     const isMobileViewport=window.matchMedia('(max-width:700px)').matches;
     const mobileAddWork=document.getElementById('mobileAddWork');
     const awDateSelect=document.getElementById('awDateSelect'),awEntryNo=document.getElementById('awEntryNo');
@@ -268,7 +1308,7 @@
     let awMeta=null,awServices=[],awQuantities=new Map(),awEditing=null,awEditDate='',awBusy=false,awEventsBound=false,awTotalManual=false,awSavedPending=false;
     function awMoney(value){return '₹'+Number(value||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
     function awDateLabel(value){if(!value)return'';const date=new Date(`${value}T00:00:00`);return Number.isNaN(date.getTime())?String(value):date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
-    function awSetStatus(message,error=false){awStatus.textContent=message;awStatus.className='aw-status'+(message?' show':'')+(message&&error?' error':'');if(error&&message){if(window.salonUi?.showError)window.salonUi.showError(message);else alert(message);}}
+    function awSetStatus(message,error=false){awStatus.textContent=message;awStatus.className='aw-status'+(message?' show':'')+(message&&error?' error':'')}
     function awSavedRow(label,value){
       const row=document.createElement('div');row.className='aw-saved-row';
       const term=document.createElement('dt');term.textContent=label;
@@ -292,7 +1332,7 @@
       awSavedOverlay.classList.add('open');
       awSavedOverlay.setAttribute('aria-hidden','false');
       document.body.classList.add('aw-saved-locked');
-      window.setTimeout(()=>{if(redirectTo)location.replace(redirectTo);else location.reload()},2000);
+      window.setTimeout(()=>{if(redirectTo)location.replace(redirectTo);else location.reload()},3000);
     }
     function awGreetingText(){const hour=new Date().getHours();return hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening'}
     function awFindService(serviceType){return awServices.find(item=>String(item.serviceType).toLowerCase()===String(serviceType).toLowerCase())}
@@ -486,16 +1526,11 @@
       awDateSelect.value=set.has(selected)?selected:(awMeta?.todayDate||'');
     }
     async function awLoadMeta(date,options={}){
-      const targetDate = date || new Date().toISOString().slice(0, 10);
-      const lastSavedNo = sessionStorage.getItem('lastSavedEntryNo_' + targetDate);
-      let query = '?date=' + encodeURIComponent(targetDate);
-      if (lastSavedNo && !options.ignoreLast) {
-        query += '&lastEntryNo=' + encodeURIComponent(lastSavedNo);
-      }
+      const query=date?`?date=${encodeURIComponent(date)}`:'';
       const meta=await salonAuth.request('/api/collection-entry-meta'+query);
       const previous=awServices;
       awMeta=meta;
-      awServices=meta.services.map(item=>({_id:String(item._id),sr:Number(item.sr||0),serviceType:item.serviceType,shortName:item.shortName||item.serviceType,rate:Number(item.rate||0),category:item.category||'Main',serviceCategory:item.serviceCategory||'',status:item.status||'Active'}));
+      awServices=meta.services.map(item=>({_id:String(item._id),sr:Number(item.sr||0),serviceType:item.serviceType,shortName:item.shortName||item.serviceType,rate:Number(item.rate||0),category:item.category||'Main',serviceCategory:item.serviceCategory||'',voiceKeywords:item.voiceKeywords||'',status:item.status||'Active'}));
       for(const [key,qty] of awQuantities){
         if(qty>0&&!awFindService(key)){
           const old=previous.find(service=>service.serviceType===key);
@@ -590,7 +1625,6 @@
             body:JSON.stringify(payload)
           });
           const saved=result.record||{...payload,entryNo:result.entryNo||entryNo};
-          try { sessionStorage.setItem('lastSavedEntryNo_' + date, String(saved.entryNo)); } catch(e){}
           awSavedPending=true;
           awSave.disabled=true;
           awSave.textContent='Saved';
@@ -637,6 +1671,7 @@
       }
       awBindEvents();
       await awLoadMeta(awEditDate);
+      awInitVoice();
       if(awEditing){
         awApplyEditingRecord(awEditing);
         awEntryNo.value=String(awEditing.entryNo);
@@ -645,7 +1680,662 @@
         awTotal.value=String(Math.round((Number(awEditing.amount||0)+Number(awEditing.costCutting||0))*100)/100);
       }
     }
+    
+    function awInitVoice(){
+      const micBtn = document.getElementById('awMicBtn');
+      const voiceModalOverlay = document.getElementById('awVoiceModalOverlay');
+      const voiceCloseBtn = document.getElementById('awVoiceCloseBtn');
+      const voiceStatus = document.getElementById('awVoiceStatus');
+      const voiceMsg = document.getElementById('awVoiceMsg');
+      const voiceLiveText = document.getElementById('awVoiceTranscript');
+      const voiceSoundToggle = document.getElementById('awVoiceSoundToggle');
+      const voiceActionBtn = document.getElementById('awVoiceActionBtn');
+      const voiceStop = document.getElementById('awVoiceStop');
+      if (!micBtn || micBtn.dataset.voiceBound) return;
+      micBtn.dataset.voiceBound = 'true';
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognition = null;
+      let isListening = false;
+      let currentStep = 'idle';
+      let voiceLang = 'hi-IN';
+      let soundEnabled = true;
+
+      const hindiEngNumMap = {
+        'zero': 0, 'shunya': 0, 'शून्य': 0, 'kuch nahi': 0, 'kuchh nahi': 0, 'कुछ नहीं': 0, 'nil': 0,
+        'one': 1, 'ek': 1, 'एक': 1, 'two': 2, 'do': 2, 'दो': 2, 'three': 3, 'teen': 3, 'tin': 3, 'तीन': 3,
+        'four': 4, 'char': 4, 'chaar': 4, 'चार': 4, 'five': 5, 'paanch': 5, 'panch': 5, 'पांच': 5, 'पाँच': 5,
+        'six': 6, 'chhah': 6, 'che': 6, 'chhe': 6, 'छह': 6, 'छः': 6, 'seven': 7, 'saat': 7, 'सात': 7,
+        'eight': 8, 'aath': 8, 'ath': 8, 'आठ': 8, 'nine': 9, 'nau': 9, 'no': 9, 'नौ': 9,
+        'ten': 10, 'das': 10, 'दस': 10, 'eleven': 11, 'gyarah': 11, 'ग्यारह': 11, 'twelve': 12, 'barah': 12, 'बारह': 12,
+        'thirteen': 13, 'terah': 13, 'तेरह': 13, 'fourteen': 14, 'chaudah': 14, 'चौदह': 14, 'fifteen': 15, 'pandrah': 15, 'पंद्रह': 15,
+        'sixteen': 16, 'solah': 16, 'सोलह': 16, 'seventeen': 17, 'satrah': 17, 'सत्रह': 17, 'eighteen': 18, 'atharah': 18, 'attharah': 18, 'अट्ठारह': 18, 'अठारह': 18,
+        'nineteen': 19, 'unnis': 19, 'उन्नीस': 19, 'twenty': 20, 'bees': 20, 'बीस': 20, 'twenty one': 21, 'ikkis': 21, 'इक्कीस': 21,
+        'twenty two': 22, 'bais': 22, 'बाईस': 22, 'twenty three': 23, 'teis': 23, 'तेईस': 23, 'twenty four': 24, 'chaubis': 24, 'चौबीस': 24,
+        'twenty five': 25, 'pachchis': 25, 'पच्चीस': 25, 'twenty six': 26, 'chhabbis': 26, 'छब्बीस': 26, 'twenty seven': 27, 'sattais': 27, 'सत्ताईस': 27,
+        'twenty eight': 28, 'atthais': 28, 'अट्ठाईस': 28, 'twenty nine': 29, 'unatis': 29, 'उनतीस': 29, 'thirty': 30, 'tees': 30, 'तीस': 30,
+        'forty': 40, 'chalis': 40, 'चालीस': 40, 'fifty': 50, 'pachas': 50, 'पचास': 50, 'sixty': 60, 'saath': 60, 'साठ': 60,
+        'seventy': 70, 'sattar': 70, 'सत्तर': 70, 'eighty': 80, 'assi': 80, 'अस्सी': 80, 'ninety': 90, 'nabbe': 90, 'नब्बे': 90,
+        'hundred': 100, 'sau': 100, 'सौ': 100
+      };
+
+      function parseSpokenNum(text) {
+        if (!text) return null;
+        const numMatch = String(text).match(/\b\d+\b/);
+        if (numMatch) return parseInt(numMatch[0], 10);
+        const clean = String(text).toLowerCase().trim();
+        for (const [w, val] of Object.entries(hindiEngNumMap)) {
+          const rx = new RegExp('(^|[\\s,.\\-!?;:।॥])' + w + '($|[\\s,.\\-!?;:।॥])', 'i');
+          if (rx.test(clean)) return val;
+        }
+        return null;
+      }
+
+      function escapeRx(str) {
+        return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      function setBadge(msg, showClose, statusTitle, statusColor) {
+        if (voiceMsg) voiceMsg.innerHTML = msg;
+        if (voiceLiveText) {
+          voiceLiveText.textContent = '';
+          voiceLiveText.style.display = 'none';
+        }
+        if (voiceStatus) {
+          voiceStatus.textContent = statusTitle || 'Listening...';
+          voiceStatus.style.color = statusColor || '#09AA1C';
+        }
+        if (voiceModalOverlay) {
+          voiceModalOverlay.hidden = false;
+          requestAnimationFrame(() => voiceModalOverlay.classList.add('active'));
+        }
+        if (voiceStop) voiceStop.style.display = showClose === false ? 'none' : 'inline-flex';
+      }
+
+      function hideBadge() {
+        if (voiceModalOverlay) {
+          voiceModalOverlay.classList.remove('active');
+          setTimeout(() => {
+            if (!isListening) voiceModalOverlay.hidden = true;
+          }, 220);
+        }
+      }
+
+      function showPermissionBlockedUI() {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        if (voiceStatus) {
+          voiceStatus.textContent = 'Permission Blocked';
+          voiceStatus.style.color = '#ef4444';
+        }
+        if (voiceMsg) {
+          voiceMsg.innerHTML = `
+            <div style="font-size:12.5px; line-height:1.45; color:#334155; text-align:center;">
+              <span style="display:block; font-size:22px; margin-bottom:4px;">🎙️❌</span>
+              <b>Microphone Permission Band Hai</b><br>
+              Chrome address bar me upar <b>🔒 (Lock icon)</b> ya <b>Site Settings</b> par tap karein aur <b>Microphone Allow</b> karein.
+            </div>
+          `;
+        }
+        if (voiceActionBtn) {
+          voiceActionBtn.textContent = 'Microphone Allow Karein';
+          voiceActionBtn.style.display = 'inline-flex';
+          voiceActionBtn.onclick = async () => {
+            voiceActionBtn.style.display = 'none';
+            const ok = await checkAndRequestMicPermission();
+            if (ok) {
+              isListening = true;
+              micBtn.classList.add('listening');
+              promptStep('entryNo');
+            }
+          };
+        }
+        if (voiceStop) {
+          voiceStop.textContent = 'Theek Hai (Close)';
+          voiceStop.style.display = 'inline-flex';
+        }
+        if (voiceModalOverlay) {
+          voiceModalOverlay.hidden = false;
+          requestAnimationFrame(() => voiceModalOverlay.classList.add('active'));
+        }
+      }
+
+      function stopVoice(completed) {
+        isListening = false;
+        currentStep = 'idle';
+        micBtn.classList.remove('listening');
+        if (voiceLiveText) {
+          voiceLiveText.textContent = '';
+          voiceLiveText.style.display = 'none';
+        }
+        if (voiceActionBtn) voiceActionBtn.style.display = 'none';
+        if (voiceStop) voiceStop.textContent = 'Cancel';
+        if (window.speechSynthesis) {
+          try { window.speechSynthesis.cancel(); } catch(e){}
+        }
+        if (recognition) {
+          try {
+            recognition.onresult = null;
+            recognition.onerror = null;
+            recognition.onend = null;
+            recognition.onaudiostart = null;
+            recognition.onspeechstart = null;
+            recognition.abort();
+          } catch(e){}
+          recognition = null;
+        }
+        awSetStatus('');
+        if (completed) {
+          setTimeout(hideBadge, 2500);
+        } else {
+          hideBadge();
+        }
+      }
+
+      async function checkAndRequestMicPermission() {
+        if (!SpeechRecognition) {
+          setBadge('Aapka browser voice recognition support nahi karta. Google Chrome use karein.', true, 'Not Supported', '#ef4444');
+          return false;
+        }
+
+        const isHttp = location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
+        if (isHttp && window.isSecureContext === false) {
+          setBadge('Mobile Chrome HTTP par mic block karta hai.<br><small style="color:#64748b; font-weight:500;">Kripya HTTPS live link use karein.</small>', true, 'HTTPS Required', '#ef4444');
+          awSetStatus('Mobile Chrome HTTP par mic block karta hai. Kripya HTTPS link use karein.', true);
+          return false;
+        }
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          try {
+            if (navigator.permissions && navigator.permissions.query) {
+              try {
+                const p = await navigator.permissions.query({ name: 'microphone' });
+                if (p && p.state === 'denied') {
+                  showPermissionBlockedUI();
+                  return false;
+                }
+              } catch(e) {}
+            }
+
+            // Direct call from user click triggers native system prompt on mobile
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => {
+              try { track.stop(); } catch(e) {}
+            });
+            return true;
+          } catch(err) {
+            console.warn('Microphone permission denied or prompt dismissed:', err);
+            showPermissionBlockedUI();
+            return false;
+          }
+        }
+        return true;
+      }
+
+      function speak(text, onDone) {
+        if (!isListening) return;
+        if (!soundEnabled || !('speechSynthesis' in window)) {
+          if (isListening && onDone) onDone();
+          return;
+        }
+
+        try {
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.resume();
+        } catch(e) {}
+
+        let doneCalled = false;
+        const safeDone = () => {
+          if (doneCalled) return;
+          doneCalled = true;
+          clearTimeout(fallbackTimer);
+          if (isListening && onDone) {
+            // 450ms buffer to allow Android audio system to fully release hardware mic
+            setTimeout(onDone, 450);
+          }
+        };
+
+        const fallbackTimer = setTimeout(safeDone, 2600);
+
+        try {
+          const utt = new SpeechSynthesisUtterance(text);
+          utt.lang = 'hi-IN';
+          utt.rate = 1.05;
+          const voices = window.speechSynthesis.getVoices() || [];
+          const v = voices.find(item => item.lang && (item.lang.includes('hi') || item.lang.includes('en-IN'))) || voices[0];
+          if (v) utt.voice = v;
+          utt.onend = safeDone;
+          utt.onerror = (e) => {
+            if (e.error !== 'canceled' && e.error !== 'interrupted') {
+              safeDone();
+            }
+          };
+          window.speechSynthesis.speak(utt);
+        } catch(e) {
+          console.warn('TTS speak exception:', e);
+          safeDone();
+        }
+      }
+
+      function promptStep(step) {
+        currentStep = step;
+        if (step === 'entryNo') {
+          setBadge('Boliye Entry No. (jaise "#' + (awEntryNo.value || 1) + '" ya "Next")', true, 'Listening...');
+          speak('Entry number kya hai?', startListening);
+        } else if (step === 'services') {
+          setBadge('Boliye services (jaise Cutting, Shaving)', true, 'Listening...');
+          speak('Kaun-kaun si service ki?', startListening);
+        } else if (step === 'costCutting') {
+          setBadge('Boliye Cost Cutting (jaise 20 ya Zero)', true, 'Listening...');
+          speak('Cost cutting kitna hai?', startListening);
+        } else if (step === 'paymentMode') {
+          setBadge('Boliye Payment: Cash ya Online', true, 'Listening...');
+          speak('Payment Cash hai ya Online?', startListening);
+        } else if (step === 'done') {
+          const totalVal = awTotalValue();
+          setBadge('Total: ₹' + totalVal + '<br><small style="color:#09AA1C; font-weight:700;">Check karke Save Work dabayein</small>', false, 'Done');
+          speak('Total bana ' + totalVal + ' rupaye. Kripya check karke save karein.', () => {
+            stopVoice(true);
+          });
+        }
+      }
+
+      function createRecognition() {
+        if (recognition) {
+          try {
+            recognition.onresult = null;
+            recognition.onerror = null;
+            recognition.onend = null;
+            recognition.onaudiostart = null;
+            recognition.onspeechstart = null;
+            recognition.abort();
+          } catch(e) {}
+          recognition = null;
+        }
+
+        const rec = new SpeechRecognition();
+        rec.lang = voiceLang;
+        rec.continuous = false;
+        rec.interimResults = true;
+        rec.maxAlternatives = 3;
+
+        rec.onaudiostart = () => {
+          if (!isListening) return;
+          if (voiceStatus) {
+            voiceStatus.textContent = 'Mic Active • Boliye...';
+            voiceStatus.style.color = '#09AA1C';
+          }
+        };
+
+        rec.onspeechstart = () => {
+          if (!isListening) return;
+          if (voiceStatus) {
+            voiceStatus.textContent = 'Sun Rahe Hain...';
+            voiceStatus.style.color = '#0284c7';
+          }
+        };
+
+        rec.onresult = (event) => {
+          if (!isListening) return;
+          let interimTranscript = '';
+          let finalTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const piece = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += piece;
+            } else {
+              interimTranscript += piece;
+            }
+          }
+
+          const liveText = (finalTranscript || interimTranscript).trim();
+          if (liveText && voiceLiveText) {
+            voiceLiveText.style.display = 'block';
+            voiceLiveText.textContent = '« ' + liveText + ' »';
+          }
+
+          if (finalTranscript) {
+            handleSpokenText(finalTranscript);
+          }
+        };
+
+        rec.onerror = (event) => {
+          if (!isListening) return;
+          console.warn('Voice recognition error:', event.error);
+
+          if (event.error === 'no-speech') {
+            voiceLang = voiceLang === 'hi-IN' ? 'en-IN' : 'hi-IN';
+            setBadge('Aawaz detect nahi hui. Kripya thoda tez boliye.', true, 'Aawaz Nahi Aayi', '#eab308');
+            if (voiceActionBtn) {
+              voiceActionBtn.textContent = '🎤 Dobara Boliye';
+              voiceActionBtn.style.display = 'inline-flex';
+              voiceActionBtn.onclick = () => {
+                voiceActionBtn.style.display = 'none';
+                startListening();
+              };
+            }
+          } else if (event.error === 'network') {
+            setBadge(`
+              <div style="font-size:12px; line-height:1.4; color:#334155; text-align:left;">
+                <b style="color:#ef4444;">Google Speech Network Error</b><br>
+                1. Phone ka Internet / Wi-Fi check karein.<br>
+                2. Android Settings &rarr; Apps &rarr; <b>Google</b> &rarr; Permissions &rarr; <b>Microphone: Allow</b> karein.
+              </div>
+            `, true, 'Network Error', '#ef4444');
+            if (voiceActionBtn) {
+              voiceActionBtn.textContent = 'Dobara Try Karein';
+              voiceActionBtn.style.display = 'inline-flex';
+              voiceActionBtn.onclick = () => {
+                voiceActionBtn.style.display = 'none';
+                startListening();
+              };
+            }
+          } else if (event.error === 'not-allowed') {
+            showPermissionBlockedUI();
+          } else if (event.error === 'audio-capture') {
+            setBadge('Microphone busy hai. Call ya doosra app band karein.', true, 'Mic Busy', '#ef4444');
+            if (voiceActionBtn) {
+              voiceActionBtn.textContent = 'Dobara Try Karein';
+              voiceActionBtn.style.display = 'inline-flex';
+              voiceActionBtn.onclick = () => {
+                voiceActionBtn.style.display = 'none';
+                startListening();
+              };
+            }
+          } else {
+            setBadge('Status: ' + event.error + '. Dobara boliye.', true, 'Voice Status', '#64748b');
+            if (voiceActionBtn) {
+              voiceActionBtn.textContent = 'Dobara Boliye';
+              voiceActionBtn.style.display = 'inline-flex';
+              voiceActionBtn.onclick = () => {
+                voiceActionBtn.style.display = 'none';
+                startListening();
+              };
+            }
+          }
+        };
+
+        rec.onend = () => {
+          // Managed per step
+        };
+
+        return rec;
+      }
+
+      function startListening() {
+        if (!isListening) return;
+        if (!SpeechRecognition) return;
+
+        try {
+          recognition = createRecognition();
+          recognition.start();
+          micBtn.classList.add('listening');
+        } catch(e) {
+          console.warn('recognition start exception:', e);
+          setTimeout(() => {
+            if (!isListening) return;
+            try {
+              recognition = createRecognition();
+              recognition.start();
+            } catch(err2) {
+              console.error('Retry start error:', err2);
+            }
+          }, 300);
+        }
+      }
+
+      function handleSpokenText(raw) {
+        let text = String(raw).trim();
+        console.log('Voice recognized:', text);
+
+        if (/(?:^|[\s,.\-!?;:।॥])(?:cancel|stop|ruko|band karo|hatao|रद्द|रोको|बंद)(?:$|[\s,.\-!?;:।॥])/i.test(text)) {
+          speak('Cancel kar diya', () => stopVoice());
+          return;
+        }
+
+        // STEP A: Extract and Remove Cost Cutting FIRST (to prevent "cutting" inside cost cutting from collision)
+        let costFound = false;
+        const ccMatch = text.match(/(?:cost\s*cutting|cutting\s*cost|कॉस्ट\s*कटिंग|कटिंग\s*कॉस्ट|cost|कॉस्ट)\s*([a-zA-Z0-9\u0900-\u097F]+)/i);
+        if (ccMatch) {
+          const num = parseSpokenNum(ccMatch[1]);
+          if (num !== null) {
+            document.getElementById('awCostCutting').value = String(num);
+            costFound = true;
+          }
+          text = text.replace(ccMatch[0], ' ');
+        } else if (currentStep === 'costCutting') {
+          const num = parseSpokenNum(text);
+          if (num !== null) {
+            document.getElementById('awCostCutting').value = String(num);
+            costFound = true;
+          } else if (/(?:^|[\s,.\-!?;:।॥])(?:zero|kuch nahi|kuchh nahi|shunya|nahi|no|शून्य|कुछ नहीं|जीरो|ना)(?:$|[\s,.\-!?;:।॥])/i.test(text)) {
+            document.getElementById('awCostCutting').value = '0';
+            costFound = true;
+          }
+        }
+
+        // STEP B: Extract and Remove Payment Mode
+        let payFound = false;
+        const cashRx = /(?:^|[\s,.\-!?;:।॥])(?:cash|nagad|rokhad|rokad|कैश|नकद|रोकड़)(?:$|[\s,.\-!?;:।॥])/i;
+        const onlineRx = /(?:^|[\s,.\-!?;:।॥])(?:online|phonepe|gpay|google\s*pay|paytm|upi|card|ऑनलाइन|फोनपे|गूगलपे|पेटीएम|यूपीआई)(?:$|[\s,.\-!?;:।॥])/i;
+        if (cashRx.test(text)) {
+          const r = document.querySelector('input[name="paymentMode"][value="Cash"]');
+          if (r) { r.checked = true; payFound = true; }
+          text = text.replace(cashRx, ' ');
+        } else if (onlineRx.test(text)) {
+          const r = document.querySelector('input[name="paymentMode"][value="Online"]');
+          if (r) { r.checked = true; payFound = true; }
+          text = text.replace(onlineRx, ' ');
+        }
+
+        // STEP C: Extract and Remove Entry Number
+        let entryFound = false;
+        const entryMatch = text.match(/(?:entry\s*(?:no|number)?|number|no\.?|एंट्री\s*(?:नंबर)?|नंबर)\s*([a-zA-Z0-9\u0900-\u097F]+)/i);
+        if (entryMatch) {
+          const num = parseSpokenNum(entryMatch[1]);
+          if (num !== null) {
+            awEntryNo.value = String(num);
+            const c = document.getElementById('awCustomerCount');
+            if (c) c.textContent = '#' + num;
+            entryFound = true;
+          }
+          text = text.replace(entryMatch[0], ' ');
+        } else if (currentStep === 'entryNo') {
+          if (/(?:^|[\s,.\-!?;:।॥])(?:same|next|agla|wahi|vahi|ok|theek|ha|haan|sahi|अगला|वही|ठीक|हाँ)(?:$|[\s,.\-!?;:।॥])/i.test(text)) {
+            entryFound = true;
+          } else {
+            const num = parseSpokenNum(text);
+            if (num !== null) {
+              awEntryNo.value = String(num);
+              const c = document.getElementById('awCustomerCount');
+              if (c) c.textContent = '#' + num;
+              entryFound = true;
+            }
+          }
+        }
+
+        // STEP D: Services Matching using Master Voice Keywords (Preventing collision)
+        let servicesFoundCount = 0;
+        let workingText = ' ' + text.toLowerCase().trim() + ' ';
+
+        const kwItems = [];
+        for (const s of awServices) {
+          const rawKws = (s.voiceKeywords || '').split(/[,;|\n]+/).map(k => k.trim().toLowerCase()).filter(Boolean);
+          if (s.shortName) rawKws.push(s.shortName.trim().toLowerCase());
+          if (s.serviceType) rawKws.push(s.serviceType.trim().toLowerCase());
+          
+          for (const kw of rawKws) {
+            if (kw && kw.length >= 2) {
+              kwItems.push({ keyword: kw, service: s });
+            }
+          }
+        }
+
+        // Longer keywords first (haircut wash before haircut, head massage before massage)
+        kwItems.sort((a, b) => b.keyword.length - a.keyword.length);
+
+        for (const item of kwItems) {
+          const kw = item.keyword;
+          const rx = new RegExp('(?:^|[\\s,.\\-!?;:।॥])' + escapeRx(kw) + '(?:$|[\\s,.\\-!?;:।॥])', 'i');
+          if (rx.test(workingText)) {
+            const currentQty = Number(awQuantities.get(item.service.serviceType) || 0);
+            awQuantities.set(item.service.serviceType, Math.max(1, currentQty + 1));
+            servicesFoundCount++;
+            // Consume matched keyword from text so shorter sub-words don't collide
+            workingText = workingText.replace(new RegExp(escapeRx(kw), 'gi'), ' ');
+          }
+        }
+
+        if (servicesFoundCount > 0) {
+          awTotalManual = false;
+          awRenderServices();
+        }
+
+        const hasServices = awSelectedItems().length > 0;
+
+        if (hasServices && (payFound || currentStep === 'paymentMode')) {
+          promptStep('done');
+          return;
+        }
+
+        if (currentStep === 'entryNo') {
+          if (hasServices) {
+            if (costFound && payFound) {
+              promptStep('done');
+            } else if (costFound) {
+              promptStep('paymentMode');
+            } else {
+              promptStep('costCutting');
+            }
+          } else {
+            promptStep('services');
+          }
+          return;
+        }
+
+        if (currentStep === 'services') {
+          if (hasServices) {
+            if (costFound && payFound) {
+              promptStep('done');
+            } else if (costFound) {
+              promptStep('paymentMode');
+            } else {
+              promptStep('costCutting');
+            }
+          } else {
+            setBadge('Service samajh nahi aayi, dobara boliye...');
+            speak('Service samajh nahi aayi, jaise Cutting ya Shaving boliye', startListening);
+          }
+          return;
+        }
+
+        if (currentStep === 'costCutting') {
+          if (payFound) {
+            promptStep('done');
+          } else {
+            promptStep('paymentMode');
+          }
+          return;
+        }
+
+        if (currentStep === 'paymentMode') {
+          promptStep('done');
+          return;
+        }
+
+        if (hasServices) {
+          promptStep('costCutting');
+        } else {
+          promptStep('services');
+        }
+      }
+
+      async function launchVoiceFlow() {
+        setBadge('Microphone check kiya ja raha hai...', false, 'Please Wait');
+        if (voiceActionBtn) voiceActionBtn.style.display = 'none';
+        if (voiceStop) voiceStop.textContent = 'Cancel';
+
+        const granted = await checkAndRequestMicPermission();
+        if (!granted) {
+          return;
+        }
+
+        isListening = true;
+        micBtn.classList.add('listening');
+        promptStep('entryNo');
+      }
+
+      micBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isListening) {
+          stopVoice();
+        } else {
+          await launchVoiceFlow();
+        }
+      });
+
+      if (voiceSoundToggle) {
+        voiceSoundToggle.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          soundEnabled = !soundEnabled;
+          if (soundEnabled) {
+            voiceSoundToggle.textContent = '🔊 Aawaz: ON';
+            voiceSoundToggle.classList.remove('muted');
+          } else {
+            voiceSoundToggle.textContent = '🔇 Aawaz: OFF';
+            voiceSoundToggle.classList.add('muted');
+            if (window.speechSynthesis) {
+              try { window.speechSynthesis.cancel(); } catch(e){}
+            }
+          }
+        });
+      }
+
+      if (voiceActionBtn) {
+        voiceActionBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          await launchVoiceFlow();
+        });
+      }
+
+      if (voiceStop) {
+        voiceStop.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          stopVoice();
+        });
+      }
+
+      if (voiceCloseBtn) {
+        voiceCloseBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          stopVoice();
+        });
+      }
+
+      if (voiceModalOverlay) {
+        voiceModalOverlay.addEventListener('click', (e) => {
+          if (e.target === voiceModalOverlay) {
+            e.preventDefault();
+            e.stopPropagation();
+            stopVoice();
+          }
+        });
+      }
+    }
+
     function buildForm(){
+
+      if (moduleKey === 'expense' && session?.employee?.role === 'Admin') {
+        initAdminExpensePortal();
+        return;
+      }
+
       fields.replaceChildren();document.title=`${editingRecord?'Edit ':''}${definition.title} - YOURS SALON`;document.getElementById('title').textContent=editingRecord?`Edit ${definition.title}`:definition.title;
       let employeeSelect=null;
       if(session.employee.role==='Admin'){
@@ -701,6 +2391,341 @@
         const successMessage=wasEditing?'Entry updated successfully.':'Entry saved successfully.';editingRecord=null;history.replaceState(null,document.title,location.pathname);if(window.salonUi?.showSuccess){await window.salonUi.showSuccess(successMessage);location.reload();return}showStatus(successMessage);form.reset();buildForm();
       }catch(error){showStatus(error.message||'Could not save the entry.',true)}finally{saveButton.disabled=false;saveButton.textContent=editingRecord?'Update Entry':'Save Entry'}
     });
+    
+    // ==========================================
+    // ADMIN EXPENSE PORTAL CLIENT CONTROLLER
+    // ==========================================
+    let expActiveCategory = 'Supplies & Products';
+    let expPaymentMode = 'Cash';
+    let expAddedItems = [];
+    let expTotalAmount = 0;
+
+    function setExpPaymentMode(mode) {
+      expPaymentMode = mode;
+      document.getElementById('expPayCash').className = 'exp-pay-btn' + (mode === 'Cash' ? ' active' : '');
+      document.getElementById('expPayOnline').className = 'exp-pay-btn' + (mode === 'Online' ? ' active' : '');
+    }
+
+    function selectExpCategory(cat) {
+      expActiveCategory = cat;
+      const catMap = {
+        'Supplies & Products': 'catSupplies',
+        'Repair & Maintenance': 'catRepair',
+        'Utilities & Bills': 'catBills',
+        'Staff / Advance': 'catStaff',
+        'Marketing & Misc': 'catMarketing',
+        'Other': 'catOther'
+      };
+
+      Object.entries(catMap).forEach(([k, id]) => {
+        const el = document.getElementById(id);
+        if (el) el.className = 'exp-cat-pill' + (k === cat ? ' active' : '');
+      });
+
+      document.getElementById('expCategoryBadge').textContent = cat;
+      document.getElementById('expModalCatLabel').textContent = cat;
+
+      const isStaff = (cat === 'Staff / Advance');
+      document.getElementById('expStaffSelectWrap').hidden = !isStaff;
+
+      populateExpItems();
+    }
+
+    function populateExpItems() {
+      const select = document.getElementById('expItemSelect');
+      select.replaceChildren();
+
+      // Filter expense types by active category
+      let filtered = expenseTypes.filter(item => {
+        if (item.status === 'Inactive') return false;
+        if (expActiveCategory === 'Other') return item.category === 'Other' || !item.category;
+        return item.category === expActiveCategory;
+      });
+
+      // If none, fallback to all active types
+      if (filtered.length === 0) {
+        filtered = expenseTypes.filter(item => item.status === 'Active');
+      }
+
+      for (const item of filtered) {
+        const opt = document.createElement('option');
+        opt.value = item.name;
+        opt.textContent = item.name;
+        opt.dataset.sr = item.sr;
+        opt.dataset.unit = item.measurementUnit || 'PCS';
+        opt.dataset.rate = item.defaultRate || 0;
+        select.appendChild(opt);
+      }
+
+      onExpItemChange();
+    }
+
+    function onExpItemChange() {
+      const select = document.getElementById('expItemSelect');
+      const opt = select.options[select.selectedIndex];
+      if (!opt) return;
+
+      const unit = opt.dataset.unit || 'PCS';
+      const rate = Number(opt.dataset.rate) || 0;
+      const qty = Math.max(1, Number(document.getElementById('expQtyInput').value) || 1);
+
+      document.getElementById('expUnitBadge').textContent = unit;
+      document.getElementById('expUnitInline').textContent = unit;
+      document.getElementById('expNewItemUnit').value = unit;
+
+      if (rate > 0) {
+        document.getElementById('expAmountInput').value = rate * qty;
+      }
+    }
+
+    function onExpQtyChange() {
+      const select = document.getElementById('expItemSelect');
+      const opt = select.options[select.selectedIndex];
+      if (!opt) return;
+
+      const rate = Number(opt.dataset.rate) || 0;
+      const qty = Math.max(1, Number(document.getElementById('expQtyInput').value) || 1);
+      if (rate > 0) {
+        document.getElementById('expAmountInput').value = rate * qty;
+      }
+    }
+
+    function pushExpEntryDown() {
+      const select = document.getElementById('expItemSelect');
+      const opt = select.options[select.selectedIndex];
+      if (!opt) {
+        alert('Please select an item first.');
+        return;
+      }
+
+      const itemName = opt.value;
+      const sr = Number(opt.dataset.sr) || 1;
+      const unit = opt.dataset.unit || 'PCS';
+      const qty = Math.max(1, Number(document.getElementById('expQtyInput').value) || 1);
+      const amount = Number(document.getElementById('expAmountInput').value) || 0;
+
+      if (amount <= 0) {
+        alert('Please enter a valid amount greater than 0.');
+        document.getElementById('expAmountInput').focus();
+        return;
+      }
+
+      let employeeId = '';
+      let employeeName = '';
+      if (expActiveCategory === 'Staff / Advance') {
+        const staffSel = document.getElementById('expStaffSelect');
+        employeeId = staffSel?.value || '';
+        employeeName = staffSel?.options[staffSel?.selectedIndex]?.textContent || 'Staff';
+      }
+
+      const itemObj = {
+        id: Date.now() + Math.random(),
+        expenseTypeSr: sr,
+        expenseType: itemName,
+        category: expActiveCategory,
+        quantity: qty,
+        measurementUnit: unit,
+        amount: amount,
+        employeeId,
+        employeeName
+      };
+
+      expAddedItems.push(itemObj);
+      renderExpAddedList();
+
+      // Reset top row for next entry
+      document.getElementById('expQtyInput').value = 1;
+      if (select.options.length > 1) {
+        select.selectedIndex = (select.selectedIndex + 1) % select.options.length;
+      }
+      onExpItemChange();
+    }
+
+    function renderExpAddedList() {
+      const container = document.getElementById('expRowsContainer');
+      const emptyMsg = document.getElementById('expEmptyListMsg');
+      container.replaceChildren();
+
+      if (expAddedItems.length === 0) {
+        if (emptyMsg) container.appendChild(emptyMsg);
+        document.getElementById('expItemsCount').textContent = '0';
+        document.getElementById('expSubtotal').textContent = '₹0';
+        document.getElementById('expGrandTotal').textContent = '₹0';
+        return;
+      }
+
+      let total = 0;
+      expAddedItems.forEach((item, index) => {
+        total += item.amount;
+        const row = document.createElement('div');
+        row.className = 'exp-row-item';
+        row.innerHTML = `
+          <div class="exp-row-left">
+            <span class="exp-row-idx">${index + 1}</span>
+            <div style="min-width:0;">
+              <div class="exp-row-name">${item.expenseType} ${item.employeeName ? ('(' + item.employeeName + ')') : ''}</div>
+              <div class="exp-row-meta">
+                <span class="unit-pill">${item.measurementUnit}</span>
+                <span>Qty: <b>${item.quantity}</b></span>
+                <span>&bull;</span>
+                <span>₹${item.amount}</span>
+              </div>
+            </div>
+          </div>
+          <div class="exp-row-right">
+            <span class="exp-row-amt">₹${item.amount}</span>
+            <button type="button" class="exp-row-del" onclick="removeExpItem(${item.id})">&times;</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      expTotalAmount = total;
+      document.getElementById('expItemsCount').textContent = String(expAddedItems.length);
+      document.getElementById('expSubtotal').textContent = '₹' + total.toLocaleString('en-IN');
+      document.getElementById('expGrandTotal').textContent = '₹' + total.toLocaleString('en-IN');
+    }
+
+    function removeExpItem(id) {
+      expAddedItems = expAddedItems.filter(item => item.id !== id);
+      renderExpAddedList();
+    }
+
+    async function submitExpVoucher() {
+      // If no items added in list, but active input has amount, automatically push it!
+      if (expAddedItems.length === 0) {
+        const amt = Number(document.getElementById('expAmountInput').value) || 0;
+        if (amt > 0) {
+          pushExpEntryDown();
+        } else {
+          alert('Please add at least one expense item using the "+" button.');
+          return;
+        }
+      }
+
+      const saveBtn = document.getElementById('expSaveBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span>⏳</span><span>Saving...</span>';
+
+      try {
+        const payload = {
+          entryDate: document.getElementById('expDateInput').value,
+          paymentMode: expPaymentMode,
+          category: expActiveCategory,
+          vendor: document.getElementById('expVendorInput').value.trim(),
+          remark: document.getElementById('expRemarkInput').value.trim(),
+          items: expAddedItems
+        };
+
+        const response = await salonAuth.request('/api/expense-voucher', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        const successMsg = response.message || 'Expense voucher saved successfully!';
+        if (window.salonUi?.showSuccess) {
+          await window.salonUi.showSuccess(successMsg);
+          location.reload();
+          return;
+        }
+        alert(successMsg);
+        expAddedItems = [];
+        renderExpAddedList();
+        document.getElementById('expVendorInput').value = '';
+        document.getElementById('expRemarkInput').value = '';
+      } catch (err) {
+        alert(err.message || 'Could not save expense voucher.');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<span>💾</span><span>Save Expense</span>';
+      }
+    }
+
+    function openExpNewItemModal() {
+      document.getElementById('expNewItemName').value = '';
+      document.getElementById('expNewItemRate').value = '';
+      const modal = document.getElementById('expNewItemModal');
+      modal.classList.add('open');
+      modal.removeAttribute('hidden');
+      setTimeout(() => document.getElementById('expNewItemName').focus(), 100);
+    }
+
+    function closeExpNewItemModal() {
+      const modal = document.getElementById('expNewItemModal');
+      modal.classList.remove('open');
+      modal.setAttribute('hidden', '');
+    }
+
+    async function saveExpNewMasterItem() {
+      const name = document.getElementById('expNewItemName').value.trim();
+      const unit = document.getElementById('expNewItemUnit').value;
+      const rate = Number(document.getElementById('expNewItemRate').value) || 0;
+
+      if (!name) {
+        alert('Please enter a product or item name.');
+        return;
+      }
+
+      try {
+        // Calculate next SR
+        const maxSr = expenseTypes.reduce((max, item) => Math.max(max, Number(item.sr) || 0), 0);
+        const payload = {
+          sr: maxSr + 1,
+          name: name,
+          category: expActiveCategory,
+          measurementUnit: unit,
+          defaultRate: rate,
+          status: 'Active'
+        };
+
+        const saveBtn = document.getElementById('expSaveMasterBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        const res = await salonAuth.request('/api/expense-types', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        expenseTypes.push(res);
+        closeExpNewItemModal();
+        populateExpItems();
+
+        // Select newly added item
+        const select = document.getElementById('expItemSelect');
+        select.value = name;
+        onExpItemChange();
+        saveBtn.disabled = false;
+        saveBtn.textContent = '✓ Save to Master';
+      } catch (err) {
+        alert(err.message || 'Could not save new item to master.');
+        const saveBtn = document.getElementById('expSaveMasterBtn');
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '✓ Save to Master'; }
+      }
+    }
+
+    function initAdminExpensePortal() {
+      document.querySelector('main.wrap').style.display = 'none';
+      document.getElementById('mobileAdminExpense').hidden = false;
+
+      // Set today date
+      const today = config?.todayDate || new Date().toISOString().slice(0, 10);
+      document.getElementById('expDateInput').value = today;
+
+      // Populate staff
+      const staffSelect = document.getElementById('expStaffSelect');
+      staffSelect.replaceChildren();
+      for (const st of staff) {
+        const opt = document.createElement('option');
+        opt.value = st._id;
+        opt.textContent = st.employeeName;
+        staffSelect.appendChild(opt);
+      }
+
+      // Populate items
+      selectExpCategory('Supplies & Products');
+    }
+
     window.salonPageReady=(async()=>{
       try{
         session=await window.salonReady;

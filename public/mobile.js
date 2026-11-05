@@ -52,15 +52,9 @@
     }
     const fallback = {
       'collection-records': 'Customer Entry',
-      'collection-entry': 'Customer Entry',
       'expense-records': 'Daily Expense',
-      'expense-entry': 'Daily Expense',
       'salary-records': 'Salary',
-      'salary-entry': 'Salary',
       'counter-records': 'Cash At Counter',
-      'counter-entry': 'Cash At Counter',
-      'expense-categories': 'Configuration',
-      'expense-types': 'Configuration',
       reports: 'Reports'
     }[key];
     return Boolean(fallback && session?.permissions?.includes(fallback));
@@ -157,7 +151,7 @@
     nav.append(makeLink(collHref, 'Collection', 'collection', section === 'collection'));
 
     // Button 3: Expense
-    const expHref = hasPage(safeSession, 'expense-entry') ? '/expense-entry' : '/expense-table';
+    const expHref = hasPage(safeSession, 'expense-table') ? '/expense-table' : '/expense-entry';
     nav.append(makeLink(expHref, 'Expense', 'expense', section === 'expense'));
 
     // Button 4: More (opens sheet containing all other pages)
@@ -197,56 +191,30 @@
     grid.append(makeMoreTile('/counter-table', 'Counter Cash', 'counter', 'green'));
 
     // Shifted Page 3: Employees
-    if (isAdmin || hasPage(safeSession, 'employee-list') || hasPage(safeSession, 'employee-entry')) {
-      const empHref = hasPage(safeSession, 'employee-list') ? '/employees' : '/employee-entry';
-      grid.append(makeMoreTile(empHref, 'Employees', 'employees', 'blue'));
-    }
+    grid.append(makeMoreTile('/employees', 'Employees', 'employees', 'blue'));
 
     // Shifted Page 4: Reports
-    if (isAdmin || hasPage(safeSession, 'reports') || hasPage(safeSession, 'activity-report')) {
-      const reportsHref = hasPage(safeSession, 'reports') ? '/reports' : '/activity-report';
-      grid.append(makeMoreTile(reportsHref, 'Reports', 'reports', 'purple'));
-    }
+    grid.append(makeMoreTile('/reports', 'Reports', 'reports', 'purple'));
 
     // Shifted Page 5: User Access (if Admin)
     if (isAdmin) {
       grid.append(makeMoreTile('/user-access', 'User Access', 'crown', 'purple'));
     }
 
-    // Expense Category (if Admin or has page)
-    if (isAdmin || hasPage(safeSession, 'expense-categories')) {
-      grid.append(makeMoreTile('/expense-categories', 'Expense Category', 'tag', 'amber'));
-    }
-
-    // Expense Name (if Admin or has page)
-    if (isAdmin || hasPage(safeSession, 'expense-types')) {
-      grid.append(makeMoreTile('/expense-types', 'Expense Name', 'tag', 'green'));
-    }
-
     // Shifted Page 6: Shop Details
-    if (isAdmin || hasPage(safeSession, 'shop-information')) {
-      grid.append(makeMoreTile('/shop-details', 'Shop Details', 'shop', 'amber'));
-    }
+    grid.append(makeMoreTile('/shop-details', 'Shop Details', 'shop', 'amber'));
 
     // Shifted Page 7: Rate List
-    if (isAdmin || hasPage(safeSession, 'rate-list')) {
-      grid.append(makeMoreTile('/rate-list', 'Rate List', 'tag', 'green'));
-    }
+    grid.append(makeMoreTile('/rate-list', 'Rate List', 'tag', 'green'));
 
     // Shifted Page 8: Configuration
-    if (isAdmin || hasPage(safeSession, 'configuration')) {
-      grid.append(makeMoreTile('/config', 'Config', 'config', 'blue'));
-    }
+    grid.append(makeMoreTile('/config', 'Config', 'config', 'blue'));
 
     // Shifted Page 9: Attendance
-    if (isAdmin || hasPage(safeSession, 'attendance')) {
-      grid.append(makeMoreTile('/attendance', 'Attendance', 'attendance', 'green'));
-    }
+    grid.append(makeMoreTile('/attendance', 'Attendance', 'attendance', 'green'));
 
     // Shifted Page 10: Customers
-    if (isAdmin || hasPage(safeSession, 'customers')) {
-      grid.append(makeMoreTile('/customers', 'Customers', 'customers', 'blue'));
-    }
+    grid.append(makeMoreTile('/customers', 'Customers', 'customers', 'blue'));
 
     // Shifted Page 11: Sign Out / Logout
     const logout = document.createElement('button');
@@ -290,12 +258,15 @@
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeMore();
     });
+
+    window.salonMobile = { closeMore, openMore, icons, svg, initials, hasPage, build };
   }
 
+  // Auto-init immediately if on mobile
   function checkAndInit() {
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches) {
       document.body.classList.add('mobile-employee');
-      if (!shellBuilt) build(cachedSession);
+      build(window.__salonSession || null);
     }
   }
 
