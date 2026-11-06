@@ -1307,6 +1307,673 @@
       50% { opacity: 0.5; }
     }
 </style>
+<style id="msrStyles">
+    /* ================= MOBILE SALARY RECORDS VIEW ================= */
+    .msr-page {
+      display: none;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 6px 12px 24px;
+      background: transparent !important;
+      color: #1b2240;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @media (max-width: 768px) {
+      body.mobile-salary-page {
+        background: #f4f6f9 !important;
+        min-height: 100vh;
+        margin: 0 !important;
+        padding-bottom: calc(var(--m-nav, 54px) + 20px) !important;
+      }
+      body.mobile-salary-page main.wrap,
+      body.mobile-salary-page .m-filter-bar,
+      body.mobile-salary-page .m-mobile-records,
+      body.mobile-salary-page .m-list-meta,
+      body.mobile-salary-page .m-load-more,
+      body.mobile-salary-page .table-wrap {
+        display: none !important;
+      }
+      body.mobile-salary-page .msr-page {
+        display: block !important;
+      }
+    }
+
+    /* 1. Capsule Segmented Tabs */
+    .msr-segmented-tabs {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 4px !important;
+      padding: 3px 4px !important;
+      background: #ffffff !important;
+      border: 1px solid var(--salon-border-light, #dfe2ee) !important;
+      border-radius: 9999px !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+      margin-bottom: 12px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .msr-segmented-tabs .aw-tab {
+      flex: 1 1 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      height: 36px !important;
+      padding: 0 12px !important;
+      border: none !important;
+      border-radius: 9999px !important;
+      background: transparent !important;
+      color: #475569 !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      cursor: pointer !important;
+      transition: all 0.15s ease !important;
+      white-space: nowrap !important;
+    }
+    .msr-segmented-tabs .aw-tab.active {
+      background: var(--salon-btn-bg, #1a1aa6) !important;
+      background-image: none !important;
+      color: var(--salon-btn-text, #ffffff) !important;
+      font-weight: 700 !important;
+      border-radius: 9999px !important;
+      box-shadow: 0 2px 5px rgba(26, 26, 166, 0.25) !important;
+    }
+    .msr-segmented-tabs .aw-tab.active .aw-tab-icon {
+      color: var(--salon-btn-text, #ffffff) !important;
+    }
+
+    /* 2. Month Selector Row */
+    .msr-month-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .msr-nav-btn {
+      width: 30px;
+      height: 30px;
+      min-width: 30px;
+      min-height: 30px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      background: var(--salon-btn-bg, #1a1aa6) !important;
+      background-image: none !important;
+      color: #ffffff !important;
+      border: none !important;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .msr-nav-btn:disabled {
+      background: #cbd5e1 !important;
+      color: #94a3b8 !important;
+      cursor: not-allowed !important;
+      opacity: 0.7;
+    }
+    .msr-month-chips {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px 0;
+      box-sizing: border-box;
+    }
+    .msr-month-chips::-webkit-scrollbar {
+      display: none;
+    }
+    .msr-month-chip {
+      flex: 1 1 0;
+      min-width: 40px;
+      height: 30px;
+      padding: 0 4px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      color: #5b6280;
+      font-size: 11.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      user-select: none;
+      box-sizing: border-box;
+    }
+    .msr-month-chip.active {
+      background: var(--salon-gold, #c99a2e) !important;
+      border-color: var(--salon-gold, #c99a2e) !important;
+      color: #ffffff !important;
+      box-shadow: 0 1px 3px rgba(201, 154, 46, 0.3) !important;
+    }
+
+    /* 3. Filters Row */
+    .msr-filters-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .msr-select-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .msr-dropdown {
+      width: 100%;
+      height: 36px;
+      border-radius: 99px;
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      color: #1b2240;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 0 28px 0 12px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      box-sizing: border-box;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .msr-select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: #64748b;
+      pointer-events: none;
+    }
+
+    /* 4. Two Summary Cards */
+    .msr-summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .msr-summary-card {
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      box-sizing: border-box;
+      min-height: 72px;
+    }
+    .msr-summary-card.navy {
+      background: var(--salon-btn-bg, #1a1aa6);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(26, 26, 166, 0.22);
+    }
+    .msr-summary-card.white {
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .msr-summary-lbl {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.85;
+      text-transform: capitalize;
+    }
+    .msr-summary-val {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+    .msr-summary-val.text-dark {
+      color: #1b2240;
+    }
+
+    /* 5. Level 1: Employee Accordion Cards */
+    .msr-records-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .msr-emp-card {
+      background: #ffffff;
+      border: 0.5px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+      box-sizing: border-box;
+    }
+    .msr-emp-card.open {
+      border-color: #cbd5e1;
+    }
+    .msr-emp-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #ffffff;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease;
+      gap: 8px;
+    }
+    .msr-emp-card.open .msr-emp-head {
+      background: #f8fafc;
+      border-bottom: 1px solid #f1f3f9;
+    }
+    .msr-emp-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+    .msr-emp-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #fff8e8;
+      color: #9a7414;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .msr-emp-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .msr-emp-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1e293b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .msr-emp-sub {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .msr-emp-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+    .msr-emp-totals {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .msr-emp-amt {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #1e293b;
+      line-height: 1.1;
+    }
+    .msr-emp-paidtag {
+      font-size: 10.5px;
+      color: #64748b;
+    }
+    .msr-chevron {
+      width: 18px;
+      height: 18px;
+      stroke: #94a3b8;
+      fill: none;
+      stroke-width: 2.2;
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    .msr-emp-card.open .msr-chevron {
+      transform: rotate(180deg);
+      stroke: #1a1aa6;
+    }
+
+    /* 6. Level 2: Inside Open Employee (Date-wise records) */
+    .msr-emp-body {
+      display: none;
+      padding: 8px 12px 10px;
+      background: #ffffff;
+      box-sizing: border-box;
+    }
+    .msr-emp-card.open .msr-emp-body {
+      display: block;
+    }
+    .msr-rec-item {
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f3f9;
+      box-sizing: border-box;
+    }
+    .msr-rec-item:last-child {
+      border-bottom: none;
+      padding-bottom: 2px;
+    }
+    .msr-rec-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .msr-rec-tags {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .msr-date-badge {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .msr-day-name {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .msr-month-chip-tag {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 10.5px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .msr-rec-amt-col {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .msr-rec-amt {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .msr-mode-pill {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .msr-mode-pill.cash {
+      background: #e6f9ed;
+      color: #128848;
+    }
+    .msr-mode-pill.online {
+      background: #eef2ff;
+      color: #3b5998;
+    }
+
+    .msr-dashed-divider {
+      border-top: 1px dashed #e2e8f0;
+      margin: 6px 0;
+    }
+
+    .msr-rec-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .msr-rec-meta {
+      font-size: 11px;
+      color: #64748b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .msr-rec-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .msr-act-btn {
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      min-height: 34px;
+      border-radius: 8px;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .msr-act-btn:active {
+      transform: scale(0.92);
+    }
+    .msr-act-btn.view {
+      background: #edf2fe;
+      color: var(--salon-btn-bg, #1a1aa6);
+    }
+    .msr-act-btn.edit {
+      background: #f1f5f9;
+      color: #64748b;
+      text-decoration: none;
+    }
+    .msr-act-btn.delete {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+    .msr-act-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Modals & Bottom Sheet */
+    .msr-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+      z-index: 9999;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .msr-modal-overlay.open {
+      display: flex !important;
+    }
+    .msr-modal-sheet {
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      border-radius: 20px 20px 0 0;
+      padding: 18px 16px 28px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.2);
+      animation: msrSlideUp 0.25s ease-out;
+      box-sizing: border-box;
+    }
+    @keyframes msrSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .msr-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f1f3f9;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+    .msr-modal-head h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1b2240;
+    }
+    .msr-modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: 0;
+      color: #64748b;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .msr-modal-body dl {
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .msr-detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed #f1f3f9;
+      font-size: 12.5px;
+    }
+    .msr-detail-item dt {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .msr-detail-item dd {
+      margin: 0;
+      font-weight: 700;
+      color: #1b2240;
+      text-align: right;
+    }
+    .msr-modal-dialog {
+      width: min(340px, 90vw);
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      margin: auto;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    }
+    .msr-modal-dialog h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1b2240;
+    }
+    .msr-modal-dialog p {
+      margin: 0 0 18px;
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.4;
+    }
+    .msr-dialog-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .msr-dialog-btn {
+      height: 38px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 0;
+    }
+    .msr-dialog-btn.cancel {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    .msr-dialog-btn.delete {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .msr-toast {
+      position: fixed;
+      bottom: calc(var(--m-nav, 54px) + 20px);
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      color: #ffffff;
+      padding: 9px 18px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      z-index: 10000;
+      transition: transform 0.25s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .msr-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+    .msr-empty-card {
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 28px 16px;
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .msr-skeleton-card {
+      background: #ffffff;
+      border: 1px solid #dfe2ee;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 8px;
+      animation: msrPulse 1.2s infinite ease-in-out;
+    }
+    @keyframes msrPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
 </head>
 <body>
   <main class="wrap m-page">
@@ -1926,6 +2593,90 @@
 
     <!-- Toast Notification -->
     <div id="merToast" class="mer-toast"></div>
+  </section>
+
+  
+  <!-- ================= MOBILE SALARY RECORDS VIEW ================= -->
+  <section id="mobileSalaryRecords" class="msr-page" hidden>
+    <!-- 1. Top Capsule Segmented Tabs -->
+    <div class="sal-portal-tabs aw-segmented-tabs msr-segmented-tabs">
+      <a class="aw-tab no-btn-theme" href="/salary-entry">
+        <span class="aw-tab-icon">+</span>
+        <span>Add Salary</span>
+      </a>
+      <div class="aw-tab active">
+        <span class="aw-tab-icon">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </span>
+        <span>Salary Records</span>
+      </div>
+    </div>
+
+    <!-- 2. Month Selector Row (No big month label, small rounded chips, selected = gold) -->
+    <div class="msr-month-row">
+      <button type="button" class="msr-nav-btn no-btn-theme" id="msrPrevMonthBtn" onclick="msrPrevMonth()" aria-label="Previous Month">‹</button>
+      <div class="msr-month-chips" id="msrMonthChips"></div>
+      <button type="button" class="msr-nav-btn no-btn-theme" id="msrNextMonthBtn" onclick="msrNextMonth()" aria-label="Next Month">›</button>
+    </div>
+
+    <!-- 3. Filters Row: Payment Mode + Status -->
+    <div class="msr-filters-row">
+      <div class="msr-select-wrap">
+        <select id="msrPaymentModeSelect" class="msr-dropdown" onchange="msrOnFilterChange()">
+          <option value="">Payment: All</option>
+          <option value="Cash">Cash</option>
+          <option value="Online">Online</option>
+        </select>
+      </div>
+      <div class="msr-select-wrap">
+        <select id="msrStatusSelect" class="msr-dropdown" onchange="msrOnFilterChange()">
+          <option value="Active" selected>Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 4. Two Summary Cards -->
+    <div class="msr-summary-grid">
+      <div class="msr-summary-card navy">
+        <div class="msr-summary-lbl" id="msrMonthPaidLbl">Nov paid</div>
+        <div class="msr-summary-val" id="msrMonthPaidVal">₹0</div>
+      </div>
+      <div class="msr-summary-card white">
+        <div class="msr-summary-lbl">Employees paid</div>
+        <div class="msr-summary-val text-dark" id="msrEmployeesPaidVal">0</div>
+      </div>
+    </div>
+
+    <!-- 5. Level 1 Employee Accordions & Level 2 Date Records -->
+    <div class="msr-records-wrap" id="msrRecordsList"></div>
+
+    <!-- Bottom Sheet Details Modal -->
+    <div id="msrViewModal" class="msr-modal-overlay" onclick="if(event.target===this)msrCloseViewModal()">
+      <div class="msr-modal-sheet">
+        <div class="msr-modal-head">
+          <h3>Salary Details</h3>
+          <button type="button" class="msr-modal-close no-btn-theme" onclick="msrCloseViewModal()">✕</button>
+        </div>
+        <div class="msr-modal-body" id="msrViewModalBody"></div>
+      </div>
+    </div>
+
+    <!-- Delete Confirm Popup -->
+    <div id="msrDeleteModal" class="msr-modal-overlay" onclick="if(event.target===this)msrCloseDeleteModal()">
+      <div class="msr-modal-dialog">
+        <h4>Move to Inactive?</h4>
+        <p id="msrDeletePrompt">Are you sure you want to move this salary record to Inactive?</p>
+        <div class="msr-dialog-actions">
+          <button type="button" class="msr-dialog-btn cancel no-btn-theme" onclick="msrCloseDeleteModal()">Cancel</button>
+          <button type="button" class="msr-dialog-btn delete no-btn-theme" id="msrConfirmDeleteBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="msrToast" class="msr-toast"></div>
   </section>
 
   <dialog id="detailsDialog" class="details-dialog">
@@ -3609,6 +4360,460 @@
       merLoad();
     }
 
+/* === MOBILE SALARY RECORDS SCRIPT === */
+let msrInitialized = false;
+let msrMonths = [];
+let msrActiveMonthIndex = 0;
+let msrRawRecords = [];
+let msrDeletingRecordId = null;
+
+function msrGetInitials(name) {
+  if (!name) return 'ST';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function msrShowToast(msg) {
+  const toast = document.getElementById('msrToast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+function msrBuildMonths() {
+  msrMonths = [];
+  const now = new Date();
+  const curY = now.getFullYear();
+  const curM = now.getMonth();
+
+  // Past 5 months + current month + next month
+  for (let offset = -4; offset <= 1; offset++) {
+    const d = new Date(curY, curM + offset, 1);
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    const shortName = d.toLocaleString('en-US', { month: 'short' });
+    const fullName = d.toLocaleString('en-US', { month: 'long' });
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const from = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const to = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    const key = `${year}-${String(month + 1).padStart(2, '0')}`;
+    msrMonths.push({ year, month, shortName, fullName, from, to, key });
+  }
+
+  // Active month defaults to current month (offset 0 -> index 4)
+  msrActiveMonthIndex = 4;
+}
+
+function msrRenderMonthChips() {
+  const container = document.getElementById('msrMonthChips');
+  if (!container) return;
+  container.replaceChildren();
+
+  msrMonths.forEach((m, idx) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'msr-month-chip no-btn-theme' + (idx === msrActiveMonthIndex ? ' active' : '');
+    chip.textContent = m.shortName;
+    chip.onclick = () => {
+      if (msrActiveMonthIndex !== idx) {
+        msrActiveMonthIndex = idx;
+        msrRenderMonthChips();
+        msrLoad();
+      }
+    };
+    container.append(chip);
+  });
+
+  const prevBtn = document.getElementById('msrPrevMonthBtn');
+  const nextBtn = document.getElementById('msrNextMonthBtn');
+  if (prevBtn) prevBtn.disabled = msrActiveMonthIndex === 0;
+  if (nextBtn) nextBtn.disabled = msrActiveMonthIndex === msrMonths.length - 1;
+}
+
+function msrPrevMonth() {
+  if (msrActiveMonthIndex > 0) {
+    msrActiveMonthIndex--;
+    msrRenderMonthChips();
+    msrLoad();
+  }
+}
+
+function msrNextMonth() {
+  if (msrActiveMonthIndex < msrMonths.length - 1) {
+    msrActiveMonthIndex++;
+    msrRenderMonthChips();
+    msrLoad();
+  }
+}
+
+function msrOnFilterChange() {
+  msrLoad();
+}
+
+async function msrLoad() {
+  const listContainer = document.getElementById('msrRecordsList');
+  if (!listContainer) return;
+
+  listContainer.innerHTML = `
+    <div class="msr-skeleton-card">
+      <div style="height:18px;background:#e2e8f0;border-radius:6px;width:55%;margin-bottom:8px;"></div>
+      <div style="height:12px;background:#f1f5f9;border-radius:4px;width:35%;"></div>
+    </div>
+    <div class="msr-skeleton-card">
+      <div style="height:18px;background:#e2e8f0;border-radius:6px;width:50%;margin-bottom:8px;"></div>
+      <div style="height:12px;background:#f1f5f9;border-radius:4px;width:30%;"></div>
+    </div>
+  `;
+
+  const curMonth = msrMonths[msrActiveMonthIndex];
+  const status = document.getElementById('msrStatusSelect')?.value || 'Active';
+  const payMode = document.getElementById('msrPaymentModeSelect')?.value || '';
+
+    const params = new URLSearchParams({
+    module: 'salary',
+    salaryMonth: curMonth.key,
+    status: status,
+    limit: '100'
+  });
+
+  try {
+    const res = await salonAuth.request('/api/module-records?' + params.toString());
+    msrRawRecords = res.records || [];
+    msrFilterAndRender();
+  } catch (err) {
+    listContainer.innerHTML = `<div class="msr-empty-card" style="color:#ef4444;">Could not load salary records: ${err.message || 'Network error'}</div>`;
+  }
+}
+
+function msrFilterAndRender() {
+  const listContainer = document.getElementById('msrRecordsList');
+  if (!listContainer) return;
+
+    const curMonth = msrMonths[msrActiveMonthIndex];
+  const payMode = document.getElementById('msrPaymentModeSelect')?.value || '';
+
+  // Filter strictly by selected salaryMonth (e.g. '2026-10' or '2026-11')
+  let records = msrRawRecords.filter(r => (r.salaryMonth || '').trim() === curMonth.key);
+  if (payMode) {
+    records = records.filter(r => (r.paymentMode || '').toLowerCase() === payMode.toLowerCase());
+  }
+
+  // Update Summary Cards
+  const totalPaid = records.reduce((s, r) => s + Number(r.amount || 0), 0);
+  const distinctEmployees = new Set(records.map(r => String(r.employeeId?._id || r.employeeId || r.employeeName)));
+
+  const monthPaidLbl = document.getElementById('msrMonthPaidLbl');
+  const monthPaidVal = document.getElementById('msrMonthPaidVal');
+  const empPaidVal = document.getElementById('msrEmployeesPaidVal');
+
+  if (monthPaidLbl) monthPaidLbl.textContent = `${curMonth.shortName} paid`;
+  if (monthPaidVal) monthPaidVal.textContent = `₹${totalPaid.toLocaleString('en-IN')}`;
+  if (empPaidVal) empPaidVal.textContent = distinctEmployees.size;
+
+  if (records.length === 0) {
+    listContainer.innerHTML = `<div class="msr-empty-card">No salary records found for ${curMonth.fullName}.</div>`;
+    return;
+  }
+
+  // Group by Employee
+  const employeeGroups = new Map();
+  records.forEach(r => {
+    const empKey = String(r.employeeId?._id || r.employeeId || r.employeeName);
+    const empName = r.employeeName || (typeof r.employeeId === 'object' && r.employeeId?.employeeName) || 'Employee';
+    if (!employeeGroups.has(empKey)) {
+      employeeGroups.set(empKey, {
+        id: empKey,
+        name: empName,
+        initials: msrGetInitials(empName),
+        records: [],
+        total: 0
+      });
+    }
+    const grp = employeeGroups.get(empKey);
+    grp.records.push(r);
+    grp.total += Number(r.amount || 0);
+  });
+
+  listContainer.replaceChildren();
+
+  
+  employeeGroups.forEach(grp => {
+    // Sort records descending by entryDate
+    grp.records.sort((a, b) => new Date(b.entryDate) - new Date(a.entryDate));
+
+    const card = document.createElement('div');
+    card.className = 'msr-emp-card';
+
+    // Header
+    const head = document.createElement('div');
+    head.className = 'msr-emp-head';
+    head.onclick = () => card.classList.toggle('open');
+
+    const left = document.createElement('div');
+    left.className = 'msr-emp-left';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msr-emp-avatar';
+    avatar.textContent = grp.initials;
+
+    const info = document.createElement('div');
+    info.className = 'msr-emp-info';
+
+    const name = document.createElement('div');
+    name.className = 'msr-emp-name';
+    name.textContent = grp.name;
+
+    const sub = document.createElement('div');
+    sub.className = 'msr-emp-sub';
+    sub.textContent = `${grp.records.length} ${grp.records.length === 1 ? 'payment' : 'payments'}`;
+
+    info.append(name, sub);
+    left.append(avatar, info);
+
+    const right = document.createElement('div');
+    right.className = 'msr-emp-right';
+
+    const totals = document.createElement('div');
+    totals.className = 'msr-emp-totals';
+
+    const amt = document.createElement('div');
+    amt.className = 'msr-emp-amt';
+    amt.textContent = `₹${grp.total.toLocaleString('en-IN')}`;
+
+    const paidtag = document.createElement('div');
+    paidtag.className = 'msr-emp-paidtag';
+    paidtag.textContent = `for ${curMonth.shortName}`;
+
+    totals.append(amt, paidtag);
+
+    const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    chevron.setAttribute('class', 'msr-chevron');
+    chevron.setAttribute('viewBox', '0 0 24 24');
+    chevron.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
+
+    right.append(totals, chevron);
+    head.append(left, right);
+    card.append(head);
+
+    // Body: Level 2 Records
+    const body = document.createElement('div');
+    body.className = 'msr-emp-body';
+
+    grp.records.forEach(rec => {
+      const recItem = document.createElement('div');
+      recItem.className = 'msr-rec-item';
+
+      // Top row
+      const topRow = document.createElement('div');
+      topRow.className = 'msr-rec-top';
+
+      const tags = document.createElement('div');
+      tags.className = 'msr-rec-tags';
+
+      // Format Date e.g. "05 NOV" & Day Name "Thursday"
+      const dateParts = String(rec.entryDate || '').slice(0, 10).split('-');
+      let dateBadgeText = '—';
+      let dayNameText = '';
+      if (dateParts.length === 3) {
+        const dObj = new Date(dateParts[0], parseInt(dateParts[1], 10) - 1, dateParts[2]);
+        const mShort = dObj.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+        dateBadgeText = `${dateParts[2]} ${mShort}`;
+        dayNameText = dObj.toLocaleString('en-US', { weekday: 'long' });
+      }
+
+      const dateBadge = document.createElement('span');
+      dateBadge.className = 'msr-date-badge';
+      dateBadge.textContent = dateBadgeText;
+
+      const dayName = document.createElement('span');
+      dayName.className = 'msr-day-name';
+      dayName.textContent = dayNameText;
+
+      const monthChip = document.createElement('span');
+      monthChip.className = 'msr-month-chip-tag';
+      // Format salaryMonth e.g. "Salary for Nov 2026"
+      let smLabel = rec.salaryMonth || curMonth.key;
+      if (smLabel && smLabel.includes('-')) {
+        const [sy, sm] = smLabel.split('-');
+        const smDate = new Date(sy, parseInt(sm, 10) - 1, 1);
+        smLabel = smDate.toLocaleString('en-US', { month: 'short' }) + ' ' + sy;
+      }
+      monthChip.textContent = `Salary for ${smLabel}`;
+
+      tags.append(dateBadge, dayName, monthChip);
+
+      const amtCol = document.createElement('div');
+      amtCol.className = 'msr-rec-amt-col';
+
+      const itemAmt = document.createElement('div');
+      itemAmt.className = 'msr-rec-amt';
+      itemAmt.textContent = `₹${Number(rec.amount || 0).toLocaleString('en-IN')}`;
+
+      const modePill = document.createElement('span');
+      const isCash = (rec.paymentMode || '').toLowerCase() === 'cash';
+      modePill.className = 'msr-mode-pill ' + (isCash ? 'cash' : 'online');
+      modePill.textContent = rec.paymentMode || 'Cash';
+
+      amtCol.append(itemAmt, modePill);
+      topRow.append(tags, amtCol);
+
+      // Dashed divider
+      const divider = document.createElement('div');
+      divider.className = 'msr-dashed-divider';
+
+      // Footer row
+      const footerRow = document.createElement('div');
+      footerRow.className = 'msr-rec-footer';
+
+      const meta = document.createElement('div');
+      meta.className = 'msr-rec-meta';
+      // Format: DD/MM · hh:mm am/pm · by <CreatedBy>
+      let timeStr = '';
+      if (rec.createdAt) {
+        const cDate = new Date(rec.createdAt);
+        timeStr = cDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
+      }
+      const dateShort = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : '';
+      const byUser = rec.createdBy || 'Admin';
+      meta.textContent = `${dateShort}${timeStr ? ' · ' + timeStr : ''} · by ${byUser}`;
+
+      const actions = document.createElement('div');
+      actions.className = 'msr-rec-actions';
+
+      // View Button
+      const viewBtn = document.createElement('button');
+      viewBtn.type = 'button';
+      viewBtn.className = 'msr-act-btn view no-btn-theme';
+      viewBtn.title = 'View Details';
+      viewBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      viewBtn.onclick = () => msrOpenViewModal(rec);
+
+      // Edit Button
+      const editBtn = document.createElement('a');
+      editBtn.className = 'msr-act-btn edit no-btn-theme';
+      editBtn.title = 'Edit Salary';
+      editBtn.href = `/salary-entry?edit=${encodeURIComponent(rec._id)}`;
+      editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+
+      // Delete Button
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'msr-act-btn delete no-btn-theme';
+      delBtn.title = 'Delete Salary';
+      delBtn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
+      delBtn.onclick = () => msrOpenDeleteModal(rec);
+
+      actions.append(viewBtn, editBtn, delBtn);
+      footerRow.append(meta, actions);
+
+      recItem.append(topRow, divider, footerRow);
+      body.append(recItem);
+    });
+
+    card.append(body);
+    listContainer.append(card);
+
+    
+  });
+}
+
+function msrOpenViewModal(rec) {
+  const body = document.getElementById('msrViewModalBody');
+  if (!body) return;
+
+  const empName = rec.employeeName || (typeof rec.employeeId === 'object' && rec.employeeId?.employeeName) || 'Employee';
+  const amountStr = `₹${Number(rec.amount || 0).toLocaleString('en-IN')}`;
+  const paidDateStr = String(rec.entryDate || '').slice(0, 10);
+  const createdStr = rec.createdAt ? new Date(rec.createdAt).toLocaleString('en-IN') : '—';
+  const updatedStr = rec.updatedAt ? new Date(rec.updatedAt).toLocaleString('en-IN') : '—';
+
+  body.innerHTML = `
+    <dl>
+      <div class="msr-detail-item"><dt>Employee</dt><dd>${empName}</dd></div>
+      <div class="msr-detail-item"><dt>Salary Month</dt><dd>${rec.salaryMonth || '—'}</dd></div>
+      <div class="msr-detail-item"><dt>Paid Date</dt><dd>${paidDateStr}</dd></div>
+      <div class="msr-detail-item"><dt>Amount</dt><dd style="color:#0f172a;font-size:14px;">${amountStr}</dd></div>
+      <div class="msr-detail-item"><dt>Payment Mode</dt><dd><span class="msr-mode-pill ${(rec.paymentMode||'').toLowerCase()==='cash'?'cash':'online'}">${rec.paymentMode || 'Cash'}</span></dd></div>
+      <div class="msr-detail-item"><dt>Status</dt><dd>${rec.status || 'Active'}</dd></div>
+      <div class="msr-detail-item"><dt>Remark</dt><dd>${rec.remark || '—'}</dd></div>
+      <div class="msr-detail-item"><dt>Created By</dt><dd>${rec.createdBy || 'Admin'}</dd></div>
+      <div class="msr-detail-item"><dt>Created At</dt><dd>${createdStr}</dd></div>
+      ${rec.updatedBy ? `<div class="msr-detail-item"><dt>Updated By</dt><dd>${rec.updatedBy}</dd></div>` : ''}
+      ${rec.updatedAt ? `<div class="msr-detail-item"><dt>Updated At</dt><dd>${updatedStr}</dd></div>` : ''}
+    </dl>
+  `;
+
+  document.getElementById('msrViewModal')?.classList.add('open');
+}
+
+function msrCloseViewModal() {
+  document.getElementById('msrViewModal')?.classList.remove('open');
+}
+
+function msrOpenDeleteModal(rec) {
+  msrDeletingRecordId = rec._id;
+  const empName = rec.employeeName || 'this employee';
+  const amt = `₹${Number(rec.amount || 0).toLocaleString('en-IN')}`;
+  const prompt = document.getElementById('msrDeletePrompt');
+  if (prompt) {
+    prompt.textContent = `Are you sure you want to move the salary payment of ${amt} for ${empName} to Inactive?`;
+  }
+  const confirmBtn = document.getElementById('msrConfirmDeleteBtn');
+  if (confirmBtn) {
+    confirmBtn.onclick = msrConfirmDelete;
+  }
+  document.getElementById('msrDeleteModal')?.classList.add('open');
+}
+
+function msrCloseDeleteModal() {
+  msrDeletingRecordId = null;
+  document.getElementById('msrDeleteModal')?.classList.remove('open');
+}
+
+async function msrConfirmDelete() {
+  if (!msrDeletingRecordId) return;
+  const confirmBtn = document.getElementById('msrConfirmDeleteBtn');
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Deleting...';
+  }
+
+  try {
+    await salonAuth.request(`/api/employee-records/${encodeURIComponent(msrDeletingRecordId)}`, {
+      method: 'DELETE'
+    });
+    msrCloseDeleteModal();
+    msrShowToast('Salary record moved to Inactive.');
+    await msrLoad();
+  } catch (err) {
+    alert(err.message || 'Could not delete salary record.');
+  } finally {
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Delete';
+    }
+  }
+}
+
+async function msrInit() {
+  if (msrInitialized) return;
+  msrInitialized = true;
+
+  document.querySelector('main.wrap').style.display = 'none';
+  document.getElementById('mobileSalaryRecords').hidden = false;
+  document.body.classList.add('mobile-employee', 'mobile-salary-page');
+  document.title = 'Salary Records — YOURS SALON';
+
+  msrBuildMonths();
+  msrRenderMonthChips();
+
+  await msrLoad();
+}
+/* === END MOBILE SALARY RECORDS SCRIPT === */
+
+
     async function merInit() {
       if (merInitialized) return;
       merInitialized = true;
@@ -3768,7 +4973,7 @@
         const totalEntries = voucherMap.size + standaloneRecords.length;
 
         const dateCard = document.createElement('div');
-        dateCard.className = 'mer-date-card' + (dIdx === 0 ? ' open' : '');
+        dateCard.className = 'mer-date-card';
 
         // Header
         const head = document.createElement('div');
@@ -4021,6 +5226,19 @@
         };
         await checkResponsive();
         window.addEventListener('resize', checkResponsive);
+        if (window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches) {
+          return;
+        }
+      }
+      if (moduleKey === 'salary' && isAdminUser) {
+        const checkResponsiveSalary = async () => {
+          const isMobile = window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches;
+          if (isMobile) {
+            await msrInit();
+          }
+        };
+        await checkResponsiveSalary();
+        window.addEventListener('resize', checkResponsiveSalary);
         if (window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches) {
           return;
         }

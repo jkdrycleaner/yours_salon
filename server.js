@@ -400,6 +400,7 @@ const employeeDateRuleSchema = new mongoose.Schema({
 const appConfigSchema = new mongoose.Schema({
     key: { type: String, required: true, unique: true },
     allowPreviousEntry: { type: Boolean, default: false },
+    enableVoiceFeature: { type: Boolean, default: false },
     maxPreviousEntryDays: { type: Number, min: 0, max: 3650, default: 0 },
     employeeAllowedDates: { type: [employeeDateRuleSchema], default: [] },
     shortfallAdjustment: { type: String, enum: ['employee', 'costCutting'], default: 'employee' },
@@ -1807,6 +1808,7 @@ app.get('/api/public-config', async (req, res) => {
             googleAuthRequired,
             googleClientId: GOOGLE_CLIENT_ID,
             allowPreviousEntry: config?.allowPreviousEntry ?? false,
+            enableVoiceFeature: config?.enableVoiceFeature ?? false,
             todayDate: getTodayDate()
         });
     } catch (error) {
@@ -3047,11 +3049,15 @@ app.get('/api/module-records', requireSecureAuth, verifyEmployee, async (req, re
             if (!mongoose.isValidObjectId(req.query.id)) return res.status(400).json({ error: 'Invalid record ID.' });
             filter._id = req.query.id;
         }
-        const from = parseDateStart(req.query.from);
-        const to = parseDateStart(req.query.to);
-        if (from || to) {
-            if (!from || !to || to < from) return res.status(400).json({ error: 'Select a valid date range.' });
-            filter.entryDate = { $gte: from, $lt: nextDate(to) };
+        if (moduleKey === 'salary' && req.query.salaryMonth) {
+            filter.salaryMonth = String(req.query.salaryMonth).trim();
+        } else {
+            const from = parseDateStart(req.query.from);
+            const to = parseDateStart(req.query.to);
+            if (from || to) {
+                if (!from || !to || to < from) return res.status(400).json({ error: 'Select a valid date range.' });
+                filter.entryDate = { $gte: from, $lt: nextDate(to) };
+            }
         }
         const total = moduleKey === 'collection'
             ? await CollectionEntry.countDocuments(filter)
@@ -4361,6 +4367,7 @@ app.get('/api/collection-entry-meta', requireSecureAuth, verifyEmployee, verifyC
             date: dateText,
             todayDate: today,
             allowPreviousEntry: config?.allowPreviousEntry ?? false,
+            enableVoiceFeature: config?.enableVoiceFeature ?? false,
             allowedDates: [...allowedDates].sort((left, right) => right.localeCompare(left)),
             nextEntryNo,
             todayTotal: Number(todayAggregate[0]?.total || 0),
@@ -4406,6 +4413,7 @@ app.get('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('
         }
         return res.json({
             allowPreviousEntry: config?.allowPreviousEntry ?? false,
+            enableVoiceFeature: config?.enableVoiceFeature ?? false,
             shortfallAdjustment: config?.shortfallAdjustment || 'employee',
             todayDate: getTodayDate(),
             permissions: permissions.map(name => ({
@@ -4421,11 +4429,14 @@ app.get('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('
 
 app.put('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('configuration'), requireActionPermission('configuration', 'edit'), async (req, res) => {
     try {
-        const { allowPreviousEntry, permissions, shortfallAdjustment } = req.body;
+        const { allowPreviousEntry, permissions, shortfallAdjustment, enableVoiceFeature } = req.body;
         if (typeof allowPreviousEntry !== 'boolean' || !Array.isArray(permissions)) {
             return res.status(400).json({
                 error: 'Configuration must include the previous-entry setting and employee permissions.'
             });
+        }
+        if (enableVoiceFeature !== undefined && typeof enableVoiceFeature !== 'boolean') {
+            return res.status(400).json({ error: 'Voice feature setting must be a boolean.' });
         }
         if (shortfallAdjustment !== undefined && !['employee', 'costCutting'].includes(shortfallAdjustment)) {
             return res.status(400).json({ error: 'Select a valid shortfall adjustment option.' });
@@ -4490,6 +4501,7 @@ app.put('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('
             {
                 $set: {
                     allowPreviousEntry,
+                    enableVoiceFeature: typeof enableVoiceFeature === 'boolean' ? enableVoiceFeature : (previousConfig?.enableVoiceFeature ?? false),
                     shortfallAdjustment: shortfallAdjustment || previousConfig?.shortfallAdjustment || 'employee',
                     permissions: normalizedPermissions
                 }
@@ -4502,6 +4514,7 @@ app.put('/api/config', requireSecureAuth, verifyEmployee, requireAnyPageAccess('
         });
         return res.json({
             allowPreviousEntry: config.allowPreviousEntry,
+            enableVoiceFeature: config.enableVoiceFeature ?? false,
             shortfallAdjustment: config.shortfallAdjustment || 'employee',
             permissions: config.permissions
         });

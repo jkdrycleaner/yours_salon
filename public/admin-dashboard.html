@@ -60,13 +60,17 @@
     @media (max-width: 768px) {
       body.salon-layout > main.wrap,
       body.salon-layout > .wrap,
+      body.mobile-employee > main.wrap,
+      body.mobile-employee > .wrap,
+      body.mobile-employee .wrap,
+      #adminDashWrap,
       .wrap,
       main {
         width: 100% !important;
         max-width: 100% !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
-        padding: 10px 10px calc(var(--m-nav, 56px) + env(safe-area-inset-bottom, 0px) + 20px) !important;
+        padding: 12px 14px calc(var(--m-nav, 56px) + env(safe-area-inset-bottom, 0px) + 24px) !important;
         box-sizing: border-box !important;
       }
     }
@@ -1080,18 +1084,24 @@
     }
 
     @media (max-width: 768px) {
+      body.salon-layout #adminDashWrap,
+      body.mobile-employee #adminDashWrap,
+      body.mobile-employee.salon-layout #adminDashWrap,
+      html body.mobile-employee.salon-layout main.wrap,
+      body.mobile-employee.salon-layout main.wrap,
       body.salon-layout > main.wrap,
       body.salon-layout > .wrap,
       body.mobile-employee > main.wrap,
       body.mobile-employee > .wrap,
       body.mobile-employee .wrap,
+      #adminDashWrap,
       .wrap,
       main {
         width: 100% !important;
         max-width: 100% !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
-        padding: 10px 10px calc(var(--m-nav, 56px) + env(safe-area-inset-bottom, 0px) + 20px) !important;
+        padding: 12px 14px calc(var(--m-nav, 56px) + env(safe-area-inset-bottom, 0px) + 24px) !important;
         box-sizing: border-box !important;
       }
       .dash-header {
@@ -1169,7 +1179,7 @@
   </style>
 </head>
 <body>
-  <main class="wrap">
+  <main class="wrap admin-dash-wrap" id="adminDashWrap">
     <!-- Header -->
     <header class="dash-header">
       <div class="dash-title-group">

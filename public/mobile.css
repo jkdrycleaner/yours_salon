@@ -41,15 +41,15 @@
     display: none !important;
   }
 
-  body.mobile-employee.salon-layout > main,
-  body.mobile-employee.salon-layout > .wrap,
+  body.mobile-employee.salon-layout > main:not(#adminDashWrap),
+  body.mobile-employee.salon-layout > .wrap:not(#adminDashWrap),
   body.mobile-employee.salon-layout > .container,
-  body.mobile-employee.salon-layout main.wrap,
-  body.mobile-employee.salon-layout .wrap,
-  body.mobile-employee > main,
-  body.mobile-employee > .wrap,
-  body.mobile-employee main.wrap,
-  body.mobile-employee .wrap {
+  body.mobile-employee.salon-layout main.wrap:not(#adminDashWrap),
+  body.mobile-employee.salon-layout .wrap:not(#adminDashWrap),
+  body.mobile-employee > main:not(#adminDashWrap),
+  body.mobile-employee > .wrap:not(#adminDashWrap),
+  body.mobile-employee main.wrap:not(#adminDashWrap),
+  body.mobile-employee .wrap:not(#adminDashWrap) {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 100% !important;

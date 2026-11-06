@@ -138,6 +138,16 @@
         </select>
       </div>
     </section>
+    <section class="panel">
+      <h2>Voice Feature</h2>
+      <div class="setting">
+        <input id="enableVoiceFeature" type="checkbox" aria-labelledby="enableVoiceFeatureLabel">
+        <div class="setting-copy">
+          <strong id="enableVoiceFeatureLabel">Enable Voice Entry Assistant</strong>
+          <span class="help">When enabled, the voice assistant (mic button) will be available on the collection entry page. When turned off, the voice feature is completely hidden.</span>
+        </div>
+      </div>
+    </section>
     <div class="actions">
       <button id="saveBottom" class="compact" type="button" disabled>Save</button>
     </div>
@@ -149,6 +159,7 @@
     const saveButtons=[document.getElementById('saveTop'),document.getElementById('saveBottom')];
     const allowPreviousEntryInput=document.getElementById('allowPreviousEntry');
     const shortfallAdjustmentInput=document.getElementById('shortfallAdjustment');
+    const enableVoiceFeatureInput=document.getElementById('enableVoiceFeature');
     const dateEmployeeList=document.getElementById('dateEmployeeList');
     const dateEmployeeCount=document.getElementById('dateEmployeeCount');
     const selectAllDateEmployeesButton=document.getElementById('selectAllDateEmployees');
@@ -427,6 +438,7 @@
       if(!employeesResponse.ok)throw new Error(employeeData.error||'Could not load employees.');
       if(!dateAccessResponse.ok)throw new Error(dateAccessData.error||'Could not load previous-date access.');
       allowPreviousEntryInput.checked=config.allowPreviousEntry===true;
+      enableVoiceFeatureInput.checked=config.enableVoiceFeature===true;
       shortfallAdjustmentInput.value=config.shortfallAdjustment||'employee';
       permissions=Array.isArray(config.permissions)?config.permissions:[];
       employees=Array.isArray(employeeData)?employeeData:[];
@@ -451,7 +463,7 @@
         const response=await fetch('/api/config',{
           method:'PUT',
           headers:authHeaders(),
-          body:JSON.stringify({allowPreviousEntry,shortfallAdjustment:shortfallAdjustmentInput.value,permissions})
+          body:JSON.stringify({allowPreviousEntry,enableVoiceFeature:enableVoiceFeatureInput.checked,shortfallAdjustment:shortfallAdjustmentInput.value,permissions})
         });
         const result=await response.json();
         if(!response.ok)throw new Error(result.error||'Could not save configuration.');

@@ -872,6 +872,636 @@
       padding: 0 0 0 4px;
     }
   </style>
+<style id="msalStyles">
+    /* ================= MOBILE SALARY ENTRY VIEW ================= */
+    .msal-page {
+      display: none;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 6px 12px calc(var(--m-nav, 54px) + 75px) !important;
+      background: transparent !important;
+      color: #1b2240;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @media (max-width: 768px) {
+      body.mobile-salary-entry-page {
+        background: #f4f6f9 !important;
+        min-height: 100vh;
+        margin: 0 !important;
+        padding-bottom: calc(var(--m-nav, 54px) + 75px) !important;
+      }
+      body.mobile-salary-entry-page main.wrap,
+      body.mobile-salary-entry-page .wrap.m-page,
+      body.mobile-salary-entry-page .panel,
+      body.mobile-salary-entry-page #mobileAdminExpense,
+      body.mobile-salary-entry-page #mobileAddWork {
+        display: none !important;
+      }
+      body.mobile-salary-entry-page .msal-page {
+        display: block !important;
+      }
+    }
+
+    /* 1. Top Capsule Segmented Tabs */
+    .msal-segmented-tabs {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 4px !important;
+      padding: 3px 4px !important;
+      background: #ffffff !important;
+      border: 1px solid var(--salon-border-light, #dfe2ee) !important;
+      border-radius: 9999px !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+      margin-bottom: 12px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .msal-segmented-tabs .aw-tab {
+      flex: 1 1 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      height: 36px !important;
+      padding: 0 12px !important;
+      border: none !important;
+      border-radius: 9999px !important;
+      background: transparent !important;
+      color: #475569 !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      cursor: pointer !important;
+      transition: all 0.15s ease !important;
+      white-space: nowrap !important;
+    }
+    .msal-segmented-tabs .aw-tab.active {
+      background: var(--salon-btn-bg, #09AA1C) !important;
+      background-image: none !important;
+      color: var(--salon-btn-text, #ffffff) !important;
+      font-weight: 700 !important;
+      border-radius: 9999px !important;
+      box-shadow: 0 2px 5px rgba(26, 26, 166, 0.25) !important;
+    }
+    .msal-segmented-tabs .aw-tab.active .aw-tab-icon {
+      color: var(--salon-btn-text, #ffffff) !important;
+    }
+
+    /* 2. Date & Payment Mode Row */
+    .msal-date-row {
+      display: grid !important;
+      grid-template-columns: 135px 1fr !important;
+      gap: 10px !important;
+      margin-bottom: 12px !important;
+      align-items: flex-end !important;
+    }
+    .msal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .msal-field label {
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0;
+    }
+    .msal-date-control {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 42px;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 11px;
+      background: #ffffff;
+      padding: 0 10px;
+      cursor: pointer;
+      user-select: none;
+      box-sizing: border-box;
+      transition: border-color .15s ease;
+    }
+    .msal-date-control:hover, .msal-date-control:focus-within {
+      border-color: #94a3b8;
+    }
+    .msal-date-control input[type="date"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
+    /* Invisible indicator expanding across the full card so any click opens calendar */
+    .msal-date-control input[type="date"]::-webkit-calendar-picker-indicator {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 3;
+    }
+    .msal-date-disp {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .msal-date-icon {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: #64748b;
+      stroke-width: 1.8;
+      pointer-events: none;
+    }
+
+    /* Payment mode switcher */
+    .msal-pay-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 42px;
+      padding: 3px;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 11px;
+      background: #f8fafc;
+      box-sizing: border-box;
+      gap: 4px;
+    }
+    .msal-pay-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #64748b;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      padding: 0;
+    }
+    .msal-pay-btn.active {
+      border: 1.5px solid var(--salon-btn-bg, #09AA1C) !important;
+      background: #ffffff !important;
+      color: var(--salon-btn-bg, #09AA1C) !important;
+      font-weight: 700 !important;
+      box-shadow: 0 1px 4px rgba(9, 170, 28, 0.15) !important;
+    }
+
+    /* 3. Section Label & Employee Grid */
+    .msal-section-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 12px 0 8px;
+    }
+    .msal-emp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .msal-emp-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 6px 10px;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 12px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: border-color .15s ease, box-shadow .15s ease;
+      text-align: left;
+      user-select: none;
+      box-sizing: border-box;
+    }
+    .msal-emp-card:hover {
+      border-color: #94a3b8;
+    }
+    .msal-emp-card.selected {
+      border: 1.5px solid var(--salon-btn-bg, #09AA1C) !important;
+      background: #ecfdf5 !important;
+      box-shadow: 0 2px 8px rgba(9, 170, 28, 0.18) !important;
+    }
+    .msal-emp-card.selected .msal-emp-avatar {
+      background: var(--salon-btn-bg, #09AA1C) !important;
+      color: #ffffff !important;
+    }
+    .msal-emp-card.selected .msal-emp-name {
+      color: var(--salon-btn-bg, #09AA1C) !important;
+    }
+    .msal-emp-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #fff8e8;
+      color: #9a7414;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .msal-emp-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    /* 4. Details Card */
+    .msal-card {
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      margin-bottom: 12px;
+      box-sizing: border-box;
+    }
+    .msal-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .msal-card-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .msal-card-dot {
+      color: #1a1aa6;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .msal-emp-badge {
+      display: inline-flex;
+      align-items: center;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .msal-emp-badge.empty {
+      background: #f1f5f9;
+      color: #64748b;
+      border-color: #e2e8f0;
+    }
+
+    /* Dark select and dark input as per screenshot media_1793956803201_edbe8742.png */
+    .msal-input-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 10px 0 5px;
+      display: block;
+    }
+    .msal-select-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .msal-select-dark {
+      width: 100%;
+      height: 42px;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 11px;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 0 34px 0 12px;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      box-sizing: border-box;
+      transition: border-color 0.15s ease;
+    }
+    .msal-select-dark:focus {
+      border-color: var(--salon-btn-bg, #09AA1C);
+    }
+    .msal-select-chevron {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      stroke: #64748b;
+      fill: none;
+      stroke-width: 2.2;
+      pointer-events: none;
+    }
+
+    .msal-amount-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .msal-input-dark {
+      flex: 1;
+      height: 42px;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 11px;
+      font-size: 16px; /* avoids iOS safari auto-zoom */
+      font-weight: 600;
+      padding: 0 12px;
+      outline: none;
+      box-sizing: border-box;
+      min-width: 0;
+      transition: border-color 0.15s ease;
+    }
+    .msal-input-dark:focus {
+      border-color: var(--salon-btn-bg, #09AA1C);
+    }
+    .msal-input-dark::placeholder {
+      color: #94a3b8;
+    }
+    .msal-plus-btn {
+      width: 42px;
+      height: 42px;
+      min-width: 42px;
+      min-height: 42px;
+      border-radius: 11px;
+      background: var(--salon-btn-bg, #09AA1C) !important;
+      background-image: none !important;
+      color: #ffffff !important;
+      border: none !important;
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      box-sizing: border-box;
+      transition: transform 0.1s ease;
+    }
+    .msal-plus-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* 5. Added Entries Card */
+    .msal-subtotal-pill {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .msal-empty-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      color: #64748b;
+      font-size: 12.5px;
+      font-weight: 500;
+      line-height: 1.4;
+      box-sizing: border-box;
+      background: #fafbfc;
+    }
+    .msal-entry-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f3f9;
+      gap: 8px;
+    }
+    .msal-entry-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .msal-entry-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+    .msal-entry-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .msal-entry-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .msal-entry-month {
+      font-size: 11px;
+      color: #64748b;
+    }
+    .msal-entry-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .msal-entry-amt {
+      font-size: 14px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .msal-entry-del {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #fef2f2;
+      border: none;
+      color: #ef4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.1s ease;
+    }
+    .msal-entry-del:active {
+      transform: scale(0.9);
+    }
+    .msal-entry-del svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* 6. Remark input */
+    .msal-remark-card {
+      margin-bottom: 12px;
+    }
+    .msal-input-text {
+      width: 100%;
+      height: 42px;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 11px;
+      background: #ffffff;
+      padding: 0 12px;
+      font-size: 13px;
+      color: #1e293b;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color .15s ease;
+    }
+    .msal-input-text:focus {
+      border-color: #0f172a;
+    }
+
+    /* 7. Sticky Bottom Bar: Sits cleanly ABOVE the mobile navigation menu */
+    .msal-bottom-bar {
+      position: fixed !important;
+      z-index: 1550 !important;
+      right: 0 !important;
+      bottom: calc(var(--m-nav, 54px) + env(safe-area-inset-bottom, 0px)) !important;
+      left: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 8px 12px !important;
+      background: #ffffff !important;
+      border-top: 1px solid var(--salon-border-light, #dfe2ee) !important;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06) !important;
+      box-sizing: border-box !important;
+    }
+    .msal-bottom-content {
+      max-width: 500px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+    .msal-total-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4px 12px;
+      height: 44px;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 11px;
+      background: #f8fafc;
+      min-width: 130px;
+      box-sizing: border-box;
+    }
+    .msal-total-box span {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      line-height: 1.1;
+    }
+    .msal-total-box strong {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+    .msal-btn-save {
+      flex: 1;
+      height: 44px;
+      background: var(--salon-btn-bg, #09AA1C) !important;
+      background-image: none !important;
+      color: #ffffff !important;
+      border: none !important;
+      border-radius: 11px;
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(26, 26, 166, 0.25);
+      transition: transform 0.1s ease;
+      box-sizing: border-box;
+      padding: 0 16px;
+      white-space: nowrap;
+    }
+    .msal-btn-save:active {
+      transform: scale(0.96);
+    }
+    .msal-btn-save svg {
+      width: 17px;
+      height: 17px;
+      stroke: #ffffff;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Toast */
+    .msal-toast {
+      position: fixed;
+      bottom: calc(var(--m-nav, 54px) + 70px);
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      color: #ffffff;
+      padding: 9px 18px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      z-index: 10000;
+      transition: transform 0.25s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .msal-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
 </head>
 <body>
   <main class="wrap m-page">
@@ -1126,6 +1756,110 @@
 
   </section>
 
+  
+  <!-- ================= MOBILE SALARY ENTRY VIEW ================= -->
+  <section id="mobileSalaryEntry" class="msal-page" hidden>
+    <!-- 1. Top Capsule Segmented Tabs -->
+    <div class="sal-portal-tabs aw-segmented-tabs msal-segmented-tabs">
+      <div class="aw-tab active">
+        <span class="aw-tab-icon">+</span>
+        <span>Add Salary</span>
+      </div>
+      <a class="aw-tab no-btn-theme" href="/salary-table">
+        <span class="aw-tab-icon">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </span>
+        <span>Salary Records</span>
+      </a>
+    </div>
+
+    <!-- 2. Row: Date + Payment Mode -->
+    <div class="msal-date-row">
+      <div class="msal-field">
+        <label for="msalDateInput">Date</label>
+        <div class="msal-date-control" id="msalDateControl" onclick="openMsalDatePicker()">
+          <input type="date" id="msalDateInput" onchange="msalOnDateChange()">
+          <span class="msal-date-disp" id="msalDateDisp">—</span>
+          <svg class="msal-date-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+      </div>
+      <div class="msal-field">
+        <label>Payment Mode</label>
+        <div class="msal-pay-grid">
+          <button type="button" class="msal-pay-btn active no-btn-theme" id="msalPayCash" onclick="msalSetPaymentMode('Cash')">
+            <span style="font-size:14px;line-height:1;">💵</span>
+            <span>Cash</span>
+          </button>
+          <button type="button" class="msal-pay-btn no-btn-theme" id="msalPayOnline" onclick="msalSetPaymentMode('Online')">
+            <span style="font-size:14px;line-height:1;">💳</span>
+            <span>Online</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SELECT EMPLOYEE Label & 2-Col Grid -->
+    <div class="msal-section-lbl">SELECT EMPLOYEE</div>
+    <div class="msal-emp-grid" id="msalEmpGrid"></div>
+
+    <!-- 4. Card: Salary details -->
+    <div class="msal-card">
+      <div class="msal-card-head">
+        <div class="msal-card-title">
+          <span class="msal-card-dot">•</span>
+          <span>Salary details</span>
+        </div>
+        <span class="msal-emp-badge empty" id="msalSelectedEmpBadge">No employee</span>
+      </div>
+
+      <label class="msal-input-label" for="msalSalaryMonth">SALARY MONTH</label>
+      <div class="msal-select-wrap">
+        <select id="msalSalaryMonth" class="msal-select-dark"></select>
+        <svg class="msal-select-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+
+      <label class="msal-input-label" for="msalAmountInput">AMOUNT (₹)</label>
+      <div class="msal-amount-row">
+        <input type="number" id="msalAmountInput" class="msal-input-dark" placeholder="0" min="1" step="1">
+        <button type="button" class="msal-plus-btn no-btn-theme" id="msalAddEntryBtn" onclick="msalAddEntry()" title="Add entry">+</button>
+      </div>
+    </div>
+
+    <!-- 5. Card: ADDED ENTRIES (N) -->
+    <div class="msal-card">
+      <div class="msal-card-head">
+        <div class="msal-card-title" style="font-size:12.5px;color:#475569;" id="msalEntriesHeader">ADDED ENTRIES (0)</div>
+        <span class="msal-subtotal-pill" id="msalSubtotalPill">Subtotal: ₹0</span>
+      </div>
+      <div id="msalEntriesContainer">
+        <div class="msal-empty-box">No entries added yet. Select an employee, enter amount and tap +.</div>
+      </div>
+    </div>
+
+    <!-- 6. Card: REMARK (OPTIONAL) -->
+    <div class="msal-card msal-remark-card">
+      <div class="msal-section-lbl" style="margin-top:0;">REMARK (OPTIONAL)</div>
+      <input type="text" id="msalRemarkInput" class="msal-input-text" placeholder="e.g. Diwali bonus, Advance deduction, etc.">
+    </div>
+
+    <!-- 7. Sticky Bottom Bar -->
+    <div class="msal-bottom-bar">
+      <div class="msal-bottom-content">
+        <div class="msal-total-box">
+          <span id="msalTotalEntriesLbl">TOTAL · 0 ENTRIES</span>
+          <strong id="msalTotalAmountVal">₹0</strong>
+        </div>
+        <button type="button" class="msal-btn-save no-btn-theme" id="msalSaveSalaryBtn" onclick="msalSaveSalary()">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          <span id="msalSaveBtnText">Save Salary</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="msalToast" class="msal-toast"></div>
+  </section>
+
   <section id="mobileAddWork" class="aw-page" hidden>
     <div class="aw-greeting" hidden style="display:none !important">
       <div>
@@ -1216,7 +1950,7 @@
     </div>
     <div class="aw-bottom-bar">
       <div class="aw-total-box" style="border: 1.5px solid var(--salon-border-dark, #09AA1C) !important;"><span>TOTAL &middot; <b id="awItemCount">0</b> ITEMS</span><label class="aw-total-edit"><span>₹</span><input id="awTotal" type="number" min="0" step="0.01" inputmode="decimal" value="0" aria-label="Total amount"></label></div>
-      <button id="awMicBtn" class="aw-mic-btn no-btn-theme" type="button" title="Voice Entry" aria-label="Voice Entry" style="display:inline-flex !important; align-items:center !important; justify-content:center !important;"><svg class="aw-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
+      <button id="awMicBtn" class="aw-mic-btn no-btn-theme" type="button" title="Voice Entry" aria-label="Voice Entry" style="display:none !important; align-items:center !important; justify-content:center !important;"><svg class="aw-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
       <button id="awSave" class="aw-save" data-salon-btn-theme type="submit" form="awForm" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important;"><svg class="sal-btn-icon" style="margin-right:8px !important; display:inline-block !important; vertical-align:middle !important; flex-shrink:0 !important;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> <span id="awSaveText" style="display:inline-block !important;">Save Work</span></button>
     </div>
   </section>
@@ -1359,6 +2093,7 @@
       if(next>0)awQuantities.set(key,next);else awQuantities.delete(key);
       awTotalManual=false;
       awRenderServices();
+      awInitVoice();
     }
     function awQtyControls(service){
       const wrap=document.createElement('span');wrap.className='aw-qty';
@@ -1684,6 +2419,16 @@
     function awInitVoice(){
       const micBtn = document.getElementById('awMicBtn');
       const voiceModalOverlay = document.getElementById('awVoiceModalOverlay');
+      if (!micBtn) return;
+
+      const isVoiceEnabled = Boolean(awMeta?.enableVoiceFeature);
+      if (!isVoiceEnabled) {
+        micBtn.style.setProperty('display', 'none', 'important');
+        if (voiceModalOverlay) voiceModalOverlay.hidden = true;
+        return;
+      }
+      micBtn.style.setProperty('display', 'inline-flex', 'important');
+
       const voiceCloseBtn = document.getElementById('awVoiceCloseBtn');
       const voiceStatus = document.getElementById('awVoiceStatus');
       const voiceMsg = document.getElementById('awVoiceMsg');
@@ -1691,7 +2436,7 @@
       const voiceSoundToggle = document.getElementById('awVoiceSoundToggle');
       const voiceActionBtn = document.getElementById('awVoiceActionBtn');
       const voiceStop = document.getElementById('awVoiceStop');
-      if (!micBtn || micBtn.dataset.voiceBound) return;
+      if (micBtn.dataset.voiceBound) return;
       micBtn.dataset.voiceBound = 'true';
 
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2336,6 +3081,14 @@
         return;
       }
 
+      if (moduleKey === 'salary' && session?.employee?.role === 'Admin') {
+        const isMobile = window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches;
+        if (isMobile) {
+          salEntryInit();
+          return;
+        }
+      }
+
       fields.replaceChildren();document.title=`${editingRecord?'Edit ':''}${definition.title} - YOURS SALON`;document.getElementById('title').textContent=editingRecord?`Edit ${definition.title}`:definition.title;
       let employeeSelect=null;
       if(session.employee.role==='Admin'){
@@ -2725,6 +3478,382 @@
       // Populate items
       selectExpCategory('Supplies & Products');
     }
+
+    
+/* === SALARY MOBILE SCRIPT === */
+let msalSelectedEmployee = null;
+let msalPaymentMode = 'Cash';
+let msalAddedEntries = [];
+let msalIsInitialized = false;
+
+function msalGetInitials(name) {
+  if (!name) return 'ST';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function msalFormatDisplayDate(dateStr) {
+  if (!dateStr) return '—';
+  const [y, m, d] = dateStr.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthName = months[parseInt(m, 10) - 1] || m;
+  return `${d}-${monthName}-${y}`;
+}
+
+function msalShowToast(msg) {
+  const toast = document.getElementById('msalToast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+function openMsalDatePicker() {
+  const input = document.getElementById('msalDateInput');
+  if (input) {
+    if (typeof input.showPicker === 'function') {
+      try {
+        input.showPicker();
+      } catch (e) {
+        input.focus();
+      }
+    } else {
+      input.focus();
+    }
+  }
+}
+
+function msalOnDateChange() {
+  const input = document.getElementById('msalDateInput');
+  const disp = document.getElementById('msalDateDisp');
+  if (input && disp) {
+    disp.textContent = msalFormatDisplayDate(input.value);
+  }
+}
+
+function msalSetPaymentMode(mode) {
+  msalPaymentMode = mode;
+  const cashBtn = document.getElementById('msalPayCash');
+  const onlineBtn = document.getElementById('msalPayOnline');
+  if (cashBtn && onlineBtn) {
+    cashBtn.classList.toggle('active', mode === 'Cash');
+    onlineBtn.classList.toggle('active', mode === 'Online');
+  }
+}
+
+function msalSelectEmployee(emp) {
+  msalSelectedEmployee = emp;
+  const grid = document.getElementById('msalEmpGrid');
+  if (grid) {
+    grid.querySelectorAll('.msal-emp-card').forEach(c => {
+      c.classList.toggle('selected', c.getAttribute('data-id') === emp._id);
+    });
+  }
+  const badge = document.getElementById('msalSelectedEmpBadge');
+  if (badge) {
+    badge.textContent = emp.employeeName;
+    badge.classList.remove('empty');
+  }
+}
+
+function msalRenderEmployeeGrid() {
+  const grid = document.getElementById('msalEmpGrid');
+  if (!grid) return;
+  grid.replaceChildren();
+
+  staff.forEach(emp => {
+    const card = document.createElement('div');
+    card.className = 'msal-emp-card';
+    card.setAttribute('data-id', emp._id);
+    if (msalSelectedEmployee && msalSelectedEmployee._id === emp._id) {
+      card.classList.add('selected');
+    }
+    card.onclick = () => msalSelectEmployee(emp);
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msal-emp-avatar';
+    avatar.textContent = msalGetInitials(emp.employeeName);
+
+    const name = document.createElement('div');
+    name.className = 'msal-emp-name';
+    name.textContent = emp.employeeName;
+
+    card.append(avatar, name);
+    grid.append(card);
+  });
+}
+
+function msalPopulateMonths() {
+  const select = document.getElementById('msalSalaryMonth');
+  if (!select) return;
+  select.replaceChildren();
+
+  const now = new Date();
+  const curY = now.getFullYear();
+  const curM = now.getMonth(); // 0-based
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // Add past 11 months, current month, and next month
+  for (let offset = -11; offset <= 1; offset++) {
+    const d = new Date(curY, curM + offset, 1);
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    const val = `${y}-${String(m + 1).padStart(2, '0')}`;
+    const label = `${monthNames[m]} ${y}`;
+    const opt = new Option(label, val);
+    if (offset === 0) opt.selected = true;
+    select.append(opt);
+  }
+}
+
+function msalAddEntry() {
+  if (!msalSelectedEmployee) {
+    msalShowToast('Please select an employee first.');
+    return;
+  }
+  const amtInput = document.getElementById('msalAmountInput');
+  const amount = Number(amtInput?.value || 0);
+  if (amount <= 0) {
+    msalShowToast('Please enter an amount greater than 0.');
+    amtInput?.focus();
+    return;
+  }
+  const monthSelect = document.getElementById('msalSalaryMonth');
+  const salaryMonth = monthSelect?.value || '';
+  const salaryMonthText = monthSelect?.options[monthSelect.selectedIndex]?.text || salaryMonth;
+
+  msalAddedEntries.push({
+    id: 'entry_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    employeeId: msalSelectedEmployee._id,
+    employeeName: msalSelectedEmployee.employeeName,
+    initials: msalGetInitials(msalSelectedEmployee.employeeName),
+    salaryMonth,
+    salaryMonthText,
+    amount,
+    paymentMode: msalPaymentMode
+  });
+
+  if (amtInput) amtInput.value = '';
+  msalRenderAddedEntries();
+}
+
+function msalDeleteEntry(index) {
+  msalAddedEntries.splice(index, 1);
+  msalRenderAddedEntries();
+}
+
+function msalRenderAddedEntries() {
+  const container = document.getElementById('msalEntriesContainer');
+  const countHeader = document.getElementById('msalEntriesHeader');
+  const subtotalPill = document.getElementById('msalSubtotalPill');
+  const totalEntriesLbl = document.getElementById('msalTotalEntriesLbl');
+  const totalAmtVal = document.getElementById('msalTotalAmountVal');
+
+  const count = msalAddedEntries.length;
+  const total = msalAddedEntries.reduce((s, e) => s + e.amount, 0);
+
+  if (countHeader) countHeader.textContent = `ADDED ENTRIES (${count})`;
+  if (subtotalPill) subtotalPill.textContent = `Subtotal: ₹${total.toLocaleString('en-IN')}`;
+  if (totalEntriesLbl) totalEntriesLbl.textContent = `TOTAL · ${count} ${count === 1 ? 'ENTRY' : 'ENTRIES'}`;
+  if (totalAmtVal) totalAmtVal.textContent = `₹${total.toLocaleString('en-IN')}`;
+
+  if (!container) return;
+  if (count === 0) {
+    container.innerHTML = '<div class="msal-empty-box">No entries added yet. Select an employee, enter amount and tap +.</div>';
+    return;
+  }
+
+  container.replaceChildren();
+  msalAddedEntries.forEach((entry, idx) => {
+    const item = document.createElement('div');
+    item.className = 'msal-entry-item';
+
+    const left = document.createElement('div');
+    left.className = 'msal-entry-left';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msal-emp-avatar';
+    avatar.textContent = entry.initials;
+
+    const details = document.createElement('div');
+    details.className = 'msal-entry-details';
+
+    const name = document.createElement('div');
+    name.className = 'msal-entry-name';
+    name.textContent = entry.employeeName;
+
+    const monthTag = document.createElement('div');
+    monthTag.className = 'msal-entry-month';
+    monthTag.textContent = `${entry.salaryMonthText} · ${entry.paymentMode}`;
+
+    details.append(name, monthTag);
+    left.append(avatar, details);
+
+    const right = document.createElement('div');
+    right.className = 'msal-entry-right';
+
+    const amt = document.createElement('div');
+    amt.className = 'msal-entry-amt';
+    amt.textContent = `₹${entry.amount.toLocaleString('en-IN')}`;
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'msal-entry-del no-btn-theme';
+    delBtn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
+    delBtn.onclick = () => msalDeleteEntry(idx);
+
+    right.append(amt, delBtn);
+    item.append(left, right);
+    container.append(item);
+  });
+}
+
+async function msalSaveSalary() {
+  const saveBtn = document.getElementById('msalSaveSalaryBtn');
+  const saveBtnText = document.getElementById('msalSaveBtnText');
+  const remark = document.getElementById('msalRemarkInput')?.value.trim() || '';
+  const dateInput = document.getElementById('msalDateInput');
+  const entryDate = dateInput?.value || config?.todayDate || new Date().toISOString().slice(0, 10);
+
+  // If in edit mode, update single record
+  if (editingRecord) {
+    if (saveBtn) saveBtn.disabled = true;
+    if (saveBtnText) saveBtnText.textContent = 'Updating...';
+    try {
+      const amtInput = document.getElementById('msalAmountInput');
+      const amount = Number(amtInput?.value || editingRecord.amount || 0);
+      const salaryMonth = document.getElementById('msalSalaryMonth')?.value || editingRecord.salaryMonth;
+      const targetEmpId = msalSelectedEmployee?._id || editingRecord.employeeId;
+
+      await salonAuth.request(`/api/employee-records/${encodeURIComponent(editingRecord._id)}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          recordType: 'salary',
+          employeeId: targetEmpId,
+          entryDate,
+          salaryMonth,
+          amount,
+          paymentMode: msalPaymentMode,
+          remark
+        })
+      });
+
+      msalShowToast('Salary record updated successfully.');
+      setTimeout(() => { location.href = '/salary-table'; }, 1200);
+    } catch (err) {
+      alert(err.message || 'Could not update salary record.');
+      if (saveBtn) saveBtn.disabled = false;
+      if (saveBtnText) saveBtnText.textContent = 'Update Salary';
+    }
+    return;
+  }
+
+  // If addedEntries is empty, check if user filled employee + amount and tap Save directly
+  if (msalAddedEntries.length === 0) {
+    const amtInput = document.getElementById('msalAmountInput');
+    const amount = Number(amtInput?.value || 0);
+    if (msalSelectedEmployee && amount > 0) {
+      msalAddEntry();
+    } else {
+      msalShowToast('Please add at least one salary entry.');
+      return;
+    }
+  }
+
+  if (saveBtn) saveBtn.disabled = true;
+  if (saveBtnText) saveBtnText.textContent = 'Saving...';
+
+  try {
+    for (const entry of msalAddedEntries) {
+      await salonAuth.request('/api/employee-records', {
+        method: 'POST',
+        body: JSON.stringify({
+          recordType: 'salary',
+          employeeId: entry.employeeId,
+          entryDate,
+          salaryMonth: entry.salaryMonth,
+          amount: entry.amount,
+          paymentMode: entry.paymentMode,
+          remark
+        })
+      });
+    }
+
+    msalShowToast('Salary saved successfully!');
+    msalAddedEntries = [];
+    msalRenderAddedEntries();
+    if (document.getElementById('msalRemarkInput')) document.getElementById('msalRemarkInput').value = '';
+    if (document.getElementById('msalAmountInput')) document.getElementById('msalAmountInput').value = '';
+
+    setTimeout(() => {
+      location.href = '/salary-table';
+    }, 1200);
+  } catch (err) {
+    alert(err.message || 'Could not save salary entries.');
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
+    if (saveBtnText) saveBtnText.textContent = 'Save Salary';
+  }
+}
+
+async function salEntryInit() {
+  const wrap = document.querySelector('main.wrap') || document.querySelector('.wrap.m-page');
+  if (wrap) {
+    wrap.style.display = 'none';
+    wrap.hidden = true;
+  }
+  const msalEl = document.getElementById('mobileSalaryEntry');
+  if (msalEl) {
+    msalEl.hidden = false;
+    msalEl.removeAttribute('hidden');
+    msalEl.style.display = 'block';
+  }
+  document.body.classList.add('mobile-employee', 'mobile-salary-entry-page');
+  document.title = (editingRecord ? 'Edit Salary' : 'Add Salary') + ' — YOURS SALON';
+
+  if (msalIsInitialized) return;
+  msalIsInitialized = true;
+
+  // Set today date
+  const today = config?.todayDate || new Date().toISOString().slice(0, 10);
+  const dateInput = document.getElementById('msalDateInput');
+  if (dateInput) {
+    dateInput.value = editingRecord?.entryDate ? String(editingRecord.entryDate).slice(0, 10) : today;
+    msalOnDateChange();
+  }
+
+  msalPopulateMonths();
+  msalRenderEmployeeGrid();
+
+  // If editing an existing record
+  if (editingRecord) {
+    const emp = staff.find(s => s._id === editingRecord.employeeId);
+    if (emp) msalSelectEmployee(emp);
+    if (editingRecord.salaryMonth) {
+      const select = document.getElementById('msalSalaryMonth');
+      if (select) select.value = editingRecord.salaryMonth;
+    }
+    if (editingRecord.amount) {
+      const amt = document.getElementById('msalAmountInput');
+      if (amt) amt.value = editingRecord.amount;
+    }
+    if (editingRecord.paymentMode) {
+      msalSetPaymentMode(editingRecord.paymentMode);
+    }
+    if (editingRecord.remark) {
+      const rem = document.getElementById('msalRemarkInput');
+      if (rem) rem.value = editingRecord.remark;
+    }
+    const saveBtnText = document.getElementById('msalSaveBtnText');
+    if (saveBtnText) saveBtnText.textContent = 'Update Salary';
+  } else if (staff.length > 0) {
+    // Select first employee by default if none selected
+    msalSelectEmployee(staff[0]);
+  }
+  msalRenderAddedEntries();
+}
+/* === END SALARY MOBILE SCRIPT === */
 
     window.salonPageReady=(async()=>{
       try{
