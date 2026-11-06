@@ -3,615 +3,925 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cash Counter (Galla) — YOURS SALON</title>
+  <title>Cash at Counter — YOURS SALON</title>
   <style>
     :root {
-      --salon-gold: #c99a23;
-      --salon-gold-dark: #9a7414;
-      --salon-gold-light: #fef9ed;
-      --salon-ink: #1d2939;
-      --salon-muted: #667085;
-      --salon-line: #e5e9ef;
-      --salon-bg: #f4f7fb;
+      --salon-gold: #c49a32;
+      --salon-gold-gradient: linear-gradient(135deg, #d4a73b, #b38827);
+      --salon-ink: #1e293b;
+      --salon-muted: #64748b;
+      --salon-line: #e2e8f0;
+      --salon-bg: #f3f6f9;
       --salon-card: #ffffff;
-      --salon-green: #12b76a;
-      --salon-green-bg: #ecfdf3;
-      --salon-red: #f04438;
-      --salon-red-bg: #fef3f2;
-      --salon-blue: #0ba5ec;
-      --salon-blue-bg: #f0f9ff;
+      --salon-green: #059669;
+      --salon-green-bg: #ecfdf5;
+      --salon-green-border: #10b981;
+      --salon-red: #dc2626;
+      --salon-red-bg: #fef2f2;
+      --salon-red-border: #f87171;
+      --salon-teal-dark: #083338;
+      --salon-teal-card: linear-gradient(135deg, #093b3f 0%, #0d5259 100%);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+    
     body {
       background: #0f172a;
-      color: var(--salon-ink);
-      display: flex;
-      justify-content: center;
-      padding: 20px 10px;
       min-height: 100vh;
-    }
-
-    /* Mobile Container Frame */
-    .app-frame {
-      width: 100%;
-      max-width: 440px;
-      background: var(--salon-bg);
-      border-radius: 32px;
-      overflow: hidden;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.45);
-      border: 8px solid #1e293b;
       display: flex;
       flex-direction: column;
-      min-height: 90vh;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 16px 8px 30px;
+      color: var(--salon-ink);
     }
 
-    /* Top Salon Header */
-    .header {
-      background: #ffffff;
-      padding: 14px 18px;
+    /* Top switcher to see both screens side-by-side or toggle */
+    .top-device-switcher {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--salon-line);
-      position: sticky;
-      top: 0;
-      z-index: 20;
+      gap: 10px;
+      margin-bottom: 14px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 6px;
+      border-radius: 99px;
+      backdrop-filter: blur(8px);
     }
-    .header-left h1 {
+    .device-tab-btn {
+      padding: 7px 16px;
+      border-radius: 99px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .device-tab-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Side-by-side container for desktop, stacked on mobile */
+    .showcase-wrap {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* Phone Device Mockup */
+    .phone-screen {
+      width: 100%;
+      max-width: 410px;
+      background: #f8fafc;
+      border-radius: 36px;
+      border: 8px solid #1e293b;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-height: 780px;
+    }
+
+    /* Soft Wave Background at Bottom (as in screenshot) */
+    .phone-screen::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: radial-gradient(ellipse at 50% 120%, rgba(13, 82, 89, 0.18) 0%, transparent 75%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Top App Header */
+    .app-header {
+      background: #ffffff;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--salon-line);
+      text-align: center;
+      position: relative;
+    }
+    .app-header h2 {
       font-size: 17px;
       font-weight: 800;
-      color: var(--salon-ink);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .header-left span {
-      font-size: 11px;
-      color: var(--salon-muted);
-      font-weight: 600;
-    }
-    .date-pill {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: #ffffff;
-      border: 1px solid var(--salon-line);
-      padding: 6px 10px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--salon-ink);
+      color: #0f2742;
+      letter-spacing: -0.01em;
     }
 
-    /* Scroll Body */
-    .scroll-body {
+    /* Segmented Header Switcher (Entry Form vs Today's Records) */
+    .segmented-tabs {
+      display: flex;
+      padding: 12px 16px 4px;
+      gap: 10px;
+    }
+    .seg-btn {
       flex: 1;
-      padding: 14px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.18s;
+      border: 1px solid var(--salon-line);
+      background: #ffffff;
+      color: var(--salon-muted);
+    }
+    .seg-btn.active {
+      background: var(--salon-gold-gradient);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 4px 12px rgba(196, 154, 50, 0.3);
+    }
+    .seg-btn svg { width: 16px; height: 16px; }
+
+    /* Scrollable Inner Body */
+    .screen-content {
+      flex: 1;
+      padding: 12px 16px 20px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 13px;
+      z-index: 2;
     }
 
-    /* Hero Card: Bacha Cash */
-    .hero-card {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      color: #ffffff;
-      border-radius: 20px;
-      padding: 18px 20px;
-      position: relative;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
-    }
-    .hero-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-    .hero-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: #94a3b8;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 99px;
-      background: rgba(18, 183, 106, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(52, 211, 153, 0.3);
-    }
-    .hero-value {
-      font-size: 36px;
-      font-weight: 800;
-      color: #fbbf24;
-      letter-spacing: -0.02em;
-      margin: 4px 0 6px;
-    }
-    .hero-hint {
-      font-size: 12px;
-      color: #cbd5e1;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* Section Card */
-    .section-card {
+    /* Card Panels with exact border and behavior */
+    .panel-card {
       background: #ffffff;
-      border-radius: 18px;
-      border: 1px solid var(--salon-line);
-      padding: 14px 16px;
-      box-shadow: 0 4px 12px rgba(16, 24, 40, 0.03);
+      border: 1px solid #e5e9ef;
+      border-radius: 16px;
+      padding: 12px 14px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
     }
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #f1f4f8;
-    }
-    .section-title {
-      font-size: 13px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .section-total {
-      font-size: 15px;
-      font-weight: 800;
+    .panel-card.active-green {
+      border: 1.5px solid var(--salon-green-border);
+      background: #fcfffd;
     }
 
-    /* Item Row */
-    .item-row {
+    .field-label {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 9px 0;
-      border-bottom: 1px dashed #f1f4f8;
-    }
-    .item-row:last-child {
-      border-bottom: none;
-      padding-bottom: 2px;
-    }
-    .item-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .item-name {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--salon-ink);
-    }
-    .item-sub {
-      font-size: 11px;
-      color: var(--salon-muted);
-    }
-    .item-right {
-      text-align: right;
-    }
-    .item-amt {
-      font-size: 14px;
-      font-weight: 800;
-    }
-    .c-green { color: var(--salon-green); }
-    .c-red { color: var(--salon-red); }
-    .c-blue { color: var(--salon-blue); }
-
-    /* Expandable Sub-list */
-    .sub-box {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 8px 12px;
-      margin: 6px 0 10px;
-      border: 1px solid #edf2f7;
-    }
-    .sub-item {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      padding: 4px 0;
-      color: var(--salon-muted);
-    }
-    .sub-item strong {
-      color: var(--salon-ink);
-    }
-
-    /* Reconciliation Match Box */
-    .reconcile-box {
-      background: #ffffff;
-      border-radius: 18px;
-      border: 2px solid var(--salon-gold);
-      padding: 16px;
-      text-align: center;
-    }
-    .reconcile-box h3 {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--salon-ink);
-      margin-bottom: 4px;
-    }
-    .reconcile-box p {
-      font-size: 11.5px;
-      color: var(--salon-muted);
-      margin-bottom: 12px;
-    }
-    .input-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .cash-input {
-      width: 180px;
-      height: 44px;
-      border: 2px solid var(--salon-line);
-      border-radius: 12px;
-      font-size: 22px;
-      font-weight: 800;
-      text-align: center;
-      color: var(--salon-ink);
-      outline: none;
-      background: #fbfcfe;
-    }
-    .cash-input:focus {
-      border-color: var(--salon-gold);
-      background: #ffffff;
-    }
-    .diff-badge {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 10px;
+      gap: 7px;
       font-size: 12.5px;
       font-weight: 800;
-      margin-top: 4px;
+      color: #1e293b;
+      margin-bottom: 8px;
     }
-    .diff-match {
+    .field-label .req { color: #ef4444; margin-left: 2px; }
+    .field-label svg { width: 16px; height: 16px; color: #0284c7; }
+
+    /* Date & Time Row */
+    .datetime-row {
+      display: flex;
+      gap: 8px;
+    }
+    .datetime-box {
+      flex: 1;
+      height: 40px;
+      background: #f8fafc;
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .datetime-box svg { width: 15px; height: 15px; color: var(--salon-muted); }
+
+    /* Entry Type 3-Pills Selector */
+    .entry-type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .type-pill {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 4px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .type-pill svg { width: 22px; height: 22px; color: var(--salon-muted); }
+    .type-pill span { font-size: 11.5px; font-weight: 800; color: #334155; }
+
+    /* Active Green Pill state with checkmark badge */
+    .type-pill.active {
+      border-color: var(--salon-green-border);
       background: var(--salon-green-bg);
-      color: var(--salon-green);
-      border: 1px solid rgba(18, 183, 106, 0.3);
     }
-    .diff-short {
-      background: var(--salon-red-bg);
-      color: var(--salon-red);
-      border: 1px solid rgba(240, 68, 56, 0.3);
+    .type-pill.active svg { color: var(--salon-green); }
+    .type-pill.active span { color: #065f46; }
+    .type-pill .check-badge {
+      display: none;
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 18px;
+      height: 18px;
+      background: var(--salon-green);
+      color: #ffffff;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      box-shadow: 0 2px 4px rgba(5, 150, 105, 0.4);
+    }
+    .type-pill.active .check-badge { display: flex; }
+
+    /* Input with Currency Box */
+    .amount-input-wrap {
+      display: flex;
+      height: 44px;
+      border: 1.5px solid var(--salon-green-border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    .amount-prefix {
+      width: 44px;
+      background: #f0fdf4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #065f46;
+      border-right: 1px solid #d1fae5;
+    }
+    .amount-input-wrap input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 0 12px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #1e293b;
     }
 
-    /* Bottom Quick Action Strip */
-    .action-strip {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    /* Standard Select & Textarea */
+    .form-select {
+      width: 100%;
+      height: 42px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      outline: none;
+    }
+    .form-textarea {
+      width: 100%;
+      height: 70px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      outline: none;
+      resize: none;
+    }
+    .char-count {
+      text-align: right;
+      font-size: 11px;
+      color: var(--salon-muted);
       margin-top: 4px;
     }
-    .btn-outline {
-      height: 40px;
-      border: 1.5px solid var(--salon-line);
-      background: #ffffff;
+
+    /* Bottom Form Action Buttons */
+    .form-action-row {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 10px;
+    }
+    .btn-cancel {
+      flex: 1;
+      height: 44px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
       border-radius: 12px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
-      color: var(--salon-ink);
+      color: #475569;
+      cursor: pointer;
+    }
+    .btn-save {
+      flex: 2;
+      height: 44px;
+      background: var(--salon-gold-gradient);
+      border: none;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(196, 154, 50, 0.35);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    /* ========================================= */
+    /* RIGHT SCREEN: CASH AT COUNTER (GALLA) */
+    /* ========================================= */
+    .status-bar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .date-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .badge-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #059669;
+      color: #ffffff;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    /* Hero Card (Cash Register Illustration & Stats) */
+    .teal-hero-card {
+      background: var(--salon-teal-card);
+      border-radius: 20px;
+      padding: 16px 18px;
+      color: #ffffff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(9, 59, 63, 0.25);
+    }
+    .teal-hero-card::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      bottom: -20px;
+      width: 110px;
+      height: 110px;
+      background: radial-gradient(circle, rgba(20, 184, 166, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-top-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .hero-kicker {
+      font-size: 12px;
+      color: #99f6e4;
+      font-weight: 700;
+    }
+    .hero-big-amt {
+      font-size: 32px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      margin: 4px 0 14px;
+    }
+    .cash-register-art {
+      width: 58px;
+      height: 52px;
+      background: #f59e0b;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+      border: 2px solid #fbbf24;
+    }
+    .cash-register-art svg { width: 34px; height: 34px; color: #ffffff; }
+
+    /* 3-Column Mini Stats inside Hero Card */
+    .hero-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      text-align: center;
+    }
+    .stat-col span {
+      display: block;
+      font-size: 11px;
+      color: #99f6e4;
+      font-weight: 600;
+    }
+    .stat-col strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+
+    /* Sub-tabs: Today's Records vs Summary */
+    .mini-subtabs {
+      display: flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 12px;
+      gap: 4px;
+    }
+    .mini-tab {
+      flex: 1;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 9px;
+      cursor: pointer;
+      color: var(--salon-muted);
+    }
+    .mini-tab.active {
+      background: #0d5259;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Record List Item Cards */
+    .record-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid #f1f5f9;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+      transition: all 0.15s;
       cursor: pointer;
     }
-    .btn-outline:hover {
-      border-color: var(--salon-gold);
-      background: var(--salon-gold-light);
+    .record-card:hover { transform: translateY(-1px); }
+
+    /* Record Type Colors (Matching Screenshot) */
+    .record-card.withdrawal {
+      background: #fff5f5;
+      border-color: #fee2e2;
     }
-    .btn-gold {
-      height: 46px;
-      background: var(--salon-gold);
-      color: #ffffff;
+    .record-card.swap {
+      background: #f0fdf4;
+      border-color: #dcfce7;
+    }
+    .record-card.adjustment {
+      background: #f0f9ff;
+      border-color: #e0f2fe;
+    }
+
+    .record-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .record-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .record-card.withdrawal .record-icon { background: #fee2e2; color: #dc2626; }
+    .record-card.swap .record-icon { background: #dcfce7; color: #16a34a; }
+    .record-card.adjustment .record-icon { background: #e0f2fe; color: #0284c7; }
+
+    .record-details strong {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .record-details small {
+      font-size: 11px;
+      color: var(--salon-muted);
+      margin-top: 2px;
+      display: block;
+    }
+    .tag-surplus {
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .record-right {
+      text-align: right;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .record-time {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--salon-muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .record-amt {
+      font-size: 14.5px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .record-amt.minus { color: #dc2626; }
+    .record-amt.plus { color: #16a34a; }
+    .arrow-icon { color: #94a3b8; width: 14px; height: 14px; }
+
+    /* Bottom Big Gold Button "+ Add New Entry" */
+    .btn-bottom-gold {
+      height: 48px;
+      background: var(--salon-gold-gradient);
       border: none;
       border-radius: 14px;
       font-size: 14px;
       font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(201, 154, 35, 0.35);
-      margin-top: 6px;
+      box-shadow: 0 4px 14px rgba(196, 154, 50, 0.4);
+      margin-top: auto;
     }
 
-    /* Mini Bottom Dialog for Entries */
-    .drawer-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      z-index: 100;
+    /* Screen Visibility toggles on smaller displays */
+    @media (max-width: 820px) {
+      .showcase-wrap { flex-direction: column; align-items: center; }
+      .phone-screen { display: none; }
+      .phone-screen.visible-mobile { display: flex; }
     }
-    .drawer-modal.show { display: flex; }
-    .drawer-panel {
-      width: 100%;
-      max-width: 440px;
-      background: #ffffff;
-      border-radius: 24px 24px 0 0;
-      padding: 18px 20px 24px;
-      animation: slideUp 0.2s ease-out;
-    }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .drawer-panel h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
-    .form-field { margin-bottom: 12px; }
-    .form-field label { display: block; font-size: 11.5px; font-weight: 700; color: var(--salon-muted); margin-bottom: 4px; }
-    .form-field input, .form-field select {
-      width: 100%;
-      height: 40px;
-      border: 1px solid var(--salon-line);
-      border-radius: 10px;
-      padding: 0 10px;
-      font-size: 13px;
-      font-weight: 600;
-      outline: none;
-    }
-    .modal-btn-row { display: flex; gap: 8px; margin-top: 14px; }
   </style>
 </head>
 <body>
 
-  <div class="app-frame">
-    <!-- Top Bar -->
-    <header class="header">
-      <div class="header-left">
-        <h1>💵 Cash Counter</h1>
-        <span>Galle Ka Daily Hisaab</span>
-      </div>
-      <div class="date-pill">
-        📅 Today, 06 Nov
-      </div>
-    </header>
-
-    <!-- Scroll Content -->
-    <div class="scroll-body">
-
-      <!-- 1. HERO CARD: Bacha Cash -->
-      <div class="hero-card">
-        <div class="hero-top">
-          <span class="hero-label">Galle Me Bacha Cash</span>
-          <span class="status-badge">● Open (09:30 AM)</span>
-        </div>
-        <div class="hero-value" id="displayExpected">₹6,450</div>
-        <div class="hero-hint">
-          Subah Opening + Cash Aaya - Cash Gaya
-        </div>
-      </div>
-
-      <!-- 2. CASH AAYA (Cash In) -->
-      <div class="section-card">
-        <div class="section-header">
-          <div class="section-title c-green">
-            🟢 Cash Aaya (Cash In)
-          </div>
-          <div class="section-total c-green">+ ₹14,400</div>
-        </div>
-
-        <!-- Opening Cash -->
-        <div class="item-row">
-          <div class="item-left">
-            <span class="item-name">🌅 Subah Ka Opening Cash</span>
-            <span class="item-sub">Subah ka float / chhutta</span>
-          </div>
-          <div class="item-right">
-            <span class="item-amt">₹2,000</span>
-          </div>
-        </div>
-
-        <!-- Customer Bills -->
-        <div class="item-row">
-          <div class="item-left">
-            <span class="item-name">🧾 Customer Cash Bills</span>
-            <span class="item-sub">14 Bills (Pure Cash + Split part)</span>
-          </div>
-          <div class="item-right">
-            <span class="item-amt c-green">+ ₹12,400</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. CASH GAYA (Cash Out) — Clear Visible Breakdown -->
-      <div class="section-card">
-        <div class="section-header">
-          <div class="section-title c-red">
-            🔴 Cash Gaya (Cash Out)
-          </div>
-          <div class="section-total c-red">- ₹7,950</div>
-        </div>
-
-        <!-- Staff Advance with Staff Names -->
-        <div class="item-row" style="border-bottom:none;">
-          <div class="item-left">
-            <span class="item-name">👥 Staff Advance Given</span>
-            <span class="item-sub">2 Staff ne din me cash advance liya</span>
-          </div>
-          <div class="item-right">
-            <span class="item-amt c-red">- ₹1,500</span>
-          </div>
-        </div>
-        <!-- Staff List (Visible Right Here) -->
-        <div class="sub-box">
-          <div class="sub-item">
-            <span>• Rahul Kumar (01:30 PM)</span>
-            <strong>₹500</strong>
-          </div>
-          <div class="sub-item">
-            <span>• Aman Verma (04:15 PM)</span>
-            <strong>₹1,000</strong>
-          </div>
-        </div>
-
-        <!-- Salon Expenses -->
-        <div class="item-row" style="border-bottom:none;">
-          <div class="item-left">
-            <span class="item-name">☕ Dukan Ke Kharche (Cash)</span>
-            <span class="item-sub">Chai, safai, urgent saman</span>
-          </div>
-          <div class="item-right">
-            <span class="item-amt c-red">- ₹450</span>
-          </div>
-        </div>
-        <!-- Expenses List -->
-        <div class="sub-box">
-          <div class="sub-item">
-            <span>• Chai & Nasta</span>
-            <strong>₹60</strong>
-          </div>
-          <div class="sub-item">
-            <span>• Safai Ka Saman (Detergent)</span>
-            <strong>₹90</strong>
-          </div>
-          <div class="sub-item">
-            <span>• Laundry / Towels</span>
-            <strong>₹300</strong>
-          </div>
-        </div>
-
-        <!-- Owner Cash Out -->
-        <div class="item-row" style="border-bottom:none;">
-          <div class="item-left">
-            <span class="item-name">👑 Malik Cash Le Gaye</span>
-            <span class="item-sub">Drawer se cash nikala gaya</span>
-          </div>
-          <div class="item-right">
-            <span class="item-amt c-red">- ₹5,000</span>
-          </div>
-        </div>
-        <div class="sub-box">
-          <div class="sub-item">
-            <span>• Javed Bhai (04:00 PM - Bank Deposit)</span>
-            <strong>₹5,000</strong>
-          </div>
-        </div>
-
-        <!-- Cash to UPI Swap -->
-        <div class="item-row" style="border-bottom:none;">
-          <div class="item-left">
-            <span class="item-name">🔄 Cash Diya & QR Par Liya</span>
-            <span class="item-sub">Emergency exchange (Cash out, Bank in)</span>
-          </div>
-          <div class="item-right">
-            <span class="item-amt c-blue">- ₹1,000</span>
-          </div>
-        </div>
-        <div class="sub-box">
-          <div class="sub-item">
-            <span>• Cash diya & Salon QR par mangwaya</span>
-            <strong>₹1,000</strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. RECONCILIATION: Raat Ko Cash Ginna -->
-      <div class="reconcile-box">
-        <h3>🌙 Raat Ko Galla Milayein</h3>
-        <p>Galle me se cash ginein aur yahan daal kar match karein:</p>
-        
-        <div class="input-row">
-          <span style="font-size:22px; font-weight:800; color:var(--salon-muted);">₹</span>
-          <input type="number" class="cash-input" id="cashInput" value="6450" oninput="verifyCash(this.value)">
-        </div>
-
-        <div id="diffBox">
-          <span class="diff-badge diff-match">✅ 100% MATCHED (Ek rupaye ka farq nahi hai)</span>
-        </div>
-      </div>
-
-      <!-- 5. Quick Actions for Cashier during daytime -->
-      <div class="action-strip">
-        <button class="btn-outline" onclick="openOwnerModal()">👑 Malik Cash Entry</button>
-        <button class="btn-outline" onclick="openSwapModal()">🔄 Cash-UPI Swap</button>
-      </div>
-
-      <!-- Lock Day Button -->
-      <button class="btn-gold" onclick="alert('✅ Day Closed & Locked! Kal subah ke liye ₹2,000 opening set ho gaya.')">
-        🔒 Close & Lock Counter Today
-      </button>
-
-    </div>
+  <!-- Top View Switcher (for checking both screens on mobile/desktop) -->
+  <div class="top-device-switcher">
+    <button class="device-tab-btn active" onclick="switchPhoneView('form')">Screen 1: Add Counter Entry</button>
+    <button class="device-tab-btn" onclick="switchPhoneView('records')">Screen 2: Cash at Counter (Galla)</button>
+    <button class="device-tab-btn" onclick="switchPhoneView('both')">Side-by-Side (Both)</button>
   </div>
 
-  <!-- Owner Modal -->
-  <div class="drawer-modal" id="ownerModal">
-    <div class="drawer-panel">
-      <h3>👑 Malik Cash Le Gaye</h3>
-      <div class="form-field">
-        <label>Amount (₹)</label>
-        <input type="number" placeholder="Kitna cash nikala? e.g. 2000">
-      </div>
-      <div class="form-field">
-        <label>Kisne Liya</label>
-        <select>
-          <option>Javed Bhai (Owner)</option>
-          <option>Partner</option>
-        </select>
-      </div>
-      <div class="form-field">
-        <label>Reason / Note</label>
-        <input type="text" placeholder="Personal ya Bank deposit">
-      </div>
-      <div class="modal-btn-row">
-        <button class="btn-outline" style="flex:1;" onclick="closeModals()">Cancel</button>
-        <button class="btn-gold" style="flex:1; margin-top:0;" onclick="closeModals(); alert('Saved! Cash minus ho gaya.')">Save</button>
-      </div>
-    </div>
-  </div>
+  <div class="showcase-wrap">
 
-  <!-- Swap Modal -->
-  <div class="drawer-modal" id="swapModal">
-    <div class="drawer-panel">
-      <h3>🔄 Cash Diya & QR Par Liya</h3>
-      <div class="form-field">
-        <label>Galle Se Diya Cash (₹)</label>
-        <input type="number" placeholder="Kitna cash diya? e.g. 1000">
+    <!-- ============================================== -->
+    <!-- SCREEN 1: ADD COUNTER ENTRY (FORM)             -->
+    <!-- ============================================== -->
+    <div class="phone-screen visible-mobile" id="screenForm">
+      <div class="app-header">
+        <h2>Add Counter Entry</h2>
       </div>
-      <div class="form-field">
-        <label>Salon QR / UPI Par Aaya (₹)</label>
-        <input type="number" placeholder="UPI par aaya amount e.g. 1000">
+
+      <!-- Segmented Tabs at top -->
+      <div class="segmented-tabs">
+        <div class="seg-btn active">
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg>
+          Entry Form
+        </div>
+        <div class="seg-btn" onclick="switchPhoneView('records')">
+          <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+          Today's Records
+        </div>
       </div>
-      <div class="form-field">
-        <label>Person / Remark</label>
-        <input type="text" placeholder="Customer change / Emergency">
-      </div>
-      <div class="modal-btn-row">
-        <button class="btn-outline" style="flex:1;" onclick="closeModals()">Cancel</button>
-        <button class="btn-gold" style="flex:1; margin-top:0;" onclick="closeModals(); alert('Saved! Galle se minus hua aur bank me add ho gaya.')">Save</button>
+
+      <!-- Inner Form Content -->
+      <div class="screen-content">
+
+        <!-- 1. Date & Time -->
+        <div class="panel-card">
+          <div class="field-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            Entry Date & Time
+          </div>
+          <div class="datetime-row">
+            <div class="datetime-box">
+              <span>Thu, 06 Nov 2026</span>
+              <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+            </div>
+            <div class="datetime-box">
+              <span>10:24 AM</span>
+              <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Entry Type (3 Pills) -->
+        <div class="panel-card">
+          <div class="field-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+            Entry Type <span class="req">*</span>
+          </div>
+          <div class="entry-type-grid">
+            <!-- Withdrawal (Active) -->
+            <div class="type-pill active" onclick="selectType(this, 'withdrawal')">
+              <div class="check-badge">✓</div>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+              <span>Withdrawal</span>
+            </div>
+            <!-- Adjustment -->
+            <div class="type-pill" onclick="selectType(this, 'adjustment')">
+              <div class="check-badge">✓</div>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+              <span>Adjustment</span>
+            </div>
+            <!-- Cash to Online -->
+            <div class="type-pill" onclick="selectType(this, 'swap')">
+              <div class="check-badge">✓</div>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+              <span>Cash to Online</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Amount -->
+        <div class="panel-card active-green">
+          <div class="field-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            Amount (₹) <span class="req">*</span>
+          </div>
+          <div class="amount-input-wrap">
+            <div class="amount-prefix">₹</div>
+            <input type="text" value="1,000">
+          </div>
+        </div>
+
+        <!-- 4. Dynamic Field (Withdrawn By / Reason) -->
+        <div class="panel-card" id="entityCard">
+          <div class="field-label" id="entityLabel">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            Withdrawn By <span class="req">*</span>
+          </div>
+          <select class="form-select">
+            <option>Javed Bhai (Owner)</option>
+            <option>Cashier / Reception</option>
+            <option>Partner 2</option>
+          </select>
+        </div>
+
+        <!-- 5. Note / Purpose -->
+        <div class="panel-card">
+          <div class="field-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Note / Purpose <span class="req">*</span>
+          </div>
+          <textarea class="form-textarea" placeholder="Reason for this entry...">Bank deposit</textarea>
+          <div class="char-count">13/200</div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-action-row">
+          <button class="btn-cancel" onclick="switchPhoneView('records')">✕ Cancel</button>
+          <button class="btn-save" onclick="alert('✅ Entry Saved! Galle ka balance update ho gaya.'); switchPhoneView('records');">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l6-6a1 1 0 00-1.414-1.414L11 12.586l-3.293-3.293z"></path></svg>
+            Save Entry
+          </button>
+        </div>
+
       </div>
     </div>
+
+
+    <!-- ============================================== -->
+    <!-- SCREEN 2: CASH AT COUNTER (GALLA RECORDS)      -->
+    <!-- ============================================== -->
+    <div class="phone-screen" id="screenRecords">
+      <div class="app-header">
+        <h2>Cash at Counter (Galla)</h2>
+      </div>
+
+      <div class="screen-content">
+
+        <!-- Date + Status Bar -->
+        <div class="status-bar-row">
+          <div class="date-indicator">
+            📅 Thu, 06 Nov 2026
+          </div>
+          <div class="badge-open">
+            ● Open
+          </div>
+        </div>
+
+        <!-- Teal Hero Card (Cash Register Illustration + Expected Balance) -->
+        <div class="teal-hero-card">
+          <div class="hero-top-wrap">
+            <div>
+              <span class="hero-kicker">Galle Me Cash (Expected)</span>
+              <div class="hero-big-amt">₹ 17,350</div>
+            </div>
+            <!-- Cash Register Icon Card -->
+            <div class="cash-register-art">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 012 2v3H2V6a2 2 0 012-2zm-2 7h20v8a2 2 0 01-2 2H4a2 2 0 01-2-2v-8zm5 3h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"></path></svg>
+            </div>
+          </div>
+
+          <!-- 3-Column Mini Stats -->
+          <div class="hero-stats-row">
+            <div class="stat-col">
+              <span>Opening</span>
+              <strong>₹ 5,000</strong>
+            </div>
+            <div class="stat-col">
+              <span>Cash In</span>
+              <strong>₹ 14,500</strong>
+            </div>
+            <div class="stat-col">
+              <span>Cash Out</span>
+              <strong>₹ 2,150</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub Tabs (Today's Records vs Summary) -->
+        <div class="mini-subtabs">
+          <div class="mini-tab active">
+            📑 Today's Records (3)
+          </div>
+          <div class="mini-tab" onclick="alert('Day summary & note-denomination counter view opens')">
+            🕒 Summary
+          </div>
+        </div>
+
+        <!-- Records List -->
+        <!-- 1. Withdrawal Record -->
+        <div class="record-card withdrawal" onclick="alert('Withdrawal Details: Javed Bhai took ₹1,000 for Bank Deposit at 05:30 PM')">
+          <div class="record-left">
+            <div class="record-icon">
+              <!-- Bank icon -->
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+            </div>
+            <div class="record-details">
+              <strong>Withdrawal</strong>
+              <small>Javed Bhai (Bank deposit)</small>
+            </div>
+          </div>
+          <div class="record-right">
+            <div>
+              <span class="record-time">05:30 PM</span>
+              <span class="record-amt minus">- ₹ 1,000</span>
+            </div>
+            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+          </div>
+        </div>
+
+        <!-- 2. Cash to Online Swap Record -->
+        <div class="record-card swap" onclick="alert('Swap Details: ₹500 Cash given out, received in Salon UPI')">
+          <div class="record-left">
+            <div class="record-icon">
+              <!-- Exchange icon -->
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+            </div>
+            <div class="record-details">
+              <strong>Cash to Online</strong>
+              <small>Cash deposited to UPI</small>
+            </div>
+          </div>
+          <div class="record-right">
+            <div>
+              <span class="record-time">04:20 PM</span>
+              <span class="record-amt minus">- ₹ 500</span>
+            </div>
+            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+          </div>
+        </div>
+
+        <!-- 3. Adjustment Record (Surplus) -->
+        <div class="record-card adjustment" onclick="alert('Adjustment: +₹50 surplus added to counter cash')">
+          <div class="record-left">
+            <div class="record-icon">
+              <!-- Sliders icon -->
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+            </div>
+            <div class="record-details">
+              <strong>Adjustment <span class="tag-surplus">Surplus</span></strong>
+              <small>Extra cash (customer change)</small>
+            </div>
+          </div>
+          <div class="record-right">
+            <div>
+              <span class="record-time">02:10 PM</span>
+              <span class="record-amt plus">+ ₹ 50</span>
+            </div>
+            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+          </div>
+        </div>
+
+        <!-- Big Bottom Gold Button "+ Add New Entry" -->
+        <button class="btn-bottom-gold" onclick="switchPhoneView('form')">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path></svg>
+          Add New Entry
+        </button>
+
+      </div>
+    </div>
+
   </div>
 
   <script>
-    const expected = 6450;
-    function verifyCash(val) {
-      const num = Number(val || 0);
-      const diff = num - expected;
-      const box = document.getElementById('diffBox');
-      if (diff === 0) {
-        box.innerHTML = `<span class="diff-badge diff-match">✅ 100% MATCHED (Ek rupaye ka farq nahi hai)</span>`;
-      } else if (diff < 0) {
-        box.innerHTML = `<span class="diff-badge diff-short">❌ ₹${Math.abs(diff)} CASH KAM HAI (Check karein: koi Advance ya Kharcha to nahi chhoota?)</span>`;
+    // Tab Switching logic
+    function switchPhoneView(view) {
+      const f = document.getElementById('screenForm');
+      const r = document.getElementById('screenRecords');
+      const btns = document.querySelectorAll('.device-tab-btn');
+
+      btns.forEach(b => b.classList.remove('active'));
+
+      if (view === 'form') {
+        btns[0].classList.add('active');
+        f.style.display = 'flex';
+        f.classList.add('visible-mobile');
+        r.style.display = 'none';
+        r.classList.remove('visible-mobile');
+      } else if (view === 'records') {
+        btns[1].classList.add('active');
+        f.style.display = 'none';
+        f.classList.remove('visible-mobile');
+        r.style.display = 'flex';
+        r.classList.add('visible-mobile');
       } else {
-        box.innerHTML = `<span class="diff-badge diff-short" style="background:#fffbeb; color:#b45309; border-color:#fde68a;">⚠️ +₹${diff} CASH ZYADA HAI (Check: koi Online bill Cash to nahi liya tha?)</span>`;
+        btns[2].classList.add('active');
+        f.style.display = 'flex';
+        r.style.display = 'flex';
       }
     }
 
-    function openOwnerModal() { document.getElementById('ownerModal').classList.add('show'); }
-    function openSwapModal() { document.getElementById('swapModal').classList.add('show'); }
-    function closeModals() {
-      document.getElementById('ownerModal').classList.remove('show');
-      document.getElementById('swapModal').classList.remove('show');
+    // Dynamic Entry Type Selection (Withdrawal / Adjustment / Cash to Online)
+    function selectType(elem, type) {
+      document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+      elem.classList.add('active');
+
+      const label = document.getElementById('entityLabel');
+      const card = document.getElementById('entityCard');
+
+      if (type === 'withdrawal') {
+        label.innerHTML = `
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px; height:16px; color:#0284c7;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          Withdrawn By <span class="req">*</span>
+        `;
+        card.querySelector('select').innerHTML = `
+          <option>Javed Bhai (Owner)</option>
+          <option>Cashier / Reception</option>
+          <option>Partner 2</option>
+        `;
+      } else if (type === 'adjustment') {
+        label.innerHTML = `
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px; height:16px; color:#0284c7;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+          Adjustment Type <span class="req">*</span>
+        `;
+        card.querySelector('select').innerHTML = `
+          <option>Surplus (+) (Extra Cash - e.g. Customer change)</option>
+          <option>Shortage (-) (Kam Cash - e.g. Minor float mismatch)</option>
+        `;
+      } else if (type === 'swap') {
+        label.innerHTML = `
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px; height:16px; color:#0284c7;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          Transfer To / Handed To <span class="req">*</span>
+        `;
+        card.querySelector('select').innerHTML = `
+          <option>Salon UPI QR (Direct Shop Account)</option>
+          <option>Owner UPI Account</option>
+        `;
+      }
     }
   </script>
 </body>

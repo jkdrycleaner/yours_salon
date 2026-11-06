@@ -470,8 +470,8 @@
     <div id="status" class="status" role="status"></div>
   </main>
   <script src="/auth-guard.js"></script>
-  <script src="/admin-nav.js?v=20261105_m4"></script>
-  <script src="/mobile.js?v=20261105_m4"></script>
+  <script src="/admin-nav.js?v=20261107_v2"></script>
+  <script src="/mobile.js?v=20261107_v2"></script>
   <script>
     const tokenKey = 'salon_google_credential';
     const monthInput = document.getElementById('month');
@@ -802,7 +802,7 @@
       }
       const employee = staff.find(item => item._id === employeeId);
       adminActions.innerHTML = ['collection', 'expense', 'salary', 'counter'].map(moduleKey =>
-        `<a href="/${moduleKey}-entry?employeeId=${encodeURIComponent(employeeId)}">+ ${moduleKey === 'counter' ? 'Counter' : moduleKey.charAt(0).toUpperCase() + moduleKey.slice(1)}</a>`
+        `<a href="${moduleKey === 'counter' ? '/cash-counter' : `/${moduleKey}-entry?employeeId=${encodeURIComponent(employeeId)}`}">${moduleKey === 'counter' ? '💵 Cash Counter' : `+ ${moduleKey.charAt(0).toUpperCase() + moduleKey.slice(1)}`}</a>`
       ).join('');
       if (employee) document.getElementById('title').textContent = `${employee.employeeName} dashboard`;
     }

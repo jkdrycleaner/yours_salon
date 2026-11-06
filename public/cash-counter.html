@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/app-boot.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Cash at Counter (Galla) — YOURS SALON</title>
+  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
+  <style>
+    :root {
+      --salon-gold: #c49a32;
+      --salon-gold-gradient: linear-gradient(135deg, #d4a73b, #b38827);
+      --salon-ink: #1e293b;
+      --salon-muted: #64748b;
+      --salon-line: #e2e8f0;
+      --salon-bg: #f4f6f9;
+      --salon-card: #ffffff;
+      --salon-green: #059669;
+      --salon-green-bg: #ecfdf5;
+      --salon-green-border: #10b981;
+      --salon-red: #dc2626;
+      --salon-red-bg: #fef2f2;
+      --salon-red-border: #f87171;
+      --salon-teal-dark: #083338;
+      --salon-teal-card: linear-gradient(135deg, #093b3f 0%, #0d5259 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+    
+    body {
+      background: var(--salon-bg);
+      color: var(--salon-ink);
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    /* Wrap for Admin Desktop clearance */
+    .counter-page-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 16px 10px 40px;
+    }
+
+    @media (min-width: 900px) {
+      .counter-page-wrap {
+        padding: 24px 20px 60px;
+        max-width: 1140px;
+        margin: 0 auto;
+      }
+      .counter-inner {
+        max-width: 1080px !important;
+        border-radius: 24px !important;
+        border: 1px solid var(--salon-line) !important;
+        box-shadow: 0 16px 45px rgba(27, 42, 59, 0.08) !important;
+        background: #ffffff !important;
+      }
+      .desktop-grid {
+        display: grid !important;
+        grid-template-columns: 460px 1fr !important;
+        gap: 28px !important;
+        padding: 20px 24px 32px !important;
+      }
+      .desktop-grid .view-panel {
+        display: flex !important;
+        padding: 0 !important;
+      }
+      .segmented-tabs {
+        display: none !important;
+      }
+      .app-header {
+        display: none !important;
+      }
+      .desktop-col-title {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 800;
+        color: #0f2742;
+        padding-bottom: 8px;
+        border-bottom: 1.5px solid var(--salon-line);
+        margin-bottom: 6px;
+      }
+      .btn-bottom-gold.desktop-hide {
+        display: none !important;
+      }
+    }
+
+    .desktop-col-title {
+      display: none;
+    }
+
+    .desktop-grid {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Container for Counter */
+    .counter-inner {
+      width: 100%;
+      max-width: 440px;
+      min-height: 82vh;
+      background: #f8fafc;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    /* Soft Wave at Bottom */
+    .counter-inner::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: radial-gradient(ellipse at 50% 120%, rgba(13, 82, 89, 0.15) 0%, transparent 75%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Top App Header */
+    .app-header {
+      background: #ffffff;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--salon-line);
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .app-header h2 {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f2742;
+      letter-spacing: -0.01em;
+    }
+
+    /* Top Segmented Tabs */
+    .segmented-tabs {
+      display: flex;
+      padding: 12px 16px 4px;
+      gap: 10px;
+    }
+    .seg-btn {
+      flex: 1;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.18s;
+      border: 1px solid var(--salon-line);
+      background: #ffffff;
+      color: var(--salon-muted);
+    }
+    .seg-btn.active {
+      background: var(--salon-gold-gradient);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 4px 12px rgba(196, 154, 50, 0.3);
+    }
+    .seg-btn svg { width: 16px; height: 16px; }
+
+    /* Screen Views */
+    .view-panel {
+      flex: 1;
+      padding: 12px 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      z-index: 2;
+    }
+    .view-panel.hidden { display: none; }
+
+    /* Panel Card */
+    .panel-card {
+      background: #ffffff;
+      border: 1px solid #e5e9ef;
+      border-radius: 16px;
+      padding: 12px 14px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+    }
+    .panel-card.active-green {
+      border: 1.5px solid var(--salon-green-border);
+      background: #fcfffd;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    .field-label .req { color: #ef4444; margin-left: 2px; }
+    .field-label svg { width: 16px; height: 16px; color: #0284c7; }
+
+    /* Date & Time */
+    .datetime-row { display: flex; gap: 8px; }
+    .datetime-box {
+      flex: 1;
+      height: 40px;
+      background: #f8fafc;
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .datetime-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e293b;
+      width: 100%;
+    }
+
+    /* Entry Type 3 Pills */
+    .entry-type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .type-pill {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 4px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .type-pill svg { width: 22px; height: 22px; color: var(--salon-muted); }
+    .type-pill span { font-size: 11.5px; font-weight: 800; color: #334155; }
+
+    .type-pill.active {
+      border-color: var(--salon-green-border);
+      background: var(--salon-green-bg);
+    }
+    .type-pill.active svg { color: var(--salon-green); }
+    .type-pill.active span { color: #065f46; }
+    .type-pill .check-badge {
+      display: none;
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 18px;
+      height: 18px;
+      background: var(--salon-green);
+      color: #ffffff;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      box-shadow: 0 2px 4px rgba(5, 150, 105, 0.4);
+    }
+    .type-pill.active .check-badge { display: flex; }
+
+    /* Amount Box */
+    .amount-input-wrap {
+      display: flex;
+      height: 44px;
+      border: 1.5px solid var(--salon-green-border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    .amount-prefix {
+      width: 44px;
+      background: #f0fdf4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #065f46;
+      border-right: 1px solid #d1fae5;
+    }
+    .amount-input-wrap input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 0 12px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+
+    .form-select {
+      width: 100%;
+      height: 42px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      outline: none;
+    }
+    .form-textarea {
+      width: 100%;
+      height: 70px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      outline: none;
+      resize: none;
+    }
+    .char-count {
+      text-align: right;
+      font-size: 11px;
+      color: var(--salon-muted);
+      margin-top: 4px;
+    }
+
+    /* Form Action Buttons */
+    .form-action-row {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 10px;
+    }
+    .btn-cancel {
+      flex: 1;
+      height: 44px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+    }
+    .btn-save {
+      flex: 2;
+      height: 44px;
+      background: var(--salon-gold-gradient);
+      border: none;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(196, 154, 50, 0.35);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    /* ========================================= */
+    /* SCREEN 2: RECORDS VIEW                   */
+    /* ========================================= */
+    .status-bar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .date-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .badge-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #059669;
+      color: #ffffff;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .badge-open.closed {
+      background: #64748b;
+    }
+
+    .teal-hero-card {
+      background: var(--salon-teal-card);
+      border-radius: 20px;
+      padding: 16px 18px;
+      color: #ffffff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(9, 59, 63, 0.25);
+    }
+    .hero-top-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .hero-kicker { font-size: 12px; color: #99f6e4; font-weight: 700; }
+    .hero-big-amt {
+      font-size: 32px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      margin: 4px 0 14px;
+    }
+    .cash-register-art {
+      width: 58px;
+      height: 52px;
+      background: #f59e0b;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+      border: 2px solid #fbbf24;
+    }
+    .cash-register-art svg { width: 34px; height: 34px; color: #ffffff; }
+
+    .hero-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      text-align: center;
+    }
+    .stat-col span { display: block; font-size: 11px; color: #99f6e4; font-weight: 600; }
+    .stat-col strong { display: block; font-size: 14px; font-weight: 800; color: #ffffff; margin-top: 2px; }
+
+    .mini-subtabs {
+      display: flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 12px;
+      gap: 4px;
+    }
+    .mini-tab {
+      flex: 1;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 9px;
+      cursor: pointer;
+      color: var(--salon-muted);
+    }
+    .mini-tab.active {
+      background: #0d5259;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .record-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid #f1f5f9;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+      transition: all 0.15s;
+    }
+    .record-card.withdrawal { background: #fff5f5; border-color: #fee2e2; }
+    .record-card.swap { background: #f0fdf4; border-color: #dcfce7; }
+    .record-card.adjustment { background: #f0f9ff; border-color: #e0f2fe; }
+
+    .record-left { display: flex; align-items: center; gap: 12px; }
+    .record-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .record-card.withdrawal .record-icon { background: #fee2e2; color: #dc2626; }
+    .record-card.swap .record-icon { background: #dcfce7; color: #16a34a; }
+    .record-card.adjustment .record-icon { background: #e0f2fe; color: #0284c7; }
+
+    .record-details strong {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .record-details small { font-size: 11px; color: var(--salon-muted); margin-top: 2px; display: block; }
+    .tag-surplus {
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+    .tag-shortage {
+      background: #fee2e2;
+      color: #b91c1c;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .record-right { text-align: right; display: flex; align-items: center; gap: 6px; }
+    .record-time { font-size: 10px; font-weight: 700; color: var(--salon-muted); display: block; margin-bottom: 2px; }
+    .record-amt { font-size: 14.5px; font-weight: 900; white-space: nowrap; }
+    .record-amt.minus { color: #dc2626; }
+    .record-amt.plus { color: #16a34a; }
+    .del-btn {
+      color: #94a3b8;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .del-btn:hover { color: #dc2626; }
+
+    .btn-bottom-gold {
+      height: 48px;
+      background: var(--salon-gold-gradient);
+      border: none;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(196, 154, 50, 0.4);
+      margin-top: auto;
+    }
+
+    /* Summary Section */
+    .reconcile-card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid var(--salon-line);
+      padding: 16px;
+      text-align: center;
+    }
+    .reconcile-card h3 { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+    .reconcile-card p { font-size: 11.5px; color: var(--salon-muted); margin-bottom: 12px; }
+    .cash-input {
+      width: 170px;
+      height: 42px;
+      border: 2px solid var(--salon-line);
+      border-radius: 10px;
+      font-size: 20px;
+      font-weight: 800;
+      text-align: center;
+      outline: none;
+      margin-bottom: 8px;
+    }
+    .cash-input:focus { border-color: var(--salon-gold); }
+    .diff-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .diff-match { background: #ecfdf5; color: #059669; border: 1px solid #10b981; }
+    .diff-short { background: #fef2f2; color: #dc2626; border: 1px solid #f87171; }
+  </style>
+</head>
+<body>
+
+  <main class="wrap counter-page-wrap">
+    
+    <div class="counter-inner">
+      <!-- Top Header -->
+      <header class="app-header">
+        <h2 id="pageTitle">Cash at Counter (Galla)</h2>
+      </header>
+
+      <!-- Top Segmented Tabs (Entry Form vs Today's Records) -->
+      <div class="segmented-tabs">
+        <div class="seg-btn" id="tabBtnForm" onclick="switchTab('form')">
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg>
+          Entry Form
+        </div>
+        <div class="seg-btn active" id="tabBtnRecords" onclick="switchTab('records')">
+          <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+          Today's Records
+        </div>
+      </div>
+
+      <!-- Desktop / Mobile Grid Wrapper -->
+      <div class="desktop-grid">
+
+        <!-- ===================================== -->
+        <!-- VIEW 1: ADD COUNTER ENTRY FORM        -->
+        <!-- ===================================== -->
+        <div class="view-panel hidden" id="viewForm">
+          <h3 class="desktop-col-title">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg>
+            Add Counter Entry
+          </h3>
+        
+        <!-- Date & Time -->
+        <div class="panel-card">
+          <div class="field-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            Entry Date & Time
+          </div>
+          <div class="datetime-row">
+            <div class="datetime-box">
+              <input type="date" id="inputDate">
+            </div>
+            <div class="datetime-box">
+              <input type="text" id="inputTime" placeholder="10:24 AM">
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry Type (3 Pills) -->
+        <div class="panel-card">
+          <div class="field-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+            Entry Type <span class="req">*</span>
+          </div>
+          <div class="entry-type-grid">
+            <div class="type-pill active" id="pillWithdrawal" onclick="setType('withdrawal')">
+              <div class="check-badge">✓</div>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+              <span>Withdrawal</span>
+            </div>
+            <div class="type-pill" id="pillAdjustment" onclick="setType('adjustment')">
+              <div class="check-badge">✓</div>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+              <span>Adjustment</span>
+            </div>
+            <div class="type-pill" id="pillSwap" onclick="setType('swap')">
+              <div class="check-badge">✓</div>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+              <span>Cash to Online</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="panel-card active-green">
+          <div class="field-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            Amount (₹) <span class="req">*</span>
+          </div>
+          <div class="amount-input-wrap">
+            <div class="amount-prefix">₹</div>
+            <input type="number" id="inputAmount" placeholder="1000">
+          </div>
+        </div>
+
+        <!-- Dynamic Field (Withdrawn By / Adjustment Type / Transfer To) -->
+        <div class="panel-card" id="dynamicCard">
+          <div class="field-label" id="dynamicLabel">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            Withdrawn By <span class="req">*</span>
+          </div>
+          <div id="dynamicInputContainer">
+            <select class="form-select" id="selectWithdrawnBy">
+              <option value="Javed Bhai (Owner)">Javed Bhai (Owner)</option>
+              <option value="Cashier / Reception">Cashier / Reception</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Note / Purpose -->
+        <div class="panel-card">
+          <div class="field-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Note / Purpose <span class="req">*</span>
+          </div>
+          <textarea class="form-textarea" id="inputNote" placeholder="Bank deposit" oninput="updateCharCount(this)">Bank deposit</textarea>
+          <div class="char-count" id="charCount">12/200</div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-action-row">
+          <button class="btn-cancel" onclick="switchTab('records')">✕ Cancel</button>
+          <button class="btn-save" onclick="saveCounterEntry()">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l6-6a1 1 0 00-1.414-1.414L11 12.586l-3.293-3.293z"></path></svg>
+            Save Entry
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- VIEW 2: RECORDS & SUMMARY VIEW       -->
+      <!-- ===================================== -->
+      <div class="view-panel" id="viewRecords">
+        <h3 class="desktop-col-title">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+          Cash at Counter (Galla) Register
+        </h3>
+        
+        <!-- Date & Status Bar -->
+        <div class="status-bar-row">
+          <div class="date-indicator" id="displayDate">
+            📅 Today
+          </div>
+          <div class="badge-open" id="displayStatus">
+            ● Open
+          </div>
+        </div>
+
+        <!-- Teal Hero KPI Card -->
+        <div class="teal-hero-card">
+          <div class="hero-top-wrap">
+            <div>
+              <span class="hero-kicker">Galle Me Cash (Expected)</span>
+              <div class="hero-big-amt" id="heroExpected">₹ 0</div>
+            </div>
+            <!-- Cash Register Art -->
+            <div class="cash-register-art">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 012 2v3H2V6a2 2 0 012-2zm-2 7h20v8a2 2 0 01-2 2H4a2 2 0 01-2-2v-8zm5 3h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"></path></svg>
+            </div>
+          </div>
+
+          <!-- 3-Column Mini Stats -->
+          <div class="hero-stats-row">
+            <div class="stat-col">
+              <span>Opening</span>
+              <strong id="statOpening">₹ 0</strong>
+            </div>
+            <div class="stat-col">
+              <span>Cash In</span>
+              <strong id="statCashIn">₹ 0</strong>
+            </div>
+            <div class="stat-col">
+              <span>Cash Out</span>
+              <strong id="statCashOut">₹ 0</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini Subtabs (Today's Records vs Summary) -->
+        <div class="mini-subtabs">
+          <div class="mini-tab active" id="subtabRecords" onclick="switchSubtab('records')">
+            📑 Today's Records (<span id="recordCount">0</span>)
+          </div>
+          <div class="mini-tab" id="subtabSummary" onclick="switchSubtab('summary')">
+            🕒 Summary
+          </div>
+        </div>
+
+        <!-- Records List Container -->
+        <div id="recordsListContainer" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Injected dynamically -->
+        </div>
+
+        <!-- Summary View (Hidden by default) -->
+        <div id="summaryContainer" class="reconcile-card" style="display:none;">
+          <h3>🌙 Raat Ko Galla Milayein</h3>
+          <p>Galle me se cash ginein aur yahan daal kar verify karein:</p>
+          <div>
+            <span style="font-size:20px; font-weight:800; color:#64748b; margin-right:4px;">₹</span>
+            <input type="number" class="cash-input" id="actualCashInput" oninput="verifyCashDiff(this.value)">
+          </div>
+          <div id="reconcileResult" style="margin-top:6px;"></div>
+          <button class="btn-bottom-gold" style="margin-top:14px; width:100%; height:42px;" onclick="closeCounterSession()">
+            🔒 Close & Lock Counter Today
+          </button>
+        </div>
+
+        <!-- Big Bottom Gold Button "+ Add New Entry" (mobile only) -->
+        <button class="btn-bottom-gold desktop-hide" onclick="switchTab('form')">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path></svg>
+          Add New Entry
+        </button>
+
+      </div>
+      <!-- End .viewRecords -->
+
+    </div>
+    <!-- End .desktop-grid -->
+
+    </div>
+    <!-- End .counter-inner -->
+
+  </main>
+
+  <script src="/auth-guard.js"></script>
+  <script src="/admin-nav.js?v=20261107_v2"></script>
+  <script src="/mobile.js?v=20261107_v2"></script>
+
+  <script>
+    let currentSelectedType = 'withdrawal';
+    let currentSummaryData = null;
+
+    function getAuthHeaders(isJson = false) {
+      const token = localStorage.getItem('salon_google_credential') || '';
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      if (isJson) headers['Content-Type'] = 'application/json';
+      return headers;
+    }
+
+    function fmt(num) {
+      return '₹ ' + Number(num || 0).toLocaleString('en-IN');
+    }
+
+    function formatDateNice(isoDate) {
+      if (!isoDate) return '';
+      const d = new Date(isoDate + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function initDateTime() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      document.getElementById('inputDate').value = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('inputTime').value = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    }
+
+    function switchTab(tab) {
+      const form = document.getElementById('viewForm');
+      const rec = document.getElementById('viewRecords');
+      const btnF = document.getElementById('tabBtnForm');
+      const btnR = document.getElementById('tabBtnRecords');
+      const title = document.getElementById('pageTitle');
+
+      if (tab === 'form') {
+        form.classList.remove('hidden');
+        rec.classList.add('hidden');
+        btnF.classList.add('active');
+        btnR.classList.remove('active');
+        title.innerText = 'Add Counter Entry';
+      } else {
+        form.classList.add('hidden');
+        rec.classList.remove('hidden');
+        btnF.classList.remove('active');
+        btnR.classList.add('active');
+        title.innerText = 'Cash at Counter (Galla)';
+        loadCounterSummary();
+      }
+    }
+
+    function switchSubtab(sub) {
+      const recList = document.getElementById('recordsListContainer');
+      const sumBox = document.getElementById('summaryContainer');
+      const tabR = document.getElementById('subtabRecords');
+      const tabS = document.getElementById('subtabSummary');
+
+      if (sub === 'records') {
+        recList.style.display = 'flex';
+        sumBox.style.display = 'none';
+        tabR.classList.add('active');
+        tabS.classList.remove('active');
+      } else {
+        recList.style.display = 'none';
+        sumBox.style.display = 'block';
+        tabR.classList.remove('active');
+        tabS.classList.add('active');
+        if (currentSummaryData) {
+          document.getElementById('actualCashInput').value = currentSummaryData.expectedCash;
+          verifyCashDiff(currentSummaryData.expectedCash);
+        }
+      }
+    }
+
+    function setType(type) {
+      currentSelectedType = type;
+      document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+
+      const dynamicCard = document.getElementById('dynamicCard');
+      const dynamicLabel = document.getElementById('dynamicLabel');
+      const dynamicContainer = document.getElementById('dynamicInputContainer');
+
+      if (type === 'withdrawal') {
+        document.getElementById('pillWithdrawal').classList.add('active');
+        dynamicLabel.innerHTML = `
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          Withdrawn By <span class="req">*</span>
+        `;
+        let staffOpts = '<option value="Javed Bhai (Owner)">Javed Bhai (Owner)</option><option value="Cashier / Reception">Cashier / Reception</option>';
+        if (currentSummaryData?.staffList) {
+          staffOpts += currentSummaryData.staffList.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+        dynamicContainer.innerHTML = `<select class="form-select" id="selectWithdrawnBy">${staffOpts}</select>`;
+      } else if (type === 'adjustment') {
+        document.getElementById('pillAdjustment').classList.add('active');
+        dynamicLabel.innerHTML = `
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+          Adjustment Type <span class="req">*</span>
+        `;
+        dynamicContainer.innerHTML = `
+          <select class="form-select" id="selectAdjustmentType">
+            <option value="Surplus">Surplus (+) (Extra Cash - e.g. Customer change)</option>
+            <option value="Shortage">Shortage (-) (Kam Cash - e.g. Minor float mismatch)</option>
+          </select>
+        `;
+      } else if (type === 'swap') {
+        document.getElementById('pillSwap').classList.add('active');
+        dynamicLabel.innerHTML = `
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          Cash Deposited To / Person <span class="req">*</span>
+        `;
+        dynamicContainer.innerHTML = `<input type="text" class="form-select" id="inputTransferTo" value="Cash deposited to UPI">`;
+      }
+    }
+
+    function updateCharCount(textarea) {
+      document.getElementById('charCount').innerText = `${textarea.value.length}/200`;
+    }
+
+    async function loadCounterSummary() {
+      try {
+        const date = document.getElementById('inputDate').value || new Date().toISOString().slice(0, 10);
+        const res = await fetch(`/api/counter/day-summary?date=${date}`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error('API failed');
+        const data = await res.json();
+        currentSummaryData = data;
+
+        document.getElementById('displayDate').innerText = `📅 ${formatDateNice(data.date)}`;
+        const statusBadge = document.getElementById('displayStatus');
+        statusBadge.innerText = data.status === 'Closed' ? '● Closed' : '● Open';
+        statusBadge.className = data.status === 'Closed' ? 'badge-open closed' : 'badge-open';
+
+        document.getElementById('heroExpected').innerText = fmt(data.expectedCash);
+        document.getElementById('statOpening').innerText = fmt(data.openingCash);
+        document.getElementById('statCashIn').innerText = fmt(data.cashIn);
+        document.getElementById('statCashOut').innerText = fmt(data.cashOut);
+
+        document.getElementById('recordCount').innerText = data.records.length;
+
+        const container = document.getElementById('recordsListContainer');
+        if (!data.records.length) {
+          container.innerHTML = `
+            <div style="text-align:center; padding:30px 10px; color:#94a3b8; font-size:13px; font-weight:700;">
+              Aaj koi counter entry nahi hai.<br>Niche <b>+ Add New Entry</b> se shuru karein.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = data.records.map(r => {
+          let typeClass = 'withdrawal';
+          let iconSvg = '<svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>';
+          let title = 'Withdrawal';
+          let sub = r.withdrawnBy ? `${r.withdrawnBy} (${r.note || 'No note'})` : r.note;
+          let amtSign = '- ';
+          let amtClass = 'minus';
+
+          if (r.entryType === 'swap') {
+            typeClass = 'swap';
+            iconSvg = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>';
+            title = 'Cash to Online';
+            sub = r.transferTo ? `${r.transferTo} (${r.note || ''})` : (r.note || 'Cash deposited to UPI');
+            amtSign = '- ';
+            amtClass = 'minus';
+          } else if (r.entryType === 'adjustment') {
+            typeClass = 'adjustment';
+            iconSvg = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>';
+            const isSurplus = r.adjustmentType === 'Surplus';
+            title = `Adjustment <span class="${isSurplus ? 'tag-surplus' : 'tag-shortage'}">${r.adjustmentType || 'Surplus'}</span>`;
+            sub = r.note || 'Cash Adjustment';
+            amtSign = isSurplus ? '+ ' : '- ';
+            amtClass = isSurplus ? 'plus' : 'minus';
+          }
+
+          return `
+            <div class="record-card ${typeClass}">
+              <div class="record-left">
+                <div class="record-icon">${iconSvg}</div>
+                <div class="record-details">
+                  <strong>${title}</strong>
+                  <small>${sub}</small>
+                </div>
+              </div>
+              <div class="record-right">
+                <div>
+                  <span class="record-time">${r.entryTime || 'Today'}</span>
+                  <span class="record-amt ${amtClass}">${amtSign}${fmt(r.amount)}</span>
+                </div>
+                <button class="del-btn" onclick="deleteEntry('${r._id}')" title="Delete">✕</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function saveCounterEntry() {
+      const entryDate = document.getElementById('inputDate').value;
+      const entryTime = document.getElementById('inputTime').value;
+      const amount = Number(document.getElementById('inputAmount').value);
+      const note = document.getElementById('inputNote').value;
+
+      if (!amount || amount <= 0) {
+        alert('Kripya valid amount darj karein.');
+        return;
+      }
+
+      let payload = {
+        entryDate,
+        entryTime,
+        entryType: currentSelectedType,
+        amount,
+        note
+      };
+
+      if (currentSelectedType === 'withdrawal') {
+        payload.withdrawnBy = document.getElementById('selectWithdrawnBy')?.value || 'Owner';
+      } else if (currentSelectedType === 'adjustment') {
+        payload.adjustmentType = document.getElementById('selectAdjustmentType')?.value || 'Surplus';
+      } else if (currentSelectedType === 'swap') {
+        payload.transferTo = document.getElementById('inputTransferTo')?.value || 'UPI';
+      }
+
+      try {
+        const res = await fetch('/api/counter/entry', {
+          method: 'POST',
+          headers: getAuthHeaders(true),
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        alert('✅ Entry Saved Successfully!');
+        document.getElementById('inputAmount').value = '';
+        switchTab('records');
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    async function deleteEntry(id) {
+      if (!confirm('Kya aap yeh entry hatana chahte hain?')) return;
+      try {
+        const res = await fetch(`/api/counter/entry/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+        if (res.ok) loadCounterSummary();
+      } catch(e) {}
+    }
+
+    function verifyCashDiff(val) {
+      if (!currentSummaryData) return;
+      const num = Number(val || 0);
+      const diff = num - currentSummaryData.expectedCash;
+      const res = document.getElementById('reconcileResult');
+      if (diff === 0) {
+        res.innerHTML = `<span class="diff-badge diff-match">✅ 100% MATCHED (Ek rupaye ka farq nahi)</span>`;
+      } else if (diff < 0) {
+        res.innerHTML = `<span class="diff-badge diff-short">❌ ₹${Math.abs(diff)} CASH KAM HAI</span>`;
+      } else {
+        res.innerHTML = `<span class="diff-badge diff-match" style="background:#fffbeb; color:#b45309; border-color:#fde68a;">⚠️ +₹${diff} CASH ZYADA HAI</span>`;
+      }
+    }
+
+    async function closeCounterSession() {
+      const val = document.getElementById('actualCashInput').value;
+      if (!confirm('Kya aap aaj ka counter band aur lock karna chahte hain?')) return;
+      try {
+        const res = await fetch('/api/counter/close', {
+          method: 'POST',
+          headers: getAuthHeaders(true),
+          body: JSON.stringify({
+            date: currentSummaryData.date,
+            actualCash: Number(val),
+            expectedCash: currentSummaryData.expectedCash
+          })
+        });
+        if (res.ok) {
+          alert('✅ Day Closed & Locked Successfully!');
+          loadCounterSummary();
+          switchSubtab('records');
+        }
+      } catch(e) {}
+    }
+
+    initDateTime();
+    loadCounterSummary();
+  </script>
+</body>
+</html>

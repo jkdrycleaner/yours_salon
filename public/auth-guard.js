@@ -103,6 +103,7 @@
           '/salary-entry': 'salary-entry',
           '/counter-table': 'counter-records',
           '/counter-entry': 'counter-entry',
+          '/cash-counter': 'counter-records',
           '/attendance': 'attendance',
           '/customers': 'customers',
           '/profile': 'profile',

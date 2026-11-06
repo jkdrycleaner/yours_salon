@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#ffffff">
   <link rel="manifest" href="/manifest.webmanifest">
   <title>Admin Dashboard — YOURS SALON</title>
-  <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
-  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
+  <link rel="stylesheet" href="/admin-nav.css?v=20261107_v2">
+  <link rel="stylesheet" href="/mobile.css?v=20261107_v2">
   <style>
     :root {
       --dash-bg: #f4f7fb;
@@ -1211,6 +1211,11 @@
           <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           <span>Refresh</span>
         </button>
+
+        <a href="/cash-counter" class="refresh-btn" style="text-decoration:none; background:#c99a23; color:#fff; border-color:#c99a23;" title="Cash At Counter (Galla)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>
+          <span>Cash Counter</span>
+        </a>
       </div>
     </header>
 
@@ -1219,6 +1224,27 @@
       <span>💡 Showing preview data. Once you record salon services, real transactions will update here in real-time.</span>
       <a href="/collection-entry">+ Add Entry</a>
     </aside>
+
+    <!-- Quick Access Actions Bar (Desktop & Mobile) -->
+    <div class="dash-quick-bar" style="display:flex; flex-wrap:wrap; gap:10px; margin: 12px 0 16px; align-items:center;">
+      <a href="/cash-counter" class="dash-quick-link galla" style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; background:linear-gradient(135deg, #093b3f 0%, #0d5259 100%); color:#fff; border-radius:12px; text-decoration:none; font-weight:800; font-size:13px; box-shadow:0 4px 14px rgba(13,82,89,0.25); border:1.5px solid #14b8a6;">
+        <span style="font-size:18px;">💵</span>
+        <span>Cash At Counter (Galla)</span>
+        <span style="background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:6px; font-size:11px; margin-left:4px;">Open Register &rarr;</span>
+      </a>
+      <a href="/collection-entry" style="display:inline-flex; align-items:center; gap:6px; padding:9px 14px; background:#fff; border:1px solid #cbd5e1; border-radius:12px; text-decoration:none; font-weight:700; font-size:12.5px; color:#1e293b;">
+        <span>✂️</span>
+        <span>+ Customer Entry</span>
+      </a>
+      <a href="/expense-entry" style="display:inline-flex; align-items:center; gap:6px; padding:9px 14px; background:#fff; border:1px solid #cbd5e1; border-radius:12px; text-decoration:none; font-weight:700; font-size:12.5px; color:#1e293b;">
+        <span>🧾</span>
+        <span>+ Expense Entry</span>
+      </a>
+      <a href="/salary-entry" style="display:inline-flex; align-items:center; gap:6px; padding:9px 14px; background:#fff; border:1px solid #cbd5e1; border-radius:12px; text-decoration:none; font-weight:700; font-size:12.5px; color:#1e293b;">
+        <span>💰</span>
+        <span>+ Salary Payment</span>
+      </a>
+    </div>
 
     <!-- Top 6 KPI Summary Cards (Clickable for Employee Details) -->
     <section class="kpi-grid" aria-label="Key Performance Indicators">
@@ -1308,16 +1334,16 @@
       </article>
 
       <!-- 6. Counter Cash -->
-      <article class="kpi-card kpi-card-6" id="cardCounterCash" title="Click to view counter cash entries">
+      <article class="kpi-card kpi-card-6" id="cardCounterCash" title="Click to open Cash At Counter (Galla)" style="cursor: pointer;">
         <div class="kpi-top">
           <div class="kpi-icon-box icon-green">
             <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>
           </div>
-          <div class="kpi-title">Counter Cash</div>
+          <div class="kpi-title">Cash At Counter (Galla)</div>
         </div>
         <div class="kpi-value" id="kpiCounterCash">₹15,200</div>
         <div class="kpi-bottom">
-          <span class="kpi-subtext" id="kpiCounterDate">as on 30 Oct 2026</span>
+          <span class="kpi-subtext" id="kpiCounterDate" style="color:#0b7a43; font-weight:700;">Open Counter Manager &rarr;</span>
         </div>
       </article>
     </section>
@@ -1476,8 +1502,8 @@
   </div>
 
   <script src="/auth-guard.js"></script>
-  <script src="/admin-nav.js?v=20261105_m4"></script>
-  <script src="/mobile.js?v=20261105_m4"></script>
+  <script src="/admin-nav.js?v=20261107_v2"></script>
+  <script src="/mobile.js?v=20261107_v2"></script>
   <script>
     (() => {
       const tokenKey = 'salon_google_credential';
@@ -1829,10 +1855,10 @@
           modalFilterBar.style.display = 'none';
           renderExpensesDetails(details.expenses);
         } else if (type === 'counterCash') {
-          modalTitle.textContent = "Counter Cash Records";
-          modalSubtitle.textContent = `Counter register balance details`;
-          modalActionLink.href = '/counter-entry';
-          modalActionLink.textContent = '+ Add Counter Cash Entry';
+          modalTitle.textContent = "Cash At Counter (Galla)";
+          modalSubtitle.textContent = `Counter register & drawer balance details`;
+          modalActionLink.href = '/cash-counter';
+          modalActionLink.textContent = 'Open Cash At Counter (Galla)';
           modalFilterBar.style.display = 'none';
           renderCounterCashDetails(details.counterCash);
         }
@@ -2308,7 +2334,7 @@
             salaryPaid: { label: 'Salary Paid This Month', amount: 24000, paymentsCount: 3 },
             salaryPayable: { label: 'Salary Payable', amount: 18400, employeesCount: 3 },
             expenses: { label: 'Expenses This Month', amount: 12650, transactionsCount: 5, trendPercent: 5, trendDirection: 'up' },
-            counterCash: { label: 'Counter Cash', amount: 15200, asOn: `as on ${formatMonthTitle(currentMonth)}` }
+            counterCash: { label: 'Cash At Counter (Galla)', amount: 17350, asOn: `as on ${formatMonthTitle(currentMonth)}` }
           },
           servicePerformance: [
             { service: 'Hair Cut', entries: 32, collection: 18400, avgTicket: 575, share: 32 },
@@ -2422,10 +2448,11 @@
               ]
             },
             counterCash: {
-              total: 15200, asOn: 'as on 30 Oct 2026',
+              total: 17350, asOn: 'as on 30 Oct 2026',
               entries: [
-                { date: '30 Oct 2026, 08:00 PM', amount: 15200, paymentMode: 'Cash', remark: 'Closing balance at counter' },
-                { date: '30 Oct 2026, 10:00 AM', amount: 5000, paymentMode: 'Cash', remark: 'Opening cash float' }
+                { date: '30 Oct 2026, 05:30 PM', amount: 1000, paymentMode: 'Cash', employee: 'Javed Bhai', remark: 'Withdrawal: Bank deposit' },
+                { date: '30 Oct 2026, 04:20 PM', amount: 500, paymentMode: 'Cash to UPI', employee: 'Reception', remark: 'Swap: Cash deposited to UPI' },
+                { date: '30 Oct 2026, 02:10 PM', amount: 50, paymentMode: 'Adjustment (+)', employee: 'Admin', remark: 'Adjustment (Surplus): Extra cash (customer change)' }
               ]
             }
           }
@@ -2438,7 +2465,7 @@
       document.getElementById('cardSalaryPaid').addEventListener('click', () => openModal('salaryPaid'));
       document.getElementById('cardSalaryPayable').addEventListener('click', () => openModal('salaryPayable'));
       document.getElementById('cardExpenses').addEventListener('click', () => openModal('expenses'));
-      document.getElementById('cardCounterCash').addEventListener('click', () => openModal('counterCash'));
+      document.getElementById('cardCounterCash').addEventListener('click', () => location.href = '/cash-counter');
 
       modalCloseBtn.addEventListener('click', closeModal);
       modalCloseFootBtn.addEventListener('click', closeModal);

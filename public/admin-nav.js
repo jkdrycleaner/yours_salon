@@ -7,7 +7,7 @@
     { href: '/collection-table', label: 'Collection Records', permission: 'Customer Entry', page: 'collection-records', icon: '<path d="M4 5.5h16v13H4z"/><path d="M8 9h8M8 12.5h5M8 16h3"/>' },
     { href: '/expense-table', label: 'Expense Records', permission: 'Daily Expense', page: 'expense-records', icon: '<path d="M4 5.5h16v13H4z"/><path d="M8 9h5M8 12.5h8M8 16h6"/><path d="M16 9h2v2"/>' },
     { href: '/salary-table', label: 'Salary Records', permission: 'Salary', page: 'salary-records', icon: '<path d="M4 5.5h16v13H4z"/><circle cx="12" cy="12" r="3"/><path d="M7 9h.01M17 15h.01"/>' },
-    { href: '/counter-table', label: 'Counter Cash Records', permission: 'Cash At Counter', page: 'counter-records', icon: '<path d="M4 6.5h16v11H4z"/><path d="M7 10h10M7 13.5h6"/><circle cx="17" cy="15.5" r="1"/>' },
+    { href: '/cash-counter', label: 'Cash At Counter', permission: 'Cash At Counter', page: 'counter-records', icon: '<path d="M4 6.5h16v11H4z"/><path d="M7 10h10M7 13.5h6"/><circle cx="17" cy="15.5" r="1"/>' },
     { href: '/employees', label: 'Employee List', page: 'employee-list', icon: '<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 3.5 4.8"/>' }
   ];
   const navGroups = [
@@ -55,6 +55,7 @@
     '/salary-table': { parent: 'Salary', parentHref: '/salary-entry', title: 'Salary Records', titleHref: '/salary-table' },
     '/counter-entry': { parent: 'Counter Cash Records', parentHref: '/counter-table', title: 'Add Counter Cash Entry', titleHref: '/counter-entry' },
     '/counter-table': { parent: 'Cash At Counter', parentHref: '/counter-entry', title: 'Counter Cash Records', titleHref: '/counter-table' },
+    '/cash-counter': { parent: 'Cash At Counter', parentHref: '/cash-counter', title: 'Cash At Counter', titleHref: '/cash-counter' },
     '/employees': { parent: 'Administration', parentHref: '/admin-dashboard', title: 'Employee List', titleHref: '/employees' },
     '/employee-entry': { parent: 'Employee List', parentHref: '/employees', title: 'Add Employee', titleHref: '/employee-entry' },
     '/manage-shops': { parent: 'Configuration', parentHref: '/config', title: 'Manage Shops', titleHref: '/manage-shops' },

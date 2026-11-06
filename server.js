@@ -82,6 +82,7 @@ const accessPageDefinitions = [
     { key: 'salary-entry', label: 'Salary Entry', path: '/salary-entry', permission: 'Salary', action: 'add' },
     { key: 'counter-records', label: 'Counter Cash Records', path: '/counter-table', permission: 'Cash At Counter' },
     { key: 'counter-entry', label: 'Counter Cash Entry', path: '/counter-entry', permission: 'Cash At Counter', action: 'add' },
+    { key: 'cash-counter', label: 'Cash At Counter', path: '/cash-counter', permission: 'Cash At Counter' },
     { key: 'attendance', label: 'Attendance', path: '/attendance' },
     { key: 'customers', label: 'Customers', path: '/customers' },
     { key: 'profile', label: 'Profile', path: '/profile' },
@@ -529,6 +530,37 @@ const rateListSchema = new mongoose.Schema({
     createdBy: { type: String, trim: true, default: '', maxlength: 150 }
 }, { timestamps: true });
 const RateList = createTenantModelProxy('RateList', rateListSchema);
+
+const counterSessionSchema = new mongoose.Schema({
+    date: { type: String, required: true },
+    openingCash: { type: Number, default: 0, min: 0 },
+    openedBy: { type: String, default: '' },
+    openedAt: { type: Date, default: Date.now },
+    status: { type: String, enum: ['Open', 'Closed'], default: 'Open' },
+    closedBy: { type: String, default: '' },
+    closedAt: { type: Date },
+    closingActualCash: { type: Number, default: 0 },
+    closingExpectedCash: { type: Number, default: 0 },
+    closingDifference: { type: Number, default: 0 },
+    closingNote: { type: String, default: '' }
+}, { timestamps: true });
+counterSessionSchema.index({ date: 1 }, { unique: true });
+const CounterSession = createTenantModelProxy('CounterSession', counterSessionSchema);
+
+const counterTransactionSchema = new mongoose.Schema({
+    entryDate: { type: String, required: true },
+    entryTime: { type: String, default: '' },
+    entryType: { type: String, enum: ['withdrawal', 'adjustment', 'swap'], required: true },
+    amount: { type: Number, required: true, min: 0.01 },
+    withdrawnBy: { type: String, trim: true, default: '' },
+    adjustmentType: { type: String, enum: ['Surplus', 'Shortage', ''], default: '' },
+    transferTo: { type: String, trim: true, default: '' },
+    note: { type: String, trim: true, default: '', maxlength: 500 },
+    createdBy: { type: String, trim: true, default: '' },
+    status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }
+}, { timestamps: true });
+counterTransactionSchema.index({ entryDate: 1, status: 1 });
+const CounterTransaction = createTenantModelProxy('CounterTransaction', counterTransactionSchema);
 
 function rateListSort(left, right) {
     const leftSr = Number.isFinite(Number(left?.sr)) ? Number(left.sr) : Number.MAX_SAFE_INTEGER;
@@ -1722,7 +1754,15 @@ app.get('/salary-entry', (req, res) => {
 });
 
 app.get('/counter-entry', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'module-entry.html'));
+    res.sendFile(path.join(__dirname, 'public', 'cash-counter.html'));
+});
+
+app.get('/cash-counter', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'cash-counter.html'));
+});
+
+app.get('/cash-counter-preview', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'cash_counter_preview.html'));
 });
 
 app.get('/collection-table', (req, res) => {
@@ -1738,7 +1778,7 @@ app.get('/salary-table', (req, res) => {
 });
 
 app.get('/counter-table', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'module-table.html'));
+    res.sendFile(path.join(__dirname, 'public', 'cash-counter.html'));
 });
 
 app.get('/reports', (req, res) => {
@@ -3346,8 +3386,8 @@ app.get('/api/admin-dashboard-overview', requireSecureAuth, verifyEmployee, requ
                         trendDirection: 'up'
                     },
                     counterCash: {
-                        label: 'Counter Cash',
-                        amount: 15200,
+                        label: 'Cash At Counter (Galla)',
+                        amount: 17350,
                         asOn: `as on ${monthLabel}`
                     }
                 },
@@ -3483,11 +3523,15 @@ app.get('/api/admin-dashboard-overview', requireSecureAuth, verifyEmployee, requ
                         ]
                     },
                     counterCash: {
-                        total: 15200,
+                        total: 17350,
+                        opening: 5000,
+                        cashIn: 14500,
+                        cashOut: 2150,
                         asOn: `as on ${monthLabel}`,
                         entries: [
-                            { date: `${anchorDateStr}, 08:00 PM`, amount: 15200, paymentMode: 'Cash', remark: 'Closing balance at counter cash drawer' },
-                            { date: `${anchorDateStr}, 10:00 AM`, amount: 5000, paymentMode: 'Cash', remark: 'Opening float balance' }
+                            { date: `${anchorDateStr}, 05:30 PM`, amount: 1000, paymentMode: 'Cash', employee: 'Javed Bhai', remark: 'Withdrawal: Bank deposit' },
+                            { date: `${anchorDateStr}, 04:20 PM`, amount: 500, paymentMode: 'Cash to UPI', employee: 'Reception', remark: 'Swap: Cash deposited to UPI' },
+                            { date: `${anchorDateStr}, 02:10 PM`, amount: 50, paymentMode: 'Adjustment (+)', employee: 'Admin', remark: 'Adjustment (Surplus): Extra cash (customer change)' }
                         ]
                     }
                 }
@@ -3865,6 +3909,195 @@ app.get('/api/expense-categories', requireSecureAuth, verifyEmployee, requireAny
     } catch (error) {
         console.error('Expense categories read error:', error);
         return res.status(500).json({ error: 'Could not load expense categories.' });
+    }
+});
+
+// ==========================================
+// CASH AT COUNTER (GALLA) APIs
+// ==========================================
+app.get('/api/counter/day-summary', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        const today = getTodayDate();
+        const date = String(req.query.date || today).trim();
+        const start = new Date(`${date}T00:00:00.000Z`);
+        const end = new Date(`${date}T23:59:59.999Z`);
+
+        let session = await CounterSession.findOne({ date }).lean();
+        if (!session) {
+            const prevSession = await CounterSession.findOne({ date: { $lt: date } }).sort({ date: -1 }).lean();
+            const defaultOpening = prevSession ? (prevSession.closingActualCash || prevSession.openingCash || 5000) : 5000;
+            session = { date, openingCash: defaultOpening, status: 'Open' };
+        }
+
+        const cashCollections = await CollectionEntry.find({
+            entryDate: { $gte: start, $lte: end },
+            paymentMode: 'Cash',
+            status: 'Active'
+        }).select('entryNo amount staff serviceType remark createdAt').lean();
+
+        const totalCashIn = cashCollections.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+        const counterRecords = await CounterTransaction.find({
+            entryDate: date,
+            status: 'Active'
+        }).sort({ createdAt: -1 }).lean();
+
+        let withdrawalsTotal = 0;
+        let swapsTotal = 0;
+        let surplusTotal = 0;
+        let shortageTotal = 0;
+
+        for (const item of counterRecords) {
+            const amt = Number(item.amount || 0);
+            if (item.entryType === 'withdrawal') {
+                withdrawalsTotal += amt;
+            } else if (item.entryType === 'swap') {
+                swapsTotal += amt;
+            } else if (item.entryType === 'adjustment') {
+                if (item.adjustmentType === 'Surplus') surplusTotal += amt;
+                else shortageTotal += amt;
+            }
+        }
+
+        const cashExpenses = await EmployeeRecord.find({
+            entryDate: { $gte: start, $lte: end },
+            recordType: 'expense',
+            paymentMode: 'Cash',
+            status: 'Active'
+        }).select('employeeName expenseType amount remark createdAt').lean();
+        const expensesTotal = cashExpenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+        const staffAdvances = await EmployeeRecord.find({
+            entryDate: { $gte: start, $lte: end },
+            status: 'Active',
+            paymentMode: 'Cash',
+            $or: [
+                { advanceCategory: 'Advance' },
+                { expenseType: 'Advance Amount' }
+            ]
+        }).select('employeeName amount createdAt').lean();
+        const advancesTotal = staffAdvances.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+        const totalCashOut = withdrawalsTotal + swapsTotal + expensesTotal + shortageTotal;
+        const totalExpected = (session.openingCash || 0) + totalCashIn + surplusTotal - totalCashOut;
+
+        const activeEmployees = await Employee.find({ status: 'Active' }).select('employeeName role sr').sort({ sr: 1, employeeName: 1 }).lean();
+
+        return res.json({
+            date,
+            status: session.status || 'Open',
+            openingCash: session.openingCash || 0,
+            cashIn: totalCashIn,
+            cashOut: totalCashOut,
+            expectedCash: totalExpected,
+            records: counterRecords,
+            collectionsCount: cashCollections.length,
+            collectionsTotal: totalCashIn,
+            expensesTotal,
+            advancesTotal,
+            withdrawalsTotal,
+            swapsTotal,
+            surplusTotal,
+            shortageTotal,
+            staffList: activeEmployees.map(e => e.employeeName)
+        });
+    } catch (err) {
+        console.error('Counter summary error:', err);
+        return res.status(500).json({ error: 'Failed to load counter day summary.' });
+    }
+});
+
+app.post('/api/counter/entry', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        const { entryDate, entryTime, entryType, amount, withdrawnBy, adjustmentType, transferTo, note } = req.body;
+        if (!entryDate || !entryType || !amount || Number(amount) <= 0) {
+            return res.status(400).json({ error: 'Please enter valid date, type, and amount.' });
+        }
+        if (!['withdrawal', 'adjustment', 'swap'].includes(entryType)) {
+            return res.status(400).json({ error: 'Invalid entry type.' });
+        }
+
+        const newEntry = await CounterTransaction.create({
+            entryDate: String(entryDate).trim(),
+            entryTime: String(entryTime || '').trim(),
+            entryType,
+            amount: Number(amount),
+            withdrawnBy: String(withdrawnBy || '').trim(),
+            adjustmentType: String(adjustmentType || '').trim(),
+            transferTo: String(transferTo || '').trim(),
+            note: String(note || '').trim(),
+            createdBy: req.employee?.employeeName || 'Admin'
+        });
+
+        await recordAudit(req, {
+            action: 'COUNTER_ENTRY_ADD',
+            page: 'cash-counter',
+            module: 'Cash At Counter',
+            metadata: { entryType, amount, entryDate }
+        });
+
+        return res.status(201).json({ success: true, entry: newEntry });
+    } catch (err) {
+        console.error('Counter entry error:', err);
+        return res.status(500).json({ error: 'Failed to save counter entry.' });
+    }
+});
+
+app.delete('/api/counter/entry/:id', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        const id = req.params.id;
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ error: 'Invalid ID.' });
+        }
+        await CounterTransaction.findByIdAndUpdate(id, { status: 'Inactive' });
+        return res.json({ success: true, message: 'Entry removed.' });
+    } catch (err) {
+        return res.status(500).json({ error: 'Failed to delete entry.' });
+    }
+});
+
+app.post('/api/counter/opening', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        const { date, openingCash } = req.body;
+        if (!date || openingCash === undefined || Number(openingCash) < 0) {
+            return res.status(400).json({ error: 'Please enter a valid opening amount.' });
+        }
+        const session = await CounterSession.findOneAndUpdate(
+            { date: String(date).trim() },
+            { $set: { openingCash: Number(openingCash), openedBy: req.employee?.employeeName || 'Admin' } },
+            { upsert: true, new: true }
+        );
+        return res.json({ success: true, session });
+    } catch (err) {
+        return res.status(500).json({ error: 'Failed to update opening cash.' });
+    }
+});
+
+app.post('/api/counter/close', requireSecureAuth, verifyEmployee, async (req, res) => {
+    try {
+        const { date, actualCash, note, expectedCash } = req.body;
+        if (!date || actualCash === undefined) {
+            return res.status(400).json({ error: 'Please enter actual cash.' });
+        }
+        const diff = Number(actualCash) - Number(expectedCash || actualCash);
+        const session = await CounterSession.findOneAndUpdate(
+            { date: String(date).trim() },
+            {
+                $set: {
+                    status: 'Closed',
+                    closedBy: req.employee?.employeeName || 'Admin',
+                    closedAt: new Date(),
+                    closingActualCash: Number(actualCash),
+                    closingExpectedCash: Number(expectedCash || 0),
+                    closingDifference: diff,
+                    closingNote: String(note || '').trim()
+                }
+            },
+            { upsert: true, new: true }
+        );
+        return res.json({ success: true, session });
+    } catch (err) {
+        return res.status(500).json({ error: 'Failed to close counter.' });
     }
 });
 

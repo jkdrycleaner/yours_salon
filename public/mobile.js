@@ -187,8 +187,8 @@
     // Shifted Page 1: Salary Records
     grid.append(makeMoreTile('/salary-table', 'Salary', 'salary', 'amber'));
 
-    // Shifted Page 2: Counter Cash
-    grid.append(makeMoreTile('/counter-table', 'Counter Cash', 'counter', 'green'));
+    // Shifted Page 2: Cash At Counter (Galla)
+    grid.append(makeMoreTile('/cash-counter', 'Cash At Counter', 'counter', 'green'));
 
     // Shifted Page 3: Employees
     grid.append(makeMoreTile('/employees', 'Employees', 'employees', 'blue'));
@@ -260,6 +260,7 @@
     });
 
     window.salonMobile = { closeMore, openMore, icons, svg, initials, hasPage, build };
+    window.salonMobileShellReady = Promise.resolve();
   }
 
   // Auto-init immediately if on mobile
