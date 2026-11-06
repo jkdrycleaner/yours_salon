@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cash Counter (Galla) — YOURS SALON</title>
+  <style>
+    :root {
+      --salon-gold: #c99a23;
+      --salon-gold-dark: #9a7414;
+      --salon-gold-light: #fef9ed;
+      --salon-ink: #1d2939;
+      --salon-muted: #667085;
+      --salon-line: #e5e9ef;
+      --salon-bg: #f4f7fb;
+      --salon-card: #ffffff;
+      --salon-green: #12b76a;
+      --salon-green-bg: #ecfdf3;
+      --salon-red: #f04438;
+      --salon-red-bg: #fef3f2;
+      --salon-blue: #0ba5ec;
+      --salon-blue-bg: #f0f9ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+    body {
+      background: #0f172a;
+      color: var(--salon-ink);
+      display: flex;
+      justify-content: center;
+      padding: 20px 10px;
+      min-height: 100vh;
+    }
+
+    /* Mobile Container Frame */
+    .app-frame {
+      width: 100%;
+      max-width: 440px;
+      background: var(--salon-bg);
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+      border: 8px solid #1e293b;
+      display: flex;
+      flex-direction: column;
+      min-height: 90vh;
+    }
+
+    /* Top Salon Header */
+    .header {
+      background: #ffffff;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--salon-line);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .header-left h1 {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--salon-ink);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header-left span {
+      font-size: 11px;
+      color: var(--salon-muted);
+      font-weight: 600;
+    }
+    .date-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #ffffff;
+      border: 1px solid var(--salon-line);
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--salon-ink);
+    }
+
+    /* Scroll Body */
+    .scroll-body {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Hero Card: Bacha Cash */
+    .hero-card {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 18px 20px;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+    }
+    .hero-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .hero-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 99px;
+      background: rgba(18, 183, 106, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+    .hero-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: #fbbf24;
+      letter-spacing: -0.02em;
+      margin: 4px 0 6px;
+    }
+    .hero-hint {
+      font-size: 12px;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Section Card */
+    .section-card {
+      background: #ffffff;
+      border-radius: 18px;
+      border: 1px solid var(--salon-line);
+      padding: 14px 16px;
+      box-shadow: 0 4px 12px rgba(16, 24, 40, 0.03);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f4f8;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-total {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    /* Item Row */
+    .item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px dashed #f1f4f8;
+    }
+    .item-row:last-child {
+      border-bottom: none;
+      padding-bottom: 2px;
+    }
+    .item-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .item-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--salon-ink);
+    }
+    .item-sub {
+      font-size: 11px;
+      color: var(--salon-muted);
+    }
+    .item-right {
+      text-align: right;
+    }
+    .item-amt {
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .c-green { color: var(--salon-green); }
+    .c-red { color: var(--salon-red); }
+    .c-blue { color: var(--salon-blue); }
+
+    /* Expandable Sub-list */
+    .sub-box {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin: 6px 0 10px;
+      border: 1px solid #edf2f7;
+    }
+    .sub-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 0;
+      color: var(--salon-muted);
+    }
+    .sub-item strong {
+      color: var(--salon-ink);
+    }
+
+    /* Reconciliation Match Box */
+    .reconcile-box {
+      background: #ffffff;
+      border-radius: 18px;
+      border: 2px solid var(--salon-gold);
+      padding: 16px;
+      text-align: center;
+    }
+    .reconcile-box h3 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--salon-ink);
+      margin-bottom: 4px;
+    }
+    .reconcile-box p {
+      font-size: 11.5px;
+      color: var(--salon-muted);
+      margin-bottom: 12px;
+    }
+    .input-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .cash-input {
+      width: 180px;
+      height: 44px;
+      border: 2px solid var(--salon-line);
+      border-radius: 12px;
+      font-size: 22px;
+      font-weight: 800;
+      text-align: center;
+      color: var(--salon-ink);
+      outline: none;
+      background: #fbfcfe;
+    }
+    .cash-input:focus {
+      border-color: var(--salon-gold);
+      background: #ffffff;
+    }
+    .diff-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+    .diff-match {
+      background: var(--salon-green-bg);
+      color: var(--salon-green);
+      border: 1px solid rgba(18, 183, 106, 0.3);
+    }
+    .diff-short {
+      background: var(--salon-red-bg);
+      color: var(--salon-red);
+      border: 1px solid rgba(240, 68, 56, 0.3);
+    }
+
+    /* Bottom Quick Action Strip */
+    .action-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .btn-outline {
+      height: 40px;
+      border: 1.5px solid var(--salon-line);
+      background: #ffffff;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--salon-ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .btn-outline:hover {
+      border-color: var(--salon-gold);
+      background: var(--salon-gold-light);
+    }
+    .btn-gold {
+      height: 46px;
+      background: var(--salon-gold);
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(201, 154, 35, 0.35);
+      margin-top: 6px;
+    }
+
+    /* Mini Bottom Dialog for Entries */
+    .drawer-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+    }
+    .drawer-modal.show { display: flex; }
+    .drawer-panel {
+      width: 100%;
+      max-width: 440px;
+      background: #ffffff;
+      border-radius: 24px 24px 0 0;
+      padding: 18px 20px 24px;
+      animation: slideUp 0.2s ease-out;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .drawer-panel h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
+    .form-field { margin-bottom: 12px; }
+    .form-field label { display: block; font-size: 11.5px; font-weight: 700; color: var(--salon-muted); margin-bottom: 4px; }
+    .form-field input, .form-field select {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--salon-line);
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+    }
+    .modal-btn-row { display: flex; gap: 8px; margin-top: 14px; }
+  </style>
+</head>
+<body>
+
+  <div class="app-frame">
+    <!-- Top Bar -->
+    <header class="header">
+      <div class="header-left">
+        <h1>💵 Cash Counter</h1>
+        <span>Galle Ka Daily Hisaab</span>
+      </div>
+      <div class="date-pill">
+        📅 Today, 06 Nov
+      </div>
+    </header>
+
+    <!-- Scroll Content -->
+    <div class="scroll-body">
+
+      <!-- 1. HERO CARD: Bacha Cash -->
+      <div class="hero-card">
+        <div class="hero-top">
+          <span class="hero-label">Galle Me Bacha Cash</span>
+          <span class="status-badge">● Open (09:30 AM)</span>
+        </div>
+        <div class="hero-value" id="displayExpected">₹6,450</div>
+        <div class="hero-hint">
+          Subah Opening + Cash Aaya - Cash Gaya
+        </div>
+      </div>
+
+      <!-- 2. CASH AAYA (Cash In) -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title c-green">
+            🟢 Cash Aaya (Cash In)
+          </div>
+          <div class="section-total c-green">+ ₹14,400</div>
+        </div>
+
+        <!-- Opening Cash -->
+        <div class="item-row">
+          <div class="item-left">
+            <span class="item-name">🌅 Subah Ka Opening Cash</span>
+            <span class="item-sub">Subah ka float / chhutta</span>
+          </div>
+          <div class="item-right">
+            <span class="item-amt">₹2,000</span>
+          </div>
+        </div>
+
+        <!-- Customer Bills -->
+        <div class="item-row">
+          <div class="item-left">
+            <span class="item-name">🧾 Customer Cash Bills</span>
+            <span class="item-sub">14 Bills (Pure Cash + Split part)</span>
+          </div>
+          <div class="item-right">
+            <span class="item-amt c-green">+ ₹12,400</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. CASH GAYA (Cash Out) — Clear Visible Breakdown -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title c-red">
+            🔴 Cash Gaya (Cash Out)
+          </div>
+          <div class="section-total c-red">- ₹7,950</div>
+        </div>
+
+        <!-- Staff Advance with Staff Names -->
+        <div class="item-row" style="border-bottom:none;">
+          <div class="item-left">
+            <span class="item-name">👥 Staff Advance Given</span>
+            <span class="item-sub">2 Staff ne din me cash advance liya</span>
+          </div>
+          <div class="item-right">
+            <span class="item-amt c-red">- ₹1,500</span>
+          </div>
+        </div>
+        <!-- Staff List (Visible Right Here) -->
+        <div class="sub-box">
+          <div class="sub-item">
+            <span>• Rahul Kumar (01:30 PM)</span>
+            <strong>₹500</strong>
+          </div>
+          <div class="sub-item">
+            <span>• Aman Verma (04:15 PM)</span>
+            <strong>₹1,000</strong>
+          </div>
+        </div>
+
+        <!-- Salon Expenses -->
+        <div class="item-row" style="border-bottom:none;">
+          <div class="item-left">
+            <span class="item-name">☕ Dukan Ke Kharche (Cash)</span>
+            <span class="item-sub">Chai, safai, urgent saman</span>
+          </div>
+          <div class="item-right">
+            <span class="item-amt c-red">- ₹450</span>
+          </div>
+        </div>
+        <!-- Expenses List -->
+        <div class="sub-box">
+          <div class="sub-item">
+            <span>• Chai & Nasta</span>
+            <strong>₹60</strong>
+          </div>
+          <div class="sub-item">
+            <span>• Safai Ka Saman (Detergent)</span>
+            <strong>₹90</strong>
+          </div>
+          <div class="sub-item">
+            <span>• Laundry / Towels</span>
+            <strong>₹300</strong>
+          </div>
+        </div>
+
+        <!-- Owner Cash Out -->
+        <div class="item-row" style="border-bottom:none;">
+          <div class="item-left">
+            <span class="item-name">👑 Malik Cash Le Gaye</span>
+            <span class="item-sub">Drawer se cash nikala gaya</span>
+          </div>
+          <div class="item-right">
+            <span class="item-amt c-red">- ₹5,000</span>
+          </div>
+        </div>
+        <div class="sub-box">
+          <div class="sub-item">
+            <span>• Javed Bhai (04:00 PM - Bank Deposit)</span>
+            <strong>₹5,000</strong>
+          </div>
+        </div>
+
+        <!-- Cash to UPI Swap -->
+        <div class="item-row" style="border-bottom:none;">
+          <div class="item-left">
+            <span class="item-name">🔄 Cash Diya & QR Par Liya</span>
+            <span class="item-sub">Emergency exchange (Cash out, Bank in)</span>
+          </div>
+          <div class="item-right">
+            <span class="item-amt c-blue">- ₹1,000</span>
+          </div>
+        </div>
+        <div class="sub-box">
+          <div class="sub-item">
+            <span>• Cash diya & Salon QR par mangwaya</span>
+            <strong>₹1,000</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. RECONCILIATION: Raat Ko Cash Ginna -->
+      <div class="reconcile-box">
+        <h3>🌙 Raat Ko Galla Milayein</h3>
+        <p>Galle me se cash ginein aur yahan daal kar match karein:</p>
+        
+        <div class="input-row">
+          <span style="font-size:22px; font-weight:800; color:var(--salon-muted);">₹</span>
+          <input type="number" class="cash-input" id="cashInput" value="6450" oninput="verifyCash(this.value)">
+        </div>
+
+        <div id="diffBox">
+          <span class="diff-badge diff-match">✅ 100% MATCHED (Ek rupaye ka farq nahi hai)</span>
+        </div>
+      </div>
+
+      <!-- 5. Quick Actions for Cashier during daytime -->
+      <div class="action-strip">
+        <button class="btn-outline" onclick="openOwnerModal()">👑 Malik Cash Entry</button>
+        <button class="btn-outline" onclick="openSwapModal()">🔄 Cash-UPI Swap</button>
+      </div>
+
+      <!-- Lock Day Button -->
+      <button class="btn-gold" onclick="alert('✅ Day Closed & Locked! Kal subah ke liye ₹2,000 opening set ho gaya.')">
+        🔒 Close & Lock Counter Today
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Owner Modal -->
+  <div class="drawer-modal" id="ownerModal">
+    <div class="drawer-panel">
+      <h3>👑 Malik Cash Le Gaye</h3>
+      <div class="form-field">
+        <label>Amount (₹)</label>
+        <input type="number" placeholder="Kitna cash nikala? e.g. 2000">
+      </div>
+      <div class="form-field">
+        <label>Kisne Liya</label>
+        <select>
+          <option>Javed Bhai (Owner)</option>
+          <option>Partner</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Reason / Note</label>
+        <input type="text" placeholder="Personal ya Bank deposit">
+      </div>
+      <div class="modal-btn-row">
+        <button class="btn-outline" style="flex:1;" onclick="closeModals()">Cancel</button>
+        <button class="btn-gold" style="flex:1; margin-top:0;" onclick="closeModals(); alert('Saved! Cash minus ho gaya.')">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Swap Modal -->
+  <div class="drawer-modal" id="swapModal">
+    <div class="drawer-panel">
+      <h3>🔄 Cash Diya & QR Par Liya</h3>
+      <div class="form-field">
+        <label>Galle Se Diya Cash (₹)</label>
+        <input type="number" placeholder="Kitna cash diya? e.g. 1000">
+      </div>
+      <div class="form-field">
+        <label>Salon QR / UPI Par Aaya (₹)</label>
+        <input type="number" placeholder="UPI par aaya amount e.g. 1000">
+      </div>
+      <div class="form-field">
+        <label>Person / Remark</label>
+        <input type="text" placeholder="Customer change / Emergency">
+      </div>
+      <div class="modal-btn-row">
+        <button class="btn-outline" style="flex:1;" onclick="closeModals()">Cancel</button>
+        <button class="btn-gold" style="flex:1; margin-top:0;" onclick="closeModals(); alert('Saved! Galle se minus hua aur bank me add ho gaya.')">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const expected = 6450;
+    function verifyCash(val) {
+      const num = Number(val || 0);
+      const diff = num - expected;
+      const box = document.getElementById('diffBox');
+      if (diff === 0) {
+        box.innerHTML = `<span class="diff-badge diff-match">✅ 100% MATCHED (Ek rupaye ka farq nahi hai)</span>`;
+      } else if (diff < 0) {
+        box.innerHTML = `<span class="diff-badge diff-short">❌ ₹${Math.abs(diff)} CASH KAM HAI (Check karein: koi Advance ya Kharcha to nahi chhoota?)</span>`;
+      } else {
+        box.innerHTML = `<span class="diff-badge diff-short" style="background:#fffbeb; color:#b45309; border-color:#fde68a;">⚠️ +₹${diff} CASH ZYADA HAI (Check: koi Online bill Cash to nahi liya tha?)</span>`;
+      }
+    }
+
+    function openOwnerModal() { document.getElementById('ownerModal').classList.add('show'); }
+    function openSwapModal() { document.getElementById('swapModal').classList.add('show'); }
+    function closeModals() {
+      document.getElementById('ownerModal').classList.remove('show');
+      document.getElementById('swapModal').classList.remove('show');
+    }
+  </script>
+</body>
+</html>

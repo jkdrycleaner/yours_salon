@@ -992,6 +992,8 @@
   <script src="/auth-guard.js"></script>
   <script src="/admin-nav.js?v=20261105_m4" defer></script>
   <script>
+    let currentSession = null;
+    let editingRecord = null;
     let activePaymentMode = 'Cash';
     let activeCategoryName = 'Supplies & Products';
     let categories = [];
@@ -1312,6 +1314,46 @@
       const remark = document.getElementById('remarkInput').value.trim();
       const saveBtn = document.getElementById('saveVoucherBtn');
 
+      if (editingRecord) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span>Updating...</span>';
+        try {
+          const firstItem = addedItems[0] || {};
+          const staffSelVal = document.getElementById('staffSelect')?.value;
+          const empId = firstItem.employeeId || staffSelVal || editingRecord.employeeId || currentSession?.employee?._id;
+          const updatePayload = {
+            entryDate: date,
+            paymentMode: activePaymentMode,
+            amount: Number(firstItem.amount) || 0,
+            remark: remark,
+            employeeId: empId,
+            expenseType: firstItem.name || editingRecord.expenseType || 'Expense'
+          };
+
+          const res = await fetch(`/api/employee-records/${encodeURIComponent(editingRecord._id)}`, {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify(updatePayload)
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to update expense');
+
+          if (window.salonUi?.showSuccess) {
+            await window.salonUi.showSuccess(data.message || 'Expense updated successfully!');
+          } else {
+            alert(data.message || 'Expense updated successfully!');
+          }
+          window.location.href = '/expense-table';
+          return;
+        } catch (err) {
+          alert(err.message || 'Error updating expense');
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<svg style="width:18px;height:18px;fill:currentColor" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21" style="fill:none;stroke:#fff;stroke-width:2"/><polyline points="7 3 7 8 15 8" style="fill:none;stroke:#fff;stroke-width:2"/></svg><span>Update Expense</span>';
+        }
+        return;
+      }
+
       saveBtn.disabled = true;
       saveBtn.innerHTML = '<span>Saving...</span>';
 
@@ -1410,7 +1452,8 @@
 
     // Initialize Page
     (async () => {
-      const session = await window.salonReady;
+      currentSession = await window.salonReady;
+      const session = currentSession;
 
       // Today's date for entry
       const today = new Date().toISOString().slice(0, 10);
@@ -1464,6 +1507,60 @@
 
       selectCategory('Supplies & Products');
       renderAddedItems();
+
+      // Check edit param
+      const editId = new URLSearchParams(window.location.search).get('edit');
+      if (editId) {
+        try {
+          const recRes = await fetch(`/api/module-records?module=expense&id=${encodeURIComponent(editId)}&limit=1`, { headers: authHeaders(false) });
+          if (recRes.ok) {
+            const data = await recRes.json();
+            editingRecord = data.records?.[0] || null;
+            if (editingRecord) {
+              if (editingRecord.entryDate) {
+                const eDate = editingRecord.entryDate.split('T')[0];
+                if (dateInp) dateInp.value = eDate;
+              }
+              if (editingRecord.paymentMode) {
+                setPaymentMode(editingRecord.paymentMode);
+              }
+              const catToSelect = editingRecord.category || 'Supplies & Products';
+              selectCategory(catToSelect);
+
+              if (editingRecord.employeeId && catToSelect === 'Staff / Advance') {
+                const staffSel = document.getElementById('staffSelect');
+                if (staffSel) staffSel.value = editingRecord.employeeId;
+              }
+
+              if (editingRecord.vendor) {
+                document.getElementById('vendorInput').value = editingRecord.vendor;
+              }
+              if (editingRecord.remark) {
+                document.getElementById('remarkInput').value = editingRecord.remark;
+              }
+
+              addedItems = [{
+                name: editingRecord.expenseType || editingRecord.category || 'Expense',
+                category: editingRecord.category || catToSelect,
+                quantity: editingRecord.quantity || 1,
+                measurementUnit: editingRecord.measurementUnit || 'PCS',
+                amount: Number(editingRecord.amount) || 0,
+                employeeId: editingRecord.employeeId,
+                employeeName: editingRecord.employeeName
+              }];
+              renderAddedItems();
+
+              const saveBtn = document.getElementById('saveVoucherBtn');
+              if (saveBtn) {
+                const sp = saveBtn.querySelector('span');
+                if (sp) sp.textContent = 'Update Expense';
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Error prefetching edit record:', err);
+        }
+      }
     })();
   </script>
   <script src="/mobile.js?v=20261105_m4" defer></script>

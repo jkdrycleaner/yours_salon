@@ -532,6 +532,781 @@
       color: #ffffff !important;
     }
   </style>
+<style id="merStyles">
+    /* ================= MOBILE EXPENSE RECORDS VIEW ================= */
+    .mer-page {
+      display: none;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 6px 12px 24px;
+      background: transparent !important;
+      color: #1b2240;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @media (max-width: 768px) {
+      body.mobile-expense-page {
+        background: #f4f6f9 !important;
+        min-height: 100vh;
+        margin: 0 !important;
+        padding-bottom: calc(var(--m-nav, 54px) + 20px) !important;
+      }
+      body.mobile-expense-page main.wrap,
+      body.mobile-expense-page .m-filter-bar,
+      body.mobile-expense-page .m-mobile-records,
+      body.mobile-expense-page .m-list-meta,
+      body.mobile-expense-page .m-load-more,
+      body.mobile-expense-page .table-wrap {
+        display: none !important;
+      }
+      body.mobile-expense-page .mer-page {
+        display: block !important;
+      }
+    }
+
+    /* 1. Capsule Segmented Tabs */
+    .mer-segmented-tabs {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 4px !important;
+      padding: 3px 4px !important;
+      background: #ffffff !important;
+      border: 1px solid var(--salon-border-light, #dfe2ee) !important;
+      border-radius: 9999px !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+      margin-bottom: 12px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .mer-segmented-tabs .aw-tab {
+      flex: 1 1 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      height: 36px !important;
+      padding: 0 12px !important;
+      border: none !important;
+      border-radius: 9999px !important;
+      background: transparent !important;
+      color: #475569 !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      cursor: pointer !important;
+      transition: all 0.15s ease !important;
+      white-space: nowrap !important;
+    }
+    .mer-segmented-tabs .aw-tab.active {
+      background: var(--salon-btn-bg, #1a1aa6) !important;
+      background-image: none !important;
+      color: var(--salon-btn-text, #ffffff) !important;
+      font-weight: 700 !important;
+      border-radius: 9999px !important;
+      box-shadow: 0 2px 5px rgba(26, 26, 166, 0.25) !important;
+    }
+    .mer-segmented-tabs .aw-tab.active .aw-tab-icon {
+      color: var(--salon-btn-text, #ffffff) !important;
+    }
+
+    /* 2. Month Selector Row */
+    .mer-month-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .mer-nav-btn {
+      width: 30px;
+      height: 30px;
+      min-width: 30px;
+      min-height: 30px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      background: var(--salon-btn-bg, #1a1aa6) !important;
+      background-image: none !important;
+      color: #ffffff !important;
+      border: none !important;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .mer-nav-btn:disabled {
+      background: #cbd5e1 !important;
+      color: #94a3b8 !important;
+      cursor: not-allowed !important;
+      opacity: 0.7;
+    }
+    .mer-month-chips {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px 0;
+      box-sizing: border-box;
+    }
+    .mer-month-chips::-webkit-scrollbar {
+      display: none;
+    }
+    .mer-month-chip {
+      flex: 1 1 0;
+      min-width: 38px;
+      height: 30px;
+      padding: 0 4px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      color: #5b6280;
+      font-size: 11.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      user-select: none;
+      box-sizing: border-box;
+    }
+    .mer-month-chip.active {
+      background: var(--salon-gold, #c99a2e) !important;
+      border-color: var(--salon-gold, #c99a2e) !important;
+      color: #ffffff !important;
+      box-shadow: 0 1px 3px rgba(201, 154, 46, 0.3) !important;
+    }
+
+    /* 3. Category Filter Row (ICON ONLY) */
+    .mer-cat-section {
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .mer-cat-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .mer-cat-btn {
+      height: 38px;
+      min-width: 0;
+      width: 100%;
+      border-radius: 9px;
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      color: #5b6280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .mer-cat-btn:hover {
+      border-color: #94a3b8;
+    }
+    .mer-cat-btn.active {
+      background: var(--salon-btn-bg, #1a1aa6) !important;
+      border-color: var(--salon-btn-bg, #1a1aa6) !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 6px rgba(26, 26, 166, 0.25) !important;
+    }
+    .mer-cat-btn svg {
+      width: 19px;
+      height: 19px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      display: block;
+    }
+    .mer-cat-active-label {
+      margin-top: 5px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #64748b;
+      text-align: center;
+    }
+
+    /* 4. Dropdowns Row */
+    .mer-chips-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .mer-select-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .mer-dropdown {
+      width: 100%;
+      height: 38px;
+      padding: 0 26px 0 10px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #dfe2ee;
+      color: #1b2240;
+      font-size: 12.5px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      box-sizing: border-box;
+      transition: border-color 0.15s;
+    }
+    .mer-dropdown:focus {
+      border-color: var(--salon-btn-bg, #1a1aa6);
+    }
+    .mer-select-wrap::after {
+      content: '⌵';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: #64748b;
+      pointer-events: none;
+    }
+
+    /* 5. Summary Cards */
+    .mer-summary-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 6px;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .mer-summary-card {
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-sizing: border-box;
+    }
+    .mer-summary-card.navy {
+      background: var(--salon-btn-bg, #1a1aa6);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(26, 26, 166, 0.18);
+    }
+    .mer-summary-card.white {
+      background: #ffffff;
+      border: 1px solid #dfe2ee;
+      color: #1b2240;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+    .mer-summary-lbl {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.85;
+      margin-bottom: 4px;
+      text-transform: capitalize;
+    }
+    .mer-summary-val {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    .mer-summary-val.text-dark {
+      color: #1b2240;
+      font-size: 16px;
+      font-weight: 500 !important;
+    }
+
+    /* 6. Date Cards & Entry Rows */
+    .mer-records-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+    .mer-date-card {
+      background: #ffffff;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .mer-date-card:hover {
+      border-color: var(--salon-border-dark, var(--salon-btn-bg, #09AA1C));
+    }
+    .mer-date-card.open {
+      border: 1.5px solid var(--salon-border-dark, var(--salon-btn-bg, #09AA1C)) !important;
+      box-shadow: 0 4px 14px rgba(9, 170, 28, 0.12) !important;
+    }
+    .mer-date-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .mer-date-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .mer-date-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--salon-gold-light, #fff8e8);
+      border: 1px solid var(--salon-gold-border, #ead9ac);
+      color: var(--salon-gold, #c99a2e);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .mer-badge-day {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .mer-badge-mon {
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+    .mer-date-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1b2240;
+      line-height: 1.2;
+    }
+    .mer-date-count {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .mer-date-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .mer-date-total {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 9px;
+      background: #f8fafc;
+      border: 1px solid var(--salon-border-light, #dfe2ee);
+      border-radius: 8px;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #1b2240;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      line-height: 1.2;
+      transition: all 0.2s ease;
+    }
+    .mer-date-card.open .mer-date-total {
+      background: #ffffff;
+      border-color: var(--salon-border-dark, var(--salon-btn-bg, #09AA1C));
+      color: var(--salon-border-dark, var(--salon-btn-bg, #09AA1C));
+    }
+    .mer-chevron {
+      font-size: 13px;
+      color: #94a3b8;
+      transition: transform 0.2s ease;
+      line-height: 1;
+    }
+    .mer-date-card.open .mer-chevron {
+      transform: rotate(180deg);
+    }
+    .mer-entries-body {
+      display: none;
+      padding: 0 14px 12px;
+      border-top: 1px solid #f1f3f9;
+    }
+    .mer-date-card.open .mer-entries-body {
+      display: block;
+    }
+    .mer-entry-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f3f9;
+    }
+    .mer-entry-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 4px;
+    }
+    .mer-entry-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .mer-entry-main-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+    .mer-cat-icon-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #fef9ee;
+      color: #b8860b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .mer-cat-icon-circle svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      display: block;
+    }
+    .mer-entry-info {
+      min-width: 0;
+      flex: 1;
+    }
+    .mer-entry-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1b2240;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+    .mer-entry-sub {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .mer-items-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: #fef8e7;
+      border: 1px solid #ead9ac;
+      color: #b8860b;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      user-select: none;
+    }
+    .mer-subitems-box {
+      margin-top: 6px;
+      background: #fafbfd;
+      border: 1px solid #e9edf5;
+      border-radius: 8px;
+      padding: 6px 10px;
+      display: none;
+    }
+    .mer-subitems-box.open {
+      display: block;
+    }
+    .mer-subitem-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      padding: 3px 0;
+      border-bottom: 1px dashed #f0f2f7;
+      color: #475569;
+    }
+    .mer-subitem-row:last-child {
+      border-bottom: 0;
+    }
+    .mer-entry-side {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .mer-entry-amt {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #1b2240;
+    }
+    .mer-badge-cash {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: #e6f9ed;
+      color: #128848;
+      font-size: 10.5px;
+      font-weight: 700;
+      margin-top: 3px;
+    }
+    .mer-badge-online {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: #eef2ff;
+      color: #3b5998;
+      font-size: 10.5px;
+      font-weight: 700;
+      margin-top: 3px;
+    }
+    .mer-remark-box {
+      background: #f4f6fa;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11.5px;
+      color: #475569;
+      margin: 6px 0 8px;
+      word-break: break-word;
+    }
+    .mer-entry-bottom {
+      border-top: 1px dashed #dfe2ee;
+      padding-top: 8px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .mer-entry-meta {
+      font-size: 10.5px;
+      color: #64748b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .mer-entry-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .mer-act-btn {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
+      border-radius: 8px;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .mer-act-btn:active {
+      transform: scale(0.92);
+    }
+    .mer-act-btn.view {
+      background: #edf2fe;
+      color: var(--salon-btn-bg, #1a1aa6);
+    }
+    .mer-act-btn.edit {
+      background: #f1f5f9;
+      color: #64748b;
+      text-decoration: none;
+    }
+    .mer-act-btn.delete {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+    .mer-act-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Modals & Bottom Sheet */
+    .mer-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+      z-index: 9999;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .mer-modal-overlay.open {
+      display: flex !important;
+    }
+    .mer-modal-sheet {
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      border-radius: 20px 20px 0 0;
+      padding: 18px 16px 28px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.2);
+      animation: merSlideUp 0.25s ease-out;
+      box-sizing: border-box;
+    }
+    @keyframes merSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .mer-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f1f3f9;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+    .mer-modal-head h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1b2240;
+    }
+    .mer-modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: 0;
+      color: #64748b;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mer-modal-body dl {
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .mer-detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed #f1f3f9;
+      font-size: 12.5px;
+    }
+    .mer-detail-item dt {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .mer-detail-item dd {
+      margin: 0;
+      font-weight: 700;
+      color: #1b2240;
+      text-align: right;
+    }
+    .mer-modal-dialog {
+      width: min(340px, 90vw);
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      margin: auto;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    }
+    .mer-modal-dialog h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1b2240;
+    }
+    .mer-modal-dialog p {
+      margin: 0 0 18px;
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.4;
+    }
+    .mer-dialog-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .mer-dialog-btn {
+      height: 38px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 0;
+    }
+    .mer-dialog-btn.cancel {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    .mer-dialog-btn.delete {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .mer-toast {
+      position: fixed;
+      bottom: calc(var(--m-nav, 54px) + 20px);
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      color: #ffffff;
+      padding: 9px 18px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      z-index: 10000;
+      transition: transform 0.25s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .mer-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+    .mer-empty-card {
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 28px 16px;
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .mer-skeleton-card {
+      background: #ffffff;
+      border: 1px solid #dfe2ee;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 10px;
+      animation: merPulse 1.2s infinite ease-in-out;
+    }
+    @keyframes merPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+</style>
 </head>
 <body>
   <main class="wrap m-page">
@@ -1065,6 +1840,94 @@
       <button id="mwApply" class="mw-apply-btn no-btn-theme" data-salon-btn-theme type="button">Apply filter</button>
     </div>
   </section>
+  
+  <!-- ================= MOBILE EXPENSE RECORDS VIEW ================= -->
+  <section id="mobileExpenseRecords" class="mer-page" hidden>
+    <!-- 1. Top Capsule Segmented Tabs -->
+    <div class="sal-portal-tabs aw-segmented-tabs mer-segmented-tabs">
+      <a class="aw-tab no-btn-theme" href="/expense-entry">
+        <span class="aw-tab-icon">+</span>
+        <span>Add Expense</span>
+      </a>
+      <div class="aw-tab active">
+        <span class="aw-tab-icon">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </span>
+        <span>Expense Records</span>
+      </div>
+    </div>
+
+    <!-- 2. Month Selector Row -->
+    <div class="mer-month-row">
+      <button type="button" class="mer-nav-btn no-btn-theme" id="merPrevMonthBtn" onclick="merPrevMonth()" aria-label="Previous Month">‹</button>
+      <div class="mer-month-chips" id="merMonthChips"></div>
+      <button type="button" class="mer-nav-btn no-btn-theme" id="merNextMonthBtn" onclick="merNextMonth()" aria-label="Next Month">›</button>
+    </div>
+
+    <!-- 3. Category Filter Row (ICON ONLY) -->
+    <div class="mer-cat-section">
+      <div class="mer-cat-row" id="merCatRow"></div>
+      <div class="mer-cat-active-label" id="merCatActiveLabel">All Categories</div>
+    </div>
+
+    <!-- 4. Dropdowns Row: Employee + Status -->
+    <div class="mer-chips-row">
+      <div class="mer-select-wrap">
+        <select id="merEmployeeSelect" class="mer-dropdown" onchange="merOnFilterChange()">
+          <option value="">All Employees</option>
+        </select>
+      </div>
+      <div class="mer-select-wrap">
+        <select id="merStatusSelect" class="mer-dropdown" onchange="merOnFilterChange()">
+          <option value="Active" selected>Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 5. Two Summary Cards -->
+    <div class="mer-summary-grid">
+      <div class="mer-summary-card navy">
+        <div class="mer-summary-lbl" id="merMonthTotalLbl">Nov Total</div>
+        <div class="mer-summary-val" id="merMonthTotalVal">₹0</div>
+      </div>
+      <div class="mer-summary-card white">
+        <div class="mer-summary-lbl">Entries</div>
+        <div class="mer-summary-val text-dark" id="merEntriesCountVal">0 entries</div>
+      </div>
+    </div>
+
+    <!-- 6. Date-wise Accordion Records List -->
+    <div class="mer-records-wrap" id="merRecordsList"></div>
+
+    <!-- Bottom Sheet Details Modal -->
+    <div id="merViewModal" class="mer-modal-overlay" onclick="if(event.target===this)merCloseViewModal()">
+      <div class="mer-modal-sheet">
+        <div class="mer-modal-head">
+          <h3>Expense Details</h3>
+          <button type="button" class="mer-modal-close no-btn-theme" onclick="merCloseViewModal()">✕</button>
+        </div>
+        <div class="mer-modal-body" id="merViewModalBody"></div>
+      </div>
+    </div>
+
+    <!-- Delete Confirm Popup -->
+    <div id="merDeleteModal" class="mer-modal-overlay" onclick="if(event.target===this)merCloseDeleteModal()">
+      <div class="mer-modal-dialog">
+        <h4>Move to Inactive?</h4>
+        <p id="merDeletePrompt">Are you sure you want to move this expense record to Inactive?</p>
+        <div class="mer-dialog-actions">
+          <button type="button" class="mer-dialog-btn cancel no-btn-theme" onclick="merCloseDeleteModal()">Cancel</button>
+          <button type="button" class="mer-dialog-btn delete no-btn-theme" id="merConfirmDeleteBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="merToast" class="mer-toast"></div>
+  </section>
+
   <dialog id="detailsDialog" class="details-dialog">
     <div class="details-card"><h2>Record details</h2><dl id="detailsList" class="details-list"></dl><div class="details-actions"><button id="closeDetails" type="button">Close</button></div></div>
   </dialog>
@@ -2576,8 +3439,592 @@
     document.getElementById('mobileFilterClose').addEventListener('click',closeMobileFilters);
     mobileFilterOverlay.addEventListener('click',closeMobileFilters);
     document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMobileFilters();closeAdvFilters();document.getElementById('advCustomPickerBox')?.setAttribute('hidden','');}});
+    
+    /* ================= MOBILE EXPENSE RECORDS CONTROLLER ================= */
+    let merInitialized = false;
+    let merMonths = [];
+    let merActiveMonthIndex = 0;
+    let merActiveCategory = 'All';
+    let merStaffList = [];
+    let merRawRecords = [];
+    let merPendingDeleteId = null;
+
+    const merCategoryDefs = [
+      {
+        id: 'All',
+        label: 'All Categories',
+        icon: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>'
+      },
+      {
+        id: 'Staff / Advance',
+        label: 'Staff / Advance',
+        icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>'
+      },
+      {
+        id: 'Supplies & Products',
+        label: 'Supplies & Products',
+        icon: '<svg viewBox="0 0 24 24"><path d="M9 3h6v3H9z"/><path d="M10 6v3l-3 4v7a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-7l-3-4V6"/></svg>'
+      },
+      {
+        id: 'Repair & Maintenance',
+        label: 'Repair & Maintenance',
+        icon: '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'
+      },
+      {
+        id: 'Utilities & Bills',
+        label: 'Utilities & Bills',
+        icon: '<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
+      },
+      {
+        id: 'Marketing & Misc',
+        label: 'Marketing & Misc',
+        icon: '<svg viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>'
+      },
+      {
+        id: 'Other',
+        label: 'Other',
+        icon: '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+      }
+    ];
+
+    function merGetCatIcon(cat) {
+      const c = String(cat || '').toLowerCase();
+      if (c.includes('advance') || c.includes('staff')) return merCategoryDefs[1].icon;
+      if (c.includes('supplies') || c.includes('product')) return merCategoryDefs[2].icon;
+      if (c.includes('repair') || c.includes('maintenance')) return merCategoryDefs[3].icon;
+      if (c.includes('utilit') || c.includes('bill')) return merCategoryDefs[4].icon;
+      if (c.includes('market') || c.includes('misc')) return merCategoryDefs[5].icon;
+      return merCategoryDefs[6].icon;
+    }
+
+    function merFormatMoney(num) {
+      return '₹' + (Number(num) || 0).toLocaleString('en-IN');
+    }
+
+    function merFormatDateShort(dateVal) {
+      if (!dateVal) return { day: '--', mon: '---', dayName: '---', iso: '' };
+      const d = new Date(dateVal);
+      const day = String(d.getDate()).padStart(2, '0');
+      const mon = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+      const dayName = d.toLocaleString('en-US', { weekday: 'long' });
+      const iso = d.toISOString().split('T')[0];
+      return { day, mon, dayName, iso };
+    }
+
+    function merFormatTime(dateVal) {
+      if (!dateVal) return '';
+      const d = new Date(dateVal);
+      const day = String(d.getDate()).padStart(2, '0');
+      const mon = String(d.getMonth() + 1).padStart(2, '0');
+      let hours = d.getHours();
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12 || 12;
+      return `${day}/${mon} · ${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+    }
+
+    function merBuildMonths() {
+      merMonths = [];
+      const now = new Date();
+      // Generate past 6 months up to current month
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const year = d.getFullYear();
+        const month = d.getMonth();
+        const shortName = d.toLocaleString('en-US', { month: 'short' });
+        const fullName = d.toLocaleString('en-US', { month: 'long' });
+        const lastDay = new Date(year, month + 1, 0).getDate();
+        const from = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+        const to = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+        merMonths.push({ year, month, shortName, fullName, from, to });
+      }
+      merActiveMonthIndex = merMonths.length - 1; // Default to current month
+    }
+
+    function merRenderMonthChips() {
+      const container = document.getElementById('merMonthChips');
+      if (!container) return;
+      container.replaceChildren();
+
+      merMonths.forEach((m, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'mer-month-chip' + (idx === merActiveMonthIndex ? ' active' : '');
+        chip.textContent = m.shortName;
+        chip.onclick = () => merSelectMonth(idx);
+        container.append(chip);
+      });
+
+      const prevBtn = document.getElementById('merPrevMonthBtn');
+      const nextBtn = document.getElementById('merNextMonthBtn');
+      if (prevBtn) prevBtn.disabled = merActiveMonthIndex <= 0;
+      if (nextBtn) nextBtn.disabled = merActiveMonthIndex >= merMonths.length - 1;
+
+      // Scroll active chip into view
+      const activeEl = container.querySelector('.active');
+      if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    function merPrevMonth() {
+      if (merActiveMonthIndex > 0) {
+        merSelectMonth(merActiveMonthIndex - 1);
+      }
+    }
+
+    function merNextMonth() {
+      if (merActiveMonthIndex < merMonths.length - 1) {
+        merSelectMonth(merActiveMonthIndex + 1);
+      }
+    }
+
+    function merSelectMonth(idx) {
+      merActiveMonthIndex = idx;
+      merRenderMonthChips();
+      merLoad();
+    }
+
+    function merRenderCategoryRow() {
+      const container = document.getElementById('merCatRow');
+      if (!container) return;
+      container.replaceChildren();
+
+      merCategoryDefs.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mer-cat-btn no-btn-theme' + (cat.id === merActiveCategory ? ' active' : '');
+        btn.setAttribute('aria-label', cat.label);
+        btn.title = cat.label;
+        btn.innerHTML = cat.icon;
+        btn.onclick = () => {
+          merActiveCategory = cat.id;
+          document.getElementById('merCatActiveLabel').textContent = cat.label;
+          container.querySelectorAll('.mer-cat-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          merFilterAndRender();
+        };
+        container.append(btn);
+      });
+    }
+
+    function merOnFilterChange() {
+      merLoad();
+    }
+
+    async function merInit() {
+      if (merInitialized) return;
+      merInitialized = true;
+
+      document.querySelector('main.wrap').hidden = true;
+      document.getElementById('mobileExpenseRecords').hidden = false;
+      document.body.classList.add('mobile-employee', 'mobile-expense-page');
+      document.title = 'Expense Records — YOURS SALON';
+
+      merBuildMonths();
+      merRenderMonthChips();
+      merRenderCategoryRow();
+
+      // Populate employees dropdown
+      try {
+        const staff = await salonAuth.request('/api/staff');
+        merStaffList = staff || [];
+        const empSelect = document.getElementById('merEmployeeSelect');
+        if (empSelect) {
+          empSelect.replaceChildren();
+          empSelect.append(new Option('All Employees', ''));
+          merStaffList.forEach(s => {
+            empSelect.append(new Option(s.employeeName + ' (' + s.employeeId + ')', s._id));
+          });
+        }
+      } catch (e) {
+        console.error('Error loading staff for mobile expense view:', e);
+      }
+
+      await merLoad();
+    }
+
+    async function merLoad() {
+      const listContainer = document.getElementById('merRecordsList');
+      if (!listContainer) return;
+
+      // Render Skeleton Loading state
+      listContainer.innerHTML = `
+        <div class="mer-skeleton-card">
+          <div style="height:20px;background:#e2e8f0;border-radius:6px;width:60%;margin-bottom:8px;"></div>
+          <div style="height:14px;background:#f1f5f9;border-radius:4px;width:40%;"></div>
+        </div>
+        <div class="mer-skeleton-card">
+          <div style="height:20px;background:#e2e8f0;border-radius:6px;width:50%;margin-bottom:8px;"></div>
+          <div style="height:14px;background:#f1f5f9;border-radius:4px;width:30%;"></div>
+        </div>
+      `;
+
+      const curMonth = merMonths[merActiveMonthIndex];
+      const status = document.getElementById('merStatusSelect')?.value || 'Active';
+      const empId = document.getElementById('merEmployeeSelect')?.value || '';
+
+      const params = new URLSearchParams({
+        module: 'expense',
+        from: curMonth.from,
+        to: curMonth.to,
+        status: status,
+        limit: '100'
+      });
+      if (empId) params.set('employeeId', empId);
+
+      try {
+        const res = await salonAuth.request('/api/module-records?' + params.toString());
+        merRawRecords = res.records || [];
+        merFilterAndRender();
+      } catch (err) {
+        listContainer.innerHTML = `<div class="mer-empty-card" style="color:#ef4444;">Error loading records: ${err.message || 'Unknown error'}</div>`;
+      }
+    }
+
+    function merFilterAndRender() {
+      const listContainer = document.getElementById('merRecordsList');
+      if (!listContainer) return;
+
+      let filtered = [...merRawRecords];
+
+      // Filter by Category
+      if (merActiveCategory !== 'All') {
+        filtered = filtered.filter(r => {
+          const cat = String(r.category || '').toLowerCase();
+          const expType = String(r.expenseType || '').toLowerCase();
+          if (merActiveCategory === 'Staff / Advance') {
+            return cat.includes('staff') || cat.includes('advance') || expType.includes('advance');
+          }
+          if (merActiveCategory === 'Supplies & Products') {
+            return cat.includes('supplies') || cat.includes('product');
+          }
+          if (merActiveCategory === 'Repair & Maintenance') {
+            return cat.includes('repair') || cat.includes('maintenance');
+          }
+          if (merActiveCategory === 'Utilities & Bills') {
+            return cat.includes('utilit') || cat.includes('bill');
+          }
+          if (merActiveCategory === 'Marketing & Misc') {
+            return cat.includes('market') || cat.includes('misc');
+          }
+          if (merActiveCategory === 'Other') {
+            return cat === 'other' || (!cat.includes('staff') && !cat.includes('advance') && !cat.includes('supplies') && !cat.includes('product') && !cat.includes('repair') && !cat.includes('maintenance') && !cat.includes('utilit') && !cat.includes('bill') && !cat.includes('market') && !cat.includes('misc'));
+          }
+          return true;
+        });
+      }
+
+      // Update Summary Cards
+      const curMonth = merMonths[merActiveMonthIndex];
+      const monthTotal = filtered.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+      document.getElementById('merMonthTotalLbl').textContent = (curMonth?.shortName || 'Month') + ' Total';
+      document.getElementById('merMonthTotalVal').textContent = merFormatMoney(monthTotal);
+      document.getElementById('merEntriesCountVal').textContent = `${filtered.length} entries`;
+
+      if (!filtered.length) {
+        listContainer.innerHTML = `<div class="mer-empty-card">Koi expense nahi mila.</div>`;
+        return;
+      }
+
+      // Group records by Date (entryDate)
+      const dateMap = new Map();
+      filtered.forEach(r => {
+        const dObj = merFormatDateShort(r.entryDate);
+        const iso = dObj.iso || '1970-01-01';
+        if (!dateMap.has(iso)) {
+          dateMap.set(iso, {
+            iso,
+            day: dObj.day,
+            mon: dObj.mon,
+            dayName: dObj.dayName,
+            records: []
+          });
+        }
+        dateMap.get(iso).records.push(r);
+      });
+
+      // Sort dates descending (newest first)
+      const sortedDates = [...dateMap.values()].sort((a, b) => b.iso.localeCompare(a.iso));
+
+      listContainer.replaceChildren();
+
+      sortedDates.forEach((dGroup, dIdx) => {
+        // Group items within date by voucherId
+        const voucherMap = new Map();
+        const standaloneRecords = [];
+
+        dGroup.records.forEach(r => {
+          if (r.voucherId && String(r.voucherId).trim() !== '') {
+            const vid = String(r.voucherId).trim();
+            if (!voucherMap.has(vid)) {
+              voucherMap.set(vid, []);
+            }
+            voucherMap.get(vid).push(r);
+          } else {
+            standaloneRecords.push(r);
+          }
+        });
+
+        // Compute total amount and entry count for day
+        const dayTotal = dGroup.records.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+        const totalEntries = voucherMap.size + standaloneRecords.length;
+
+        const dateCard = document.createElement('div');
+        dateCard.className = 'mer-date-card' + (dIdx === 0 ? ' open' : '');
+
+        // Header
+        const head = document.createElement('div');
+        head.className = 'mer-date-head';
+        head.onclick = () => dateCard.classList.toggle('open');
+
+        head.innerHTML = `
+          <div class="mer-date-left">
+            <div class="mer-date-badge">
+              <span class="mer-badge-day">${dGroup.day}</span>
+              <span class="mer-badge-mon">${dGroup.mon}</span>
+            </div>
+            <div>
+              <div class="mer-date-title">${dGroup.dayName}</div>
+              <div class="mer-date-count">${totalEntries} ${totalEntries === 1 ? 'entry' : 'entries'}</div>
+            </div>
+          </div>
+          <div class="mer-date-right">
+            <div class="mer-date-total">${merFormatMoney(dayTotal)}</div>
+            <div class="mer-chevron">⌵</div>
+          </div>
+        `;
+
+        // Body
+        const body = document.createElement('div');
+        body.className = 'mer-entries-body';
+
+        // Render Vouchers
+        voucherMap.forEach((vItems, vId) => {
+          const itemEl = merBuildVoucherEntry(vItems, vId);
+          body.append(itemEl);
+        });
+
+        // Render Standalone records
+        standaloneRecords.forEach(rec => {
+          const itemEl = merBuildSingleEntry(rec);
+          body.append(itemEl);
+        });
+
+        dateCard.append(head, body);
+        listContainer.append(dateCard);
+      });
+    }
+
+    function merBuildVoucherEntry(items, voucherId) {
+      const first = items[0];
+      const totalAmt = items.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
+      const isMulti = items.length > 1;
+      const title = isMulti ? `${first.expenseType} +${items.length - 1} more` : (first.expenseType || first.category || 'Expense');
+      const sub = first.category || 'Supplies & Products';
+      const iconSvg = merGetCatIcon(first.category);
+      const isOnline = String(first.paymentMode || '').toLowerCase() === 'online';
+      const badgeClass = isOnline ? 'mer-badge-online' : 'mer-badge-cash';
+      const badgeText = isOnline ? 'Online' : 'Cash';
+      const timeStr = merFormatTime(first.createdAt || first.entryDate);
+      const byStr = first.createdBy || 'Admin';
+
+      const row = document.createElement('div');
+      row.className = 'mer-entry-item';
+
+      const chipId = 'chip_' + Math.random().toString(36).substr(2, 9);
+      const subBoxId = 'subbox_' + Math.random().toString(36).substr(2, 9);
+
+      let subItemsHtml = '';
+      items.forEach(it => {
+        subItemsHtml += `
+          <div class="mer-subitem-row">
+            <span>${it.expenseType} (${it.quantity || 1} ${it.measurementUnit || 'PCS'})</span>
+            <strong>${merFormatMoney(it.amount)}</strong>
+          </div>
+        `;
+      });
+
+      row.innerHTML = `
+        <div class="mer-entry-top">
+          <div class="mer-entry-main-wrap">
+            <div class="mer-cat-icon-circle">${iconSvg}</div>
+            <div class="mer-entry-info">
+              <div class="mer-entry-title">${title}</div>
+              <div class="mer-entry-sub">${sub}</div>
+              ${isMulti ? `<div class="mer-items-chip" id="${chipId}" onclick="document.getElementById('${subBoxId}').classList.toggle('open')">${items.length} items ⌵</div>` : ''}
+              <div class="mer-subitems-box" id="${subBoxId}">${subItemsHtml}</div>
+            </div>
+          </div>
+          <div class="mer-entry-side">
+            <div class="mer-entry-amt">${merFormatMoney(totalAmt)}</div>
+            <span class="${badgeClass}">${badgeText}</span>
+          </div>
+        </div>
+        ${first.remark ? `<div class="mer-remark-box">Remark: ${first.remark}</div>` : ''}
+        <div class="mer-entry-bottom">
+          <div class="mer-entry-meta">${timeStr} · by ${byStr}</div>
+          <div class="mer-entry-actions">
+            <button type="button" class="mer-act-btn view no-btn-theme" title="View Details" onclick="merOpenViewModal(${JSON.stringify(items).replace(/"/g, '&quot;')})">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <a class="mer-act-btn edit no-btn-theme" title="Edit" href="/expense-entry?edit=${encodeURIComponent(first._id)}">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </a>
+            <button type="button" class="mer-act-btn delete no-btn-theme" title="Delete" onclick="merOpenDeleteModal('${first._id}')">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      `;
+      return row;
+    }
+
+    function merBuildSingleEntry(rec) {
+      let title = rec.expenseType || rec.category || 'Expense';
+      let sub = rec.category || 'Expense';
+
+      if (String(rec.category || '').toLowerCase().includes('staff') || String(rec.advanceCategory || '').toLowerCase() === 'advance') {
+        title = rec.employeeName || 'Staff Member';
+        sub = 'Advance amount';
+      }
+
+      const iconSvg = merGetCatIcon(rec.category);
+      const isOnline = String(rec.paymentMode || '').toLowerCase() === 'online';
+      const badgeClass = isOnline ? 'mer-badge-online' : 'mer-badge-cash';
+      const badgeText = isOnline ? 'Online' : 'Cash';
+      const timeStr = merFormatTime(rec.createdAt || rec.entryDate);
+      const byStr = rec.createdBy || 'Admin';
+
+      const row = document.createElement('div');
+      row.className = 'mer-entry-item';
+
+      row.innerHTML = `
+        <div class="mer-entry-top">
+          <div class="mer-entry-main-wrap">
+            <div class="mer-cat-icon-circle">${iconSvg}</div>
+            <div class="mer-entry-info">
+              <div class="mer-entry-title">${title}</div>
+              <div class="mer-entry-sub">${sub}</div>
+            </div>
+          </div>
+          <div class="mer-entry-side">
+            <div class="mer-entry-amt">${merFormatMoney(rec.amount)}</div>
+            <span class="${badgeClass}">${badgeText}</span>
+          </div>
+        </div>
+        ${rec.remark ? `<div class="mer-remark-box">Remark: ${rec.remark}</div>` : ''}
+        <div class="mer-entry-bottom">
+          <div class="mer-entry-meta">${timeStr} · by ${byStr}</div>
+          <div class="mer-entry-actions">
+            <button type="button" class="mer-act-btn view no-btn-theme" title="View Details" onclick="merOpenViewModal([${JSON.stringify(rec).replace(/"/g, '&quot;')}])">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <a class="mer-act-btn edit no-btn-theme" title="Edit" href="/expense-entry?edit=${encodeURIComponent(rec._id)}">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </a>
+            <button type="button" class="mer-act-btn delete no-btn-theme" title="Delete" onclick="merOpenDeleteModal('${rec._id}')">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      `;
+      return row;
+    }
+
+    function merOpenViewModal(items) {
+      const first = items[0];
+      const totalAmt = items.reduce((sum, it) => sum + (Number(it.amount) || 0), 0);
+      const d = new Date(first.entryDate || first.createdAt);
+      const dateStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      const createdStr = first.createdAt ? new Date(first.createdAt).toLocaleString('en-IN') : '—';
+
+      let itemsRows = '';
+      items.forEach(it => {
+        itemsRows += `
+          <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px dashed #edf0f4;">
+            <span>${it.expenseType} × ${it.quantity || 1} ${it.measurementUnit || 'PCS'}</span>
+            <strong>${merFormatMoney(it.amount)}</strong>
+          </div>
+        `;
+      });
+
+      const bodyEl = document.getElementById('merViewModalBody');
+      bodyEl.innerHTML = `
+        <dl>
+          <div class="mer-detail-item"><dt>Entry Date</dt><dd>${dateStr}</dd></div>
+          <div class="mer-detail-item"><dt>Category</dt><dd>${first.category || 'General'}</dd></div>
+          <div class="mer-detail-item"><dt>Employee</dt><dd>${first.employeeName || '—'}</dd></div>
+          <div class="mer-detail-item"><dt>Payment Mode</dt><dd>${first.paymentMode || 'Cash'}</dd></div>
+          <div class="mer-detail-item"><dt>Total Amount</dt><dd style="color:#09AA1C;font-size:15px;">${merFormatMoney(totalAmt)}</dd></div>
+          ${items.length > 1 ? `<div style="margin-top:6px;"><dt style="font-size:11px;color:#64748b;margin-bottom:4px;">ITEMS IN VOUCHER (${items.length})</dt>${itemsRows}</div>` : ''}
+          ${first.vendor ? `<div class="mer-detail-item"><dt>Vendor / Shop</dt><dd>${first.vendor}</dd></div>` : ''}
+          ${first.remark ? `<div class="mer-detail-item"><dt>Remark</dt><dd>${first.remark}</dd></div>` : ''}
+          <div class="mer-detail-item"><dt>Created On</dt><dd>${createdStr}</dd></div>
+          <div class="mer-detail-item"><dt>Created By</dt><dd>${first.createdBy || 'Admin'}</dd></div>
+          <div class="mer-detail-item"><dt>Status</dt><dd>${first.status || 'Active'}</dd></div>
+        </dl>
+      `;
+
+      document.getElementById('merViewModal').classList.add('open');
+    }
+
+    function merCloseViewModal() {
+      document.getElementById('merViewModal').classList.remove('open');
+    }
+
+    function merOpenDeleteModal(id) {
+      merPendingDeleteId = id;
+      document.getElementById('merDeleteModal').classList.add('open');
+      const confirmBtn = document.getElementById('merConfirmDeleteBtn');
+      confirmBtn.onclick = () => merExecuteDelete();
+    }
+
+    function merCloseDeleteModal() {
+      merPendingDeleteId = null;
+      document.getElementById('merDeleteModal').classList.remove('open');
+    }
+
+    async function merExecuteDelete() {
+      if (!merPendingDeleteId) return;
+      const id = merPendingDeleteId;
+      const confirmBtn = document.getElementById('merConfirmDeleteBtn');
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Deleting...';
+
+      try {
+        const res = await salonAuth.request(`/api/employee-records/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        merCloseDeleteModal();
+        merShowToast(res?.message || 'Expense record moved to Inactive.');
+        await merLoad();
+      } catch (err) {
+        alert(err.message || 'Could not delete expense record.');
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Delete';
+      }
+    }
+
+    function merShowToast(msg) {
+      const toast = document.getElementById('merToast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
     window.salonPageReady=(async()=>{try{session=await window.salonReady;if(!session)return;const viewAccess=session.actionAccess?.[moduleKey]?.view;      if(viewAccess===false||(!session.actionAccess&&!(session.employee.role==='Admin'||session.permissions.includes(definition.permission)))){statusBox.textContent=`You do not have ${definition.permission} access.`;statusBox.className='status show';return}
       const isAdminUser = session.employee?.role === 'Admin';
+      if (moduleKey === 'expense') {
+        const checkResponsive = async () => {
+          const isMobile = window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches;
+          if (isMobile) {
+            await merInit();
+          }
+        };
+        await checkResponsive();
+        window.addEventListener('resize', checkResponsive);
+        if (window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches) {
+          return;
+        }
+      }
       if(!isAdminUser && (moduleKey==='salary'||moduleKey==='expense') && (isMobileViewport || queryModule==='my-salary')){
         await salInit();
         return;
