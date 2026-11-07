@@ -7307,7 +7307,7 @@ app.use((error, req, res, next) => {
     return res.status(500).json({ error: 'An unexpected server error occurred.' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 
     const fixIndexes = async () => {
