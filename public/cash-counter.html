@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Cash at Counter (Galla) — YOURS SALON</title>
   <link rel="stylesheet" href="/admin-nav.css?v=20261105_m4">
+  <link rel="stylesheet" href="/mobile.css?v=20261105_m4">
   <style>
     :root {
       --salon-gold: #c49a32;
@@ -84,6 +85,15 @@
       }
       .btn-bottom-gold.desktop-hide {
         display: none !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body.mobile-employee {
+        padding-bottom: calc(var(--m-nav, 54px) + 24px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+      body.mobile-employee .btn-bottom-gold.desktop-hide {
+        margin-bottom: calc(var(--m-nav, 54px) + 12px) !important;
       }
     }
 
@@ -822,6 +832,33 @@
   <script>
     let currentSelectedType = 'withdrawal';
     let currentSummaryData = null;
+    let userCanDelete = false;
+    let userCanClose = false;
+    let userCanAdd = false;
+
+    async function applyUserPermissions() {
+      try {
+        const session = await window.salonReady;
+        if (!session) return;
+        const isAdmin = session.employee?.role === 'Admin';
+        userCanDelete = isAdmin || session.actionAccess?.counter?.delete === true;
+        userCanClose = isAdmin;
+        userCanAdd = isAdmin || session.actionAccess?.counter?.add !== false;
+
+        if (!userCanClose) {
+          const tabReconcile = document.getElementById('tabReconcile');
+          if (tabReconcile) tabReconcile.style.display = 'none';
+          const closeCard = document.querySelector('.reconcile-card');
+          if (closeCard) closeCard.style.display = 'none';
+        }
+        if (!userCanAdd) {
+          const tabForm = document.getElementById('tabForm');
+          if (tabForm) tabForm.style.display = 'none';
+          const btnAdd = document.querySelector('.btn-bottom-gold.desktop-hide');
+          if (btnAdd) btnAdd.style.display = 'none';
+        }
+      } catch (e) {}
+    }
 
     function getAuthHeaders(isJson = false) {
       const token = localStorage.getItem('salon_google_credential') || '';
@@ -1012,7 +1049,7 @@
                   <span class="record-time">${r.entryTime || 'Today'}</span>
                   <span class="record-amt ${amtClass}">${amtSign}${fmt(r.amount)}</span>
                 </div>
-                <button class="del-btn" onclick="deleteEntry('${r._id}')" title="Delete">✕</button>
+                ${userCanDelete ? `<button class="del-btn" onclick="deleteEntry('${r._id}')" title="Delete">✕</button>` : ''}
               </div>
             </div>
           `;
@@ -1113,6 +1150,7 @@
     }
 
     initDateTime();
+    applyUserPermissions();
     loadCounterSummary();
   </script>
 </body>

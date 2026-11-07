@@ -49,7 +49,6 @@
     if (path.startsWith('/collection')) return 'collection';
     if (path.startsWith('/expense')) return 'salary';
     if (path.startsWith('/salary')) return 'salary';
-    if (path.startsWith('/counter')) return 'counter';
     return '';
   }
 
@@ -118,14 +117,6 @@
         label: 'Advance/Salary',
         icon: 'salary',
         activeKey: 'salary'
-      },
-      {
-        key: 'counter-records',
-        show: hasPage(session, 'counter-records') || hasPage(session, 'counter-entry'),
-        href: hasPage(session, 'counter-records') ? '/counter-table' : '/counter-entry',
-        label: 'Counter Cash',
-        icon: 'counter',
-        activeKey: 'counter'
       }
     ];
 
@@ -136,7 +127,7 @@
     }
     const moreButton = document.createElement('button');
     moreButton.type = 'button';
-    const moreActive = !['dashboard', 'collection', 'salary', 'counter'].includes(section);
+    const moreActive = !['dashboard', 'collection', 'salary'].includes(section);
     moreButton.className = 'm-nav-item no-btn-theme' + (moreActive ? ' active' : '');
     moreButton.setAttribute('aria-haspopup', 'dialog');
     moreButton.setAttribute('aria-expanded', 'false');
@@ -154,6 +145,10 @@
     const grid = document.createElement('div');
     grid.className = 'm-more-grid';
 
+    if (hasPage(session, 'counter-records') || hasPage(session, 'counter-entry') || hasPage(session, 'cash-counter')) {
+      const counterHref = hasPage(session, 'counter-records') ? '/counter-table' : '/cash-counter';
+      grid.append(makeMoreTile(counterHref, 'Counter Cash', 'counter', 'amber'));
+    }
     if (hasPage(session, 'attendance')) {
       grid.append(makeMoreTile('/attendance', 'Attendance', 'attendance', 'green', true));
     }
